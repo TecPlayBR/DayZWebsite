@@ -1,0 +1,41 @@
+<?php /** @var array $config, $page */ ?>
+<?php
+// Escolhe título/body baseado no locale corrente
+$lang   = locale();
+$title  = ($lang === 'en-us' && !empty($page['title_enus'])) ? $page['title_enus'] : $page['title_ptbr'];
+$body   = ($lang === 'en-us' && !empty($page['body_enus'])) ? $page['body_enus'] : $page['body_ptbr'];
+?>
+<?php \App\View::extend('layouts.main'); ?>
+<?php \App\View::section('content'); ?>
+
+<section class="hero" style="min-height: 40vh;">
+    <div class="hero-bg" style="background-image: linear-gradient(180deg, rgba(5,6,8,0.6) 0%, rgba(5,6,8,0.95) 100%), url('<?= asset('img/background5.png') ?>');"></div>
+    <div class="container hero-content">
+        <span class="hero-kicker">// <?= e($page['slug']) ?></span>
+        <h1 class="hero-title"><?= e($title) ?></h1>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container" style="max-width: 800px;">
+        <article class="page-body">
+            <?= $body /* admin escreve HTML — confia */ ?>
+        </article>
+    </div>
+</section>
+
+<style>
+.page-body { color: var(--bone); font-size: 1rem; line-height: 1.8; }
+.page-body h2 { font-family: var(--font-display); color: var(--rust-2); margin: 2rem 0 1rem; font-size: 1.4rem; letter-spacing: 0.04em; }
+.page-body h3 { font-family: var(--font-display); color: var(--bone); margin: 1.5rem 0 0.8rem; font-size: 1.15rem; }
+.page-body p  { margin-bottom: 1rem; }
+.page-body ul, .page-body ol { margin: 1rem 0 1.5rem 1.5rem; }
+.page-body li { margin-bottom: 0.5rem; }
+.page-body a  { color: var(--hazard); text-decoration: underline; }
+.page-body strong { color: var(--bone); }
+.page-body em { color: var(--dim); font-style: italic; }
+.page-body code { background: var(--bg-2); padding: 0.15rem 0.5rem; border-radius: 2px; font-family: var(--font-mono); color: var(--hazard); font-size: 0.9em; }
+.page-body blockquote { border-left: 3px solid var(--rust); padding-left: 1rem; margin: 1rem 0; color: var(--dim); font-style: italic; }
+</style>
+
+<?php \App\View::endSection(); ?>

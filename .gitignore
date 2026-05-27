@@ -1,0 +1,49 @@
+# ============================================================
+# Tecplay - DayZ Website Template
+# ============================================================
+
+# Config real (cliente gera via install.php)
+config/config.php
+
+# Storage runtime — só estrutura vai pro repo via .gitkeep
+storage/backups/*
+!storage/backups/.gitkeep
+storage/cache/*
+!storage/cache/.gitkeep
+storage/logs/*
+!storage/logs/.gitkeep
+storage/ratelimit/*
+!storage/ratelimit/.gitkeep
+storage/server-status/*
+!storage/server-status/.gitkeep
+
+# Galeria — imagens locais de teste
+public/assets/img/gallery/seed_*.png
+public/assets/img/gallery/g_*.jpg
+public/assets/img/gallery/g_*.png
+public/assets/img/gallery/g_*.webp
+public/assets/img/gallery/g_*.gif
+
+# Builds e backups
+*.zip
+*.sql.gz
+*.sql.bz2
+
+# Editores / OS
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs / temporários
+*.log
+*.tmp
+.env
+.env.local
+
+# PHP
+vendor/
+composer.lock

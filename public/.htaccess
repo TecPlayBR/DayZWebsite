@@ -1,0 +1,60 @@
+# ============================================================
+# Tecplay - DayZ Website Template
+# ============================================================
+# Rewrite tudo pra index.php (front controller pattern)
+# ============================================================
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Forca HTTPS (descomente se voce tem SSL ativado no dominio)
+    # RewriteCond %{HTTPS} off
+    # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # Permite acesso direto a arquivos/pastas reais (imagens, css, js)
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Tudo o resto -> index.php
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+# Cache de assets estaticos (1 ano - assets versionados por nome)
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/png  "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType text/css   "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType font/woff2 "access plus 1 year"
+</IfModule>
+
+# Compressao
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css application/javascript text/xml application/xml application/json
+</IfModule>
+
+# Cache headers via mod_headers (fallback se ExpiresActive nao funciona)
+<IfModule mod_headers.c>
+    <FilesMatch "\.(jpg|jpeg|png|webp|gif|svg|woff2|woff|ico)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+    <FilesMatch "\.(css|js)$">
+        Header set Cache-Control "public, max-age=2592000"
+    </FilesMatch>
+    # Seguranca: no cache pro HTML dinamico
+    <FilesMatch "\.php$">
+        Header set Cache-Control "no-store, no-cache, must-revalidate"
+    </FilesMatch>
+</IfModule>
+
+# Bloqueia indexacao de diretorios
+Options -Indexes
+
+# Bloqueia acesso a arquivos sensiveis (defesa em profundidade)
+<FilesMatch "\.(env|sql|md|log|json|lock)$">
+    Require all denied
+</FilesMatch>

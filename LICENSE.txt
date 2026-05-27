@@ -1,0 +1,295 @@
+================================================================
+  TECPLAY - DAYZ WEBSITE TEMPLATE
+  LICENCA DE USO GRATUITO COM RESTRICOES (NAO-COMERCIAL)
+================================================================
+  Copyright (c) 2026 Tecplay - Todos os direitos reservados.
+  suporte@tecplay.inf.br | https://tecplay.inf.br
+================================================================
+
+LEIA TODO ESTE DOCUMENTO ANTES DE INSTALAR. Ao instalar, usar,
+modificar ou distribuir este Template voce DECLARA TER LIDO,
+ENTENDIDO e CONCORDADO INTEGRALMENTE com cada clausula abaixo.
+
+================================================================
+  RESUMO EXECUTIVO (leitura obrigatoria)
+================================================================
+
+  - O TEMPLATE E GRATUITO. Voce pode baixar, instalar, usar,
+    modificar livremente para SEU PROPRIO servidor DayZ.
+  - NAO E PERMITIDO VENDER, REVENDER ou REDISTRIBUIR o Template
+    (modificado ou nao) por dinheiro, criptomoeda, troca ou
+    qualquer forma de remuneracao direta ou indireta.
+  - Versoes modificadas pelo usuario NAO recebem suporte da
+    Tecplay. Suporte oficial somente para versoes integras com
+    plano contratado em https://tecplay.inf.br/suporte/
+  - Pedidos de novas funcionalidades sao registrados via ticket
+    para clientes com plano de suporte ativo.
+  - Modificacoes sob demanda (customizacoes especificas) sao
+    servico pago: https://tecplay.inf.br/servicos/#web
+
+================================================================
+  1. PROPRIEDADE INTELECTUAL
+================================================================
+
+Este software, doravante denominado "Template", incluindo SEM
+LIMITACAO o codigo fonte PHP, JavaScript, CSS, HTML, esquema de
+banco de dados (schema.sql), assets visuais, fontes proprias,
+templates de e-mail, scripts CLI, documentacao e qualquer outro
+arquivo distribuido conjuntamente, e PROPRIEDADE INTELECTUAL
+EXCLUSIVA da Tecplay e seus autores originais.
+
+Esta licenca NAO transfere a propriedade intelectual. O Template
+e protegido pelas seguintes leis brasileiras:
+
+  - LEI No 9.609, DE 19 DE FEVEREIRO DE 1998 (Lei do Software):
+    dispoe sobre a protecao da propriedade intelectual de
+    programa de computador. Especialmente Art. 2o (regime de
+    protecao), Art. 9o (uso mediante contrato de licenca) e
+    Art. 12 (penas pela violacao - detencao de 6 meses a 2 anos
+    ou multa).
+
+  - LEI No 9.610, DE 19 DE FEVEREIRO DE 1998 (Lei dos Direitos
+    Autorais): aplicavel subsidiariamente conforme Art. 7o,
+    inciso XII, que enquadra programa de computador como obra
+    intelectual protegida. Direitos exclusivos de reproducao,
+    edicao, adaptacao e distribuicao listados nos Arts. 28 a 30.
+
+  - CODIGO PENAL, ARTIGO 184 (com redacao dada pela Lei
+    10.695/2003), em especial o paragrafo 2o:
+    "Na mesma pena do paragrafo 1o incorre quem, com o intuito
+    de lucro direto ou indireto, distribui, vende, expoe a venda,
+    aluga, introduz no Pais, adquire, oculta, tem em deposito,
+    original ou copia de obra intelectual ou fonograma reproduzido
+    com violacao do direito de autor [...]"
+    PENA: RECLUSAO DE 2 (DOIS) A 4 (QUATRO) ANOS E MULTA.
+
+  - LEI No 8.078/1990 (Codigo de Defesa do Consumidor): aplicavel
+    em caso de oferta enganosa do Template por terceiros nao
+    autorizados (Art. 37).
+
+================================================================
+  2. DIREITO DE USO GRATUITO
+================================================================
+
+A Tecplay concede a QUALQUER PESSOA o direito GRATUITO,
+NAO-EXCLUSIVO, NAO-TRANSFERIVEL e REVOGAVEL EM CASO DE VIOLACAO
+de:
+
+  2.1. Baixar, instalar e operar o Template em UM (1) ou mais
+       servidores DayZ proprios, SEM custo algum.
+
+  2.2. Customizar visualmente o Template (cores, logos, textos,
+       imagens, traducoes) para uso interno do servidor.
+
+  2.3. Modificar o codigo fonte (PHP/JavaScript/CSS/HTML) para
+       correcao de bugs, integracoes e adequacoes que atendam
+       necessidades do operador do servidor.
+
+  2.4. Compartilhar a URL do site oficial da Tecplay com outros
+       interessados para que estes possam baixar diretamente.
+
+================================================================
+  3. PROIBICOES EXPRESSAS - LEIA COM ATENCAO
+================================================================
+
+E TERMINANTEMENTE PROIBIDO, sob pena das sancoes legais cabiveis
+(item 1 acima) e das sancoes contratuais (item 8):
+
+  3.1. REDISTRIBUICAO MONETIZADA (PROIBICAO ABSOLUTA):
+       Vender, revender, sublicenciar, alugar, licenciar a
+       terceiros, oferecer como servico pago, comercializar em
+       marketplaces, oferecer como parte de pacote pago ou
+       obter qualquer tipo de remuneracao DIRETA ou INDIRETA
+       (incluindo permuta, criptomoedas, "doacao requerida",
+       acesso condicionado a pagamento, etc.) pelo Template
+       ou por qualquer parte substancial dele, modificado ou
+       em sua forma original.
+
+       A identificacao de venda do Template para qualquer
+       pessoa caracteriza:
+         (a) violacao de direito autoral - Lei 9.609/98 Art. 12
+             e Codigo Penal Art. 184, paragrafo 2o (pena de
+             RECLUSAO DE 2 A 4 ANOS e multa);
+         (b) violacao desta licenca (rescisao automatica);
+         (c) responsabilidade civil por perdas e danos
+             (Codigo Civil Art. 186 e 927).
+
+  3.2. EXPOSICAO PUBLICA DO INFRATOR:
+       Identificada a venda nao autorizada, a Tecplay se reserva
+       o direito de DIVULGAR PUBLICAMENTE a identidade do infrator
+       em:
+         - Sites e blogs oficiais da Tecplay
+         - Redes sociais da Tecplay e parceiros
+         - Comunidades de DayZ no Brasil (Discord, Reddit, foruns)
+         - Marketplaces e plataformas onde a oferta indevida
+           tenha sido detectada (denuncia formal)
+         - Veiculos de imprensa especializada
+       Esta divulgacao publica e LEGITIMA exercicio do direito
+       de informacao (CF Art. 5o, IV e XIV) e nao caracteriza
+       difamacao quando baseada em fatos comprovados.
+
+  3.3. PUBLICACAO PUBLICA DO CODIGO:
+       Publicar o codigo fonte do Template (mesmo modificado) em
+       repositorios publicos (GitHub publico, GitLab publico,
+       BitBucket publico, pastebins, foruns publicos, etc).
+
+       Mantenha seu fork em repositorio PRIVADO se quiser usar
+       Git pra versionar suas modificacoes locais.
+
+  3.4. REMOCAO DE AVISOS:
+       Remover, ocultar ou alterar os avisos de copyright, autoria,
+       creditos, marcas registradas ou referencias a Tecplay
+       existentes nos arquivos do Template, no rodape do site
+       gerado, em e-mails transacionais ou na documentacao.
+
+  3.5. USO INDEVIDO DA MARCA TECPLAY:
+       Usar o nome "Tecplay", o logo, dominios similares ou
+       qualquer elemento que sugira vinculo, parceria ou
+       endosso da Tecplay sem autorizacao expressa por escrito.
+
+  3.6. ENGENHARIA REVERSA DO AGENTE:
+       Realizar engenharia reversa do tecplay-agent.exe ou
+       tentar burlar mecanismos de validacao de licenca do
+       agente (componente proprietario separado).
+
+================================================================
+  4. VERSOES MODIFICADAS - SUPORTE E ATUALIZACOES
+================================================================
+
+  4.1. O usuario PODE modificar o codigo livremente para suas
+       proprias necessidades (item 2.3).
+
+  4.2. A Tecplay NAO OFERECE SUPORTE, GARANTIA, ATUALIZACOES nem
+       CORRECOES de bugs para versoes que tenham sido modificadas
+       pelo usuario, terceiros nao autorizados, ou que apresentem
+       arquivos alterados em relacao a release oficial.
+
+  4.3. Para obter SUPORTE TECNICO OFICIAL o usuario deve:
+       (a) Manter a versao original sem modificacoes nao
+           autorizadas, OU
+       (b) Contratar plano de suporte ativo em
+           >>> https://tecplay.inf.br/suporte/ <<<
+
+  4.4. Apenas versoes ORIGINAIS (nao modificadas) com plano de
+       suporte ativo recebem ATUALIZACOES regulares do Template
+       (correcoes, novas funcionalidades, patches de seguranca).
+
+  4.5. Clientes com plano de suporte ativo podem SUGERIR novas
+       funcionalidades atraves de ticket aberto. As sugestoes
+       sao avaliadas e podem entrar no roadmap de proximas
+       versoes. Abrir ticket de sugestao NAO E garantia de
+       implementacao.
+
+  4.6. Para MODIFICACOES ESPECIFICAS sob demanda (customizacoes
+       que atendam somente um cliente), e necessario contratar
+       servico de desenvolvimento web em:
+       >>> https://tecplay.inf.br/servicos/#web <<<
+
+================================================================
+  5. TECPLAY AGENT (COMPONENTE SEPARADO)
+================================================================
+
+O agente de sincronizacao tecplay-agent.exe e um SOFTWARE
+SEPARADO, com licenca proprietaria distinta e mecanismo de
+validacao proprio. Esta licenca do Template NAO concede direito
+de uso do Agent. O Agent deve ser adquirido separadamente.
+Detalhes: https://tecplay.inf.br/
+
+================================================================
+  6. CONTEUDOS DE TERCEIROS
+================================================================
+
+O Template utiliza recursos externos com licencas proprias,
+nao cobertos pelo escopo desta licenca:
+
+  - Google Fonts (Black Ops One, Inter, VT323) - SIL Open Font
+  - Mercado Pago SDK e API - termos em www.mercadopago.com.br
+  - Marca PIX - Banco Central do Brasil
+  - Chart.js (via CDN) - MIT License
+  - BattleMetrics API - termos em www.battlemetrics.com
+  - Steam OpenID 2.0 - termos da Valve Corporation
+
+O uso de cada recurso esta sujeito a respectiva licenca/termos.
+
+================================================================
+  7. AUSENCIA DE GARANTIAS
+================================================================
+
+O Template e fornecido "COMO ESTA" (AS IS), sem garantias
+expressas ou implicitas de qualquer natureza, incluindo mas nao
+se limitando a garantias de comerciabilidade, adequacao a um
+proposito especifico, nao-violacao de direitos de terceiros ou
+ausencia de defeitos.
+
+A Tecplay NAO SE RESPONSABILIZA por:
+  - Perdas financeiras decorrentes de bugs, falhas, ataques,
+    indisponibilidade ou erros operacionais do usuario.
+  - Decisoes da Steam, Bohemia Interactive (DayZ), Mercado Pago
+    ou qualquer terceiro que impactem o funcionamento.
+  - Conformidade legal especifica do operador (cabe ao operador
+    consultar advogado sobre tributacao, LGPD, ECA, etc).
+  - Uso em desacordo com os termos desta licenca.
+  - Dano direto, indireto, incidental, consequencial ou lucros
+    cessantes.
+
+================================================================
+  8. RESCISAO E CONSEQUENCIAS
+================================================================
+
+  8.1. RESCISAO AUTOMATICA: Esta licenca extingue-se de pleno
+       direito, INDEPENDENTE DE NOTIFICACAO PREVIA, em caso de
+       violacao de qualquer clausula do item 3.
+
+  8.2. APOS A RESCISAO o usuario deve, em ATE 48 (QUARENTA E
+       OITO) HORAS:
+       (a) Cessar todo uso do Template;
+       (b) Remover o Template de todos os servidores;
+       (c) Destruir todas as copias em sua posse ou controle.
+
+  8.3. A rescisao NAO IMPEDE a Tecplay de buscar:
+       (a) Reparacao civil por perdas e danos;
+       (b) Representacao criminal nos termos do CP Art. 184;
+       (c) Medidas judiciais cautelares (busca e apreensao);
+       (d) Divulgacao publica do infrator (item 3.2).
+
+================================================================
+  9. FORO E LEI APLICAVEL
+================================================================
+
+Esta licenca e regida pelas LEIS DA REPUBLICA FEDERATIVA DO
+BRASIL.
+
+Fica eleito o FORO DA COMARCA DE SAO PAULO/SP para dirimir
+quaisquer controversias relativas a esta licenca, com renuncia
+expressa a qualquer outro, por mais privilegiado que seja.
+
+================================================================
+  10. ACEITE
+================================================================
+
+Ao instalar, usar, modificar ou distribuir este Template, o
+usuario DECLARA EXPRESSAMENTE:
+
+  (a) Ter lido integralmente esta licenca;
+  (b) Ter entendido seus termos, restricoes e consequencias;
+  (c) Possuir capacidade civil plena para firmar este compromisso;
+  (d) Concordar integralmente com todas as clausulas;
+  (e) Estar ciente das sancoes legais por violacao.
+
+A instalacao ou uso SEM CONCORDANCIA EXPRESSA constitui uso
+ILICITO do Template, sujeito as penalidades previstas em lei.
+
+================================================================
+  CONTATOS OFICIAIS
+================================================================
+
+  Site:      https://tecplay.inf.br
+  Suporte:   https://tecplay.inf.br/suporte/
+  Servicos:  https://tecplay.inf.br/servicos/#web
+  E-mail:    suporte@tecplay.inf.br
+  Discord:   https://discord.gg/uwSE3WSjNH
+
+================================================================
+  Versao desta licenca: 2.0 (2026-05-27)
+  Substitui qualquer versao anterior.
+================================================================

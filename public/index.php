@@ -1,0 +1,1689 @@
+<?php
+// ============================================================
+// (c) 2026 Tecplay - DayZ Website Template
+// ============================================================
+// Front controller. Toda requisicao passa por aqui.
+// ============================================================
+
+declare(strict_types=1);
+
+// Handler global de erros fatais — em produção mostra página customizada
+// em vez do erro genérico do servidor. Erro detalhado vai pro error_log.
+set_exception_handler(function (\Throwable $e) {
+    error_log('[Tecplay] Uncaught: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
+    http_response_code(500);
+    // Se o usuário é admin (sessão ativa), mostra detalhes (debug-friendly)
+    $isAdmin = !empty($_SESSION['admin_user']['id']);
+    $detail = $isAdmin ? ($e->getMessage() . "\n" . $e->getFile() . ':' . $e->getLine()) : null;
+    $errorPage = dirname(__DIR__) . '/views/pages/error_500.php';
+    if (file_exists($errorPage)) {
+        // Mini-bootstrap pra view renderizar standalone (não depende de Router)
+        $config = $GLOBALS['__config_for_errors'] ?? [];
+        include $errorPage;
+    } else {
+        echo '<!DOCTYPE html><html><body style="font-family:system-ui;padding:2rem;background:#0d1014;color:#d4c5a9;">';
+        echo '<h1 style="color:#c1440e;">500 — Algo deu errado</h1>';
+        echo '<p>Tente recarregar a página. Se persistir, contate o suporte.</p>';
+        if ($detail) echo '<pre style="background:#161a20;padding:1rem;color:#fca5a5;">' . htmlspecialchars($detail) . '</pre>';
+        echo '</body></html>';
+    }
+    exit;
+});
+
+// Em dev com `php -S` o built-in server roteia TUDO pelo router.
+// Se o request bater num arquivo real (CSS, imagens, JS), retorna false
+// e o servidor serve o arquivo estatico. Em producao o .htaccess do Apache
+// faz a mesma coisa via RewriteCond %{REQUEST_FILENAME} -f.
+if (PHP_SAPI === 'cli-server') {
+    $requested = __DIR__ . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+    if ($requested !== __DIR__ . '/' && is_file($requested)) {
+        return false;
+    }
+}
+
+// ============ BOOTSTRAP ============
+
+$ROOT = dirname(__DIR__);
+require $ROOT . '/src/Router.php';
+require $ROOT . '/src/View.php';
+require $ROOT . '/src/Lang.php';
+require $ROOT . '/src/Database.php';
+require $ROOT . '/src/Auth.php';
+require $ROOT . '/src/Csrf.php';
+require $ROOT . '/src/RateLimit.php';
+require $ROOT . '/src/MercadoPago.php';
+require $ROOT . '/src/SteamAuth.php';
+require $ROOT . '/src/ServerStatus.php';
+require $ROOT . '/src/Mailer.php';
+require $ROOT . '/src/Coupon.php';
+require $ROOT . '/src/AuditLog.php';
+require $ROOT . '/src/BalanceLog.php';
+require $ROOT . '/src/Achievements.php';
+require $ROOT . '/src/Servers.php';
+require $ROOT . '/src/Html.php';
+require $ROOT . '/src/helpers.php';
+
+// Carrega config se existir, senao redireciona pro instalador
+$configFile = $ROOT . '/config/config.php';
+if (!file_exists($configFile)) {
+    if (basename($_SERVER['REQUEST_URI'] ?? '') !== 'install.php') {
+        header('Location: /install.php');
+        exit;
+    }
+    // Sera servido pelo install.php direto (Apache resolve antes do rewrite)
+}
+
+$config = file_exists($configFile) ? require $configFile : [];
+$GLOBALS['__config_for_errors'] = &$config; // pro handler de erro acessar
+
+// Garante charset UTF-8 em todas as respostas HTML (defesa em profundidade)
+header('Content-Type: text/html; charset=utf-8');
+
+// Cookies de sessao com flags de seguranca (Secure, HttpOnly, SameSite=Lax)
+$isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+        || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
+session_set_cookie_params([
+    'lifetime' => 0,
+    'path'     => '/',
+    'secure'   => $isHttps,
+    'httponly' => true,
+    'samesite' => 'Lax',
+]);
+session_start();
+
+// error_log dedicado do template em storage/logs (fora do public).
+// Se o admin já tiver setado um path customizado no php.ini, respeitamos.
+$tplLogDir = $ROOT . '/storage/logs';
+if (!is_dir($tplLogDir)) @mkdir($tplLogDir, 0755, true);
+$currentLog = ini_get('error_log');
+if ($currentLog === '' || $currentLog === 'syslog' || stripos($currentLog, 'xampp') !== false) {
+    @ini_set('error_log', $tplLogDir . '/php-errors.log');
+}
+
+// Rate limit storage em /storage (fora do public)
+\App\RateLimit::init($ROOT . '/storage/ratelimit');
+
+// Cache de server status (BattleMetrics)
+\App\ServerStatus::init($ROOT . '/storage/cache');
+
+// Mailer
+\App\Mailer::init(array_merge($config['mail'] ?? [], [
+    'dev_log_path' => $ROOT . '/storage/cache/mail-log.txt',
+]));
+
+// DB
+if (!empty($config['db'])) {
+    \App\Database::init($config['db']);
+
+    // Carrega settings do DB e injeta no $config pra views usarem
+    try {
+        $dbSettings = \App\Database::fetchAll("SELECT `key`, `value` FROM settings");
+        foreach ($dbSettings as $s) {
+            $config['settings'][$s['key']] = $s['value'];
+        }
+    } catch (Throwable $e) {
+        // DB ainda nao tem tabela settings (instalacao incompleta) — segue
+    }
+}
+
+// i18n
+\App\Lang::init(
+    $ROOT . '/lang',
+    $config['default_locale'] ?? 'pt-br',
+    ['pt-br', 'en-us']
+);
+
+// View engine
+\App\View::setViewsPath($ROOT . '/views');
+
+// ============ ROUTES ============
+
+// ============ MURAL DE VENDAS AO VIVO ============
+// Endpoint público que retorna últimas compras aprovadas (se o admin habilitou).
+// Respeita LGPD: anonimiza nome por padrão; admin pode desligar via settings.
+
+\App\Router::get('/api/recent-purchases.json', function() use ($config) {
+    header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: public, max-age=15'); // micro-cache evita martelar DB
+
+    $enabled = (int)\App\Database::fetchColumn(
+        "SELECT `value` FROM settings WHERE `key` = 'live_purchases_enabled'"
+    );
+    if (!$enabled) {
+        echo json_encode(['enabled' => false, 'items' => []]);
+        return;
+    }
+    $anonymize = (int)\App\Database::fetchColumn(
+        "SELECT `value` FROM settings WHERE `key` = 'live_purchases_anonymize'"
+    );
+    if ($anonymize === 0) $anonymize = 0; else $anonymize = 1; // default on
+
+    // Mostra preço? Default: NÃO (admin pode revelar)
+    $showPrice = (int)\App\Database::fetchColumn(
+        "SELECT `value` FROM settings WHERE `key` = 'live_purchases_show_price'"
+    );
+
+    $rows = \App\Database::fetchAll(
+        "SELECT p.coins_total, p.price_brl, p.created_at,
+                pkg.name AS package_name, pkg.icon AS package_icon,
+                pl.display_name
+           FROM purchases p
+           LEFT JOIN packages pkg ON pkg.id = p.package_id
+           LEFT JOIN players  pl  ON pl.steam_id = p.steam_id
+          WHERE p.mp_status = 'approved'
+            AND p.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+          ORDER BY p.created_at DESC
+          LIMIT 15"
+    );
+
+    $items = [];
+    foreach ($rows as $r) {
+        $name = trim($r['display_name'] ?? '') ?: 'Sobrevivente';
+        if ($anonymize) {
+            // "BryanPaim" → "B******m"
+            $len = mb_strlen($name);
+            if ($len <= 2) {
+                $name = mb_substr($name, 0, 1) . str_repeat('*', max(2, $len));
+            } else {
+                $name = mb_substr($name, 0, 1) . str_repeat('*', max(3, $len - 2)) . mb_substr($name, -1);
+            }
+        }
+        $items[] = [
+            'name'      => $name,
+            'package'   => $r['package_name'] ?? 'pacote',
+            'icon'      => $r['package_icon'] ?? '🪙',
+            'coins'     => (int)$r['coins_total'],
+            'price'     => $showPrice ? (float)$r['price_brl'] : null,
+            'when'      => $r['created_at'],
+            'ago_secs'  => max(0, time() - strtotime($r['created_at'])),
+        ];
+    }
+    echo json_encode(['enabled' => true, 'items' => $items]);
+});
+
+// ============ SEO: robots.txt + sitemap.xml ============
+
+\App\Router::get('/robots.txt', function() use ($config) {
+    $siteUrl = rtrim($config['site_url'] ?? '', '/') ?: (($_SERVER['REQUEST_SCHEME'] ?? 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost'));
+    header('Content-Type: text/plain; charset=utf-8');
+    echo "User-agent: *\n";
+    echo "Disallow: /admin\n";
+    echo "Disallow: /api/\n";
+    echo "Disallow: /auth/\n";
+    echo "Disallow: /shop/checkout\n";
+    echo "Disallow: /my-purchases\n";
+    echo "Allow: /\n\n";
+    echo "Sitemap: {$siteUrl}/sitemap.xml\n";
+});
+
+\App\Router::get('/sitemap.xml', function() use ($config) {
+    $siteUrl = rtrim($config['site_url'] ?? '', '/') ?: (($_SERVER['REQUEST_SCHEME'] ?? 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost'));
+    $urls = [
+        ['/',             '1.0', 'daily'],
+        ['/shop',         '0.9', 'daily'],
+        ['/galeria',      '0.7', 'weekly'],
+        ['/depoimentos',  '0.6', 'weekly'],
+        ['/ranking',      '0.6', 'daily'],
+        ['/server-status','0.5', 'hourly'],
+        ['/rules',        '0.5', 'monthly'],
+    ];
+    if (\App\Servers::isMulti()) {
+        $urls[] = ['/servidores', '0.7', 'weekly'];
+    }
+    // Páginas dinâmicas publicadas
+    foreach (\App\Database::fetchAll("SELECT slug, updated_at FROM pages WHERE published = 1") as $p) {
+        $urls[] = ['/page/' . $p['slug'], '0.5', 'monthly', $p['updated_at']];
+    }
+
+    header('Content-Type: application/xml; charset=utf-8');
+    echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+    echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+    foreach ($urls as $u) {
+        echo "  <url>\n";
+        echo "    <loc>" . htmlspecialchars($siteUrl . $u[0], ENT_XML1) . "</loc>\n";
+        if (!empty($u[3])) echo "    <lastmod>" . date('Y-m-d', strtotime($u[3])) . "</lastmod>\n";
+        echo "    <changefreq>{$u[2]}</changefreq>\n";
+        echo "    <priority>{$u[1]}</priority>\n";
+        echo "  </url>\n";
+    }
+    echo '</urlset>' . "\n";
+});
+
+\App\Router::get('/', function() use ($config) {
+    // Mesma ordem da loja: featured primeiro, depois sort_order — assim o teaser bate.
+    $packages = \App\Database::fetchAll(
+        "SELECT * FROM packages WHERE enabled = 1 ORDER BY featured DESC, sort_order ASC"
+    );
+    $bonusEnabled = (int)\App\Database::fetchColumn("SELECT `value` FROM settings WHERE `key` = 'bonus_enabled'");
+    $serverStatus = \App\ServerStatus::fetch($config['settings']['battlemetrics_id'] ?? null);
+
+    // Promo sazonal: idem loja, pra preço riscado bater
+    $promoCode = trim($config['settings']['promo_coupon_code'] ?? '');
+    $promoCoupon = null;
+    if ($promoCode !== '') {
+        [$c, $err] = \App\Coupon::lookup($promoCode);
+        if (!$err) $promoCoupon = $c;
+    }
+
+    // Anúncios ativos: published=1 e (starts_at null OR <=now) e (ends_at null OR >now)
+    $announcements = \App\Database::fetchAll(
+        "SELECT * FROM announcements
+          WHERE published = 1
+            AND (starts_at IS NULL OR starts_at <= NOW())
+            AND (ends_at   IS NULL OR ends_at   >  NOW())
+          ORDER BY created_at DESC LIMIT 3"
+    );
+    \App\View::display('pages.home', [
+        'config' => $config, 'packages' => $packages, 'bonus_enabled' => $bonusEnabled,
+        'server_status' => $serverStatus, 'announcements' => $announcements,
+        'promo_coupon' => $promoCoupon,
+    ]);
+});
+
+\App\Router::get('/ranking', function() use ($config) {
+    $top = \App\Database::fetchAll(
+        "SELECT steam_id, display_name, total_spent_brl, coins, last_seen_at
+           FROM players
+          WHERE total_spent_brl > 0
+          ORDER BY total_spent_brl DESC
+          LIMIT 50"
+    );
+    \App\View::display('pages.ranking', ['config' => $config, 'top' => $top]);
+});
+
+\App\Router::get('/server-status', function() use ($config) {
+    $bmId = $config['settings']['battlemetrics_id'] ?? null;
+    $status  = \App\ServerStatus::fetch($bmId);
+    $players = \App\ServerStatus::fetchPlayers($bmId, 60);
+    \App\View::display('pages.server_status', [
+        'config' => $config, 'status' => $status, 'players' => $players,
+    ]);
+});
+
+\App\Router::get('/rules', function() use ($config) {
+    // Rota explícita pra rules: tenta página dinâmica primeiro, fallback pra view estática
+    $page = \App\Database::fetchOne(
+        "SELECT * FROM pages WHERE slug = 'rules' AND published = 1 LIMIT 1"
+    );
+    if ($page) {
+        \App\View::display('pages.dynamic_page', ['config' => $config, 'page' => $page]);
+    } else {
+        \App\View::display('pages.rules', ['config' => $config]);
+    }
+});
+
+// ============ LOJA ============
+\App\Router::get('/shop', function() use ($config) {
+    $packages = \App\Database::fetchAll(
+        "SELECT * FROM packages WHERE enabled = 1 ORDER BY sort_order ASC"
+    );
+    $bonusEnabled = (int)\App\Database::fetchColumn("SELECT `value` FROM settings WHERE `key` = 'bonus_enabled'");
+
+    // Promo sazonal: se setting promo_coupon_code está setado E o cupom existe E é válido,
+    // pré-calcula desconto pra cada pacote (pra renderizar tag "X% OFF" + preço riscado).
+    $promoCode = trim($config['settings']['promo_coupon_code'] ?? '');
+    $promoLabel = trim($config['settings']['promo_label'] ?? '');
+    $promoCoupon = null;
+    if ($promoCode !== '') {
+        [$c, $err] = \App\Coupon::lookup($promoCode);
+        if (!$err) $promoCoupon = $c;
+    }
+
+    // Wishlist do player Steam logado (set de package_ids favoritos)
+    $wishlist = [];
+    if (\App\SteamAuth::check()) {
+        foreach (\App\Database::fetchAll(
+            "SELECT package_id FROM wishlist WHERE steam_id = ?",
+            [\App\SteamAuth::steamId()]
+        ) as $w) {
+            $wishlist[$w['package_id']] = true;
+        }
+    }
+
+    // Multi-server: lista de servidores ativos pra seletor no checkout.
+    $activeServers = \App\Servers::active();
+    $isMultiServer = count($activeServers) > 1;
+    $selectedServerId = (int)($_GET['server'] ?? \App\Servers::defaultId());
+    if (!array_filter($activeServers, fn($s) => (int)$s['id'] === $selectedServerId)) {
+        $selectedServerId = \App\Servers::defaultId();
+    }
+
+    // JSON-LD: ItemList de Products — cada pacote vira uma Offer pra search engines.
+    $siteUrl = rtrim($config['site_url'] ?? '', '/') ?: (($_SERVER['REQUEST_SCHEME'] ?? 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost'));
+    $itemList = [];
+    foreach ($packages as $i => $pkg) {
+        $coinsTotal = (int)$pkg['coins'] + ($bonusEnabled ? (int)$pkg['bonus_coins'] : 0);
+        $itemList[] = [
+            '@type'    => 'ListItem',
+            'position' => $i + 1,
+            'item'     => [
+                '@type'       => 'Product',
+                'name'        => $pkg['name'] . ' — ' . $coinsTotal . ' moedas',
+                'description' => $pkg['name'] . ' do servidor. Entrega instantânea via Steam.',
+                'sku'         => $pkg['id'],
+                'offers'      => [
+                    '@type'         => 'Offer',
+                    'priceCurrency' => 'BRL',
+                    'price'         => number_format((float)$pkg['price_brl'], 2, '.', ''),
+                    'availability'  => 'https://schema.org/InStock',
+                    'url'           => $siteUrl . '/shop',
+                ],
+            ],
+        ];
+    }
+    $shopJsonLd = [
+        '@context'        => 'https://schema.org',
+        '@type'           => 'ItemList',
+        'itemListElement' => $itemList,
+    ];
+
+    \App\View::display('pages.shop', [
+        'config' => $config, 'packages' => $packages, 'bonus_enabled' => $bonusEnabled,
+        'promo_coupon' => $promoCoupon, 'promo_label' => $promoLabel,
+        'wishlist' => $wishlist, 'is_logged' => \App\SteamAuth::check(),
+        'servers' => $activeServers, 'is_multi_server' => $isMultiServer,
+        'selected_server_id' => $selectedServerId,
+        'title' => 'Loja — Moedas DayZ',
+        'description' => 'Compre moedas pro servidor DayZ. Entrega instantânea via Steam, pagamento seguro Mercado Pago (Pix, boleto, cartão).',
+        'jsonld' => $shopJsonLd,
+    ]);
+});
+
+\App\Router::post('/shop/checkout', function() use ($config) {
+    // CSRF: token gerado quando o user carregou /shop e enviado no form
+    if (!\App\Csrf::check()) {
+        \App\View::display('pages.checkout_error', [
+            'config' => $config,
+            'msg' => 'Sua sessão expirou. Recarregue a página da loja e tente de novo.',
+        ]);
+        return;
+    }
+
+    // Rate limit: 10 checkouts por IP em 5 minutos (defesa contra DoS no MP API)
+    $rl = \App\RateLimit::check('checkout_' . \App\RateLimit::clientIp(), 10, 300);
+    if (!$rl['allowed']) {
+        \App\View::display('pages.checkout_error', [
+            'config' => $config,
+            'msg' => 'Muitas tentativas em pouco tempo. Aguarde ' . $rl['reset_in'] . 's e tente novamente.',
+        ]);
+        return;
+    }
+
+    $packageId = trim($_POST['package_id'] ?? '');
+    $steamId   = preg_replace('/\s+/', '', $_POST['steam_id'] ?? '');
+    $termsAccepted = !empty($_POST['terms_accepted']);
+
+    if (!$termsAccepted) {
+        \App\View::display('pages.checkout_error', ['config' => $config, 'msg' => 'Você precisa aceitar os Termos de Uso e a Política de Reembolso pra continuar.']);
+        return;
+    }
+
+    if (!preg_match('/^7656119[0-9]{10}$/', $steamId)) {
+        \App\View::display('pages.checkout_error', ['config' => $config, 'msg' => 'SteamID inválido (formato esperado: 17 dígitos começando com 7656119)']);
+        return;
+    }
+
+    $pkg = \App\Database::fetchOne(
+        "SELECT * FROM packages WHERE id = ? AND enabled = 1 LIMIT 1", [$packageId]
+    );
+    if (!$pkg) {
+        \App\View::display('pages.checkout_error', ['config' => $config, 'msg' => 'Pacote não encontrado ou desativado.']);
+        return;
+    }
+
+    // Resolve servidor de destino (multi-server). Single-server: usa o padrão (id=1).
+    $serverId = (int)($_POST['server_id'] ?? 0);
+    if ($serverId < 1) $serverId = \App\Servers::defaultId();
+    $server = \App\Servers::find($serverId);
+    if (!$server || !$server['active']) {
+        \App\View::display('pages.checkout_error', ['config' => $config, 'msg' => 'Servidor de destino inválido ou inativo.']);
+        return;
+    }
+
+    $bonusEnabled = (int)\App\Database::fetchColumn("SELECT `value` FROM settings WHERE `key` = 'bonus_enabled'");
+    $coinsBase  = (int)$pkg['coins'];
+    $coinsBonus = $bonusEnabled ? (int)$pkg['bonus_coins'] : 0;
+    $coinsTotal = $coinsBase + $coinsBonus;
+    $priceOriginal = (float)$pkg['price_brl'];
+
+    // Aplica cupom se enviado
+    $couponCode = strtoupper(trim($_POST['coupon_code'] ?? ''));
+    $discount   = 0.0;
+    $appliedCouponCode = null;
+    if ($couponCode !== '') {
+        [$coupon, $err] = \App\Coupon::lookup($couponCode, $packageId, $priceOriginal);
+        if ($err) {
+            \App\View::display('pages.checkout_error', [
+                'config' => $config,
+                'msg' => 'Cupom inválido: ' . \App\Coupon::errorMessage($err),
+            ]);
+            return;
+        }
+        [$discount, $priceFinal] = \App\Coupon::applyDiscount($coupon, $priceOriginal);
+        $appliedCouponCode = $coupon['code'];
+    } else {
+        $priceFinal = $priceOriginal;
+    }
+    $priceBrl = $priceFinal;
+
+    // Cria purchase pending com registro de aceite de termos + cupom (se aplicado)
+    \App\Database::query(
+        "INSERT INTO purchases
+            (steam_id, package_id, server_id, coins_base, coins_bonus, coins_total,
+             price_brl, coupon_code, discount_brl,
+             mp_status, terms_accepted_at, terms_version)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW(), ?)",
+        [$steamId, $packageId, $serverId, $coinsBase, $coinsBonus, $coinsTotal,
+         $priceBrl, $appliedCouponCode, $discount,
+         '2026-05-27']
+    );
+    $purchaseId = (int)\App\Database::pdo()->lastInsertId();
+
+    // Cria preference no MP
+    $mp = new \App\MercadoPago($config['mercado_pago']['access_token'] ?? '', $config['mercado_pago']['webhook_secret'] ?? null);
+    if (!$mp->isConfigured()) {
+        // Modo dev: simula sucesso direto sem MP
+        \App\View::display('pages.checkout_dev', [
+            'config' => $config, 'purchase_id' => $purchaseId, 'pkg' => $pkg,
+            'steam_id' => $steamId, 'coins_total' => $coinsTotal, 'price_brl' => $priceBrl,
+        ]);
+        return;
+    }
+
+    $siteUrl = rtrim($config['site_url'] ?? ('http://' . $_SERVER['HTTP_HOST']), '/');
+    $pref = $mp->createPreference([
+        'items' => [[
+            'id'          => $pkg['id'],
+            'title'       => $pkg['name'] . ' — ' . $coinsTotal . ' moedas',
+            'description' => 'Compra para SteamID ' . $steamId,
+            'quantity'    => 1,
+            'currency_id' => 'BRL',
+            'unit_price'  => $priceBrl,
+        ]],
+        'external_reference' => (string)$purchaseId,
+        'back_urls' => [
+            'success' => $siteUrl . '/shop/return?status=success',
+            'pending' => $siteUrl . '/shop/return?status=pending',
+            'failure' => $siteUrl . '/shop/return?status=failure',
+        ],
+        'auto_return'    => 'approved',
+        'notification_url' => $siteUrl . '/api/mp-webhook.php',
+        'statement_descriptor' => $config['site_name'] ?? 'DAYZ',
+    ]);
+
+    if (!$pref || empty($pref['init_point'])) {
+        \App\View::display('pages.checkout_error', ['config' => $config, 'msg' => 'Não foi possível criar o pagamento. Tente novamente em alguns minutos.']);
+        return;
+    }
+
+    // Salva preference id pra rastrear
+    \App\Database::query(
+        "UPDATE purchases SET mp_payment_id = ? WHERE id = ?",
+        [$pref['id'], $purchaseId]
+    );
+
+    header('Location: ' . $pref['init_point']);
+    exit;
+});
+
+\App\Router::get('/shop/return', function() use ($config) {
+    $status = $_GET['status'] ?? 'pending';
+    \App\View::display('pages.checkout_return', ['config' => $config, 'status' => $status]);
+});
+
+// ============ STEAM AUTH ============
+\App\Router::get('/auth/steam', function() use ($config) {
+    $siteUrl = $config['site_url'] ?? ('http://' . $_SERVER['HTTP_HOST']);
+    header('Location: ' . \App\SteamAuth::loginUrl($siteUrl));
+    exit;
+});
+
+\App\Router::get('/auth/steam/callback', function() use ($config) {
+    // PHP transforma "openid.X" em "openid_X" no $_GET
+    $params = $_GET;
+    $steamId = \App\SteamAuth::verifyCallback($params);
+    if (!$steamId) {
+        \App\View::display('pages.auth_error', ['config' => $config, 'msg' => 'Não foi possível verificar seu login Steam. Tente novamente.']);
+        return;
+    }
+
+    // Tenta enriquecer com perfil via Steam Web API (se cliente configurou STEAM_API_KEY)
+    $apiKey = $config['steam_api_key'] ?? null;
+    $profile = \App\SteamAuth::fetchProfile($steamId, $apiKey);
+    \App\SteamAuth::login(
+        $steamId,
+        $profile['display_name'] ?? null,
+        $profile['avatar'] ?? null
+    );
+
+    // Se ja existe player com esse SteamID, atualiza display_name. Senao, cria stub.
+    try {
+        $existing = \App\Database::fetchOne("SELECT id FROM players WHERE steam_id = ? LIMIT 1", [$steamId]);
+        if (!$existing) {
+            \App\Database::query(
+                "INSERT INTO players (steam_id, display_name, coins, origin, last_seen_at)
+                 VALUES (?, ?, 0, 'panel', NOW())",
+                [$steamId, $profile['display_name'] ?? null]
+            );
+        } elseif (!empty($profile['display_name'])) {
+            \App\Database::query(
+                "UPDATE players SET display_name = ?, last_seen_at = NOW() WHERE id = ?",
+                [$profile['display_name'], $existing['id']]
+            );
+        }
+    } catch (Throwable $e) { /* sem DB? ignora — login funciona via sessao */ }
+
+    // Redireciona pra de onde veio (se setou na sessao antes do login) ou /shop
+    $back = $_SESSION['steam_login_return'] ?? '/shop';
+    unset($_SESSION['steam_login_return']);
+    header('Location: ' . $back);
+    exit;
+});
+
+\App\Router::get('/auth/logout', function() {
+    \App\SteamAuth::logout();
+    header('Location: /');
+    exit;
+});
+
+\App\Router::get('/depoimentos', function() use ($config) {
+    $reviews = \App\Database::fetchAll(
+        "SELECT * FROM reviews WHERE approved = 1 ORDER BY created_at DESC LIMIT 50"
+    );
+    $avgRow = \App\Database::fetchOne(
+        "SELECT ROUND(AVG(rating), 1) AS avg_rating, COUNT(*) AS total FROM reviews WHERE approved = 1"
+    );
+    \App\View::display('pages.depoimentos', [
+        'config' => $config, 'reviews' => $reviews,
+        'avg_rating' => (float)($avgRow['avg_rating'] ?? 0),
+        'total_reviews' => (int)($avgRow['total'] ?? 0),
+    ]);
+});
+
+\App\Router::post('/reviews/submit', function() use ($config) {
+    if (!\App\SteamAuth::check()) { header('Location: /auth/steam'); exit; }
+    if (!\App\Csrf::check()) { header('Location: /my-purchases?err=csrf'); exit; }
+    $steamId = \App\SteamAuth::steamId();
+    $purchaseId = (int)($_POST['purchase_id'] ?? 0);
+    $rating = max(1, min(5, (int)($_POST['rating'] ?? 0)));
+    $body = trim($_POST['body'] ?? '');
+
+    $purchase = \App\Database::fetchOne(
+        "SELECT id, steam_id, mp_status, delivered_at FROM purchases WHERE id = ? AND steam_id = ? LIMIT 1",
+        [$purchaseId, $steamId]
+    );
+    if (!$purchase || $purchase['mp_status'] !== 'approved' || empty($purchase['delivered_at'])) {
+        header('Location: /my-purchases?err=invalid_purchase'); exit;
+    }
+    if (strtotime($purchase['delivered_at']) > time() - (7 * 86400)) {
+        header('Location: /my-purchases?err=too_soon'); exit;
+    }
+
+    $user = \App\SteamAuth::user();
+    try {
+        \App\Database::query(
+            "INSERT INTO reviews (purchase_id, steam_id, display_name, rating, body, approved)
+             VALUES (?, ?, ?, ?, ?, 0)",
+            [$purchaseId, $steamId, $user['display_name'] ?? null, $rating, $body ?: null]
+        );
+    } catch (\PDOException $e) {
+        if ($e->getCode() === '23000') {
+            header('Location: /my-purchases?err=already_reviewed'); exit;
+        }
+        throw $e;
+    }
+    header('Location: /my-purchases?ok=review_submitted');
+    exit;
+});
+
+\App\Router::get('/admin/reviews', function() use ($config) {
+    \App\Auth::requireAdmin();
+    $filter = $_GET['filter'] ?? 'pending';
+    $sql = "SELECT r.*, p.package_id, p.price_brl
+              FROM reviews r JOIN purchases p ON p.id = r.purchase_id";
+    if ($filter === 'pending')  $sql .= " WHERE r.approved = 0";
+    if ($filter === 'approved') $sql .= " WHERE r.approved = 1";
+    $sql .= " ORDER BY r.created_at DESC LIMIT 100";
+    $reviews = \App\Database::fetchAll($sql);
+    $counts = \App\Database::fetchOne(
+        "SELECT SUM(approved=0) AS pending, SUM(approved=1) AS approved, COUNT(*) AS total FROM reviews"
+    );
+    \App\View::display('admin.reviews', [
+        'config' => $config, 'reviews' => $reviews, 'filter' => $filter, 'counts' => $counts,
+    ]);
+});
+
+\App\Router::post('/admin/reviews/{id}/toggle', function($id) use ($config) {
+    \App\Auth::requireAdmin();
+    \App\Database::query("UPDATE reviews SET approved = 1 - approved WHERE id = ?", [(int)$id]);
+    header('Location: /admin/reviews?ok=1');
+    exit;
+});
+
+\App\Router::post('/admin/reviews/{id}/delete', function($id) use ($config) {
+    \App\Auth::requireAdmin();
+    \App\Database::query("DELETE FROM reviews WHERE id = ?", [(int)$id]);
+    header('Location: /admin/reviews?ok=deleted');
+    exit;
+});
+
+\App\Router::post('/wishlist/toggle', function() use ($config) {
+    if (!\App\SteamAuth::check()) {
+        http_response_code(401);
+        header('Content-Type: application/json');
+        die(json_encode(['ok' => false, 'login_url' => '/auth/steam']));
+    }
+    if (!\App\Csrf::check()) {
+        http_response_code(419);
+        header('Content-Type: application/json');
+        die(json_encode(['ok' => false, 'error' => 'csrf']));
+    }
+    $steamId = \App\SteamAuth::steamId();
+    $pkg = trim($_POST['package_id'] ?? '');
+    if (!$pkg) { http_response_code(400); die(json_encode(['ok' => false])); }
+
+    $exists = \App\Database::fetchColumn(
+        "SELECT id FROM wishlist WHERE steam_id = ? AND package_id = ? LIMIT 1",
+        [$steamId, $pkg]
+    );
+    if ($exists) {
+        \App\Database::query("DELETE FROM wishlist WHERE id = ?", [(int)$exists]);
+        $action = 'removed';
+    } else {
+        \App\Database::query(
+            "INSERT INTO wishlist (steam_id, package_id) VALUES (?, ?)",
+            [$steamId, $pkg]
+        );
+        $action = 'added';
+    }
+    header('Content-Type: application/json');
+    die(json_encode(['ok' => true, 'action' => $action]));
+});
+
+\App\Router::get('/my-purchases', function() use ($config) {
+    if (!\App\SteamAuth::check()) {
+        $_SESSION['steam_login_return'] = '/my-purchases';
+        header('Location: /auth/steam');
+        exit;
+    }
+    $steamId = \App\SteamAuth::steamId();
+    $player = \App\Database::fetchOne(
+        "SELECT id, steam_id, display_name, coins, total_spent_brl, last_seen_at
+           FROM players WHERE steam_id = ? LIMIT 1", [$steamId]
+    );
+    $purchases = \App\Database::fetchAll(
+        "SELECT * FROM purchases WHERE steam_id = ? ORDER BY created_at DESC LIMIT 50",
+        [$steamId]
+    );
+    // IDs de compras que JÁ têm review
+    $reviewedIds = [];
+    foreach (\App\Database::fetchAll(
+        "SELECT purchase_id FROM reviews WHERE steam_id = ?", [$steamId]
+    ) as $r) {
+        $reviewedIds[(int)$r['purchase_id']] = true;
+    }
+    $achievementsAll = \App\Achievements::all();
+    $unlocked = \App\Achievements::unlocked($steamId);
+    \App\View::display('pages.my_purchases', [
+        'config' => $config, 'player' => $player, 'purchases' => $purchases,
+        'steam_user' => \App\SteamAuth::user(),
+        'reviewed_ids' => $reviewedIds,
+        'achievements' => $achievementsAll, 'unlocked' => $unlocked,
+    ]);
+});
+
+// ============ ADMIN ============
+\App\Router::get('/admin/login', function() use ($config) {
+    if (\App\Auth::check()) { header('Location: /admin'); exit; }
+    \App\View::display('admin.login', ['config' => $config, 'error' => $_GET['e'] ?? null]);
+});
+
+\App\Router::post('/admin/login', function() use ($config) {
+    // Rate limit dois eixos: por IP (defesa contra scanner) e por username+IP
+    // (defesa contra brute-force de um user específico). Atrás de proxy/CDN
+    // o IP único pode ser compartilhado, daí combinar com username evita
+    // bloquear admins legítimos por "vizinhos" maliciosos.
+    $ip = \App\RateLimit::clientIp();
+    $username = trim($_POST['username'] ?? '');
+    $rlIp   = \App\RateLimit::check('login_ip_' . $ip, 20, 15 * 60);
+    $rlUser = \App\RateLimit::check('login_u_' . substr(md5($username . '|' . $ip), 0, 16), 5, 15 * 60);
+    if (!$rlIp['allowed'] || !$rlUser['allowed']) {
+        $w = max($rlIp['reset_in'], $rlUser['reset_in']);
+        header('Location: /admin/login?e=rate&w=' . $w);
+        exit;
+    }
+    // CSRF
+    if (!\App\Csrf::check()) {
+        header('Location: /admin/login?e=csrf');
+        exit;
+    }
+    $password = $_POST['password'] ?? '';
+    if (\App\Auth::attempt($username, $password)) {
+        \App\RateLimit::clearBucket('login_ip_' . $ip);
+        \App\RateLimit::clearBucket('login_u_' . substr(md5($username . '|' . $ip), 0, 16));
+        // Regenera ID de sessao apos login (anti session fixation)
+        session_regenerate_id(true);
+        header('Location: /admin');
+    } else {
+        header('Location: /admin/login?e=1');
+    }
+    exit;
+});
+
+\App\Router::get('/admin/logout', function() {
+    \App\Auth::logout();
+    header('Location: /admin/login');
+    exit;
+});
+
+
+// Helper compartilhado entre /admin (HTML) e /admin/dashboard.json (auto-refresh)
+$collectDashboardData = function() {
+    return [
+        'stats' => [
+            'players_count'   => (int)\App\Database::fetchColumn("SELECT COUNT(*) FROM players"),
+            'coins_total'     => (int)\App\Database::fetchColumn("SELECT COALESCE(SUM(coins),0) FROM players"),
+            'revenue_total'   => (float)\App\Database::fetchColumn("SELECT COALESCE(SUM(total_spent_brl),0) FROM players"),
+            'purchases_today' => (int)\App\Database::fetchColumn("SELECT COUNT(*) FROM purchases WHERE created_at >= CURDATE()"),
+            'revenue_today'   => (float)\App\Database::fetchColumn("SELECT COALESCE(SUM(price_brl),0) FROM purchases WHERE mp_status = 'approved' AND created_at >= CURDATE()"),
+            'pending_count'   => (int)\App\Database::fetchColumn("SELECT COUNT(*) FROM purchases WHERE mp_status = 'pending'"),
+        ],
+        'recent_purchases' => \App\Database::fetchAll(
+            "SELECT id, steam_id, package_id, coins_total, price_brl, mp_status, created_at
+               FROM purchases ORDER BY created_at DESC LIMIT 10"
+        ),
+    ];
+};
+
+\App\Router::get('/admin', function() use ($config, $collectDashboardData) {
+    \App\Auth::requireAdmin();
+    $data = $collectDashboardData();
+    \App\View::display('admin.dashboard', [
+        'config' => $config, 'stats' => $data['stats'], 'recent_purchases' => $data['recent_purchases'],
+    ]);
+});
+
+\App\Router::get('/admin/sales-chart.json', function() use ($config) {
+    \App\Auth::requireAdmin();
+    header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: no-store');
+    // Vendas dos últimos 30 dias agrupadas por dia
+    $rows = \App\Database::fetchAll(
+        "SELECT DATE(created_at) AS day,
+                COUNT(*) AS count,
+                COALESCE(SUM(price_brl), 0) AS revenue
+           FROM purchases
+          WHERE mp_status = 'approved'
+            AND created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+          GROUP BY day
+          ORDER BY day ASC"
+    );
+    // Preenche dias vazios (0 vendas) pra grafico ficar contínuo
+    $byDay = [];
+    foreach ($rows as $r) $byDay[$r['day']] = $r;
+
+    $labels = []; $counts = []; $revenues = [];
+    for ($i = 29; $i >= 0; $i--) {
+        $d = date('Y-m-d', strtotime("-$i days"));
+        $labels[]   = date('d/m', strtotime($d));
+        $counts[]   = (int)($byDay[$d]['count']   ?? 0);
+        $revenues[] = (float)($byDay[$d]['revenue'] ?? 0);
+    }
+    die(json_encode([
+        'labels' => $labels, 'counts' => $counts, 'revenues' => $revenues,
+    ]));
+});
+
+\App\Router::get('/admin/dashboard.json', function() use ($collectDashboardData) {
+    \App\Auth::requireAdmin();
+    header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: no-store');
+    $data = $collectDashboardData();
+    // Formata pra JSON (badges, números formatados, etc) — pra o JS só substituir DOM
+    foreach ($data['recent_purchases'] as &$p) {
+        $p['coins_total']    = (int)$p['coins_total'];
+        $p['price_brl_fmt']  = number_format((float)$p['price_brl'], 2, ',', '.');
+        $p['status_class']   = match($p['mp_status']) {
+            'approved' => 'success',
+            'rejected','cancelled','refunded' => 'danger',
+            'pending' => 'warning',
+            default => 'info',
+        };
+    }
+    die(json_encode($data, JSON_UNESCAPED_UNICODE));
+});
+
+\App\Router::get('/admin/players', function() use ($config) {
+    \App\Auth::requireAdmin();
+    $q       = trim($_GET['q'] ?? '');
+    $origin  = $_GET['origin'] ?? '';
+    $sort    = $_GET['sort'] ?? 'coins'; // coins, spent, recent, name
+    $page    = max(1, (int)($_GET['page'] ?? 1));
+    $perPage = 50;
+    $offset  = ($page - 1) * $perPage;
+
+    $where = [];
+    $params = [];
+    if ($q !== '') {
+        $where[] = "(steam_id LIKE ? OR display_name LIKE ?)";
+        $params[] = "%$q%"; $params[] = "%$q%";
+    }
+    if (in_array($origin, ['agent','panel','payment','manual'], true)) {
+        $where[] = "origin = ?";
+        $params[] = $origin;
+    }
+    $whereSql = $where ? ('WHERE ' . implode(' AND ', $where)) : '';
+
+    $orderBy = match($sort) {
+        'spent'  => 'total_spent_brl DESC',
+        'recent' => 'COALESCE(last_seen_at, \'1970-01-01\') DESC',
+        'name'   => 'display_name ASC',
+        default  => 'coins DESC',
+    };
+
+    $total = (int)\App\Database::fetchColumn("SELECT COUNT(*) FROM players $whereSql", $params);
+    $players = \App\Database::fetchAll(
+        "SELECT id, steam_id, display_name, coins, total_spent_brl, last_seen_at, origin
+           FROM players $whereSql
+          ORDER BY $orderBy
+          LIMIT $perPage OFFSET $offset",
+        $params
+    );
+
+    \App\View::display('admin.players', [
+        'config' => $config, 'players' => $players,
+        'q' => $q, 'origin' => $origin, 'sort' => $sort,
+        'page' => $page, 'per_page' => $perPage, 'total' => $total,
+        'last_page' => max(1, (int)ceil($total / $perPage)),
+    ]);
+});
+
+\App\Router::post('/admin/players/{id}/coins', function($id) use ($config) {
+    \App\Auth::requireAdmin();
+    $newCoins = max(0, (int)($_POST['coins'] ?? 0));
+    $player = \App\Database::fetchOne("SELECT coins, steam_id FROM players WHERE id = ?", [(int)$id]);
+    $oldCoins = (int)($player['coins'] ?? 0);
+    \App\Database::query("UPDATE players SET coins = ?, origin = 'panel' WHERE id = ?", [$newCoins, (int)$id]);
+    \App\AuditLog::record('player.coins_changed', 'player', $id, [
+        'before' => $oldCoins, 'after' => $newCoins, 'delta' => $newCoins - $oldCoins,
+    ]);
+    \App\BalanceLog::record(
+        (int)$id, $player['steam_id'] ?? '',
+        $oldCoins, $newCoins, 'admin',
+        null, null,
+        'Ajuste manual via painel admin'
+    );
+    // Open redirect guard: aceita só paths internos /admin/...
+    $back = $_POST['_back'] ?? '/admin/players';
+    if (!is_string($back) || !preg_match('#^/admin/[A-Za-z0-9/_?&=.-]*$#', $back)) {
+        $back = '/admin/players';
+    }
+    header('Location: ' . $back . (strpos($back, '?') === false ? '?ok=1' : '&ok=1'));
+    exit;
+});
+
+\App\Router::post('/admin/players/{id}/notes', function($id) use ($config) {
+    \App\Auth::requireAdmin();
+    $notes = trim($_POST['notes'] ?? '');
+    \App\Database::query("UPDATE players SET notes = ? WHERE id = ?", [$notes ?: null, (int)$id]);
+    header('Location: /admin/players/' . (int)$id . '?ok=1');
+    exit;
+});
+
+\App\Router::get('/admin/packages', function() use ($config) {
+    \App\Auth::requireAdmin();
+    $packages = \App\Database::fetchAll(
+        "SELECT * FROM packages ORDER BY sort_order ASC"
+    );
+    $bonusEnabled = (int)\App\Database::fetchColumn("SELECT `value` FROM settings WHERE `key` = 'bonus_enabled'");
+    \App\View::display('admin.packages', [
+        'config' => $config, 'packages' => $packages, 'bonus_enabled' => $bonusEnabled,
+    ]);
+});
+
+\App\Router::post('/admin/packages/toggle-bonus', function() use ($config) {
+    \App\Auth::requireAdmin();
+    $current = (int)\App\Database::fetchColumn("SELECT `value` FROM settings WHERE `key` = 'bonus_enabled'");
+    $new = $current ? 0 : 1;
+    \App\Database::query("UPDATE settings SET `value` = ? WHERE `key` = 'bonus_enabled'", [(string)$new]);
+    header('Location: /admin/packages?ok=1');
+    exit;
+});
+
+\App\Router::post('/admin/packages/{id}/toggle', function($id) use ($config) {
+    \App\Auth::requireAdmin();
+    \App\Database::query("UPDATE packages SET enabled = 1 - enabled WHERE id = ?", [$id]);
+    header('Location: /admin/packages?ok=1');
+    exit;
+});
+
+\App\Router::get('/admin/packages/{id}/edit', function($id) use ($config) {
+    \App\Auth::requireAdmin();
+    $pkg = \App\Database::fetchOne("SELECT * FROM packages WHERE id = ? LIMIT 1", [$id]);
+    if (!$pkg) { http_response_code(404); echo 'Pacote não encontrado'; exit; }
+    \App\View::display('admin.package_edit', ['config' => $config, 'pkg' => $pkg]);
+});
+
+\App\Router::post('/admin/packages/{id}/save', function($id) use ($config) {
+    \App\Auth::requireAdmin();
+    $existing = \App\Database::fetchOne("SELECT id FROM packages WHERE id = ? LIMIT 1", [$id]);
+    if (!$existing) { http_response_code(404); exit; }
+
+    $name        = trim($_POST['name'] ?? '');
+    $icon        = trim($_POST['icon'] ?? '🪙');
+    $coins       = max(0, (int)($_POST['coins'] ?? 0));
+    $bonus       = max(0, (int)($_POST['bonus_coins'] ?? 0));
+    $price       = max(0, (float)str_replace(',', '.', $_POST['price_brl'] ?? '0'));
+    $bonusBadge  = trim($_POST['bonus_badge'] ?? '') ?: null;
+    $ribbon      = trim($_POST['ribbon'] ?? '') ?: null;
+    $featured    = isset($_POST['featured']) ? 1 : 0;
+    $sortOrder   = (int)($_POST['sort_order'] ?? 0);
+    // Perks: 1 por linha no textarea
+    $perks       = array_values(array_filter(array_map('trim', explode("\n", $_POST['perks'] ?? ''))));
+    $bonusPerks  = array_values(array_filter(array_map('trim', explode("\n", $_POST['bonus_perks'] ?? ''))));
+
+    if (!$name || $coins <= 0 || $price <= 0) {
+        header('Location: /admin/packages/' . urlencode($id) . '/edit?err=invalid');
+        exit;
+    }
+
+    \App\Database::query(
+        "UPDATE packages SET name = ?, icon = ?, coins = ?, bonus_coins = ?, price_brl = ?,
+                            bonus_badge = ?, ribbon = ?, featured = ?, sort_order = ?,
+                            perks_json = ?, bonus_perks_json = ?
+         WHERE id = ?",
+        [
+            $name, $icon, $coins, $bonus, $price,
+            $bonusBadge, $ribbon, $featured, $sortOrder,
+            json_encode($perks, JSON_UNESCAPED_UNICODE),
+            json_encode($bonusPerks, JSON_UNESCAPED_UNICODE),
+            $id,
+        ]
+    );
+    header('Location: /admin/packages?ok=1');
+    exit;
+});
+
+\App\Router::get('/admin/purchases', function() use ($config) {
+    \App\Auth::requireAdmin();
+    $filter = $_GET['status'] ?? '';
+    $sql = "SELECT * FROM purchases";
+    $params = [];
+    if (in_array($filter, ['approved','pending','rejected','cancelled','refunded'], true)) {
+        $sql .= " WHERE mp_status = ?";
+        $params[] = $filter;
+    }
+    $sql .= " ORDER BY created_at DESC LIMIT 100";
+    $purchases = \App\Database::fetchAll($sql, $params);
+    $counts = \App\Database::fetchOne(
+        "SELECT COUNT(*) AS total,
+                SUM(mp_status = 'approved') AS approved,
+                SUM(mp_status = 'pending')  AS pending,
+                SUM(mp_status = 'rejected') AS rejected
+           FROM purchases"
+    );
+    \App\View::display('admin.purchases', [
+        'config' => $config, 'purchases' => $purchases, 'counts' => $counts, 'filter' => $filter,
+    ]);
+});
+
+\App\Router::get('/admin/purchases/export', function() use ($config) {
+    \App\Auth::requireAdmin();
+    $filter = $_GET['status'] ?? '';
+    $sql = "SELECT p.*, pl.display_name FROM purchases p
+              LEFT JOIN players pl ON pl.steam_id = p.steam_id";
+    $params = [];
+    if (in_array($filter, ['approved','pending','rejected','cancelled','refunded'], true)) {
+        $sql .= " WHERE p.mp_status = ?";
+        $params[] = $filter;
+    }
+    $sql .= " ORDER BY p.created_at DESC";
+    $rows = \App\Database::fetchAll($sql, $params);
+
+    $filename = 'compras-' . date('Ymd-His') . ($filter ? "-$filter" : '') . '.csv';
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
+    header('Cache-Control: no-cache, no-store, must-revalidate');
+
+    $out = fopen('php://output', 'w');
+    // BOM UTF-8 pro Excel BR abrir certinho
+    fwrite($out, "\xEF\xBB\xBF");
+    fputcsv($out, [
+        'ID','Data','SteamID','Jogador','Pacote','Moedas Base','Bonus','Total','Valor (R$)',
+        'Metodo Pagto','Status','MP Payment ID','Entregue em','Termos aceitos em'
+    ], ';');
+    foreach ($rows as $r) {
+        fputcsv($out, [
+            $r['id'], $r['created_at'], $r['steam_id'], $r['display_name'] ?? '',
+            $r['package_id'], $r['coins_base'], $r['coins_bonus'], $r['coins_total'],
+            number_format((float)$r['price_brl'], 2, ',', ''),
+            $r['payment_method'] ?? '',
+            $r['mp_status'] ?? '',
+            $r['mp_payment_id'] ?? '',
+            $r['delivered_at'] ?? '',
+            $r['terms_accepted_at'] ?? '',
+        ], ';');
+    }
+    fclose($out);
+    exit;
+});
+
+\App\Router::get('/admin/settings', function() use ($config) {
+    \App\Auth::requireAdmin();
+    $settings = \App\Database::fetchAll("SELECT `key`, `value` FROM settings ORDER BY `key`");
+    $map = [];
+    foreach ($settings as $s) $map[$s['key']] = $s['value'];
+    \App\View::display('admin.settings', ['config' => $config, 'settings' => $map]);
+});
+
+\App\Router::post('/admin/settings', function() use ($config) {
+    \App\Auth::requireAdmin();
+    $allowed = ['site_name','site_tagline','server_ip','server_port','discord_invite',
+                'social_discord','social_instagram','social_whatsapp','social_facebook','social_youtube',
+                'battlemetrics_id','next_wipe_at','wipe_label',
+                'maintenance_message','maintenance_eta',
+                'discord_sales_webhook','promo_coupon_code','promo_label'];
+    // Toggles (checkbox): se não veio no POST, vira 0
+    $toggles = ['maintenance_enabled', 'live_purchases_enabled', 'live_purchases_anonymize', 'live_purchases_show_price'];
+
+    foreach ($allowed as $k) {
+        if (isset($_POST[$k])) {
+            $val = trim((string)$_POST[$k]);
+            \App\Database::query(
+                "INSERT INTO settings (`key`, `value`) VALUES (?, ?)
+                 ON DUPLICATE KEY UPDATE `value` = VALUES(`value`)",
+                [$k, $val]
+            );
+        }
+    }
+    foreach ($toggles as $k) {
+        $val = !empty($_POST[$k]) ? '1' : '0';
+        \App\Database::query(
+            "INSERT INTO settings (`key`, `value`) VALUES (?, ?)
+             ON DUPLICATE KEY UPDATE `value` = VALUES(`value`)",
+            [$k, $val]
+        );
+    }
+    header('Location: /admin/settings?ok=1');
+    exit;
+});
+
+\App\Router::get('/admin/pages', function() use ($config) {
+    \App\Auth::requireAdmin();
+    $pages = \App\Database::fetchAll(
+        "SELECT id, slug, title_ptbr, title_enus, published, sort_order, updated_at
+           FROM pages ORDER BY sort_order ASC, slug ASC"
+    );
+    \App\View::display('admin.pages_list', ['config' => $config, 'pages' => $pages]);
+});
+
+\App\Router::get('/admin/pages/new', function() use ($config) {
+    \App\Auth::requireAdmin();
+    \App\View::display('admin.pages_edit', ['config' => $config, 'page' => null]);
+});
+
+\App\Router::get('/admin/pages/{id}/edit', function($id) use ($config) {
+    \App\Auth::requireAdmin();
+    $page = \App\Database::fetchOne("SELECT * FROM pages WHERE id = ? LIMIT 1", [(int)$id]);
+    if (!$page) { http_response_code(404); echo 'Página não encontrada'; exit; }
+    \App\View::display('admin.pages_edit', ['config' => $config, 'page' => $page]);
+});
+
+\App\Router::post('/admin/pages/save', function() use ($config) {
+    \App\Auth::requireAdmin();
+    $id         = (int)($_POST['id'] ?? 0);
+    $slug       = preg_replace('/[^a-z0-9-]/', '', strtolower(trim($_POST['slug'] ?? '')));
+    $title_pt   = trim($_POST['title_ptbr'] ?? '');
+    $title_en   = trim($_POST['title_enus'] ?? '') ?: null;
+    // Sanitiza HTML: admin pode injetar <script> mesmo sem querer; defesa em profundidade
+    $body_pt    = \App\Html::sanitize((string)($_POST['body_ptbr'] ?? ''));
+    $body_en_raw = (string)($_POST['body_enus'] ?? '');
+    $body_en    = $body_en_raw === '' ? null : \App\Html::sanitize($body_en_raw);
+    $published  = isset($_POST['published']) ? 1 : 0;
+    $sort       = (int)($_POST['sort_order'] ?? 0);
+
+    if (!$slug || !$title_pt) {
+        header('Location: /admin/pages?err=missing');
+        exit;
+    }
+    if ($id > 0) {
+        \App\Database::query(
+            "UPDATE pages SET slug=?, title_ptbr=?, title_enus=?, body_ptbr=?, body_enus=?, published=?, sort_order=? WHERE id = ?",
+            [$slug, $title_pt, $title_en, $body_pt, $body_en, $published, $sort, $id]
+        );
+    } else {
+        \App\Database::query(
+            "INSERT INTO pages (slug, title_ptbr, title_enus, body_ptbr, body_enus, published, sort_order)
+             VALUES (?, ?, ?, ?, ?, ?, ?)",
+            [$slug, $title_pt, $title_en, $body_pt, $body_en, $published, $sort]
+        );
+    }
+    header('Location: /admin/pages?ok=1');
+    exit;
+});
+
+\App\Router::post('/admin/pages/{id}/delete', function($id) use ($config) {
+    \App\Auth::requireAdmin();
+    \App\Database::query("DELETE FROM pages WHERE id = ?", [(int)$id]);
+    header('Location: /admin/pages?ok=1');
+    exit;
+});
+
+// Rota pública dinâmica: /{slug} (após todas as rotas específicas, captura qualquer slug válido)
+\App\Router::get('/page/{slug}', function($slug) use ($config) {
+    $page = \App\Database::fetchOne(
+        "SELECT * FROM pages WHERE slug = ? AND published = 1 LIMIT 1", [$slug]
+    );
+    if (!$page) { http_response_code(404); \App\View::display('pages.404', ['config' => $config]); return; }
+    \App\View::display('pages.dynamic_page', ['config' => $config, 'page' => $page]);
+});
+
+\App\Router::get('/admin/logs', function() use ($config) {
+    \App\Auth::requireAdmin();
+    $logPath = ini_get('error_log') ?: '';
+    $lines = [];
+    $size = 0;
+    $error = null;
+    if ($logPath && is_readable($logPath)) {
+        $size = filesize($logPath);
+        // Lê últimas ~500 linhas (tail)
+        $fp = fopen($logPath, 'r');
+        if ($fp) {
+            $buffer = '';
+            $chunk = 32 * 1024; // 32KB
+            $pos = max(0, $size - $chunk);
+            fseek($fp, $pos);
+            $buffer = fread($fp, $chunk);
+            fclose($fp);
+            $allLines = explode("\n", $buffer);
+            if ($pos > 0) array_shift($allLines); // descarta linha quebrada
+            $lines = array_slice($allLines, -500);
+        }
+    } else {
+        $error = $logPath ? "Log não acessível: $logPath" : 'error_log do PHP não configurado.';
+    }
+    \App\View::display('admin.logs', [
+        'config' => $config, 'lines' => $lines, 'log_path' => $logPath,
+        'log_size' => $size, 'error' => $error,
+    ]);
+});
+
+// ============ SERVIDORES (admin CRUD + página pública) ============
+
+\App\Router::get('/admin/servers', function() use ($config) {
+    \App\Auth::requireAdmin();
+    $servers = \App\Servers::all();
+    \App\View::display('admin.servers', ['config' => $config, 'servers' => $servers]);
+});
+
+\App\Router::post('/admin/servers/create', function() use ($config) {
+    \App\Auth::requireAdmin();
+    $name = trim($_POST['name'] ?? '');
+    $slug = strtolower(preg_replace('/[^a-z0-9-]+/i', '-', trim($_POST['slug'] ?? '')));
+    if (strlen($name) < 2 || strlen($slug) < 2) {
+        header('Location: /admin/servers?err=invalid'); exit;
+    }
+    if (\App\Servers::findBySlug($slug)) {
+        header('Location: /admin/servers?err=slug'); exit;
+    }
+    \App\Database::execute(
+        "INSERT INTO servers (name, slug, description, ip, port, battlemetrics_id, agent_token, map, max_players, active, sort_order)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)",
+        [
+            $name, $slug,
+            trim($_POST['description'] ?? '') ?: null,
+            trim($_POST['ip'] ?? '') ?: null,
+            (int)($_POST['port'] ?? 2302) ?: null,
+            trim($_POST['battlemetrics_id'] ?? '') ?: null,
+            \App\Servers::generateToken(),
+            trim($_POST['map'] ?? '') ?: 'Chernarus',
+            (int)($_POST['max_players'] ?? 60),
+            (int)($_POST['sort_order'] ?? 0),
+        ]
+    );
+    \App\AuditLog::record('server.create', 'server', null, ['name' => $name, 'slug' => $slug]);
+    header('Location: /admin/servers?ok=1'); exit;
+});
+
+\App\Router::post('/admin/servers/update', function() use ($config) {
+    \App\Auth::requireAdmin();
+    $id = (int)($_POST['id'] ?? 0);
+    if ($id < 1) { header('Location: /admin/servers'); exit; }
+    \App\Database::execute(
+        "UPDATE servers SET name = ?, description = ?, ip = ?, port = ?, battlemetrics_id = ?,
+                            map = ?, max_players = ?, active = ?, sort_order = ?
+         WHERE id = ?",
+        [
+            trim($_POST['name'] ?? ''),
+            trim($_POST['description'] ?? '') ?: null,
+            trim($_POST['ip'] ?? '') ?: null,
+            (int)($_POST['port'] ?? 0) ?: null,
+            trim($_POST['battlemetrics_id'] ?? '') ?: null,
+            trim($_POST['map'] ?? '') ?: 'Chernarus',
+            (int)($_POST['max_players'] ?? 60),
+            isset($_POST['active']) ? 1 : 0,
+            (int)($_POST['sort_order'] ?? 0),
+            $id,
+        ]
+    );
+    \App\AuditLog::record('server.update', 'server', $id);
+    header('Location: /admin/servers?ok=1'); exit;
+});
+
+\App\Router::post('/admin/servers/regen-token', function() use ($config) {
+    \App\Auth::requireAdmin();
+    $id = (int)($_POST['id'] ?? 0);
+    if ($id < 1) { header('Location: /admin/servers'); exit; }
+    \App\Database::execute("UPDATE servers SET agent_token = ? WHERE id = ?", [\App\Servers::generateToken(), $id]);
+    \App\AuditLog::record('server.regen_token', 'server', $id);
+    header('Location: /admin/servers?ok=1&regen=' . $id); exit;
+});
+
+\App\Router::post('/admin/servers/delete', function() use ($config) {
+    \App\Auth::requireAdmin();
+    $id = (int)($_POST['id'] ?? 0);
+    if ($id < 1) { header('Location: /admin/servers'); exit; }
+    // Não deleta se ainda tem compras vinculadas — protege histórico
+    $hasPurchases = (int)\App\Database::fetchColumn("SELECT COUNT(*) FROM purchases WHERE server_id = ?", [$id]);
+    if ($hasPurchases > 0) {
+        header('Location: /admin/servers?err=has_purchases&id=' . $id); exit;
+    }
+    \App\Database::execute("DELETE FROM servers WHERE id = ?", [$id]);
+    \App\AuditLog::record('server.delete', 'server', $id);
+    header('Location: /admin/servers?ok=1'); exit;
+});
+
+\App\Router::get('/servidores', function() use ($config) {
+    $servers = \App\Servers::active();
+    // Para cada servidor com battlemetrics_id, busca status (cache 60s)
+    foreach ($servers as &$s) {
+        $s['live'] = $s['battlemetrics_id']
+            ? \App\ServerStatus::fetch($s['battlemetrics_id'])
+            : null;
+    }
+    unset($s);
+    \App\View::display('pages.servers', ['config' => $config, 'servers' => $servers]);
+});
+
+// ============ GALERIA (admin CRUD) ============
+
+\App\Router::get('/admin/gallery', function() use ($config) {
+    \App\Auth::requireAdmin();
+    $items = \App\Database::fetchAll("SELECT * FROM gallery ORDER BY sort_order ASC, id DESC");
+    \App\View::display('admin.gallery', ['config' => $config, 'items' => $items]);
+});
+
+\App\Router::post('/admin/gallery/upload', function() use ($config, $ROOT) {
+    \App\Auth::requireAdmin();
+    $caption = trim($_POST['caption'] ?? '');
+    $sort    = (int)($_POST['sort_order'] ?? 0);
+
+    if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
+        header('Location: /admin/gallery?err=upload'); exit;
+    }
+    $file = $_FILES['file'];
+    if ($file['size'] > 5 * 1024 * 1024) {
+        header('Location: /admin/gallery?err=size'); exit;
+    }
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mime  = finfo_file($finfo, $file['tmp_name']);
+    finfo_close($finfo);
+    $allowed = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif'];
+    if (!isset($allowed[$mime])) {
+        header('Location: /admin/gallery?err=type'); exit;
+    }
+    $ext = $allowed[$mime];
+    $fname = 'g_' . bin2hex(random_bytes(8)) . '.' . $ext;
+    $dest = $ROOT . '/public/assets/img/gallery/' . $fname;
+    if (!move_uploaded_file($file['tmp_name'], $dest)) {
+        header('Location: /admin/gallery?err=move'); exit;
+    }
+    \App\Database::execute(
+        "INSERT INTO gallery (filename, caption, sort_order, published) VALUES (?, ?, ?, 1)",
+        [$fname, $caption ?: null, $sort]
+    );
+    \App\AuditLog::record('gallery.upload', 'gallery', null, ['filename' => $fname]);
+    header('Location: /admin/gallery?ok=1'); exit;
+});
+
+\App\Router::post('/admin/gallery/update', function() use ($config) {
+    \App\Auth::requireAdmin();
+    $id      = (int)($_POST['id'] ?? 0);
+    $caption = trim($_POST['caption'] ?? '');
+    $sort    = (int)($_POST['sort_order'] ?? 0);
+    $pub     = isset($_POST['published']) ? 1 : 0;
+    if ($id < 1) { header('Location: /admin/gallery'); exit; }
+    \App\Database::execute(
+        "UPDATE gallery SET caption = ?, sort_order = ?, published = ? WHERE id = ?",
+        [$caption ?: null, $sort, $pub, $id]
+    );
+    \App\AuditLog::record('gallery.update', 'gallery', $id);
+    header('Location: /admin/gallery?ok=1'); exit;
+});
+
+\App\Router::post('/admin/gallery/delete', function() use ($config, $ROOT) {
+    \App\Auth::requireAdmin();
+    $id = (int)($_POST['id'] ?? 0);
+    if ($id < 1) { header('Location: /admin/gallery'); exit; }
+    $row = \App\Database::fetchOne("SELECT filename FROM gallery WHERE id = ?", [$id]);
+    if ($row) {
+        $path = $ROOT . '/public/assets/img/gallery/' . $row['filename'];
+        if (is_file($path)) @unlink($path);
+        \App\Database::execute("DELETE FROM gallery WHERE id = ?", [$id]);
+        \App\AuditLog::record('gallery.delete', 'gallery', $id, ['filename' => $row['filename']]);
+    }
+    header('Location: /admin/gallery?ok=1'); exit;
+});
+
+\App\Router::get('/galeria', function() use ($config) {
+    $items = \App\Database::fetchAll(
+        "SELECT * FROM gallery WHERE published = 1 ORDER BY sort_order ASC, id DESC"
+    );
+    \App\View::display('pages.gallery', [
+        'config' => $config, 'items' => $items,
+        'skip_hero_preload' => true, // galeria não tem hero — evita warning de preload sem uso
+    ]);
+});
+
+\App\Router::get('/admin/audit', function() use ($config) {
+    \App\Auth::requireAdmin();
+    $filter = trim($_GET['action'] ?? '');
+    $sql = "SELECT * FROM audit_log";
+    $params = [];
+    if ($filter) { $sql .= " WHERE action LIKE ?"; $params[] = "$filter%"; }
+    $sql .= " ORDER BY created_at DESC LIMIT 200";
+    $logs = \App\Database::fetchAll($sql, $params);
+
+    $actions = \App\Database::fetchAll(
+        "SELECT DISTINCT SUBSTRING_INDEX(action, '.', 1) AS prefix, COUNT(*) AS n
+           FROM audit_log GROUP BY prefix ORDER BY n DESC"
+    );
+    \App\View::display('admin.audit', [
+        'config' => $config, 'logs' => $logs, 'filter' => $filter, 'actions' => $actions,
+    ]);
+});
+
+\App\Router::get('/admin/customize', function() use ($config) {
+    \App\Auth::requireAdmin();
+    \App\View::display('admin.customize', ['config' => $config]);
+});
+
+\App\Router::get('/admin/team', function() use ($config) {
+    \App\Auth::requireAdmin();
+    $admins = \App\Database::fetchAll(
+        "SELECT id, username, email, created_at, last_login_at FROM admin_users ORDER BY created_at ASC"
+    );
+    \App\View::display('admin.team', ['config' => $config, 'admins' => $admins]);
+});
+
+\App\Router::post('/admin/team/create', function() use ($config) {
+    \App\Auth::requireAdmin();
+    $username = trim($_POST['username'] ?? '');
+    $email    = trim($_POST['email'] ?? '') ?: null;
+    $password = $_POST['password'] ?? '';
+
+    if (strlen($username) < 3 || !preg_match('/^[a-zA-Z0-9_.-]+$/', $username)) {
+        header('Location: /admin/team?err=username'); exit;
+    }
+    if (strlen($password) < 8) {
+        header('Location: /admin/team?err=password'); exit;
+    }
+    $exists = \App\Database::fetchColumn("SELECT id FROM admin_users WHERE username = ? LIMIT 1", [$username]);
+    if ($exists) {
+        header('Location: /admin/team?err=duplicate'); exit;
+    }
+    $hash = password_hash($password, PASSWORD_BCRYPT);
+    \App\Database::query(
+        "INSERT INTO admin_users (username, password_hash, email) VALUES (?, ?, ?)",
+        [$username, $hash, $email]
+    );
+    \App\AuditLog::record('admin.created', 'admin', $username, ['email' => $email]);
+    header('Location: /admin/team?ok=created');
+    exit;
+});
+
+\App\Router::post('/admin/team/{id}/delete', function($id) use ($config) {
+    \App\Auth::requireAdmin();
+    $me = \App\Auth::user();
+    if ((int)$id === (int)($me['id'] ?? 0)) {
+        header('Location: /admin/team?err=self'); exit;
+    }
+    // Garante que não está deletando o último admin
+    $count = (int)\App\Database::fetchColumn("SELECT COUNT(*) FROM admin_users");
+    if ($count <= 1) {
+        header('Location: /admin/team?err=last'); exit;
+    }
+    $removedUser = \App\Database::fetchColumn("SELECT username FROM admin_users WHERE id = ?", [(int)$id]);
+    \App\Database::query("DELETE FROM admin_users WHERE id = ?", [(int)$id]);
+    \App\AuditLog::record('admin.deleted', 'admin', $removedUser);
+    header('Location: /admin/team?ok=deleted');
+    exit;
+});
+
+\App\Router::post('/admin/team/{id}/password', function($id) use ($config) {
+    \App\Auth::requireAdmin();
+    $newPass = $_POST['password'] ?? '';
+    if (strlen($newPass) < 8) {
+        header('Location: /admin/team?err=password'); exit;
+    }
+    $hash = password_hash($newPass, PASSWORD_BCRYPT);
+    \App\Database::query("UPDATE admin_users SET password_hash = ? WHERE id = ?", [$hash, (int)$id]);
+    header('Location: /admin/team?ok=password');
+    exit;
+});
+
+\App\Router::get('/admin/combos', function() use ($config) {
+    \App\Auth::requireAdmin();
+    $combos = \App\Database::fetchAll(
+        "SELECT * FROM combos ORDER BY sort_order ASC, id DESC"
+    );
+    $packages = \App\Database::fetchAll(
+        "SELECT id, name, coins, bonus_coins, price_brl FROM packages WHERE enabled = 1 ORDER BY sort_order ASC"
+    );
+    \App\View::display('admin.combos', ['config' => $config, 'combos' => $combos, 'packages' => $packages]);
+});
+
+\App\Router::post('/admin/combos/create', function() use ($config) {
+    \App\Auth::requireAdmin();
+    $slug = strtolower(preg_replace('/[^a-z0-9-]/', '', strtolower(trim($_POST['slug'] ?? ''))));
+    $name = trim($_POST['name'] ?? '');
+    $description = trim($_POST['description'] ?? '') ?: null;
+    $packageIds = $_POST['package_ids'] ?? [];
+    if (!is_array($packageIds)) $packageIds = [];
+    $packageIds = array_values(array_filter($packageIds, 'is_string'));
+    $price = max(0.01, (float)str_replace(',', '.', $_POST['custom_price'] ?? '0'));
+
+    if (!$slug || !$name || count($packageIds) < 2) {
+        header('Location: /admin/combos?err=invalid'); exit;
+    }
+    try {
+        \App\Database::query(
+            "INSERT INTO combos (slug, name, description, package_ids, custom_price, enabled)
+             VALUES (?, ?, ?, ?, ?, 1)",
+            [$slug, $name, $description, json_encode($packageIds), $price]
+        );
+        \App\AuditLog::record('combo.created', 'combo', $slug);
+        header('Location: /admin/combos?ok=1');
+    } catch (\PDOException $e) {
+        if ($e->getCode() === '23000') { header('Location: /admin/combos?err=duplicate'); exit; }
+        throw $e;
+    }
+    exit;
+});
+
+\App\Router::post('/admin/combos/{id}/toggle', function($id) use ($config) {
+    \App\Auth::requireAdmin();
+    \App\Database::query("UPDATE combos SET enabled = 1 - enabled WHERE id = ?", [(int)$id]);
+    header('Location: /admin/combos?ok=1');
+    exit;
+});
+
+\App\Router::post('/admin/combos/{id}/delete', function($id) use ($config) {
+    \App\Auth::requireAdmin();
+    \App\Database::query("DELETE FROM combos WHERE id = ?", [(int)$id]);
+    header('Location: /admin/combos?ok=1');
+    exit;
+});
+
+\App\Router::get('/admin/coupons', function() use ($config) {
+    \App\Auth::requireAdmin();
+    $coupons = \App\Database::fetchAll(
+        "SELECT * FROM coupons ORDER BY active DESC, created_at DESC"
+    );
+    \App\View::display('admin.coupons', ['config' => $config, 'coupons' => $coupons]);
+});
+
+\App\Router::post('/admin/coupons/create', function() use ($config) {
+    \App\Auth::requireAdmin();
+    $code  = strtoupper(preg_replace('/[^A-Z0-9_-]/', '', strtoupper(trim($_POST['code'] ?? ''))));
+    $type  = in_array($_POST['discount_type'] ?? '', ['percent','fixed'], true) ? $_POST['discount_type'] : 'percent';
+    $value = max(0.01, (float)str_replace(',', '.', $_POST['discount_value'] ?? '0'));
+    $maxUses = (int)($_POST['max_uses'] ?? 0) ?: null;
+    $validFrom  = trim($_POST['valid_from']  ?? '') ?: null;
+    $validUntil = trim($_POST['valid_until'] ?? '') ?: null;
+    $notes = trim($_POST['notes'] ?? '') ?: null;
+
+    if (!$code || strlen($code) < 3) {
+        header('Location: /admin/coupons?err=code'); exit;
+    }
+    if ($type === 'percent' && $value > 100) { $value = 100; }
+
+    try {
+        \App\Database::query(
+            "INSERT INTO coupons (code, discount_type, discount_value, max_uses, valid_from, valid_until, notes, active)
+             VALUES (?, ?, ?, ?, ?, ?, ?, 1)",
+            [$code, $type, $value, $maxUses, $validFrom, $validUntil, $notes]
+        );
+        \App\AuditLog::record('coupon.created', 'coupon', $code, [
+            'type' => $type, 'value' => $value, 'max_uses' => $maxUses,
+        ]);
+        header('Location: /admin/coupons?ok=created');
+    } catch (\PDOException $e) {
+        if ($e->getCode() === '23000') {
+            header('Location: /admin/coupons?err=duplicate');
+        } else { throw $e; }
+    }
+    exit;
+});
+
+\App\Router::post('/admin/coupons/{id}/toggle', function($id) use ($config) {
+    \App\Auth::requireAdmin();
+    \App\Database::query("UPDATE coupons SET active = 1 - active WHERE id = ?", [(int)$id]);
+    $code = \App\Database::fetchColumn("SELECT code FROM coupons WHERE id = ?", [(int)$id]);
+    \App\AuditLog::record('coupon.toggled', 'coupon', $code);
+    header('Location: /admin/coupons?ok=toggled');
+    exit;
+});
+
+\App\Router::post('/admin/coupons/{id}/delete', function($id) use ($config) {
+    \App\Auth::requireAdmin();
+    $code = \App\Database::fetchColumn("SELECT code FROM coupons WHERE id = ?", [(int)$id]);
+    \App\Database::query("DELETE FROM coupons WHERE id = ?", [(int)$id]);
+    \App\AuditLog::record('coupon.deleted', 'coupon', $code);
+    header('Location: /admin/coupons?ok=deleted');
+    exit;
+});
+
+\App\Router::get('/admin/announcements', function() use ($config) {
+    \App\Auth::requireAdmin();
+    $list = \App\Database::fetchAll(
+        "SELECT * FROM announcements ORDER BY published DESC, created_at DESC"
+    );
+    \App\View::display('admin.announcements', ['config' => $config, 'announcements' => $list]);
+});
+
+\App\Router::post('/admin/announcements/save', function() use ($config) {
+    \App\Auth::requireAdmin();
+    $id        = (int)($_POST['id'] ?? 0);
+    $title     = trim($_POST['title'] ?? '');
+    $body      = trim($_POST['body'] ?? '');
+    $kind      = in_array($_POST['kind'] ?? '', ['info','warning','danger','success'], true) ? $_POST['kind'] : 'info';
+    $cta_label = trim($_POST['cta_label'] ?? '') ?: null;
+    $cta_url   = trim($_POST['cta_url'] ?? '') ?: null;
+    $starts    = trim($_POST['starts_at'] ?? '') ?: null;
+    $ends      = trim($_POST['ends_at']   ?? '') ?: null;
+    $published = isset($_POST['published']) ? 1 : 0;
+    if (!$title) { header('Location: /admin/announcements?err=missing'); exit; }
+    if ($id > 0) {
+        \App\Database::query(
+            "UPDATE announcements SET title=?, body=?, kind=?, cta_label=?, cta_url=?, starts_at=?, ends_at=?, published=? WHERE id=?",
+            [$title, $body, $kind, $cta_label, $cta_url, $starts, $ends, $published, $id]
+        );
+    } else {
+        \App\Database::query(
+            "INSERT INTO announcements (title, body, kind, cta_label, cta_url, starts_at, ends_at, published)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            [$title, $body, $kind, $cta_label, $cta_url, $starts, $ends, $published]
+        );
+    }
+    header('Location: /admin/announcements?ok=1');
+    exit;
+});
+
+\App\Router::post('/admin/announcements/{id}/delete', function($id) use ($config) {
+    \App\Auth::requireAdmin();
+    \App\Database::query("DELETE FROM announcements WHERE id = ?", [(int)$id]);
+    header('Location: /admin/announcements?ok=1');
+    exit;
+});
+
+\App\Router::get('/admin/support', function() use ($config) {
+    \App\Auth::requireAdmin();
+    \App\View::display('admin.support', ['config' => $config]);
+});
+
+\App\Router::get('/admin/players/{id}', function($id) use ($config) {
+    \App\Auth::requireAdmin();
+    $player = \App\Database::fetchOne("SELECT * FROM players WHERE id = ? LIMIT 1", [(int)$id]);
+    if (!$player) { http_response_code(404); echo 'Jogador não encontrado'; exit; }
+    $history = \App\Database::fetchAll(
+        "SELECT * FROM purchases WHERE steam_id = ? ORDER BY created_at DESC LIMIT 30",
+        [$player['steam_id']]
+    );
+    $balanceLog = \App\Database::fetchAll(
+        "SELECT * FROM balance_log WHERE player_id = ? ORDER BY created_at DESC LIMIT 50",
+        [(int)$id]
+    );
+    \App\View::display('admin.player_detail', [
+        'config' => $config, 'player' => $player, 'history' => $history, 'balance_log' => $balanceLog,
+    ]);
+});
+
+// ============ 404 ============
+\App\Router::notFound(function() use ($config) {
+    http_response_code(404);
+    \App\View::display('pages.404', ['config' => $config]);
+});
+
+// ============ CSRF GUARD pra POSTs do admin (exceto /admin/login que ja checa) ============
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
+    $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+    if (strpos($path, '/admin/') === 0 && $path !== '/admin/login') {
+        \App\Auth::requireAdmin();
+        if (!\App\Csrf::check()) {
+            http_response_code(419);
+            die('CSRF token inválido. Volte e tente novamente.');
+        }
+    }
+}
+
+// ============ MAINTENANCE MODE ============
+// Bloqueia acesso publico se setting maintenance_enabled = 1.
+// Admin continua acessivel (rotas /admin/*), instalador idem.
+$maintEnabled = (int)($config['settings']['maintenance_enabled'] ?? 0);
+if ($maintEnabled) {
+    $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+    $isAdmin   = strpos($path, '/admin') === 0;
+    $isApi     = strpos($path, '/api/') === 0;
+    $isAsset   = strpos($path, '/assets/') === 0;
+    $isInstall = $path === '/install.php';
+    if (!$isAdmin && !$isApi && !$isAsset && !$isInstall) {
+        http_response_code(503);
+        header('Retry-After: 3600');
+        \App\View::display('pages.maintenance', ['config' => $config]);
+        exit;
+    }
+}
+
+// ============ DISPATCH ============
+\App\Router::dispatch();
