@@ -7,9 +7,9 @@ Tema apocalipse · Painel admin completo · Mercado Pago · Login Steam · Multi
 
 [![PHP](https://img.shields.io/badge/PHP-8.0+-777BB4?style=flat-square&logo=php&logoColor=white)](https://www.php.net)
 [![MySQL](https://img.shields.io/badge/MySQL-5.7+-4479A1?style=flat-square&logo=mysql&logoColor=white)](https://www.mysql.com)
-[![License](https://img.shields.io/badge/License-Tecplay--NC-c1440e?style=flat-square)](LICENSE.txt)
-[![Status](https://img.shields.io/badge/Status-Produção-5a6c4e?style=flat-square)]()
-[![Versão](https://img.shields.io/badge/Versão-1.0-d4a017?style=flat-square)]()
+[![License](https://img.shields.io/badge/License-Tecplay--NC-a855f7?style=flat-square)](LICENSE.txt)
+[![Status](https://img.shields.io/badge/Status-Produção-16a34a?style=flat-square)]()
+[![Versão](https://img.shields.io/badge/Versão-1.1.0-facc15?style=flat-square)](CHANGELOG.md)
 
 *Sobreviva. Construa. Domine. Agora também na web.*
 
@@ -109,7 +109,50 @@ A venda não autorizada é **crime** previsto no **Art. 184 §2º do Código Pen
 
 ---
 
-## 🏗 Stack
+## 🏠 Onde hospedar
+
+Você pode rodar este template em qualquer hospedagem PHP. Recomendações **Tecplay-tested**:
+
+### 🟢 Easy Mode — AWS Lightsail $10/mês
+
+Blueprint **LAMP_PHP_8** vem com Apache + PHP 8.1 + MariaDB + phpMyAdmin pré-instalado. Você só:
+
+1. Cria a instância no console Lightsail (3 cliques)
+2. Conecta via SFTP, sobe o `public_html`
+3. Importa o `schema.sql` via phpMyAdmin (`https://seu-ip/phpmyadmin`)
+4. Aponta DNS do domínio pro IP estático da Lightsail
+5. Roda `sudo certbot --apache -d seudominio.com` (HTTPS grátis)
+
+Specs: **2 GB RAM · 2 vCPU burst · 60 GB SSD · 3 TB transfer**. Aguenta 100-500 visitas/dia + polling do bot Discord sem reclamar. Aguenta o pico de wipe day.
+
+🔗 https://aws.amazon.com/lightsail/pricing/
+
+### 🔵 Power Mode — Hetzner Cloud CPX21 ~$8/mês
+
+Melhor custo-benefício do mercado se você topa rodar `apt install lamp-server^`. Você precisa:
+
+1. Cria VPS Ubuntu 22.04 no Hetzner (Falkenstein DE ou Ashburn US)
+2. `apt install lamp-server^ certbot python3-certbot-apache`
+3. Sobe arquivos via SCP/rsync
+4. Cria DB MySQL local, importa `schema.sql`
+5. Configura virtualhost Apache, roda Certbot
+
+Specs: **3 GB RAM · 3 vCPU AMD · 80 GB NVMe**. Latência BR ~110ms (Ashburn) — coloca Cloudflare na frente como CDN pra esconder isso.
+
+🔗 https://www.hetzner.com/cloud/
+
+### 🚫 NÃO funcionam (não rodam PHP nativo)
+
+- Vercel · Netlify · Cloudflare Pages → só JS/TS/Jamstack
+- Render · Railway → PHP só via Dockerfile custom (não vale a dor)
+
+### 💡 Migrando do Hostinger compartilhado?
+
+Tempo total: 2-4h trabalho + ~30min downtime real. Pontos de atenção:
+- Charset DB: Hostinger às vezes usa `utf8mb3`, força `utf8mb4_unicode_ci` no dump
+- Paths absolutos: refatorar `/home/u123456/public_html/` → `/var/www/html/`
+- `.htaccess`: remover blocos `# BEGIN Hostinger`, manter rewrite original
+- DNS TTL: baixar pra 300s **24h antes** da migração
 
 - **PHP 8.0+** vanilla (sem framework, sem Composer runtime)
 - **MySQL 5.7+** / MariaDB com UTF-8 (utf8mb4)
