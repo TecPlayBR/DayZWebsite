@@ -14,6 +14,7 @@ $discord = $config['settings']['discord_invite'] ?? '';
     <title>Em manutenção — <?= e($siteName) ?></title>
     <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Inter:wght@400;600;700&family=VT323&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="<?= asset('css/theme.css') ?>">
+    <?= theme_override_tag() ?>
     <link rel="icon" type="image/png" href="<?= asset('img/logo.png') ?>">
 </head>
 <body>

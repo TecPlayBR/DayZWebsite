@@ -3,6 +3,7 @@
   LICENCA DE USO GRATUITO COM RESTRICOES (NAO-COMERCIAL)
 ================================================================
   Copyright (c) 2026 Tecplay - Todos os direitos reservados.
+  Tecplay - CNPJ 56.341.987/0001-62
   suporte@tecplay.inf.br | https://tecplay.inf.br
 ================================================================
 

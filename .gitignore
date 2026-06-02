@@ -5,6 +5,9 @@
 # Config real (cliente gera via install.php)
 config/config.php
 
+# Skin customizada do cliente (override CSS) — cada instalação tem o seu
+public/assets/css/theme.override.css
+
 # Storage runtime — só estrutura vai pro repo via .gitkeep
 storage/backups/*
 !storage/backups/.gitkeep

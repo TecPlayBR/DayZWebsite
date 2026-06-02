@@ -77,20 +77,24 @@
 <div class="customize-section">
     <h2>Paleta de Cores</h2>
     <p style="color: var(--dim); font-size: 0.9rem; margin-bottom: 1rem;">
-        Edite as variáveis CSS no topo de <code>public/assets/css/theme.css</code>. Mudanças são imediatas (sem rebuild).
+        Pra customizar a paleta sem tocar no template oficial, copie <code>public/assets/css/theme.override.example.css</code> pra
+        <code>public/assets/css/theme.override.css</code> e edite os valores. Mudanças são imediatas (sem rebuild).
+        O arquivo override fica isolado da sua instalação — atualizações do template não sobrescrevem suas cores.
     </p>
     <div class="palette-grid">
         <?php
+        // Valores default da identidade Tecplay (roxo brand).
+        // Se o cliente tem theme.override.css ativo, os values do JS abaixo refletem as cores reais aplicadas.
         $palette = [
-            ['--rust',   '#c1440e', 'Cor principal (ferrugem/laranja)', '#c1440e'],
-            ['--rust-2', '#e74c3c', 'Acento vivo (vermelho/sangue)',     '#e74c3c'],
-            ['--hazard', '#d4a017', 'Destaque (amarelo lanterna)',      '#d4a017'],
-            ['--moss',   '#5a6c4e', 'Sucesso (verde militar)',           '#5a6c4e'],
-            ['--bone',   '#d4c5a9', 'Texto principal (osso/bege)',       '#d4c5a9'],
-            ['--bg-0',   '#050608', 'Fundo principal',                   '#050608'],
-            ['--bg-1',   '#0d1014', 'Fundo de cards',                    '#0d1014'],
-            ['--bg-2',   '#161a20', 'Fundo de tabelas',                  '#161a20'],
-            ['--dim',    '#6b7280', 'Texto secundário',                  '#6b7280'],
+            ['--rust',   '#a855f7', 'Cor principal (brand roxo)',       '#a855f7'],
+            ['--rust-2', '#c084fc', 'Acento vivo (lilás)',              '#c084fc'],
+            ['--hazard', '#facc15', 'Destaque (accent dourado)',        '#facc15'],
+            ['--moss',   '#16a34a', 'Sucesso (verde)',                  '#16a34a'],
+            ['--bone',   '#ede9fe', 'Texto principal (osso lilás)',     '#ede9fe'],
+            ['--bg-0',   '#0a0612', 'Fundo principal (noite violeta)',  '#0a0612'],
+            ['--bg-1',   '#120a1f', 'Fundo de cards',                   '#120a1f'],
+            ['--bg-2',   '#1c1230', 'Fundo de tabelas',                 '#1c1230'],
+            ['--dim',    '#a1a1aa', 'Texto secundário',                 '#a1a1aa'],
         ];
         foreach ($palette as [$var, $hex, $label, $color]):
         ?>

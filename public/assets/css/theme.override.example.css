@@ -1,0 +1,85 @@
+/* ============================================================
+   theme.override.example.css
+   ============================================================
+   Exemplo de skin customizada do template DayZWebsite.
+
+   COMO USAR:
+   1. Copie este arquivo pra `theme.override.css` (mesma pasta).
+   2. Edite os valores. As únicas vars que importa trocar estão
+      no bloco :root abaixo.
+   3. Salve. Pronto — refresh o site e a paleta aplica.
+
+   IMPORTANTE: o arquivo `theme.override.css` é GITIGNORED — fica
+   só na sua instalação, não vai pro repositório público.
+   ============================================================
+   Exemplos abaixo: 4 paletas prontas que podem servir de base.
+   Descomente UM bloco e ajuste.
+   ============================================================ */
+
+/* -------- EXEMPLO 1 — "Apocalipse rust" (original DayZ vibe) -------- */
+/*
+:root {
+    --bg-0:   #050608;
+    --bg-1:   #0d1014;
+    --bg-2:   #161a20;
+    --bg-3:   #1f252d;
+    --rust:   #c1440e;
+    --rust-2: #e74c3c;
+    --bone:   #d4c5a9;
+    --moss:   #5a6c4e;
+    --hazard: #d4a017;
+    --dim:    #6b7280;
+    --border: rgba(212,197,169,0.10);
+}
+*/
+
+/* -------- EXEMPLO 2 — "Sangue + esmeralda" (vibe danone apocalíptica) -------- */
+/*
+:root {
+    --bg-0:   #0a0405;
+    --bg-1:   #1a0a0c;
+    --bg-2:   #2a1014;
+    --bg-3:   #3a181c;
+    --rust:   #b91c1c;
+    --rust-2: #ef4444;
+    --bone:   #f5f3f0;
+    --moss:   #10b981;
+    --hazard: #fde047;
+    --dim:    #94a3b8;
+    --border: rgba(245,243,240,0.10);
+}
+*/
+
+/* -------- EXEMPLO 3 — "Cyan tactical" (HUD militar) -------- */
+/*
+:root {
+    --bg-0:   #020617;
+    --bg-1:   #0c1a2e;
+    --bg-2:   #15263f;
+    --bg-3:   #1e3450;
+    --rust:   #06b6d4;
+    --rust-2: #22d3ee;
+    --bone:   #e0f2fe;
+    --moss:   #84cc16;
+    --hazard: #fbbf24;
+    --dim:    #94a3b8;
+    --border: rgba(224,242,254,0.10);
+}
+*/
+
+/* -------- EXEMPLO 4 — "Toxic green" (radiation) -------- */
+/*
+:root {
+    --bg-0:   #0a0f08;
+    --bg-1:   #131c0f;
+    --bg-2:   #1d2b17;
+    --bg-3:   #28381f;
+    --rust:   #84cc16;
+    --rust-2: #a3e635;
+    --bone:   #ecfccb;
+    --moss:   #16a34a;
+    --hazard: #facc15;
+    --dim:    #94a3b8;
+    --border: rgba(236,252,203,0.10);
+}
+*/

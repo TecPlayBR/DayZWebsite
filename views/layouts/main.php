@@ -69,6 +69,7 @@
     <?php endif; ?>
 
     <link rel="stylesheet" href="<?= asset('css/theme.css') ?>">
+    <?= theme_override_tag() ?>
 </head>
 <body>
 

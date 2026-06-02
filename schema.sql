@@ -35,7 +35,7 @@ CREATE TABLE players (
     coins           INT          NOT NULL DEFAULT 0,
     total_spent_brl DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     last_seen_at    DATETIME NULL,
-    origin          ENUM('agent','panel','payment','manual') NOT NULL DEFAULT 'agent',
+    origin          ENUM('agent','panel','payment','manual','bot') NOT NULL DEFAULT 'agent',
     notes           TEXT NULL,
     created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Inter:wght@400;600;700&family=VT323&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="<?= asset('css/theme.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/admin.css') ?>">
+    <?= theme_override_tag() ?>
 </head>
 <body class="admin-body">
 
@@ -41,6 +42,7 @@
             <a href="/admin/logs" class="<?= str_starts_with($current, '/admin/logs') ? 'active' : '' ?>">⌨ Logs PHP</a>
             <a href="/admin/customize" class="<?= str_starts_with($current, '/admin/customize') ? 'active' : '' ?>">◐ Visual</a>
             <a href="/admin/settings" class="<?= str_starts_with($current, '/admin/settings') ? 'active' : '' ?>">⚙ Config</a>
+            <a href="/admin/discord-integration" class="<?= str_starts_with($current, '/admin/discord-integration') ? 'active' : '' ?>">🤖 Integração Discord</a>
             <a href="/admin/support" class="<?= str_starts_with($current, '/admin/support') ? 'active' : '' ?>" style="margin-top: auto;">✉ Suporte Tecplay</a>
         </nav>
 

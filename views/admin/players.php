@@ -34,6 +34,7 @@
                 <option value="payment" <?= $origin==='payment' ? 'selected' : '' ?>>Payment</option>
                 <option value="panel"   <?= $origin==='panel'   ? 'selected' : '' ?>>Panel</option>
                 <option value="manual"  <?= $origin==='manual'  ? 'selected' : '' ?>>Manual</option>
+                <option value="bot"     <?= $origin==='bot'     ? 'selected' : '' ?>>Bot Discord</option>
             </select>
         </div>
         <div>
@@ -93,6 +94,7 @@
                         'agent'   => 'info',
                         'payment' => 'success',
                         'panel'   => 'warning',
+                        'bot'     => 'pro',
                         default   => 'info'
                     };
                     ?>

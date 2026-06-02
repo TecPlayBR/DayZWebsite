@@ -11,6 +11,7 @@ $discord = $config['settings']['discord_invite'] ?? '';
     <title>Erro 500 — <?= htmlspecialchars($siteName) ?></title>
     <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Inter:wght@400;600;700&family=VT323&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/theme.css">
+    <?= function_exists('theme_override_tag') ? theme_override_tag() : '' ?>
 </head>
 <body>
 <section class="hero" style="min-height: 100vh; align-items: center;">

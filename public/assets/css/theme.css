@@ -1,33 +1,45 @@
 /* ============================================================
    Tecplay - DayZ Website Template
-   Tema: "Survival Apocalypse"
+   Tema oficial: "Tecplay Brand" (roxo + lilás + accent dourado)
+   Espelha o site institucional tecplay.inf.br
    ============================================================
-   Paleta:
-     --bg-0   #050608  (preto fosforado)
-     --bg-1   #0d1014  (carvao)
-     --bg-2   #161a20  (concreto sujo)
-     --bg-3   #1f252d  (concreto seco)
-     --rust   #c1440e  (ferrugem / sangue oxidado)
-     --rust-2 #e74c3c  (alarme / sangue vivo)
-     --bone   #d4c5a9  (osso / pergaminho)
-     --moss   #5a6c4e  (limo / camuflagem)
-     --hazard #d4a017  (lanterna / hazard)
-     --dim    #6b7280  (texto secundario)
+   Paleta default (Tecplay) — cliente pode override em
+   `theme.override.css` (gitignored, carregado automaticamente se
+   existir):
+
+     --bg-0   #0a0612  (noite profunda — fundo principal)
+     --bg-1   #120a1f  (carvão violeta — cards)
+     --bg-2   #1c1230  (concreto violeta — surfaces)
+     --bg-3   #271942  (camada elevada)
+     --rust   #a855f7  (brand-500 — roxo Tecplay principal)
+     --rust-2 #c084fc  (lilac — destaques suaves / hover)
+     --bone   #ede9fe  (osso lilás — texto claro)
+     --moss   #16a34a  (verde sucesso — preserved semantics)
+     --hazard #facc15  (accent dourado — raio do logo Tecplay)
+     --dim    #a1a1aa  (texto secundário)
+   ============================================================
+   Notas pra integradores:
+   - Os NOMES das vars (--rust, --bone, --moss…) são preservados
+     por compatibilidade — não renomear o que já está espalhado em
+     258+ lugares no CSS. Para skin customizada, faça override de
+     valor em :root no theme.override.css.
+   - Veja exemplo completo de override (cliente Danoninhoz) em
+     `theme.override.example.css`.
    ============================================================ */
 
 :root {
     --b: 4x7-k29m-p4xb;
-    --bg-0:   #050608;
-    --bg-1:   #0d1014;
-    --bg-2:   #161a20;
-    --bg-3:   #1f252d;
-    --rust:   #c1440e;
-    --rust-2: #e74c3c;
-    --bone:   #d4c5a9;
-    --moss:   #5a6c4e;
-    --hazard: #d4a017;
-    --dim:    #6b7280;
-    --border: rgba(212,197,169,0.10);
+    --bg-0:   #0a0612;
+    --bg-1:   #120a1f;
+    --bg-2:   #1c1230;
+    --bg-3:   #271942;
+    --rust:   #a855f7;
+    --rust-2: #c084fc;
+    --bone:   #ede9fe;
+    --moss:   #16a34a;
+    --hazard: #facc15;
+    --dim:    #a1a1aa;
+    --border: rgba(237,233,254,0.10);
 
     --font-display: 'Black Ops One', 'Impact', sans-serif;
     --font-body:    'Inter', system-ui, sans-serif;

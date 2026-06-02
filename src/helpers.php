@@ -36,6 +36,22 @@ if (!function_exists('asset')) {
     }
 }
 
+if (!function_exists('theme_override_tag')) {
+    /**
+     * Retorna <link> pro theme.override.css se ele existir; string vazia caso contrário.
+     * Mecanismo de skin customizada pelo cliente sem tocar no template.
+     * theme.override.css fica gitignored — cada instalação tem o seu.
+     */
+    function theme_override_tag(): string {
+        $abs = dirname(__DIR__) . '/public/assets/css/theme.override.css';
+        if (!is_file($abs)) {
+            return '';
+        }
+        $v = filemtime($abs);
+        return '<link rel="stylesheet" href="/assets/css/theme.override.css?v=' . $v . '">';
+    }
+}
+
 if (!function_exists('url')) {
     function url(string $path = '/'): string {
         $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';

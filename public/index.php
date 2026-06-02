@@ -1632,6 +1632,79 @@ $collectDashboardData = function() {
     \App\View::display('admin.support', ['config' => $config]);
 });
 
+// ============ INTEGRAÇÃO DISCORD (v1.1.0) ============
+
+\App\Router::get('/admin/discord-integration', function() use ($config) {
+    \App\Auth::requireAdmin();
+    $token = (string) (\App\Database::fetchColumn(
+        "SELECT `value` FROM settings WHERE `key` = 'discord_integration_token'"
+    ) ?: '');
+    $lastOk = (int) (\App\Database::fetchColumn(
+        "SELECT `value` FROM settings WHERE `key` = 'discord_integration_last_ok'"
+    ) ?: 0);
+
+    $tokenMasked = '';
+    if ($token !== '') {
+        $tokenMasked = strlen($token) > 8
+            ? substr($token, 0, 4) . str_repeat('•', max(0, strlen($token) - 8)) . substr($token, -4)
+            : str_repeat('•', strlen($token));
+    }
+
+    // Status: verde<5min · amarelo<1h · vermelho >1h ou nunca
+    $age = $lastOk > 0 ? (time() - $lastOk) : PHP_INT_MAX;
+    if ($age < 300) {
+        $statusColor = '#16a34a'; $statusLabel = '🟢 Conectado';
+    } elseif ($age < 3600) {
+        $statusColor = '#f59e0b'; $statusLabel = '🟡 Inativo recente';
+    } else {
+        $statusColor = '#dc2626'; $statusLabel = $lastOk > 0 ? '🔴 Desconectado' : '⚫ Nunca testado';
+    }
+
+    $log = [];
+    try {
+        $log = \App\Database::fetchAll(
+            "SELECT called_at, ip, action, status_code FROM discord_integration_log
+             ORDER BY id DESC LIMIT 10"
+        );
+    } catch (\Throwable $e) {
+        // Tabela pode não existir se migration não rodou ainda
+        $log = [];
+    }
+
+    $publicUrl = rtrim(($config['app_url'] ?? ('https://' . ($_SERVER['HTTP_HOST'] ?? 'localhost'))), '/');
+
+    \App\View::display('admin.discord_integration', [
+        'config' => $config,
+        'token' => $token,
+        'tokenMasked' => $tokenMasked,
+        'lastOk' => $lastOk,
+        'statusColor' => $statusColor,
+        'statusLabel' => $statusLabel,
+        'log' => $log,
+        'publicUrl' => $publicUrl,
+    ]);
+});
+
+\App\Router::post('/admin/discord-integration/regenerate', function() use ($config) {
+    \App\Auth::requireAdmin();
+    \App\Csrf::require();
+    // tcp_ + 48 hex chars (24 bytes = 192 bits de entropia) = ~52 chars
+    $new = 'tcp_' . bin2hex(random_bytes(24));
+    \App\Database::query(
+        "INSERT INTO settings (`key`, `value`) VALUES ('discord_integration_token', ?)
+         ON DUPLICATE KEY UPDATE `value` = VALUES(`value`)",
+        [$new]
+    );
+    // Resetar "last_ok" pra status voltar pra vermelho até bot testar com token novo
+    \App\Database::query(
+        "INSERT INTO settings (`key`, `value`) VALUES ('discord_integration_last_ok', '0')
+         ON DUPLICATE KEY UPDATE `value` = VALUES(`value`)"
+    );
+    \App\AuditLog::record('discord_integration.regenerate', 'discord_token');
+    header('Location: /admin/discord-integration?flash=' . urlencode('Token novo gerado. Cola no painel do bot.'));
+    exit;
+});
+
 \App\Router::get('/admin/players/{id}', function($id) use ($config) {
     \App\Auth::requireAdmin();
     $player = \App\Database::fetchOne("SELECT * FROM players WHERE id = ? LIMIT 1", [(int)$id]);
