@@ -25,7 +25,7 @@ $okMsg = match($ok) {
 };
 ?>
 <?php if ($errMsg): ?>
-    <div style="background:rgba(231,76,60,0.12);border-left:3px solid var(--rust-2);padding:0.8rem 1rem;margin-bottom:1.5rem;color:#fca5a5;"><?= e($errMsg) ?></div>
+    <div style="background:var(--danger-overlay);border-left:3px solid var(--rust-2);padding:0.8rem 1rem;margin-bottom:1.5rem;color:var(--text-danger);"><?= e($errMsg) ?></div>
 <?php elseif ($okMsg): ?>
     <div class="alert-toast"><?= e($okMsg) ?></div>
 <?php endif; ?>
@@ -131,7 +131,7 @@ $okMsg = match($ok) {
                     <form method="POST" action="/admin/coupons/<?= (int)$c['id'] ?>/delete" style="display: inline;"
                           onsubmit="return confirm('Apagar cupom <?= e($c['code']) ?> permanentemente?');">
                         <?= \App\Csrf::field() ?>
-                        <button type="submit" class="btn-mini outline" style="border-color: rgba(231,76,60,0.4); color: #fca5a5;">✕</button>
+                        <button type="submit" class="btn-mini outline" style="border-color: var(--danger-border); color: var(--text-danger);">✕</button>
                     </form>
                 </td>
             </tr>

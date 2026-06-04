@@ -122,14 +122,14 @@
     display: flex; align-items: center; gap: 0.6rem;
 }
 .server-inactive-tag {
-    background: rgba(231,76,60,0.15);
-    color: #fca5a5;
+    background: var(--danger-overlay);
+    color: var(--text-danger);
     padding: 0.15rem 0.5rem;
     font-size: 0.65rem;
     font-family: var(--font-mono, monospace);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    border: 1px solid rgba(231,76,60,0.4);
+    border: 1px solid var(--danger-border);
 }
 .server-slug {
     color: var(--moss);

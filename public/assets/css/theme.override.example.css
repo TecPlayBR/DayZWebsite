@@ -12,8 +12,32 @@
    IMPORTANTE: o arquivo `theme.override.css` é GITIGNORED — fica
    só na sua instalação, não vai pro repositório público.
    ============================================================
+   v1.1.1: template ~98% skinável (refactor de cores hardcoded
+   pra CSS vars). Setando todas as vars abaixo cobre o visual
+   inteiro do site público + painel admin.
+   ============================================================
    Exemplos abaixo: 4 paletas prontas que podem servir de base.
    Descomente UM bloco e ajuste.
+
+   Vars disponíveis pra sobrescrever:
+
+   PALETA PRINCIPAL:
+     --bg-0, --bg-1, --bg-2, --bg-3   (fundos: principal → elevado)
+     --rust, --rust-2                  (cor brand + acento)
+     --bone                            (texto principal)
+     --moss                            (verde sucesso / online)
+     --hazard                          (accent dourado / warnings)
+     --dim                             (texto secundário)
+     --border                          (bordas translúcidas)
+
+   STATUS TEXT (v1.1.1+):
+     --text-danger                     (texto erro/aviso)
+     --text-success                    (texto sucesso)
+
+   OVERLAYS TRANSLÚCIDOS (v1.1.1+):
+     --danger-overlay, --danger-border (banner/borda erro)
+     --hazard-overlay, --hazard-border (banner/borda accent)
+     --dark-overlay                    (modal/dropdown backdrop)
    ============================================================ */
 
 /* -------- EXEMPLO 1 — "Apocalipse rust" (original DayZ vibe) -------- */

@@ -19,9 +19,9 @@ $discord = $config['settings']['discord_invite'] ?? '';
 </head>
 <body>
 <section class="hero" style="min-height: 100vh; align-items: center;">
-    <div class="hero-bg" style="background-image: linear-gradient(180deg, rgba(5,6,8,0.6) 0%, rgba(5,6,8,0.95) 100%), url('<?= asset('img/background4.png') ?>');"></div>
+    <div class="hero-bg" style="background-image: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.95) 100%), url('<?= asset('img/background4.png') ?>');"></div>
     <div class="container hero-content" style="max-width: 100%; text-align: center;">
-        <span class="hero-kicker" style="margin: 0 auto 1.5rem; border-left-color: var(--hazard); color: var(--hazard); background: rgba(212,160,23,0.08);">
+        <span class="hero-kicker" style="margin: 0 auto 1.5rem; border-left-color: var(--hazard); color: var(--hazard); background: var(--hazard-overlay);">
             // Servidor em manutenção
         </span>
 

@@ -3,7 +3,7 @@
 <?php \App\View::section('content'); ?>
 
 <section class="hero" style="min-height: 70vh;">
-    <div class="hero-bg" style="background-image: linear-gradient(180deg, rgba(5,6,8,0.6) 0%, rgba(5,6,8,0.95) 100%), url('<?= asset('img/background5.png') ?>');"></div>
+    <div class="hero-bg" style="background-image: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.95) 100%), url('<?= asset('img/background5.png') ?>');"></div>
     <div class="container hero-content" style="text-align: center; max-width: 100%;">
         <?php if ($status === 'success'): ?>
             <span class="hero-kicker" style="margin-left:auto; margin-right:auto; border-left-color: var(--moss); color: var(--moss); background: rgba(90,108,78,0.08);">// PAGAMENTO RECEBIDO</span>

@@ -15,7 +15,7 @@ $discord = $config['settings']['discord_invite'] ?? '';
 </head>
 <body>
 <section class="hero" style="min-height: 100vh; align-items: center;">
-    <div class="hero-bg" style="background-image: linear-gradient(180deg, rgba(5,6,8,0.6) 0%, rgba(5,6,8,0.95) 100%), url('/assets/img/background4.png');"></div>
+    <div class="hero-bg" style="background-image: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.95) 100%), url('/assets/img/background4.png');"></div>
     <div class="container hero-content" style="max-width: 100%; text-align: center;">
         <span class="hero-kicker" style="margin: 0 auto 1.5rem; border-left-color: var(--rust-2); color: var(--rust-2);">
             // Falha no sistema
@@ -33,7 +33,7 @@ $discord = $config['settings']['discord_invite'] ?? '';
         <?php if (!empty($detail)): ?>
             <details style="max-width: 720px; margin: 1.5rem auto; text-align: left;">
                 <summary style="color: var(--hazard); cursor: pointer; font-family: var(--font-mono); font-size: 0.85rem;">Detalhes técnicos (admin only)</summary>
-                <pre style="background: var(--bg-1); border-left: 3px solid var(--rust-2); padding: 1rem; color: #fca5a5; font-size: 0.8rem; overflow-x: auto;"><?= htmlspecialchars($detail) ?></pre>
+                <pre style="background: var(--bg-1); border-left: 3px solid var(--rust-2); padding: 1rem; color: var(--text-danger); font-size: 0.8rem; overflow-x: auto;"><?= htmlspecialchars($detail) ?></pre>
             </details>
         <?php endif; ?>
 

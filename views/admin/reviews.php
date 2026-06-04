@@ -51,7 +51,7 @@
                     <form method="POST" action="/admin/reviews/<?= (int)$r['id'] ?>/delete" style="display: inline;"
                           onsubmit="return confirm('Apagar essa avaliação?');">
                         <?= \App\Csrf::field() ?>
-                        <button type="submit" class="btn-mini outline" style="border-color: rgba(231,76,60,0.4); color: #fca5a5;">✕ Apagar</button>
+                        <button type="submit" class="btn-mini outline" style="border-color: var(--danger-border); color: var(--text-danger);">✕ Apagar</button>
                     </form>
                 </div>
             </div>

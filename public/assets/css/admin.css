@@ -78,7 +78,7 @@
     color: var(--hazard);
 }
 .admin-nav a.active {
-    background: rgba(193,68,14,0.15);
+    background: var(--danger-overlay);
     border-left-color: var(--rust);
     color: var(--rust-2);
 }
@@ -203,10 +203,10 @@
     text-transform: uppercase;
     letter-spacing: 0.06em;
 }
-.badge.success  { background: rgba(90,108,78,0.2); color: #86efac; }
-.badge.warning  { background: rgba(212,160,23,0.2); color: var(--hazard); }
-.badge.danger   { background: rgba(231,76,60,0.2); color: #fca5a5; }
-.badge.info     { background: rgba(107,114,128,0.2); color: var(--dim); }
+.badge.success  { background: rgba(22,163,74,0.2); color: var(--text-success); }
+.badge.warning  { background: var(--hazard-border); color: var(--hazard); }
+.badge.danger   { background: var(--danger-overlay); color: var(--text-danger); }
+.badge.info     { background: rgba(160,160,160,0.2); color: var(--dim); }
 
 /* ============ FORM INLINE ============ */
 .inline-form { display: inline-flex; gap: 0.4rem; align-items: center; }
@@ -249,11 +249,11 @@
 .btn-mini.outline:hover { border-color: var(--rust); color: var(--rust-2); background: rgba(193,68,14,0.05); }
 .btn-mini.danger {
     background: transparent;
-    border: 1px solid rgba(231,76,60,0.4);
-    color: #fca5a5;
+    border: 1px solid var(--danger-border);
+    color: var(--text-danger);
 }
 .btn-mini.danger:hover {
-    background: rgba(231,76,60,0.15);
+    background: var(--danger-overlay);
     border-color: rgba(231,76,60,0.8);
     color: #fff;
 }
@@ -371,11 +371,11 @@
     padding: 0.85rem 1rem;
     margin-bottom: 1.25rem;
     border-left: 3px solid var(--hazard);
-    background: rgba(212,160,23,0.08);
+    background: var(--hazard-overlay);
     color: var(--bone);
     font-size: 0.88rem;
 }
-.admin-alert.error { border-left-color: var(--rust-2); background: rgba(231,76,60,0.12); color: #fca5a5; }
+.admin-alert.error { border-left-color: var(--rust-2); background: var(--danger-overlay); color: var(--text-danger); }
 .admin-alert.ok    { border-left-color: var(--moss);   background: rgba(74,93,58,0.12); color: var(--bone); }
 
 /* details (collapsible) — usado no "+ Adicionar novo" */
@@ -409,7 +409,7 @@
     min-height: 100vh;
     display: flex; align-items: center; justify-content: center;
     background: var(--bg-0);
-    background-image: linear-gradient(135deg, rgba(5,6,8,0.95), rgba(5,6,8,0.6)), url('/assets/img/background2.png');
+    background-image: linear-gradient(135deg, rgba(0,0,0,0.95), rgba(0,0,0,0.6)), url('/assets/img/background2.png');
     background-size: cover;
     background-position: center;
     padding: 1rem;
@@ -454,18 +454,18 @@
 .login-card .btn { width: 100%; }
 
 .login-error {
-    background: rgba(231,76,60,0.12);
+    background: var(--danger-overlay);
     border-left: 3px solid var(--rust-2);
     padding: 0.6rem 0.8rem;
     margin-bottom: 1rem;
-    color: #fca5a5;
+    color: var(--text-danger);
     font-size: 0.85rem;
 }
 
 .alert-toast {
     background: rgba(90,108,78,0.15);
     border-left: 3px solid var(--moss);
-    color: #86efac;
+    color: var(--text-success);
     padding: 0.7rem 1rem;
     margin-bottom: 1.5rem;
     font-size: 0.9rem;

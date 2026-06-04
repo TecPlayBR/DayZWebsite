@@ -13,7 +13,7 @@
 <?php endif; ?>
 
 <section class="hero" style="min-height: 50vh; padding-bottom: 2rem;">
-    <div class="hero-bg" style="background-image: linear-gradient(180deg, rgba(5,6,8,0.5) 0%, rgba(5,6,8,0.95) 100%), url('<?= asset('img/background3.png') ?>');"></div>
+    <div class="hero-bg" style="background-image: linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.95) 100%), url('<?= asset('img/background3.png') ?>');"></div>
     <div class="container hero-content">
         <span class="hero-kicker">// <?= e(__('shop.subtitle')) ?></span>
         <h1 class="hero-title"><?= e(__('shop.title')) ?></h1>
@@ -195,7 +195,7 @@
 }
 .pack-featured {
     border-color: var(--hazard);
-    box-shadow: 0 0 30px rgba(212,160,23,0.2);
+    box-shadow: 0 0 30px var(--hazard-border);
     transform: scale(1.02);
 }
 .pack-ribbon {
@@ -222,7 +222,7 @@
 .pack-wish {
     position: absolute;
     top: 0.6rem; left: 0.6rem;
-    background: rgba(13,16,20,0.7);
+    background: rgba(0,0,0,0.7);
     border: 1px solid var(--border);
     color: var(--dim);
     width: 32px; height: 32px;
@@ -232,8 +232,8 @@
     transition: color .2s, border-color .2s, transform .15s;
 }
 .pack-wish:hover { transform: scale(1.1); color: var(--rust-2); border-color: var(--rust-2); }
-.pack-wish.wished { color: var(--rust-2); border-color: var(--rust-2); background: rgba(231,76,60,0.15); }
-.pack-icon { font-size: 2.5rem; margin: 0.5rem 0 1rem; filter: drop-shadow(0 0 8px rgba(212,160,23,0.4)); }
+.pack-wish.wished { color: var(--rust-2); border-color: var(--rust-2); background: var(--danger-overlay); }
+.pack-icon { font-size: 2.5rem; margin: 0.5rem 0 1rem; filter: drop-shadow(0 0 8px var(--hazard-border)); }
 .pack-name { font-family: var(--font-display); color: var(--bone); font-size: 1rem; letter-spacing: 0.06em; margin-bottom: 0.8rem; }
 
 .pack-coins {
@@ -309,7 +309,7 @@
 }
 @keyframes promo-glow {
     0%, 100% { box-shadow: 0 0 0 rgba(231,76,60,0); }
-    50%      { box-shadow: 0 4px 24px rgba(231,76,60,0.5); }
+    50%      { box-shadow: 0 4px 24px var(--danger-border); }
 }
 .shop-promo-icon { font-size: 1.3rem; }
 .shop-promo-code { font-family: var(--font-mono); font-size: 0.8rem; opacity: 0.9; }
@@ -360,7 +360,7 @@
 .shop-terms input[type=checkbox] { width: 20px; height: 20px; margin-top: 0.1rem; flex-shrink: 0; }
 .shop-terms a { color: var(--hazard); text-decoration: underline; }
 .shop-terms-note { font-size: 0.75rem; color: var(--dim); margin: 0.4rem 0 0 1.7rem; }
-.shop-terms.shake { animation: terms-shake .4s; border-left-color: var(--rust-2); background: rgba(231,76,60,0.1); }
+.shop-terms.shake { animation: terms-shake .4s; border-left-color: var(--rust-2); background: var(--danger-overlay); }
 
 .shop-coupon {
     max-width: 700px; margin: 0 auto 1rem;
@@ -394,7 +394,7 @@
 
 /* Server selector (multi-server) */
 .server-selector {
-    background: linear-gradient(135deg, rgba(212,160,23,0.08), rgba(74,93,58,0.06));
+    background: linear-gradient(135deg, var(--hazard-overlay), rgba(74,93,58,0.06));
     border: 1px solid var(--border);
     border-left: 3px solid var(--hazard);
     padding: 1rem 1.25rem;

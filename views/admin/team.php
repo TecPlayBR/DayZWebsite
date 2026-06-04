@@ -29,7 +29,7 @@ $okMsg = match($ok) {
 };
 ?>
 <?php if ($errMsg): ?>
-    <div style="background:rgba(231,76,60,0.12);border-left:3px solid var(--rust-2);padding:0.8rem 1rem;margin-bottom:1.5rem;color:#fca5a5;">
+    <div style="background:var(--danger-overlay);border-left:3px solid var(--rust-2);padding:0.8rem 1rem;margin-bottom:1.5rem;color:var(--text-danger);">
         <?= e($errMsg) ?>
     </div>
 <?php elseif ($okMsg): ?>
@@ -101,7 +101,7 @@ $okMsg = match($ok) {
                         <form method="POST" action="/admin/team/<?= (int)$a['id'] ?>/delete" style="display: inline;"
                               onsubmit="return confirm('Remover admin <?= e($a['username']) ?> permanentemente?');">
                             <?= \App\Csrf::field() ?>
-                            <button type="submit" class="btn-mini outline" style="border-color: rgba(231,76,60,0.4); color: #fca5a5;">✕ Remover</button>
+                            <button type="submit" class="btn-mini outline" style="border-color: var(--danger-border); color: var(--text-danger);">✕ Remover</button>
                         </form>
                     <?php endif; ?>
                 </td>

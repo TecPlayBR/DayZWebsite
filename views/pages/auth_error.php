@@ -3,7 +3,7 @@
 <?php \App\View::section('content'); ?>
 
 <section class="hero" style="min-height: 60vh;">
-    <div class="hero-bg" style="background-image: linear-gradient(180deg, rgba(5,6,8,0.6) 0%, rgba(5,6,8,0.95) 100%), url('<?= asset('img/background4.png') ?>');"></div>
+    <div class="hero-bg" style="background-image: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.95) 100%), url('<?= asset('img/background4.png') ?>');"></div>
     <div class="container hero-content" style="text-align: center; max-width: 100%;">
         <span class="hero-kicker" style="margin-left:auto; margin-right:auto; border-left-color: var(--rust-2); color: var(--rust-2);">// AUTH FAILED</span>
         <h1 class="hero-title"><span class="accent">Login Negado.</span></h1>

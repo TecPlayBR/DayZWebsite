@@ -14,7 +14,7 @@
 </div>
 
 <?php if (!empty($_GET['err'])): $err = $_GET['err']; ?>
-    <div style="background:rgba(231,76,60,0.12); border-left:3px solid var(--rust-2); padding:0.9rem; color:#fca5a5; margin-bottom:1.5rem;">
+    <div style="background:var(--danger-overlay); border-left:3px solid var(--rust-2); padding:0.9rem; color:var(--text-danger); margin-bottom:1.5rem;">
         <?php
         echo match($err) {
             'upload' => 'Falha no upload do arquivo.',

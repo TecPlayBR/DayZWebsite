@@ -67,7 +67,7 @@
     if (!r.ok) return;
     const data = await r.json();
     const ctx = document.getElementById('sales-chart').getContext('2d');
-    const bone = '#d4c5a9', rust = '#c1440e', hazard = '#d4a017', dim = '#6b7280', moss = '#5a6c4e';
+    const bone = 'var(--bone)', rust = 'var(--rust)', hazard = 'var(--hazard)', dim = 'var(--dim)', moss = 'var(--moss)';
     Chart.defaults.color = dim;
     Chart.defaults.borderColor = 'rgba(212,197,169,0.08)';
     Chart.defaults.font.family = 'Inter, system-ui, sans-serif';
@@ -86,7 +86,7 @@
                 {
                     type: 'line', label: 'Compras (n)',
                     data: data.counts, yAxisID: 'y1',
-                    borderColor: hazard, backgroundColor: 'rgba(212,160,23,0.2)',
+                    borderColor: hazard, backgroundColor: 'var(--hazard-border)',
                     tension: 0.3, fill: false, pointRadius: 3, pointHoverRadius: 5, borderWidth: 2,
                 },
             ],
@@ -102,7 +102,7 @@
             plugins: {
                 legend: { labels: { color: bone, padding: 16, font: { size: 12 } } },
                 tooltip: {
-                    backgroundColor: '#0d1014', borderColor: rust, borderWidth: 1,
+                    backgroundColor: 'var(--bg-1)', borderColor: rust, borderWidth: 1,
                     titleColor: bone, bodyColor: bone,
                 },
             },

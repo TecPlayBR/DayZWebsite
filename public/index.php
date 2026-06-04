@@ -21,10 +21,10 @@ set_exception_handler(function (\Throwable $e) {
         $config = $GLOBALS['__config_for_errors'] ?? [];
         include $errorPage;
     } else {
-        echo '<!DOCTYPE html><html><body style="font-family:system-ui;padding:2rem;background:#0d1014;color:#d4c5a9;">';
-        echo '<h1 style="color:#c1440e;">500 — Algo deu errado</h1>';
+        echo '<!DOCTYPE html><html><body style="font-family:system-ui;padding:2rem;background:var(--bg-1);color:var(--bone);">';
+        echo '<h1 style="color:var(--rust);">500 — Algo deu errado</h1>';
         echo '<p>Tente recarregar a página. Se persistir, contate o suporte.</p>';
-        if ($detail) echo '<pre style="background:#161a20;padding:1rem;color:#fca5a5;">' . htmlspecialchars($detail) . '</pre>';
+        if ($detail) echo '<pre style="background:var(--bg-2);padding:1rem;color:var(--text-danger);">' . htmlspecialchars($detail) . '</pre>';
         echo '</body></html>';
     }
     exit;
@@ -1653,7 +1653,7 @@ $collectDashboardData = function() {
     // Status: verde<5min · amarelo<1h · vermelho >1h ou nunca
     $age = $lastOk > 0 ? (time() - $lastOk) : PHP_INT_MAX;
     if ($age < 300) {
-        $statusColor = '#16a34a'; $statusLabel = '🟢 Conectado';
+        $statusColor = 'var(--moss)'; $statusLabel = '🟢 Conectado';
     } elseif ($age < 3600) {
         $statusColor = '#f59e0b'; $statusLabel = '🟡 Inativo recente';
     } else {

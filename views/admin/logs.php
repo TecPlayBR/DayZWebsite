@@ -17,7 +17,7 @@
 </div>
 
 <?php if ($error): ?>
-    <div style="background:rgba(231,76,60,0.12); border-left:3px solid var(--rust-2); padding:1rem; color:#fca5a5; margin-bottom: 1.5rem;">
+    <div style="background:var(--danger-overlay); border-left:3px solid var(--rust-2); padding:1rem; color:var(--text-danger); margin-bottom: 1.5rem;">
         ⚠ <?= e($error) ?>
         <p style="margin-top:0.5rem; font-size:0.85rem;">
             Pra ativar, defina <code>error_log</code> no <code>php.ini</code> ou via <code>ini_set('error_log', '/path/to/log')</code> no bootstrap.
@@ -50,8 +50,8 @@
 
 <style>
 .log-line { display: block; padding: 0.1rem 0.3rem; }
-.log-line.log-fatal  { background: rgba(231,76,60,0.12); color: #fca5a5; border-left: 3px solid var(--rust-2); padding-left: 0.5rem; }
-.log-line.log-warn   { background: rgba(212,160,23,0.08); color: var(--hazard); border-left: 3px solid var(--hazard); padding-left: 0.5rem; }
+.log-line.log-fatal  { background: var(--danger-overlay); color: var(--text-danger); border-left: 3px solid var(--rust-2); padding-left: 0.5rem; }
+.log-line.log-warn   { background: var(--hazard-overlay); color: var(--hazard); border-left: 3px solid var(--hazard); padding-left: 0.5rem; }
 .log-line.log-notice { color: var(--dim); }
 .log-line.log-app    { color: var(--moss); }
 .log-line.hidden     { display: none; }

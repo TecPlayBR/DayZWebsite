@@ -3,7 +3,7 @@
 <?php \App\View::section('content'); ?>
 
 <section class="hero" style="min-height: 40vh; padding-bottom: 2rem;">
-    <div class="hero-bg" style="background-image: linear-gradient(180deg, rgba(5,6,8,0.5) 0%, rgba(5,6,8,0.95) 100%), url('<?= asset('img/background5.png') ?>');"></div>
+    <div class="hero-bg" style="background-image: linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.95) 100%), url('<?= asset('img/background5.png') ?>');"></div>
     <div class="container hero-content">
         <span class="hero-kicker">// HALL OF FAME</span>
         <h1 class="hero-title">Os <span class="accent">Sobreviventes</span><br>Mais Resistentes.</h1>
@@ -99,7 +99,7 @@
 }
 .podium-1 {
     border-color: var(--hazard);
-    box-shadow: 0 0 30px rgba(212,160,23,0.3);
+    box-shadow: 0 0 30px var(--hazard-border);
     padding-top: 2.5rem;
     padding-bottom: 3rem;
     transform: translateY(-20px);

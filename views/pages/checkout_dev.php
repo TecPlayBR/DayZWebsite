@@ -3,7 +3,7 @@
 <?php \App\View::section('content'); ?>
 
 <section class="hero" style="min-height: 70vh;">
-    <div class="hero-bg" style="background-image: linear-gradient(180deg, rgba(5,6,8,0.6) 0%, rgba(5,6,8,0.95) 100%), url('<?= asset('img/background3.png') ?>');"></div>
+    <div class="hero-bg" style="background-image: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.95) 100%), url('<?= asset('img/background3.png') ?>');"></div>
     <div class="container hero-content">
         <span class="hero-kicker" style="border-left-color: var(--hazard); color: var(--hazard);">// MODO DEV — MP NÃO CONFIGURADO</span>
         <h1 class="hero-title"><span class="accent">Pedido</span><br>Registrado.</h1>
@@ -11,7 +11,7 @@
             Sua compra foi criada como <code>pending</code> no banco (id #<?= (int)$purchase_id ?>). Em <strong>produção</strong>, o cliente seria redirecionado pro Mercado Pago aqui.
         </p>
 
-        <div style="background: rgba(13,16,20,0.7); border-left: 3px solid var(--hazard); padding: 1.5rem; margin: 1.5rem 0; max-width: 600px;">
+        <div style="background: rgba(0,0,0,0.7); border-left: 3px solid var(--hazard); padding: 1.5rem; margin: 1.5rem 0; max-width: 600px;">
             <table style="width: 100%; color: var(--bone); font-family: var(--font-mono); font-size: 0.9rem; border-collapse: collapse;">
                 <tr><td style="padding: 0.4rem 0; color: var(--dim);">Pacote:</td><td><?= e($pkg['name']) ?></td></tr>
                 <tr><td style="padding: 0.4rem 0; color: var(--dim);">SteamID:</td><td><?= e($steam_id) ?></td></tr>

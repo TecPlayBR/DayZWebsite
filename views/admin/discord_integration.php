@@ -41,7 +41,7 @@
     </p>
 
     <?php if ($token === ''): ?>
-        <div style="background:rgba(193,68,14,0.15); border-left:3px solid #c1440e; padding:0.8rem 1rem; border-radius:4px; margin-bottom:1rem; font-size:0.9rem;">
+        <div style="background:var(--danger-overlay); border-left:3px solid var(--rust); padding:0.8rem 1rem; border-radius:4px; margin-bottom:1rem; font-size:0.9rem;">
             ⚠ Nenhum token configurado. Endpoint <code>/api/bot-integration.php</code> vai
             retornar 401 até você gerar um.
         </div>
@@ -98,7 +98,7 @@
                 <?php foreach ($log as $row): ?>
                     <?php
                     $code = (int)($row['status_code'] ?? 0);
-                    $codeColor = $code === 200 ? 'var(--moss)' : ($code >= 400 && $code < 500 ? 'var(--hazard)' : '#e74c3c');
+                    $codeColor = $code === 200 ? 'var(--moss)' : ($code >= 400 && $code < 500 ? 'var(--hazard)' : 'var(--rust-2)');
                     ?>
                     <tr style="border-bottom:1px solid var(--border);">
                         <td style="padding:0.5rem 0.4rem; font-family:var(--font-mono);">

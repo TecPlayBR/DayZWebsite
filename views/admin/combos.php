@@ -12,7 +12,7 @@
 
 <?php if (!empty($_GET['ok'])): ?><div class="alert-toast">Salvo.</div><?php endif; ?>
 <?php if (!empty($_GET['err'])): ?>
-    <div style="background:rgba(231,76,60,0.12);border-left:3px solid var(--rust-2);padding:0.7rem 1rem;margin-bottom:1.5rem;color:#fca5a5;">
+    <div style="background:var(--danger-overlay);border-left:3px solid var(--rust-2);padding:0.7rem 1rem;margin-bottom:1.5rem;color:var(--text-danger);">
         <?= match($_GET['err']) {
             'duplicate' => 'Já existe combo com esse slug.',
             'invalid'   => 'Verifique: slug, nome, e pelo menos 2 pacotes.',
@@ -118,7 +118,7 @@
                     </form>
                     <form method="POST" action="/admin/combos/<?= (int)$c['id'] ?>/delete" style="display:inline;" onsubmit="return confirm('Apagar?');">
                         <?= \App\Csrf::field() ?>
-                        <button type="submit" class="btn-mini outline" style="border-color: rgba(231,76,60,0.4); color: #fca5a5;">✕</button>
+                        <button type="submit" class="btn-mini outline" style="border-color: var(--danger-border); color: var(--text-danger);">✕</button>
                     </form>
                 </td>
             </tr>

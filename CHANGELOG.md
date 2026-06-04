@@ -5,6 +5,48 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [1.1.1] — 2026-06-04
+
+### Alterado — Template 100% skinável via override
+
+Refactor de cores hardcoded → CSS custom properties em todo o template.
+Override de paleta (`public/assets/css/theme.override.css`) agora cobre
+~98% do visual do site público + painel admin. Antes, paleta antiga
+(`rust/bone apocalipse`) e cores Tailwind ficavam hard-codadas em ~50
+arquivos PHP/CSS e ignoravam o override.
+
+**Wave 1** — 32 arquivos, 125 substituições:
+- Cores Tecplay duplicadas em vars (`#a855f7`, `#ede9fe`, etc) → `var(--*)`
+- Paleta antiga `rust/bone` (`#c1440e`, `#d4c5a9`, `#0d1014`, etc) → vars novas
+- Tailwind colors (`#fca5a5` text-danger, `#86efac` text-success) → vars novas
+- Overlays translúcidos `rgba(231,76,60,0.12)` etc → vars novas
+
+**Wave 2** — 12 arquivos, 37 substituições:
+- Paleta apocalipse remanescente (`#d4a017`, `#6b7280`, `#e74c3c`, `#5a6c4e`)
+- Variações de alpha em overlays vermelho/dourado
+
+### Adicionado — 7 vars CSS novas no `:root`
+
+```css
+--text-danger:    #fca5a5;
+--text-success:   #86efac;
+--danger-overlay: rgba(231,76,60,0.12);
+--danger-border:  rgba(231,76,60,0.4);
+--hazard-overlay: rgba(212,160,23,0.08);
+--hazard-border:  rgba(212,160,23,0.2);
+--dark-overlay:   rgba(0,0,0,0.6);
+```
+
+`theme.override.example.css` ganhou doc detalhada de todas as vars disponíveis.
+
+### Compatibilidade
+
+- Sem breaking change. Override existente continua funcionando.
+- Sites em produção sem `theme.override.css` continuam idênticos (paleta Tecplay default).
+- Pra aproveitar 100% do refactor, override deve setar as 7 vars novas além das antigas.
+
+---
+
 ## [1.1.0] — 2026-06-02
 
 ### Adicionado

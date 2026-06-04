@@ -86,15 +86,15 @@
         // Valores default da identidade Tecplay (roxo brand).
         // Se o cliente tem theme.override.css ativo, os values do JS abaixo refletem as cores reais aplicadas.
         $palette = [
-            ['--rust',   '#a855f7', 'Cor principal (brand roxo)',       '#a855f7'],
-            ['--rust-2', '#c084fc', 'Acento vivo (lilás)',              '#c084fc'],
-            ['--hazard', '#facc15', 'Destaque (accent dourado)',        '#facc15'],
-            ['--moss',   '#16a34a', 'Sucesso (verde)',                  '#16a34a'],
-            ['--bone',   '#ede9fe', 'Texto principal (osso lilás)',     '#ede9fe'],
-            ['--bg-0',   '#0a0612', 'Fundo principal (noite violeta)',  '#0a0612'],
-            ['--bg-1',   '#120a1f', 'Fundo de cards',                   '#120a1f'],
-            ['--bg-2',   '#1c1230', 'Fundo de tabelas',                 '#1c1230'],
-            ['--dim',    '#a1a1aa', 'Texto secundário',                 '#a1a1aa'],
+            ['--rust',   'var(--rust)', 'Cor principal (brand roxo)',       'var(--rust)'],
+            ['--rust-2', 'var(--rust-2)', 'Acento vivo (lilás)',              'var(--rust-2)'],
+            ['--hazard', 'var(--hazard)', 'Destaque (accent dourado)',        'var(--hazard)'],
+            ['--moss',   'var(--moss)', 'Sucesso (verde)',                  'var(--moss)'],
+            ['--bone',   'var(--bone)', 'Texto principal (osso lilás)',     'var(--bone)'],
+            ['--bg-0',   'var(--bg-0)', 'Fundo principal (noite violeta)',  'var(--bg-0)'],
+            ['--bg-1',   'var(--bg-1)', 'Fundo de cards',                   'var(--bg-1)'],
+            ['--bg-2',   'var(--bg-2)', 'Fundo de tabelas',                 'var(--bg-2)'],
+            ['--dim',    'var(--dim)', 'Texto secundário',                 'var(--dim)'],
         ];
         foreach ($palette as [$var, $hex, $label, $color]):
         ?>
@@ -162,7 +162,7 @@
     display: flex; align-items: center; justify-content: center;
     background: var(--bg-0);
 }
-.customize-preview-dark  { background: linear-gradient(135deg, #0a0c10, #161a20); }
+.customize-preview-dark  { background: linear-gradient(135deg, #0a0c10, var(--bg-2)); }
 .customize-preview-light { background: #f5f5f0; }
 .customize-info { padding: 1rem; }
 .customize-label {

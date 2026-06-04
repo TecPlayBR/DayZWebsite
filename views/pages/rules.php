@@ -3,7 +3,7 @@
 
 <?php \App\View::section('content'); ?>
 <section class="hero" style="min-height: 60vh;">
-    <div class="hero-bg" style="background-image: linear-gradient(180deg, rgba(5,6,8,0.5) 0%, rgba(5,6,8,0.95) 100%), url('<?= asset('img/background5.png') ?>');"></div>
+    <div class="hero-bg" style="background-image: linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.95) 100%), url('<?= asset('img/background5.png') ?>');"></div>
     <div class="container hero-content">
         <span class="hero-kicker">// CODE_OF_CONDUCT</span>
         <h1 class="hero-title"><?= e(__('nav.rules')) ?></h1>

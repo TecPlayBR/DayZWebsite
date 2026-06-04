@@ -15,7 +15,7 @@
 </div>
 
 <?php if (!empty($_GET['err'])): ?>
-    <div style="background:rgba(231,76,60,0.12);border-left:3px solid var(--rust-2);padding:0.7rem 1rem;margin-bottom:1.5rem;color:#fca5a5;font-size:0.9rem;">
+    <div style="background:var(--danger-overlay);border-left:3px solid var(--rust-2);padding:0.7rem 1rem;margin-bottom:1.5rem;color:var(--text-danger);font-size:0.9rem;">
         Verifique: nome obrigatório, moedas > 0, preço > 0.
     </div>
 <?php endif; ?>

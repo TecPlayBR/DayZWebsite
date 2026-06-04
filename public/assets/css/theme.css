@@ -41,6 +41,17 @@
     --dim:    #a1a1aa;
     --border: rgba(237,233,254,0.10);
 
+    /* Vars novas v1.1.1 — texto de status (antes hardcoded Tailwind red-300/green-300) */
+    --text-danger:  #fca5a5;   /* texto erro/aviso vermelho */
+    --text-success: #86efac;   /* texto sucesso verde */
+
+    /* Vars novas v1.1.1 — overlays/backgrounds translucidos (skinaveis via override) */
+    --danger-overlay: rgba(231,76,60,0.12);   /* fundo banner erro/aviso */
+    --danger-border:  rgba(231,76,60,0.4);    /* borda mini-buttons danger */
+    --hazard-overlay: rgba(212,160,23,0.08);  /* fundo banner accent */
+    --hazard-border:  rgba(212,160,23,0.2);
+    --dark-overlay:   rgba(0,0,0,0.6);        /* overlay modal/dropdown */
+
     --font-display: 'Black Ops One', 'Impact', sans-serif;
     --font-body:    'Inter', system-ui, sans-serif;
     --font-mono:    'VT323', 'Courier New', monospace;

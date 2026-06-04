@@ -18,14 +18,14 @@ if (!empty($_GET['err'])) {
     <div style="position: sticky; top: 80px; z-index: 50; max-width: 800px; margin: 1rem auto 0; padding: 0.85rem 1.2rem;
                 background: <?= $flash[0]==='success' ? 'rgba(90,108,78,0.18)' : 'rgba(231,76,60,0.18)' ?>;
                 border-left: 3px solid <?= $flash[0]==='success' ? 'var(--moss)' : 'var(--rust-2)' ?>;
-                color: <?= $flash[0]==='success' ? '#86efac' : '#fca5a5' ?>; font-size: 0.9rem;">
+                color: <?= $flash[0]==='success' ? 'var(--text-success)' : 'var(--text-danger)' ?>; font-size: 0.9rem;">
         <?= e($flash[1]) ?>
     </div>
 <?php endif; ?>
 
 
 <section class="hero" style="min-height: 35vh; padding-bottom: 2rem;">
-    <div class="hero-bg" style="background-image: linear-gradient(180deg, rgba(5,6,8,0.5) 0%, rgba(5,6,8,0.95) 100%), url('<?= asset('img/background3.png') ?>');"></div>
+    <div class="hero-bg" style="background-image: linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.95) 100%), url('<?= asset('img/background3.png') ?>');"></div>
     <div class="container hero-content">
         <span class="hero-kicker">// MEU PERFIL</span>
         <h1 class="hero-title"><?= e($steam_user['display_name'] ?? 'Sobrevivente') ?></h1>
@@ -257,10 +257,10 @@ if (!empty($_GET['err'])) {
     font-size: 0.75rem; font-weight: 600; border-radius: 2px;
     letter-spacing: 0.04em;
 }
-.badge-success { background: rgba(90,108,78,0.2);  color: #86efac; }
-.badge-warning { background: rgba(212,160,23,0.2); color: var(--hazard); }
-.badge-danger  { background: rgba(231,76,60,0.2);  color: #fca5a5; }
-.badge-info    { background: rgba(107,114,128,0.2);color: var(--dim); }
+.badge-success { background: rgba(22,163,74,0.2);  color: var(--text-success); }
+.badge-warning { background: var(--hazard-border); color: var(--hazard); }
+.badge-danger  { background: var(--danger-overlay);  color: var(--text-danger); }
+.badge-info    { background: rgba(160,160,160,0.2);color: var(--dim); }
 
 @media (max-width: 600px) { .hide-mobile { display: none; } }
 
@@ -300,12 +300,12 @@ if (!empty($_GET['err'])) {
 }
 .achievement.unlocked {
     border-left: 3px solid var(--hazard);
-    background: linear-gradient(180deg, rgba(212,160,23,0.08), var(--bg-1));
+    background: linear-gradient(180deg, var(--hazard-overlay), var(--bg-1));
 }
 .achievement.unlocked:hover { transform: translateY(-2px); border-color: var(--hazard); }
 .achievement.locked  { opacity: 0.4; filter: grayscale(0.7); }
 .achievement-icon { font-size: 2.5rem; line-height: 1; margin-bottom: 0.6rem; }
-.achievement.unlocked .achievement-icon { color: var(--hazard); text-shadow: 0 0 12px rgba(212,160,23,0.4); }
+.achievement.unlocked .achievement-icon { color: var(--hazard); text-shadow: 0 0 12px var(--hazard-border); }
 .achievement-name { font-family: var(--font-display); color: var(--bone); font-size: 0.95rem; margin-bottom: 0.3rem; letter-spacing: 0.03em; }
 .achievement-desc { color: var(--dim); font-size: 0.75rem; line-height: 1.4; }
 </style>

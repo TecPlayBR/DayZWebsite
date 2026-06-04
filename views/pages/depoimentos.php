@@ -3,7 +3,7 @@
 <?php \App\View::section('content'); ?>
 
 <section class="hero" style="min-height: 40vh; padding-bottom: 2rem;">
-    <div class="hero-bg" style="background-image: linear-gradient(180deg, rgba(5,6,8,0.5) 0%, rgba(5,6,8,0.95) 100%), url('<?= asset('img/background3.png') ?>');"></div>
+    <div class="hero-bg" style="background-image: linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.95) 100%), url('<?= asset('img/background3.png') ?>');"></div>
     <div class="container hero-content">
         <span class="hero-kicker">// FEEDBACK DA COMUNIDADE</span>
         <h1 class="hero-title">Depoimentos<br><span class="accent">Reais.</span></h1>
@@ -83,7 +83,7 @@
 }
 .review-stars {
     color: var(--hazard); font-size: 1.1rem; letter-spacing: 0.08em;
-    text-shadow: 0 0 8px rgba(212,160,23,0.3);
+    text-shadow: 0 0 8px var(--hazard-border);
     white-space: nowrap;
 }
 .review-body {

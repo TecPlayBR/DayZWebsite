@@ -147,8 +147,8 @@ function suggested_token(): string {
 <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-    --bg: #0d1014; --bg2: #161a20; --bone: #d4c5a9; --rust: #c1440e; --rust2: #e74c3c;
-    --moss: #5a6c4e; --dim: #6b7280; --hazard: #d4a017; --border: rgba(212,197,169,0.10);
+    --bg: var(--bg-1); --bg2: var(--bg-2); --bone: var(--bone); --rust: var(--rust); --rust2: var(--rust-2);
+    --moss: var(--moss); --dim: var(--dim); --hazard: var(--hazard); --border: rgba(212,197,169,0.10);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: var(--bg); color: var(--bone); font-family: 'Inter', system-ui, sans-serif; line-height: 1.5; min-height: 100vh; padding: 2rem 1rem; }
@@ -171,8 +171,8 @@ header p { color: var(--dim); margin-top: 0.5rem; font-size: 0.95rem; }
 .btn { display: inline-block; padding: 0.9rem 2rem; background: var(--rust); color: var(--bone); border: none; cursor: pointer; font-family: 'Black Ops One', sans-serif; letter-spacing: 0.08em; font-size: 0.95rem; border-radius: 2px; text-transform: uppercase; transition: background .2s; }
 .btn:hover { background: var(--rust2); }
 .alert { padding: 1rem 1.2rem; border-radius: 3px; margin-bottom: 1.5rem; font-size: 0.9rem; }
-.alert-err { background: rgba(231,76,60,0.1); border-left: 3px solid var(--rust2); color: #fca5a5; }
-.alert-ok  { background: rgba(34,197,94,0.1); border-left: 3px solid var(--moss); color: #86efac; }
+.alert-err { background: var(--danger-overlay); border-left: 3px solid var(--rust2); color: var(--text-danger); }
+.alert-ok  { background: rgba(34,197,94,0.1); border-left: 3px solid var(--moss); color: var(--text-success); }
 .alert ul { margin: 0.5rem 0 0 1.2rem; }
 .token-suggest { font-family: 'Cascadia Code', monospace; background: var(--bg); padding: 0.5rem 0.8rem; font-size: 0.85rem; color: var(--hazard); display: inline-block; margin-top: 0.5rem; cursor: pointer; user-select: all; word-break: break-all; }
 .token-suggest:hover { color: var(--rust2); }
@@ -199,7 +199,7 @@ header p { color: var(--dim); margin-top: 0.5rem; font-size: 0.95rem; }
             <a href="/" class="btn">Acessar o site</a>
             <a href="/admin" class="btn" style="margin-left: 0.5rem;">Painel Admin</a>
         </p>
-        <p style="margin-top: 1rem; color: #fca5a5;">
+        <p style="margin-top: 1rem; color: var(--text-danger);">
             <?php if (!empty($installRemoved)): ?>
                 <strong>✓ SEGURANCA OK:</strong> o instalador foi auto-renomeado pra <code>install.php.installed-*</code>.
                 Por seguranca, voce pode apagar esse arquivo via FTP.
