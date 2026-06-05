@@ -6,31 +6,31 @@
     <div class="hero-bg" style="background-image: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.95) 100%), url('<?= asset('img/background5.png') ?>');"></div>
     <div class="container hero-content" style="text-align: center; max-width: 100%;">
         <?php if ($status === 'success'): ?>
-            <span class="hero-kicker" style="margin-left:auto; margin-right:auto; border-left-color: var(--moss); color: var(--moss); background: rgba(90,108,78,0.08);">// PAGAMENTO RECEBIDO</span>
-            <h1 class="hero-title">Suprimentos<br><span class="accent" style="color: var(--moss);">A Caminho.</span></h1>
+            <span class="hero-kicker" style="margin-left:auto; margin-right:auto; border-left-color: var(--moss); color: var(--moss); background: rgba(90,108,78,0.08);">// <?= e(__('checkout.success_kicker')) ?></span>
+            <h1 class="hero-title"><?= e(__('checkout.success_title1')) ?><br><span class="accent" style="color: var(--moss);"><?= e(__('checkout.success_title2')) ?></span></h1>
             <p class="hero-subtitle" style="margin: 0 auto;">
-                Pagamento confirmado. As moedas vão chegar no jogo em até <strong>15 segundos</strong> após a confirmação do Mercado Pago.<br>
-                <em style="color: var(--dim);">Se já está conectado no servidor, faça <strong>relog</strong> pra atualizar o saldo.</em>
+                <?= __('checkout.success_text') ?><br>
+                <em style="color: var(--dim);"><?= __('checkout.success_relog') ?></em>
             </p>
         <?php elseif ($status === 'pending'): ?>
-            <span class="hero-kicker" style="margin-left:auto; margin-right:auto;">// AGUARDANDO CONFIRMAÇÃO</span>
-            <h1 class="hero-title">Pagamento<br><span class="accent">Pendente.</span></h1>
+            <span class="hero-kicker" style="margin-left:auto; margin-right:auto;">// <?= e(__('checkout.pending_kicker')) ?></span>
+            <h1 class="hero-title"><?= e(__('checkout.pending_title1')) ?><br><span class="accent"><?= e(__('checkout.pending_title2')) ?></span></h1>
             <p class="hero-subtitle" style="margin: 0 auto;">
-                Seu pagamento está em análise (boleto ou PIX em processamento).<br>
-                Quando confirmar, as moedas chegam automaticamente.
+                <?= e(__('checkout.pending_text')) ?><br>
+                <?= e(__('checkout.pending_text2')) ?>
             </p>
         <?php else: ?>
-            <span class="hero-kicker" style="margin-left:auto; margin-right:auto; border-left-color: var(--rust-2); color: var(--rust-2);">// FALHA</span>
-            <h1 class="hero-title">Pagamento<br><span class="accent">Recusado.</span></h1>
+            <span class="hero-kicker" style="margin-left:auto; margin-right:auto; border-left-color: var(--rust-2); color: var(--rust-2);">// <?= e(__('checkout.fail_kicker')) ?></span>
+            <h1 class="hero-title"><?= e(__('checkout.fail_title1')) ?><br><span class="accent"><?= e(__('checkout.fail_title2')) ?></span></h1>
             <p class="hero-subtitle" style="margin: 0 auto;">
-                Algo deu errado com o pagamento. Tenta de novo ou usa outra forma.<br>
-                Nada foi cobrado.
+                <?= e(__('checkout.fail_text')) ?><br>
+                <?= e(__('checkout.fail_text2')) ?>
             </p>
         <?php endif; ?>
 
         <div class="hero-actions" style="justify-content: center;">
-            <a href="/shop" class="btn">Voltar pra loja</a>
-            <a href="/" class="btn btn-outline">Página inicial</a>
+            <a href="/shop" class="btn"><?= e(__('checkout.back_shop')) ?></a>
+            <a href="/" class="btn btn-outline"><?= e(__('checkout.home')) ?></a>
         </div>
     </div>
 </section>

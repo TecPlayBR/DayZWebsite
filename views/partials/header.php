@@ -4,7 +4,7 @@
 
         <?php $siteName = $config['settings']['site_name'] ?? ($config['site_name'] ?? 'TECPLAY'); ?>
         <a class="brand" href="/">
-            <img src="<?= asset('img/logo_semfundo.png') ?>" alt="<?= e($siteName) ?>">
+            <img src="<?= asset('img/logo_semfundo_small.png') ?>" alt="<?= e($siteName) ?>" width="44" height="44" decoding="async">
             <span class="brand-name"><?= e($siteName) ?></span>
         </a>
 
@@ -100,32 +100,22 @@
         <?php endif; ?>
     </ul>
 
-    <a href="#shop" class="btn" data-close><?= e(__('hero.cta')) ?></a>
+    <div class="mobile-drawer-cta">
+        <a href="/shop" class="btn" data-close><?= e(__('hero.cta')) ?></a>
+        <a href="/page/connect" class="btn btn-outline" data-close><?= e(__('hero.cta_alt')) ?></a>
+    </div>
 
-    <?php if (($config['show_language_select'] ?? true)): ?>
-        <div class="lang-select">
-            <a class="lang-flag <?= locale() === 'pt-br' ? 'active' : '' ?>" href="<?= e(lang_url('pt-br')) ?>" aria-label="Português">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 42">
-                    <rect width="60" height="42" fill="#009c3b"/>
-                    <polygon points="30,4 56,21 30,38 4,21" fill="var(--hazard)"/>
-                    <circle cx="30" cy="21" r="8" fill="#002776"/>
-                    <path d="M22 22 Q30 18 38 22" stroke="#fff" stroke-width="1.2" fill="none"/>
-                </svg>
-            </a>
-            <a class="lang-flag <?= locale() === 'en-us' ? 'active' : '' ?>" href="<?= e(lang_url('en-us')) ?>" aria-label="English">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 42">
-                    <rect width="60" height="42" fill="var(--rust)"/>
-                    <g fill="#fff">
-                        <rect y="3.23" width="60" height="3.23"/>
-                        <rect y="9.69" width="60" height="3.23"/>
-                        <rect y="16.15" width="60" height="3.23"/>
-                        <rect y="22.62" width="60" height="3.23"/>
-                        <rect y="29.08" width="60" height="3.23"/>
-                        <rect y="35.54" width="60" height="3.23"/>
-                    </g>
-                    <rect width="24" height="22.62" fill="#192f5d"/>
-                </svg>
-            </a>
+    <!-- Footer compacto do drawer mobile: links rápidos + copyright.
+         O seletor de idiomas já está no header (dropdown PT-BR ao lado do hambúrguer),
+         então não duplica aqui — usa o espaço pra info útil. -->
+    <div class="mobile-drawer-foot">
+        <nav class="mobile-drawer-links">
+            <a href="/page/terms" data-close><?= e(__('footer.terms')) ?></a>
+            <a href="/page/privacy" data-close><?= e(__('footer.privacy')) ?></a>
+            <a href="/page/faq" data-close><?= e(__('footer.faq')) ?></a>
+        </nav>
+        <div class="mobile-drawer-copy">
+            &copy; <?= date('Y') ?> <?= e($config['settings']['site_name'] ?? $config['site_name'] ?? 'TECPLAY') ?>
         </div>
-    <?php endif; ?>
+    </div>
 </aside>

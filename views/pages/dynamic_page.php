@@ -6,6 +6,7 @@ $title  = ($lang === 'en-us' && !empty($page['title_enus'])) ? $page['title_enus
 $body   = ($lang === 'en-us' && !empty($page['body_enus'])) ? $page['body_enus'] : $page['body_ptbr'];
 ?>
 <?php \App\View::extend('layouts.main'); ?>
+<?php \App\View::with('hero_image', 'img/background5.png'); // LCP preload sync ?>
 <?php \App\View::section('content'); ?>
 
 <section class="hero" style="min-height: 40vh;">

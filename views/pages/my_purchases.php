@@ -4,13 +4,13 @@
 
 <?php
 $flash = null;
-if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') $flash = ['success', 'Avaliação enviada! Vai aparecer em /depoimentos após moderação.'];
+if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') $flash = ['success', __('profile.flash_review_ok')];
 if (!empty($_GET['err'])) {
     $flash = ['danger', match($_GET['err']) {
-        'invalid_purchase'   => 'Compra inválida ou ainda não entregue.',
-        'too_soon'           => 'Aguarde 7 dias após a entrega pra poder avaliar.',
-        'already_reviewed'   => 'Você já avaliou essa compra.',
-        default => 'Algo deu errado.',
+        'invalid_purchase'   => __('profile.flash_invalid'),
+        'too_soon'           => __('profile.flash_too_soon'),
+        'already_reviewed'   => __('profile.flash_reviewed'),
+        default              => __('profile.flash_generic'),
     }];
 }
 ?>
@@ -27,8 +27,8 @@ if (!empty($_GET['err'])) {
 <section class="hero" style="min-height: 35vh; padding-bottom: 2rem;">
     <div class="hero-bg" style="background-image: linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.95) 100%), url('<?= asset('img/background3.png') ?>');"></div>
     <div class="container hero-content">
-        <span class="hero-kicker">// MEU PERFIL</span>
-        <h1 class="hero-title"><?= e($steam_user['display_name'] ?? 'Sobrevivente') ?></h1>
+        <span class="hero-kicker">// <?= e(__('profile.kicker')) ?></span>
+        <h1 class="hero-title"><?= e($steam_user['display_name'] ?? __('profile.fallback_name')) ?></h1>
         <p class="hero-subtitle" style="font-family: var(--font-mono); font-size: 0.9rem; color: var(--dim);">
             <?= e($steam_user['steam_id'] ?? '') ?>
         </p>
@@ -41,26 +41,26 @@ if (!empty($_GET['err'])) {
         <!-- Cards de resumo -->
         <div class="profile-grid">
             <div class="profile-card">
-                <div class="profile-card-label">Saldo atual</div>
+                <div class="profile-card-label"><?= e(__('profile.balance')) ?></div>
                 <div class="profile-card-value" style="color: var(--hazard);"><?= number_format((int)($player['coins'] ?? 0), 0, ',', '.') ?></div>
-                <div class="profile-card-suffix">moedas</div>
+                <div class="profile-card-suffix"><?= e(__('profile.coins')) ?></div>
             </div>
             <div class="profile-card">
-                <div class="profile-card-label">Total investido</div>
+                <div class="profile-card-label"><?= e(__('profile.invested')) ?></div>
                 <div class="profile-card-value" style="color: var(--moss);">R$ <?= number_format((float)($player['total_spent_brl'] ?? 0), 2, ',', '.') ?></div>
             </div>
             <div class="profile-card">
-                <div class="profile-card-label">Total de compras</div>
+                <div class="profile-card-label"><?= e(__('profile.purchases')) ?></div>
                 <div class="profile-card-value"><?= count($purchases) ?></div>
             </div>
             <div class="profile-card">
-                <div class="profile-card-label">Última atividade</div>
+                <div class="profile-card-label"><?= e(__('profile.last_seen')) ?></div>
                 <div class="profile-card-value" style="font-size: 1rem;"><?= e($player['last_seen_at'] ?? '—') ?></div>
             </div>
         </div>
 
         <h2 style="font-family: var(--font-display); color: var(--bone); font-size: 1.4rem; margin: 3rem 0 1.5rem; letter-spacing: 0.04em;">
-            Conquistas
+            <?= e(__('profile.achievements')) ?>
         </h2>
         <div class="achievements-grid">
             <?php foreach (($achievements ?? []) as $a):
@@ -75,12 +75,12 @@ if (!empty($_GET['err'])) {
         </div>
 
         <h2 style="font-family: var(--font-display); color: var(--bone); font-size: 1.4rem; margin: 3rem 0 1.5rem; letter-spacing: 0.04em;">
-            Histórico de compras
+            <?= e(__('profile.history')) ?>
         </h2>
 
         <?php if (empty($purchases)): ?>
             <div style="text-align: center; padding: 3rem 1rem; color: var(--dim);">
-                <p>Nenhuma compra ainda. <a href="/shop" style="color: var(--rust-2);">Ver pacotes →</a></p>
+                <p><?= e(__('profile.no_purchases')) ?> <a href="/shop" style="color: var(--rust-2);">→</a></p>
             </div>
         <?php else: ?>
             <table class="purchases-table">
@@ -90,7 +90,7 @@ if (!empty($_GET['err'])) {
                         <th>Pacote</th>
                         <th>Moedas</th>
                         <th>Valor</th>
-                        <th class="hide-mobile">Forma de pagamento</th>
+                        <th class="hide-mobile"><?= e(__('profile.payment_method')) ?></th>
                         <th>Status</th>
                         <th>Avaliar</th>
                     </tr>
@@ -122,14 +122,10 @@ if (!empty($_GET['err'])) {
                                     'pending' => 'badge-warning',
                                     default => 'badge-info'
                                 };
-                                $label = match($p['mp_status']) {
-                                    'approved'  => '✓ Entregue',
-                                    'pending'   => '⏳ Aguardando',
-                                    'rejected'  => '✕ Recusado',
-                                    'cancelled' => '✕ Cancelado',
-                                    'refunded'  => '↩ Reembolsado',
-                                    default => $p['mp_status']
-                                };
+                                // Status traduzido via lang ('purchase_status.<status>')
+                                $statusKey = 'purchase_status.' . ($p['mp_status'] ?? 'unknown');
+                                $statusTr  = __($statusKey);
+                                $label = ($statusTr === $statusKey) ? ($p['mp_status'] ?? '—') : $statusTr;
                                 ?>
                                 <span class="purchase-badge <?= $cls ?>"><?= $label ?></span>
                             </td>
@@ -153,9 +149,9 @@ if (!empty($_GET['err'])) {
                 <div class="review-modal-card">
                     <form method="POST" action="/reviews/submit">
                         <?= \App\Csrf::field() ?>
-                        <h3 style="font-family: var(--font-display); color: var(--bone); margin-bottom: 0.5rem;">Avalie sua compra</h3>
+                        <h3 style="font-family: var(--font-display); color: var(--bone); margin-bottom: 0.5rem;"><?= e(__('profile.review_title')) ?></h3>
                         <p style="color: var(--dim); font-size: 0.85rem; margin-bottom: 1.2rem;">
-                            Pacote: <strong id="review-pkg-name" style="color: var(--hazard);">—</strong>
+                            <?= e(__('profile.pack_label')) ?> <strong id="review-pkg-name" style="color: var(--hazard);">—</strong>
                         </p>
                         <input type="hidden" name="purchase_id" id="review-purchase-id" value="">
                         <input type="hidden" name="rating" id="review-rating-value" value="5">
@@ -169,16 +165,16 @@ if (!empty($_GET['err'])) {
                         </div>
 
                         <textarea name="body" rows="4" maxlength="500"
-                                  placeholder="Conta como foi sua experiência (opcional, max 500 chars)…"
+                                  placeholder="<?= e(__('profile.review_ph')) ?>"
                                   style="width:100%; padding:0.7rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:inherit; resize:vertical; margin-bottom: 1rem;"></textarea>
 
                         <p style="font-size: 0.75rem; color: var(--dim); margin-bottom: 1.2rem;">
-                            Sua avaliação passará por moderação antes de aparecer em /depoimentos.
+                            <?= e(__('profile.moderation_note')) ?>
                         </p>
 
                         <div style="display: flex; gap: 0.6rem; justify-content: flex-end;">
                             <button type="button" class="btn-mini outline" onclick="closeReviewForm()">Cancelar</button>
-                            <button type="submit" class="btn-mini">Enviar avaliação</button>
+                            <button type="submit" class="btn-mini"><?= e(__('profile.review_send')) ?></button>
                         </div>
                     </form>
                 </div>
@@ -210,7 +206,7 @@ if (!empty($_GET['err'])) {
         <?php endif; ?>
 
         <p style="margin-top: 2rem; color: var(--dim); font-size: 0.85rem;">
-            Dúvida sobre uma compra? Abra um ticket no Discord com o ID da compra (data + pacote).
+            <?= e(__('profile.support_question')) ?>
         </p>
     </div>
 </section>

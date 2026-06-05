@@ -25,8 +25,12 @@
                 <input type="text" name="site_name" value="<?= e($settings['site_name'] ?? '') ?>" style="width:100%; padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:inherit;">
             </div>
             <div>
-                <label style="display:block; font-size:0.85rem; color:var(--bone); margin-bottom:0.3rem;">Tagline / subtítulo</label>
-                <input type="text" name="site_tagline" value="<?= e($settings['site_tagline'] ?? '') ?>" style="width:100%; padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:inherit;">
+                <label style="display:block; font-size:0.85rem; color:var(--bone); margin-bottom:0.3rem;">Tagline / subtítulo (PT-BR)</label>
+                <input type="text" name="site_tagline" value="<?= e($settings['site_tagline'] ?? '') ?>" placeholder="O melhor servidor..." style="width:100%; padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:inherit;">
+            </div>
+            <div>
+                <label style="display:block; font-size:0.85rem; color:var(--bone); margin-bottom:0.3rem;">Tagline / subtitle (EN-US) <small style="color:var(--dim);">— mostrado quando visitante escolhe English</small></label>
+                <input type="text" name="site_tagline_enus" value="<?= e($settings['site_tagline_enus'] ?? '') ?>" placeholder="The best..." style="width:100%; padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:inherit;">
             </div>
         </div>
     </div>
@@ -108,10 +112,14 @@
         <div style="margin-top: 1rem; display: grid; gap: 0.8rem;">
             <?php
             $socials = [
-                'social_discord'   => ['Discord',   'https://discord.gg/...'],
-                'social_youtube'   => ['YouTube',   'https://youtube.com/@...'],
-                'social_instagram' => ['Instagram', 'https://instagram.com/...'],
-                'social_facebook'  => ['Facebook',  'https://facebook.com/...'],
+                'social_discord'   => ['Discord',     'https://discord.gg/...'],
+                'social_youtube'   => ['YouTube',     'https://youtube.com/@...'],
+                'social_tiktok'    => ['TikTok',      'https://www.tiktok.com/@...'],
+                'social_instagram' => ['Instagram',   'https://instagram.com/...'],
+                'social_twitch'    => ['Twitch',      'https://www.twitch.tv/...'],
+                'social_kick'      => ['Kick',        'https://kick.com/...'],
+                'social_x'         => ['X (Twitter)', 'https://x.com/...'],
+                'social_facebook'  => ['Facebook',    'https://facebook.com/...'],
                 'social_whatsapp'  => ['WhatsApp grupo', 'https://chat.whatsapp.com/...'],
             ];
             foreach ($socials as $key => [$label, $ph]):

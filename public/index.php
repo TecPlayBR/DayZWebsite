@@ -273,10 +273,26 @@ if (!empty($config['db'])) {
             AND (ends_at   IS NULL OR ends_at   >  NOW())
           ORDER BY created_at DESC LIMIT 3"
     );
+    // Social proof: stats agregados pro bloco hero. Cacheável (queries baratas mas hot path).
+    $homeStats = [
+        'players_total' => (int)\App\Database::fetchColumn("SELECT COUNT(*) FROM players"),
+        'purchases_week' => (int)\App\Database::fetchColumn(
+            "SELECT COUNT(*) FROM purchases WHERE mp_status = 'approved' AND created_at > DATE_SUB(NOW(), INTERVAL 7 DAY)"
+        ),
+    ];
+    // Testimonials no home: pega ate 3 reviews aprovadas (rating >= 4) — fonte unica de verdade,
+    // mesmas reviews que aparecem em /depoimentos. Substitui o setting testimonials_json antigo.
+    $homeReviews = \App\Database::fetchAll(
+        "SELECT display_name, rating, body, source, created_at
+           FROM reviews
+          WHERE approved = 1 AND rating >= 4 AND body IS NOT NULL AND body != ''
+          ORDER BY created_at DESC LIMIT 3"
+    );
     \App\View::display('pages.home', [
         'config' => $config, 'packages' => $packages, 'bonus_enabled' => $bonusEnabled,
         'server_status' => $serverStatus, 'announcements' => $announcements,
-        'promo_coupon' => $promoCoupon,
+        'promo_coupon' => $promoCoupon, 'home_stats' => $homeStats,
+        'home_reviews' => $homeReviews,
     ]);
 });
 
@@ -387,6 +403,90 @@ if (!empty($config['db'])) {
         'description' => 'Compre moedas pro servidor DayZ. Entrega instantânea via Steam, pagamento seguro Mercado Pago (Pix, boleto, cartão).',
         'jsonld' => $shopJsonLd,
     ]);
+});
+
+\App\Router::post('/api/newsletter-subscribe', function() use ($config) {
+    header('Content-Type: application/json; charset=utf-8');
+
+    // Rate-limit por IP — anti-bot e anti-scrape. 10/hora basta pra usuario real.
+    $ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+    $rl = \App\RateLimit::check('newsletter:' . $ip, 10, 3600);
+    if (empty($rl['allowed'])) {
+        http_response_code(429);
+        echo json_encode(['ok' => false, 'error' => 'rate_limited']);
+        return;
+    }
+
+    $email = strtolower(trim($_POST['email'] ?? ''));
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 190) {
+        http_response_code(400);
+        echo json_encode(['ok' => false, 'error' => 'invalid_email']);
+        return;
+    }
+
+    $source = preg_replace('/[^a-z0-9_-]/', '', strtolower($_POST['source'] ?? 'footer'));
+    if ($source === '') $source = 'footer';
+
+    $isNew = false;
+    try {
+        $existing = \App\Database::fetchColumn(
+            "SELECT id FROM newsletter_emails WHERE email = ? LIMIT 1", [$email]
+        );
+        $isNew = !$existing;
+        \App\Database::query(
+            "INSERT INTO newsletter_emails (email, source, ip, user_agent) VALUES (?, ?, ?, ?)
+             ON DUPLICATE KEY UPDATE source = VALUES(source)",
+            [$email, $source, $ip, substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 255)]
+        );
+    } catch (\Throwable $e) {
+        error_log('[newsletter] insert failed: ' . $e->getMessage());
+        http_response_code(500);
+        echo json_encode(['ok' => false, 'error' => 'server_error']);
+        return;
+    }
+
+    // Email de confirmação — só pra inscrições novas (evita spam ao re-submeter).
+    // Falha silenciosa: subscriber não vê erro se Mailer estiver em dev mode.
+    if ($isNew) {
+        $siteName = $config['settings']['site_name'] ?? $config['site_name'] ?? 'DayZ Server';
+        $siteUrl  = rtrim($config['site_url'] ?? 'https://' . ($_SERVER['HTTP_HOST'] ?? ''), '/');
+        $subject  = "✓ Inscrição confirmada — {$siteName}";
+        $html = '<div style="font-family:system-ui,sans-serif;max-width:520px;margin:0 auto;background:#0a0405;color:#fff;padding:2rem;border-left:3px solid #e63946;">'
+              . '<h1 style="color:#fde047;font-size:1.4rem;margin:0 0 1rem;">📡 Você está na lista!</h1>'
+              . '<p style="line-height:1.6;color:#ccc;">Obrigado por se inscrever no <strong style="color:#fff;">' . htmlspecialchars($siteName) . '</strong>.</p>'
+              . '<p style="line-height:1.6;color:#ccc;">Você vai receber:</p>'
+              . '<ul style="line-height:1.8;color:#ccc;">'
+              . '<li>📅 Aviso de <strong>wipes</strong> e datas de reset</li>'
+              . '<li>🎯 Anúncio de <strong>eventos</strong> exclusivos</li>'
+              . '<li>💰 <strong>Promoções</strong> em pacotes da loja</li>'
+              . '</ul>'
+              . '<p style="line-height:1.6;color:#999;font-size:0.85rem;margin-top:1.5rem;">Para descadastrar, basta responder este email.</p>'
+              . '<hr style="border:0;border-top:1px solid #333;margin:1.5rem 0;">'
+              . '<p style="font-size:0.75rem;color:#666;text-align:center;"><a href="' . htmlspecialchars($siteUrl) . '" style="color:#e63946;text-decoration:none;">' . htmlspecialchars($siteName) . '</a></p>'
+              . '</div>';
+        $text = "Inscrição confirmada — {$siteName}\n\nObrigado por se inscrever! Você vai receber avisos de wipes, eventos e promoções.\n\nPara descadastrar, responda este email.";
+        try { \App\Mailer::send($email, $subject, $html, $text); }
+        catch (\Throwable $e) { error_log('[newsletter] mail failed: ' . $e->getMessage()); }
+    }
+
+    // Forward opcional pra provedor externo (Reach 100 / Mailchimp / etc) via setting.
+    // Configura no /admin/settings ⇒ newsletter_forward_url. Falha silenciosa, nao quebra UX.
+    $fwdUrl = $config['settings']['newsletter_forward_url'] ?? '';
+    if ($fwdUrl !== '' && filter_var($fwdUrl, FILTER_VALIDATE_URL)) {
+        $ch = curl_init($fwdUrl);
+        curl_setopt_array($ch, [
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => http_build_query(['email' => $email, 'source' => $source]),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 5,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_SSL_VERIFYPEER => true,
+        ]);
+        @curl_exec($ch);
+        curl_close($ch);
+    }
+
+    echo json_encode(['ok' => true]);
 });
 
 \App\Router::post('/shop/checkout', function() use ($config) {
@@ -600,6 +700,35 @@ if (!empty($config['db'])) {
     ]);
 });
 
+// ============ AVALIAÇÃO PÚBLICA (sem login Steam) ============
+// Qualquer visitante pode avaliar o servidor. Vai como pending (approved=0)
+// pro admin moderar antes de publicar em /depoimentos.
+\App\Router::post('/reviews/public-submit', function() use ($config) {
+    $ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+    // 3 reviews por IP por hora basta pra usuário real (anti-spam)
+    $rl = \App\RateLimit::check('review-public:' . $ip, 3, 3600);
+    if (empty($rl['allowed'])) {
+        header('Location: /depoimentos?err=rate_limited'); exit;
+    }
+    if (!\App\Csrf::check()) { header('Location: /depoimentos?err=csrf'); exit; }
+
+    $name   = trim((string)($_POST['name'] ?? ''));
+    $rating = max(1, min(5, (int)($_POST['rating'] ?? 0)));
+    $body   = trim((string)($_POST['body'] ?? ''));
+
+    // Validações básicas: nome 2-60 chars, body 10-500 chars
+    if (mb_strlen($name) < 2 || mb_strlen($name) > 60) { header('Location: /depoimentos?err=invalid_name'); exit; }
+    if (mb_strlen($body) < 10 || mb_strlen($body) > 500) { header('Location: /depoimentos?err=invalid_body'); exit; }
+
+    \App\Database::query(
+        "INSERT INTO reviews (purchase_id, steam_id, display_name, rating, body, source, approved)
+         VALUES (NULL, NULL, ?, ?, ?, 'public', 0)",
+        [$name, $rating, $body]
+    );
+    header('Location: /depoimentos?ok=submitted');
+    exit;
+});
+
 \App\Router::post('/reviews/submit', function() use ($config) {
     if (!\App\SteamAuth::check()) { header('Location: /auth/steam'); exit; }
     if (!\App\Csrf::check()) { header('Location: /my-purchases?err=csrf'); exit; }
@@ -637,7 +766,7 @@ if (!empty($config['db'])) {
 });
 
 \App\Router::get('/admin/reviews', function() use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('reviews');
     $filter = $_GET['filter'] ?? 'pending';
     $sql = "SELECT r.*, p.package_id, p.price_brl
               FROM reviews r JOIN purchases p ON p.id = r.purchase_id";
@@ -654,14 +783,16 @@ if (!empty($config['db'])) {
 });
 
 \App\Router::post('/admin/reviews/{id}/toggle', function($id) use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('reviews');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     \App\Database::query("UPDATE reviews SET approved = 1 - approved WHERE id = ?", [(int)$id]);
     header('Location: /admin/reviews?ok=1');
     exit;
 });
 
 \App\Router::post('/admin/reviews/{id}/delete', function($id) use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('reviews');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     \App\Database::query("DELETE FROM reviews WHERE id = ?", [(int)$id]);
     header('Location: /admin/reviews?ok=deleted');
     exit;
@@ -763,7 +894,9 @@ if (!empty($config['db'])) {
         \App\RateLimit::clearBucket('login_u_' . substr(md5($username . '|' . $ip), 0, 16));
         // Regenera ID de sessao apos login (anti session fixation)
         session_regenerate_id(true);
-        header('Location: /admin');
+        // Redirect pra home do role — support cai em /admin/players, editor em /admin/pages, etc.
+        // Evita 403 logo após login pra quem não tem acesso a /admin (dashboard).
+        header('Location: ' . \App\Auth::homePath());
     } else {
         header('Location: /admin/login?e=1');
     }
@@ -796,7 +929,7 @@ $collectDashboardData = function() {
 };
 
 \App\Router::get('/admin', function() use ($config, $collectDashboardData) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('dashboard');
     $data = $collectDashboardData();
     \App\View::display('admin.dashboard', [
         'config' => $config, 'stats' => $data['stats'], 'recent_purchases' => $data['recent_purchases'],
@@ -804,7 +937,7 @@ $collectDashboardData = function() {
 });
 
 \App\Router::get('/admin/sales-chart.json', function() use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('dashboard');
     header('Content-Type: application/json; charset=utf-8');
     header('Cache-Control: no-store');
     // Vendas dos últimos 30 dias agrupadas por dia
@@ -835,7 +968,7 @@ $collectDashboardData = function() {
 });
 
 \App\Router::get('/admin/dashboard.json', function() use ($collectDashboardData) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('dashboard');
     header('Content-Type: application/json; charset=utf-8');
     header('Cache-Control: no-store');
     $data = $collectDashboardData();
@@ -854,7 +987,7 @@ $collectDashboardData = function() {
 });
 
 \App\Router::get('/admin/players', function() use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('players');
     $q       = trim($_GET['q'] ?? '');
     $origin  = $_GET['origin'] ?? '';
     $sort    = $_GET['sort'] ?? 'coins'; // coins, spent, recent, name
@@ -899,7 +1032,8 @@ $collectDashboardData = function() {
 });
 
 \App\Router::post('/admin/players/{id}/coins', function($id) use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('players');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     $newCoins = max(0, (int)($_POST['coins'] ?? 0));
     $player = \App\Database::fetchOne("SELECT coins, steam_id FROM players WHERE id = ?", [(int)$id]);
     $oldCoins = (int)($player['coins'] ?? 0);
@@ -923,7 +1057,8 @@ $collectDashboardData = function() {
 });
 
 \App\Router::post('/admin/players/{id}/notes', function($id) use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('players');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     $notes = trim($_POST['notes'] ?? '');
     \App\Database::query("UPDATE players SET notes = ? WHERE id = ?", [$notes ?: null, (int)$id]);
     header('Location: /admin/players/' . (int)$id . '?ok=1');
@@ -931,7 +1066,7 @@ $collectDashboardData = function() {
 });
 
 \App\Router::get('/admin/packages', function() use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('packages');
     $packages = \App\Database::fetchAll(
         "SELECT * FROM packages ORDER BY sort_order ASC"
     );
@@ -942,7 +1077,8 @@ $collectDashboardData = function() {
 });
 
 \App\Router::post('/admin/packages/toggle-bonus', function() use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('packages');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     $current = (int)\App\Database::fetchColumn("SELECT `value` FROM settings WHERE `key` = 'bonus_enabled'");
     $new = $current ? 0 : 1;
     \App\Database::query("UPDATE settings SET `value` = ? WHERE `key` = 'bonus_enabled'", [(string)$new]);
@@ -951,21 +1087,23 @@ $collectDashboardData = function() {
 });
 
 \App\Router::post('/admin/packages/{id}/toggle', function($id) use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('packages');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     \App\Database::query("UPDATE packages SET enabled = 1 - enabled WHERE id = ?", [$id]);
     header('Location: /admin/packages?ok=1');
     exit;
 });
 
 \App\Router::get('/admin/packages/{id}/edit', function($id) use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('packages');
     $pkg = \App\Database::fetchOne("SELECT * FROM packages WHERE id = ? LIMIT 1", [$id]);
     if (!$pkg) { http_response_code(404); echo 'Pacote não encontrado'; exit; }
     \App\View::display('admin.package_edit', ['config' => $config, 'pkg' => $pkg]);
 });
 
 \App\Router::post('/admin/packages/{id}/save', function($id) use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('packages');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     $existing = \App\Database::fetchOne("SELECT id FROM packages WHERE id = ? LIMIT 1", [$id]);
     if (!$existing) { http_response_code(404); exit; }
 
@@ -1005,7 +1143,7 @@ $collectDashboardData = function() {
 });
 
 \App\Router::get('/admin/purchases', function() use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('purchases');
     $filter = $_GET['status'] ?? '';
     $sql = "SELECT * FROM purchases";
     $params = [];
@@ -1028,7 +1166,7 @@ $collectDashboardData = function() {
 });
 
 \App\Router::get('/admin/purchases/export', function() use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('purchases');
     $filter = $_GET['status'] ?? '';
     $sql = "SELECT p.*, pl.display_name FROM purchases p
               LEFT JOIN players pl ON pl.steam_id = p.steam_id";
@@ -1069,7 +1207,7 @@ $collectDashboardData = function() {
 });
 
 \App\Router::get('/admin/settings', function() use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('settings');
     $settings = \App\Database::fetchAll("SELECT `key`, `value` FROM settings ORDER BY `key`");
     $map = [];
     foreach ($settings as $s) $map[$s['key']] = $s['value'];
@@ -1077,9 +1215,11 @@ $collectDashboardData = function() {
 });
 
 \App\Router::post('/admin/settings', function() use ($config) {
-    \App\Auth::requireAdmin();
-    $allowed = ['site_name','site_tagline','server_ip','server_port','discord_invite',
+    \App\Auth::requireCan('settings');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
+    $allowed = ['site_name','site_tagline','site_tagline_enus','server_ip','server_port','discord_invite',
                 'social_discord','social_instagram','social_whatsapp','social_facebook','social_youtube',
+                'social_tiktok','social_twitch','social_kick','social_x',
                 'battlemetrics_id','next_wipe_at','wipe_label',
                 'maintenance_message','maintenance_eta',
                 'discord_sales_webhook','promo_coupon_code','promo_label'];
@@ -1109,7 +1249,7 @@ $collectDashboardData = function() {
 });
 
 \App\Router::get('/admin/pages', function() use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('pages');
     $pages = \App\Database::fetchAll(
         "SELECT id, slug, title_ptbr, title_enus, published, sort_order, updated_at
            FROM pages ORDER BY sort_order ASC, slug ASC"
@@ -1118,19 +1258,20 @@ $collectDashboardData = function() {
 });
 
 \App\Router::get('/admin/pages/new', function() use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('pages');
     \App\View::display('admin.pages_edit', ['config' => $config, 'page' => null]);
 });
 
 \App\Router::get('/admin/pages/{id}/edit', function($id) use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('pages');
     $page = \App\Database::fetchOne("SELECT * FROM pages WHERE id = ? LIMIT 1", [(int)$id]);
     if (!$page) { http_response_code(404); echo 'Página não encontrada'; exit; }
     \App\View::display('admin.pages_edit', ['config' => $config, 'page' => $page]);
 });
 
 \App\Router::post('/admin/pages/save', function() use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('pages');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     $id         = (int)($_POST['id'] ?? 0);
     $slug       = preg_replace('/[^a-z0-9-]/', '', strtolower(trim($_POST['slug'] ?? '')));
     $title_pt   = trim($_POST['title_ptbr'] ?? '');
@@ -1163,7 +1304,8 @@ $collectDashboardData = function() {
 });
 
 \App\Router::post('/admin/pages/{id}/delete', function($id) use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('pages');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     \App\Database::query("DELETE FROM pages WHERE id = ?", [(int)$id]);
     header('Location: /admin/pages?ok=1');
     exit;
@@ -1179,7 +1321,7 @@ $collectDashboardData = function() {
 });
 
 \App\Router::get('/admin/logs', function() use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('logs');
     $logPath = ini_get('error_log') ?: '';
     $lines = [];
     $size = 0;
@@ -1211,13 +1353,14 @@ $collectDashboardData = function() {
 // ============ SERVIDORES (admin CRUD + página pública) ============
 
 \App\Router::get('/admin/servers', function() use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('servers');
     $servers = \App\Servers::all();
     \App\View::display('admin.servers', ['config' => $config, 'servers' => $servers]);
 });
 
 \App\Router::post('/admin/servers/create', function() use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('servers');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     $name = trim($_POST['name'] ?? '');
     $slug = strtolower(preg_replace('/[^a-z0-9-]+/i', '-', trim($_POST['slug'] ?? '')));
     if (strlen($name) < 2 || strlen($slug) < 2) {
@@ -1246,7 +1389,8 @@ $collectDashboardData = function() {
 });
 
 \App\Router::post('/admin/servers/update', function() use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('servers');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     $id = (int)($_POST['id'] ?? 0);
     if ($id < 1) { header('Location: /admin/servers'); exit; }
     \App\Database::execute(
@@ -1271,7 +1415,8 @@ $collectDashboardData = function() {
 });
 
 \App\Router::post('/admin/servers/regen-token', function() use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('servers');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     $id = (int)($_POST['id'] ?? 0);
     if ($id < 1) { header('Location: /admin/servers'); exit; }
     \App\Database::execute("UPDATE servers SET agent_token = ? WHERE id = ?", [\App\Servers::generateToken(), $id]);
@@ -1280,7 +1425,8 @@ $collectDashboardData = function() {
 });
 
 \App\Router::post('/admin/servers/delete', function() use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('servers');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     $id = (int)($_POST['id'] ?? 0);
     if ($id < 1) { header('Location: /admin/servers'); exit; }
     // Não deleta se ainda tem compras vinculadas — protege histórico
@@ -1308,13 +1454,14 @@ $collectDashboardData = function() {
 // ============ GALERIA (admin CRUD) ============
 
 \App\Router::get('/admin/gallery', function() use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('gallery');
     $items = \App\Database::fetchAll("SELECT * FROM gallery ORDER BY sort_order ASC, id DESC");
     \App\View::display('admin.gallery', ['config' => $config, 'items' => $items]);
 });
 
 \App\Router::post('/admin/gallery/upload', function() use ($config, $ROOT) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('gallery');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     $caption = trim($_POST['caption'] ?? '');
     $sort    = (int)($_POST['sort_order'] ?? 0);
 
@@ -1347,7 +1494,8 @@ $collectDashboardData = function() {
 });
 
 \App\Router::post('/admin/gallery/update', function() use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('gallery');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     $id      = (int)($_POST['id'] ?? 0);
     $caption = trim($_POST['caption'] ?? '');
     $sort    = (int)($_POST['sort_order'] ?? 0);
@@ -1362,7 +1510,8 @@ $collectDashboardData = function() {
 });
 
 \App\Router::post('/admin/gallery/delete', function() use ($config, $ROOT) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('gallery');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     $id = (int)($_POST['id'] ?? 0);
     if ($id < 1) { header('Location: /admin/gallery'); exit; }
     $row = \App\Database::fetchOne("SELECT filename FROM gallery WHERE id = ?", [$id]);
@@ -1386,7 +1535,7 @@ $collectDashboardData = function() {
 });
 
 \App\Router::get('/admin/audit', function() use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('audit');
     $filter = trim($_GET['action'] ?? '');
     $sql = "SELECT * FROM audit_log";
     $params = [];
@@ -1404,23 +1553,25 @@ $collectDashboardData = function() {
 });
 
 \App\Router::get('/admin/customize', function() use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('customize');
     \App\View::display('admin.customize', ['config' => $config]);
 });
 
 \App\Router::get('/admin/team', function() use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('team');
     $admins = \App\Database::fetchAll(
-        "SELECT id, username, email, created_at, last_login_at FROM admin_users ORDER BY created_at ASC"
+        "SELECT id, username, email, role, created_at, last_login_at FROM admin_users ORDER BY created_at ASC"
     );
     \App\View::display('admin.team', ['config' => $config, 'admins' => $admins]);
 });
 
 \App\Router::post('/admin/team/create', function() use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('team');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     $username = trim($_POST['username'] ?? '');
     $email    = trim($_POST['email'] ?? '') ?: null;
     $password = $_POST['password'] ?? '';
+    $role     = $_POST['role'] ?? 'support';
 
     if (strlen($username) < 3 || !preg_match('/^[a-zA-Z0-9_.-]+$/', $username)) {
         header('Location: /admin/team?err=username'); exit;
@@ -1428,22 +1579,54 @@ $collectDashboardData = function() {
     if (strlen($password) < 8) {
         header('Location: /admin/team?err=password'); exit;
     }
+    if (!array_key_exists($role, \App\Auth::availableRoles())) {
+        $role = 'support';
+    }
     $exists = \App\Database::fetchColumn("SELECT id FROM admin_users WHERE username = ? LIMIT 1", [$username]);
     if ($exists) {
         header('Location: /admin/team?err=duplicate'); exit;
     }
     $hash = password_hash($password, PASSWORD_BCRYPT);
     \App\Database::query(
-        "INSERT INTO admin_users (username, password_hash, email) VALUES (?, ?, ?)",
-        [$username, $hash, $email]
+        "INSERT INTO admin_users (username, password_hash, email, role) VALUES (?, ?, ?, ?)",
+        [$username, $hash, $email, $role]
     );
-    \App\AuditLog::record('admin.created', 'admin', $username, ['email' => $email]);
+    \App\AuditLog::record('admin.created', 'admin', $username, ['email' => $email, 'role' => $role]);
     header('Location: /admin/team?ok=created');
     exit;
 });
 
+\App\Router::post('/admin/team/{id}/role', function($id) use ($config) {
+    \App\Auth::requireCan('team');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
+    $role = $_POST['role'] ?? '';
+    if (!array_key_exists($role, \App\Auth::availableRoles())) {
+        header('Location: /admin/team?err=invalid_role'); exit;
+    }
+    // Não permite que admin tire seu próprio super_admin (evita auto-trancar)
+    $me = \App\Auth::user();
+    if ((int)$id === (int)($me['id'] ?? 0) && $role !== 'super_admin') {
+        header('Location: /admin/team?err=self_demote'); exit;
+    }
+    // Garante que sempre existe pelo menos 1 super_admin
+    if ($role !== 'super_admin') {
+        $superCount = (int)\App\Database::fetchColumn(
+            "SELECT COUNT(*) FROM admin_users WHERE role = 'super_admin' AND id != ?", [(int)$id]
+        );
+        if ($superCount === 0) {
+            header('Location: /admin/team?err=last_super'); exit;
+        }
+    }
+    $username = \App\Database::fetchColumn("SELECT username FROM admin_users WHERE id = ?", [(int)$id]);
+    \App\Database::query("UPDATE admin_users SET role = ? WHERE id = ?", [$role, (int)$id]);
+    \App\AuditLog::record('admin.role_changed', 'admin', $username, ['new_role' => $role]);
+    header('Location: /admin/team?ok=role');
+    exit;
+});
+
 \App\Router::post('/admin/team/{id}/delete', function($id) use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('team');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     $me = \App\Auth::user();
     if ((int)$id === (int)($me['id'] ?? 0)) {
         header('Location: /admin/team?err=self'); exit;
@@ -1461,7 +1644,8 @@ $collectDashboardData = function() {
 });
 
 \App\Router::post('/admin/team/{id}/password', function($id) use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('team');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     $newPass = $_POST['password'] ?? '';
     if (strlen($newPass) < 8) {
         header('Location: /admin/team?err=password'); exit;
@@ -1473,7 +1657,7 @@ $collectDashboardData = function() {
 });
 
 \App\Router::get('/admin/combos', function() use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('combos');
     $combos = \App\Database::fetchAll(
         "SELECT * FROM combos ORDER BY sort_order ASC, id DESC"
     );
@@ -1484,7 +1668,8 @@ $collectDashboardData = function() {
 });
 
 \App\Router::post('/admin/combos/create', function() use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('combos');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     $slug = strtolower(preg_replace('/[^a-z0-9-]/', '', strtolower(trim($_POST['slug'] ?? ''))));
     $name = trim($_POST['name'] ?? '');
     $description = trim($_POST['description'] ?? '') ?: null;
@@ -1512,21 +1697,23 @@ $collectDashboardData = function() {
 });
 
 \App\Router::post('/admin/combos/{id}/toggle', function($id) use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('combos');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     \App\Database::query("UPDATE combos SET enabled = 1 - enabled WHERE id = ?", [(int)$id]);
     header('Location: /admin/combos?ok=1');
     exit;
 });
 
 \App\Router::post('/admin/combos/{id}/delete', function($id) use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('combos');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     \App\Database::query("DELETE FROM combos WHERE id = ?", [(int)$id]);
     header('Location: /admin/combos?ok=1');
     exit;
 });
 
 \App\Router::get('/admin/coupons', function() use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('coupons');
     $coupons = \App\Database::fetchAll(
         "SELECT * FROM coupons ORDER BY active DESC, created_at DESC"
     );
@@ -1534,7 +1721,8 @@ $collectDashboardData = function() {
 });
 
 \App\Router::post('/admin/coupons/create', function() use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('coupons');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     $code  = strtoupper(preg_replace('/[^A-Z0-9_-]/', '', strtoupper(trim($_POST['code'] ?? ''))));
     $type  = in_array($_POST['discount_type'] ?? '', ['percent','fixed'], true) ? $_POST['discount_type'] : 'percent';
     $value = max(0.01, (float)str_replace(',', '.', $_POST['discount_value'] ?? '0'));
@@ -1567,7 +1755,8 @@ $collectDashboardData = function() {
 });
 
 \App\Router::post('/admin/coupons/{id}/toggle', function($id) use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('coupons');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     \App\Database::query("UPDATE coupons SET active = 1 - active WHERE id = ?", [(int)$id]);
     $code = \App\Database::fetchColumn("SELECT code FROM coupons WHERE id = ?", [(int)$id]);
     \App\AuditLog::record('coupon.toggled', 'coupon', $code);
@@ -1576,7 +1765,8 @@ $collectDashboardData = function() {
 });
 
 \App\Router::post('/admin/coupons/{id}/delete', function($id) use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('coupons');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     $code = \App\Database::fetchColumn("SELECT code FROM coupons WHERE id = ?", [(int)$id]);
     \App\Database::query("DELETE FROM coupons WHERE id = ?", [(int)$id]);
     \App\AuditLog::record('coupon.deleted', 'coupon', $code);
@@ -1585,7 +1775,7 @@ $collectDashboardData = function() {
 });
 
 \App\Router::get('/admin/announcements', function() use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('announcements');
     $list = \App\Database::fetchAll(
         "SELECT * FROM announcements ORDER BY published DESC, created_at DESC"
     );
@@ -1593,7 +1783,8 @@ $collectDashboardData = function() {
 });
 
 \App\Router::post('/admin/announcements/save', function() use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('announcements');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     $id        = (int)($_POST['id'] ?? 0);
     $title     = trim($_POST['title'] ?? '');
     $body      = trim($_POST['body'] ?? '');
@@ -1621,21 +1812,22 @@ $collectDashboardData = function() {
 });
 
 \App\Router::post('/admin/announcements/{id}/delete', function($id) use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('announcements');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     \App\Database::query("DELETE FROM announcements WHERE id = ?", [(int)$id]);
     header('Location: /admin/announcements?ok=1');
     exit;
 });
 
 \App\Router::get('/admin/support', function() use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('support');
     \App\View::display('admin.support', ['config' => $config]);
 });
 
 // ============ INTEGRAÇÃO DISCORD (v1.1.0) ============
 
 \App\Router::get('/admin/discord-integration', function() use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('discord_integration');
     $token = (string) (\App\Database::fetchColumn(
         "SELECT `value` FROM settings WHERE `key` = 'discord_integration_token'"
     ) ?: '');
@@ -1686,7 +1878,8 @@ $collectDashboardData = function() {
 });
 
 \App\Router::post('/admin/discord-integration/regenerate', function() use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('discord_integration');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     \App\Csrf::require();
     // tcp_ + 48 hex chars (24 bytes = 192 bits de entropia) = ~52 chars
     $new = 'tcp_' . bin2hex(random_bytes(24));
@@ -1706,7 +1899,7 @@ $collectDashboardData = function() {
 });
 
 \App\Router::get('/admin/players/{id}', function($id) use ($config) {
-    \App\Auth::requireAdmin();
+    \App\Auth::requireCan('players');
     $player = \App\Database::fetchOne("SELECT * FROM players WHERE id = ? LIMIT 1", [(int)$id]);
     if (!$player) { http_response_code(404); echo 'Jogador não encontrado'; exit; }
     $history = \App\Database::fetchAll(

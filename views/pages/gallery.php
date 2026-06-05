@@ -7,15 +7,15 @@
     <div class="container">
 
         <div class="page-header">
-            <span class="page-tag">// SCREENSHOTS</span>
-            <h1 class="page-title">Galeria</h1>
-            <p class="page-subtitle">Momentos capturados dentro do servidor. Junte-se à comunidade e crie os seus.</p>
+            <span class="page-tag">// <?= e(__('gallery.kicker')) ?></span>
+            <h1 class="page-title"><?= e(__('gallery.title')) ?></h1>
+            <p class="page-subtitle"><?= e(__('gallery.subtitle')) ?></p>
         </div>
 
         <?php if (empty($items)): ?>
             <div class="empty-state">
                 <span class="empty-icon">▭</span>
-                <p>Nenhuma screenshot por aqui ainda. Volte logo.</p>
+                <p><?= e(__('gallery.empty')) ?></p>
             </div>
         <?php else: ?>
             <div class="gallery-grid">

@@ -9,7 +9,7 @@ Tema apocalipse · Painel admin completo · Mercado Pago · Login Steam · Multi
 [![MySQL](https://img.shields.io/badge/MySQL-5.7+-4479A1?style=flat-square&logo=mysql&logoColor=white)](https://www.mysql.com)
 [![License](https://img.shields.io/badge/License-Tecplay--NC-a855f7?style=flat-square)](LICENSE.txt)
 [![Status](https://img.shields.io/badge/Status-Produção-16a34a?style=flat-square)]()
-[![Versão](https://img.shields.io/badge/Versão-1.1.0-facc15?style=flat-square)](CHANGELOG.md)
+[![Versão](https://img.shields.io/badge/Versão-1.2.0-facc15?style=flat-square)](CHANGELOG.md)
 
 *Sobreviva. Construa. Domine. Agora também na web.*
 
@@ -46,7 +46,8 @@ A venda não autorizada é **crime** previsto no **Art. 184 §2º do Código Pen
 - **Galeria** de screenshots com lightbox e setas
 - **Hall da Fama** dos jogadores (top coins + top apoiadores)
 - **Sistema de avaliações** dos jogadores
-- **Conquistas automáticas** (Primeiro Sangue, Veterano, Lendário, Madrugador, etc)
+- **12 conquistas automáticas** (Primeiro Sangue, Veterano, Lendário, Madrugador, Insone, Tubarão, Colecionador, Persistência, Generoso, Tiro Rápido, Veterano de Guerra) — totalmente i18n
+- **Reviews públicas** em `/depoimentos` (qualquer visitante envia, admin modera) + `AggregateRating` Schema.org pro Google
 - **Wishlist** de pacotes pros jogadores logados
 - **Páginas dinâmicas** (Termos, Privacidade LGPD, Regras, Reembolso) editáveis no admin
 - **SEO completo**: Open Graph, Twitter Card, JSON-LD, sitemap.xml, robots.txt
@@ -58,7 +59,7 @@ A venda não autorizada é **crime** previsto no **Art. 184 §2º do Código Pen
 - **Audit log** de toda ação administrativa
 - **Histórico granular de saldo** por jogador
 - **Console de logs PHP** integrado ao painel
-- **Multi-admin** com equipe e roles
+- **Multi-admin com RBAC**: 4 papéis (super_admin / finance / support / editor). URL não-autorizada cai em 403 dedicado. Suporte só vê jogadores, sem valor financeiro
 - **Modo manutenção** com mensagem customizável
 - **Promo sazonal** com cupom auto-aplicado em todos os pacotes
 - **Webhook Discord** para notificações de venda
@@ -73,8 +74,11 @@ A venda não autorizada é **crime** previsto no **Art. 184 §2º do Código Pen
 
 ### 🔐 Segurança hardened
 
-- CSRF tokens em **todas** as forms POST
-- Rate limit no checkout e login admin (dois eixos: IP + IP+user)
+- **CSRF tokens em 100% das forms POST** (audit v1.2.0 corrigiu 26 rotas admin que estavam sem)
+- **RBAC granular**: 4 papéis com matriz de permissões + página 403 dedicada com info do violador
+- **Security headers** no `.htaccess`: HSTS, X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy
+- **HTTPS forçado** via 301 redirect (precisa descomentar no `.htaccess` raiz)
+- Rate limit no checkout, login admin, reviews públicas e newsletter (dois eixos: IP + IP+user)
 - Sanitização HTML em páginas dinâmicas (allowlist + remove `on*`/javascript:/data:)
 - Claim atômico no webhook MP (prevê dupla entrega de coins em race condition)
 - Validação obrigatória de assinatura MP em produção
@@ -82,6 +86,15 @@ A venda não autorizada é **crime** previsto no **Art. 184 §2º do Código Pen
 - Cookies de sessão com `HttpOnly`, `SameSite=Lax`, `Secure` em HTTPS
 - Senhas bcrypt (PASSWORD_BCRYPT)
 - Cap de 64KB no payload de webhooks
+
+### ⚡ Performance otimizada
+
+- **PageSpeed Insights**: home/shop mobile **95-97**, desktop **100/100** (medido em produção)
+- **WebP-on-the-fly** via Apache content negotiation (sem alteração no markup)
+- **Self-hosted fonts** (sem round-trip pro Google Fonts CDN)
+- **Cache estático** 1 ano + gzip + preload do hero por página
+- **Mobile-first**: drawer pattern admin, scroll horizontal em tabelas, grids inline responsivos
+- **Chart Dashboard** com legenda visível, escondido em mobile pra UX limpa
 
 ---
 

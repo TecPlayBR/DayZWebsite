@@ -2,6 +2,25 @@
 <?php $steamUser = \App\SteamAuth::user(); ?>
 <?php $prefillSteam = $steamUser['steam_id'] ?? ''; ?>
 <?php \App\View::extend('layouts.main'); ?>
+
+<?php
+// SEO: title/desc da loja com keyword "comprar moedas DayZ" + nome do server.
+// View::with() propaga pro layout main.php (sobrescreve qualquer default do controller).
+$siteName = $config['settings']['site_name'] ?? $config['site_name'] ?? 'DayZ';
+\App\View::with(
+    'title',
+    ($config['settings']['seo_shop_title'] ?? '')
+        ?: "Comprar Moedas DayZ — Loja {$siteName} | PIX, Cartão & Boleto"
+);
+\App\View::with(
+    'description',
+    ($config['settings']['seo_shop_description'] ?? '')
+        ?: "Compre moedas DayZ pra usar no servidor {$siteName}. Pagamento via PIX, cartão ou boleto. Liberação automática em até 15 segundos."
+);
+// Hero usa background3 — sinaliza pro layout preloadar o certo (LCP fix)
+\App\View::with('hero_image', 'img/background3.png');
+?>
+
 <?php \App\View::section('content'); ?>
 
 <?php if (!empty($promo_coupon) && !empty($promo_label)): ?>
@@ -143,7 +162,7 @@
                        oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9_-]/g, '')">
             </label>
             <p class="shop-coupon-note">
-                O cupom é aplicado automaticamente quando você clicar em "COMPRAR" em qualquer pacote.
+                <?= e(__('shop.coupon_auto')) ?>
             </p>
         </div>
 
@@ -153,13 +172,13 @@
                 <span>Li e aceito os <a href="/page/terms" target="_blank" rel="noopener">Termos de Uso</a> e a <a href="/page/refund" target="_blank" rel="noopener">Política de Reembolso</a>.</span>
             </label>
             <p class="shop-terms-note">
-                Marcado por padrão pra facilitar. Você precisa ler antes — ao comprar, fica registrado que aceitou.
+                <?= e(__('shop.terms_note')) ?>
             </p>
         </div>
 
         <p class="shop-note">
-            🔒 Pagamento processado pelo <strong>Mercado Pago</strong>. Entrega automática em até 15 segundos após confirmação.<br>
-            ⚠ Confira o seu SteamID antes de pagar — créditos vão pro SteamID informado e não podem ser transferidos depois.
+            🔒 <strong>Mercado Pago</strong><?= __('shop.auto_delivery') ?><br>
+            <?= __('shop.steamid_warning') ?>
         </p>
     </div>
 </section>

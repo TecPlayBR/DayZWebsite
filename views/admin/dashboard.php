@@ -52,17 +52,32 @@
 .stat-card .value.changed { color: var(--hazard) !important; }
 </style>
 
-<h2 style="font-family: var(--font-display); color: var(--bone); font-size: 1.2rem; margin-bottom: 1rem; letter-spacing: 0.04em;">
-    Vendas (últimos 30 dias)
-</h2>
+<div class="chart-section">
+    <h2 style="font-family: var(--font-display); color: var(--bone); font-size: 1.2rem; margin-bottom: 1rem; letter-spacing: 0.04em;">
+        Vendas (últimos 30 dias)
+    </h2>
 
-<div class="stat-card" style="padding: 1.5rem; margin-bottom: 2rem;">
-    <canvas id="sales-chart" height="80"></canvas>
+    <div class="stat-card" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <div style="position: relative; height: 320px;">
+            <canvas id="sales-chart"></canvas>
+        </div>
+    </div>
 </div>
+
+<style>
+/* Chart escondido em mobile — dashboard mobile vai direto pra "Últimas compras". */
+@media (max-width: 760px) {
+    .chart-section { display: none; }
+}
+</style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
 (async function() {
+    // Mobile: pula o chart inteiro (DOM escondido via CSS, mas evita fetch desnecessário)
+    if (window.matchMedia('(max-width: 760px)').matches) return;
+    const ctx0 = document.getElementById('sales-chart');
+    if (!ctx0) return;
     const r = await fetch('/admin/sales-chart.json', {credentials: 'same-origin'});
     if (!r.ok) return;
     const data = await r.json();
@@ -78,32 +93,62 @@
             labels: data.labels,
             datasets: [
                 {
-                    type: 'bar', label: 'R$ por dia',
+                    type: 'bar', label: '💰 Receita (R$)',
                     data: data.revenues, yAxisID: 'y',
-                    backgroundColor: 'rgba(193,68,14,0.6)',
-                    borderColor: rust, borderWidth: 1, borderRadius: 2,
+                    backgroundColor: 'rgba(74,222,128,0.55)',
+                    borderColor: '#4ade80', borderWidth: 1.5, borderRadius: 3,
                 },
                 {
-                    type: 'line', label: 'Compras (n)',
+                    type: 'line', label: '📦 Compras (quantidade)',
                     data: data.counts, yAxisID: 'y1',
-                    borderColor: hazard, backgroundColor: 'var(--hazard-border)',
-                    tension: 0.3, fill: false, pointRadius: 3, pointHoverRadius: 5, borderWidth: 2,
+                    borderColor: '#fde047',
+                    backgroundColor: 'rgba(253,224,71,0.15)',
+                    tension: 0.3, fill: false, pointRadius: 4, pointHoverRadius: 6, borderWidth: 3,
+                    pointBackgroundColor: '#fde047', pointBorderColor: '#0a0612', pointBorderWidth: 1.5,
                 },
             ],
         },
         options: {
             responsive: true, maintainAspectRatio: false,
             interaction: { mode: 'index', intersect: false },
+
             scales: {
-                y:  { position: 'left',  beginAtZero: true, ticks: { color: rust,   callback: v => 'R$ ' + v } },
-                y1: { position: 'right', beginAtZero: true, ticks: { color: hazard, stepSize: 1 }, grid: { display: false } },
-                x:  { ticks: { color: dim, font: { size: 10 } } },
+                y:  { position: 'left',  beginAtZero: true,
+                      ticks: { color: '#4ade80', callback: v => 'R$ ' + v, font: { size: 11 } },
+                      grid: { color: 'rgba(255,255,255,0.06)' } },
+                y1: { position: 'right', beginAtZero: true,
+                      ticks: { color: '#fde047', stepSize: 1, font: { size: 11 } },
+                      grid: { display: false } },
+                x:  { ticks: { color: '#cbd5e1', font: { size: 11 } },
+                      grid: { color: 'rgba(255,255,255,0.04)' } },
             },
             plugins: {
-                legend: { labels: { color: bone, padding: 16, font: { size: 12 } } },
+                // Legend bem visivel: pontos coloridos com tamanho generoso + texto branco
+                legend: {
+                    position: 'top',
+                    align: 'start',
+                    labels: {
+                        color: '#f3eee0', // bone solido (sem var)
+                        padding: 18,
+                        font: { size: 13, weight: '600' },
+                        usePointStyle: true,
+                        pointStyle: 'rectRounded',
+                        boxWidth: 14,
+                        boxHeight: 14,
+                    },
+                },
                 tooltip: {
-                    backgroundColor: 'var(--bg-1)', borderColor: rust, borderWidth: 1,
-                    titleColor: bone, bodyColor: bone,
+                    backgroundColor: '#0a0612', borderColor: '#c1440e', borderWidth: 1,
+                    titleColor: '#f3eee0', bodyColor: '#f3eee0',
+                    padding: 10,
+                    callbacks: {
+                        label: ctx => {
+                            const v = ctx.parsed.y;
+                            return ctx.dataset.yAxisID === 'y'
+                                ? `${ctx.dataset.label}: R$ ${v.toFixed(2).replace('.', ',')}`
+                                : `${ctx.dataset.label}: ${v}`;
+                        },
+                    },
                 },
             },
         },
@@ -115,6 +160,7 @@
     Últimas compras
 </h2>
 
+<div class="admin-table-wrap">
 <table class="admin-table" id="recent-purchases-table">
     <thead>
         <tr>
@@ -152,6 +198,7 @@
         <?php endforeach; endif; ?>
     </tbody>
 </table>
+</div>
 
 <script>
 // ============ Auto-refresh do dashboard ============

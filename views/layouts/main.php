@@ -24,6 +24,56 @@
     if (!preg_match('#^https?://#', $ogImage)) $ogImage = $siteUrl . $ogImage;
     ?>
     <meta name="author" content="<?= e($siteName) ?>">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <meta name="googlebot" content="index, follow">
+    <meta name="theme-color" content="#0a0405">
+
+    <?php
+    // SEO keywords — admin pode override via settings.seo_keywords; senão usa default rico do nicho DayZ BR
+    $seoKeywords = $config['settings']['seo_keywords'] ?? '';
+    if (empty($seoKeywords)) {
+        $seoKeywords = 'servidor dayz brasileiro, servidor dayz br, dayz pvp, dayz hardcore, '
+            . 'comprar moedas dayz, pix dayz, dayz raid, dayz base building, dayz comunidade, '
+            . 'servidor dayz chernarus, dayz vanilla plus, dayz mod servidor, '
+            . 'comunidade dayz br, servidor dayz com loja, anti-cheat dayz, dayz brasil pvp';
+    }
+    ?>
+    <meta name="keywords" content="<?= e($seoKeywords) ?>">
+
+    <!-- Schema.org JSON-LD: GameServer + Organization pra rich snippets do Google -->
+    <script type="application/ld+json"><?= json_encode([
+        '@context' => 'https://schema.org',
+        '@graph' => [
+            [
+                '@type' => 'Organization',
+                'name' => $siteName,
+                'url' => $siteUrl,
+                'logo' => $siteUrl . asset('img/logo.png'),
+                'sameAs' => array_values(array_filter([
+                    $config['settings']['social_discord']   ?? null,
+                    $config['settings']['social_youtube']   ?? null,
+                    $config['settings']['social_instagram'] ?? null,
+                    $config['settings']['social_tiktok']    ?? null,
+                    $config['settings']['social_twitch']    ?? null,
+                    $config['settings']['social_x']         ?? null,
+                    $config['settings']['social_facebook']  ?? null,
+                ])),
+            ],
+            [
+                '@type' => 'VideoGameSeries',
+                'name' => $siteName . ' DayZ Server',
+                'gameItem' => [
+                    '@type' => 'VideoGame',
+                    'name' => 'DayZ',
+                    'gamePlatform' => 'PC (Steam)',
+                ],
+                'url' => $siteUrl,
+                'description' => $pageDesc,
+                'inLanguage' => 'pt-BR',
+            ],
+        ],
+    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?></script>
+
     <link rel="canonical" href="<?= e($pageUrl) ?>">
 
     <!-- Open Graph (Facebook, Discord, WhatsApp, LinkedIn) -->
@@ -58,14 +108,56 @@
         <script type="application/ld+json"><?= json_encode($jsonld, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?></script>
     <?php endif; ?>
 
-    <!-- Fonts (display=swap evita FOIT — texto aparece com fallback enquanto a fonte custom carrega) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Inter:wght@400;600;700&family=VT323&display=swap" rel="stylesheet" media="all">
+    <?php
+    // AggregateRating Schema.org (Headers de segurança).
+    // SO renderiza se houver reviews REAIS aprovadas (Google policy: rating
+    // numerico verificado, nao mock). Reviews vem de purchases entregues.
+    try {
+        if (class_exists('\App\Database')) {
+            $agg = \App\Database::fetchOne(
+                "SELECT COUNT(*) AS cnt, AVG(rating) AS avg_rating
+                   FROM reviews WHERE approved = 1"
+            );
+            $reviewCount = (int)($agg['cnt'] ?? 0);
+            if ($reviewCount > 0):
+                $ratingValue = round((float)$agg['avg_rating'], 2);
+    ?>
+    <script type="application/ld+json"><?= json_encode([
+        '@context' => 'https://schema.org',
+        '@type'    => 'VideoGameSeries',
+        'name'     => $siteName . ' DayZ Server',
+        'url'      => $siteUrl,
+        'aggregateRating' => [
+            '@type'       => 'AggregateRating',
+            'ratingValue' => $ratingValue,
+            'reviewCount' => $reviewCount,
+            'bestRating'  => 5,
+            'worstRating' => 1,
+        ],
+    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?></script>
+    <?php
+            endif;
+        }
+    } catch (\Throwable $e) { /* DB indisponivel ou tabela reviews ausente: skip */ }
+    ?>
 
-    <!-- Preload do hero pra LCP (Largest Contentful Paint). Pulado em páginas sem hero. -->
-    <?php if (!($skip_hero_preload ?? false)): ?>
-        <link rel="preload" as="image" href="<?= asset('img/background.png') ?>" fetchpriority="high">
+    <!-- Fonts: self-hosted . Elimina 780ms render-blocking + ~1300ms
+         cadeia de dependencia cross-origin do Google Fonts CSS/woff2.
+         Preload das 3 woff2 latin pra paralelizar download antes do CSS parser. -->
+    <link rel="preload" as="font" type="font/woff2" href="<?= asset('fonts/inter.woff2') ?>" crossorigin>
+    <link rel="preload" as="font" type="font/woff2" href="<?= asset('fonts/black-ops-one-400.woff2') ?>" crossorigin>
+    <link rel="preload" as="font" type="font/woff2" href="<?= asset('fonts/vt323-400.woff2') ?>" crossorigin>
+    <link rel="stylesheet" href="<?= asset('css/fonts.css') ?>">
+
+    <!-- Preload do hero pra LCP (Largest Contentful Paint).
+         CRITICAL: URL precisa BATER com a do CSS/inline style pro browser reusar.
+         aceita $hero_image setado via View::with(). Shop usa background3,
+         rules usa background5, etc. Sem isso, preload baixa errado e LCP regride.
+         Default home: background.png. -->
+    <?php if (!($skip_hero_preload ?? false)):
+        $heroImg = $hero_image ?? 'img/background.png';
+    ?>
+        <link rel="preload" as="image" href="<?= asset($heroImg) ?>" fetchpriority="high">
     <?php endif; ?>
 
     <link rel="stylesheet" href="<?= asset('css/theme.css') ?>">

@@ -5,6 +5,158 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [1.2.0] — 2026-06-05
+
+Release com foco em **segurança, RBAC, performance mobile e experiência
+multi-idioma**. Atualização recomendada pra todos os clientes em produção.
+
+### 🔒 Segurança
+
+- **RBAC (Role-Based Access Control)** no painel admin. 4 papéis:
+  - `super_admin` — tudo (gerencia equipe, settings, integrações).
+  - `finance` — Dashboard, Pacotes, Combos, Compras, Cupons.
+  - `support` — somente Jogadores e Avaliações (sem acesso a valor financeiro).
+  - `editor` — Páginas, Galeria, Anúncios, Personalizar visual.
+  - URL direta sem permissão cai em página **403 Acesso negado** com user/role/path/timestamp registrados.
+  - Helpers novos: `Auth::can($area)`, `Auth::requireCan($area)`, `Auth::homePath()`.
+  - UI nova em `/admin/team` com select de role + matriz de permissões visível.
+  - Guards: não dá pra auto-rebaixar nem deixar sistema sem super_admin.
+- **CSRF em 100% das rotas POST admin**. Audit anterior descobriu 26 rotas sem
+  proteção. Todas patcheadas + valid_token check obrigatório.
+- **Security headers** no `.htaccess`: HSTS, X-Content-Type-Options,
+  X-Frame-Options, Referrer-Policy, Permissions-Policy.
+- **HTTPS forçado** via 301 (descomentado no `.htaccess` raiz).
+
+### ⚡ Performance
+
+- **WebP-on-the-fly** via Apache rewrite no `.htaccess` raiz. Imagens `.png`/`.jpg`
+  retornam `image/webp` quando o browser suporta. Sem alteração no markup.
+  Esperado: −70% a −92% no payload de imagens hero.
+- **Self-hosted fonts** (`public/assets/fonts/`). Elimina round-trip pro Google
+  Fonts CDN. Inter (variable font, weights 400-700), Black Ops One, VT323.
+  Esperado: −780ms render-blocking + −1300ms cadeia de dependência.
+- **Cache estático** via `mod_expires` + `mod_headers` (1 ano pra imagens/woff2,
+  1 mês pra css/js).
+- **Compressão gzip** via `mod_deflate` (html/css/js/json/xml).
+- **`<link rel="preload">` dinâmico** por página — cada page setou seu hero
+  background via `View::with('hero_image', ...)`. Antes era `background.png`
+  hardcoded e o preload virava cache miss.
+- **PageSpeed Insights pós-deploy** (referência): home mobile **97** / desktop
+  **100**; shop mobile **95** / desktop **100** (testado num servidor real).
+
+### 📱 Mobile
+
+- **Drawer pattern** no admin (hambúrguer top-right, sidebar slides off-canvas).
+  Antes a sidebar 260px fixa estourava em viewport pequeno.
+- **Auto-wrap** de tabelas admin em `<div class="admin-table-wrap">` com scroll
+  horizontal. Funciona via MutationObserver (cobre PJAX automaticamente).
+- **Grids inline 2-3 cols** em forms admin viram 1 coluna em mobile via
+  `[style*="grid-template-columns: 1fr 1fr"]` + `!important`.
+- **Hero status BattleMetrics** centralizado + embaixo dos CTAs em mobile
+  (antes ficava lado a lado com o conteúdo, espremendo o texto pra esquerda).
+- **Body scroll lock** quando drawer aberto (com restauração de posição).
+- **Hide-on-scroll** do hambúrguer admin (some ao rolar pra baixo, volta ao rolar pra cima).
+- **Bandeiras lang-flag** maiores no drawer mobile (era 32×22px, agora 56×38px,
+  opacity 0.85 mínima pra todos serem visíveis).
+
+### 💬 Conteúdo / Engajamento
+
+- **Reviews públicas**: form em `/depoimentos` permite qualquer visitante enviar
+  avaliação (rate-limit 3/h por IP). Admin modera em `/admin/reviews`. Schema:
+  `reviews.source` (`purchase` | `public`) + `purchase_id`/`steam_id` NULL.
+- **Testimonials na home** ler reviews aprovadas reais (rating ≥4) via DB,
+  substituindo o setting `testimonials_json` manual.
+- **AggregateRating Schema.org** dormente — ativa quando count(reviews approved) > 0.
+  Google pode mostrar estrelas no SERP.
+- **Newsletter capture** no footer com card moderno + email de confirmação
+  automático via `Mailer`. Endpoint `POST /api/newsletter-subscribe` com
+  rate-limit 10/h por IP. Setting `newsletter_forward_url` permite forward
+  pra Reach 100/Mailchimp/etc sem deploy.
+- **12 conquistas** (era 6): adicionadas Whale, Insomniac, Streak, Generous,
+  Rapid Fire, Anniversary. Totalmente i18n (`lang/*.php` → `achievements.<slug>`).
+
+### 🌐 i18n (EN-US)
+
+- Sweep completo de strings hardcoded em PT → `__()` em:
+  - Footer (links, copyright, newsletter, social proof)
+  - Hero status BattleMetrics (online/offline/voltando/avise no Discord)
+  - Hero stats (jogadores cadastrados/jogando agora/compras semana)
+  - Live purchases label
+  - Testimonials home
+  - Shop notes (coupon, terms, SteamID warning, auto delivery)
+  - Profile/My Purchases (todos os campos, flash messages, ações)
+  - Checkout return (success/pending/fail)
+  - Depoimentos page (hero, empty state, form completo, flash messages)
+  - Gallery
+  - Status badges (`✓ Entregue` → `✓ Delivered`, etc)
+  - Conquistas (12 nomes + descrições)
+- **Tagline multilang** via setting per-locale: `site_tagline_ptbr` /
+  `site_tagline_enus`. Footer escolhe automaticamente.
+- **SEO per-page** via `View::with('title', ...)` + `'description'` —
+  qualquer view filha pode sobrescrever sem mexer em controller.
+- Pacotes (`packages.name/description`) **mantidos em PT** propositalmente —
+  são nomes de produtos/brand (decisão de UX, não bug).
+
+### 🎨 UX/UI
+
+- **Chart dashboard**: legend visível com `pointStyle: rectRounded` + boxWidth
+  14×14, labels `💰 Receita (R$)` / `📦 Compras (quantidade)`, tooltip rico
+  com formatação BRL, height fixo 320px. Cores hardcoded (`#4ade80` verde,
+  `#fde047` amarelo) — funcionam em qualquer skin custom escura.
+- **Chart escondido em mobile** (≤760px) — UX mobile prioriza stat cards +
+  últimas compras. JS pula `fetch()` pra economizar request.
+- **Stat cards mobile** em 2 colunas (≤640px) ou 1 (≤480px).
+- **Footer drawer mobile** com links rápidos (Termos · Privacidade · FAQ) +
+  copyright. Substitui o lang-select redundante (dropdown já existe no header).
+- **Padronização emojis** na nav admin (📊 👥 📦 🛰 🤖 🎁 💰 📄 📢 🎟 ⭐ 🖼 🧑‍💼 📋 🐛 🎨 ⚙️ 🛟).
+- **CTA Discord** quando server offline (alt-cta em vez de "Offline" cru).
+- **Hide rank BM ruim**: setting `bm_rank_threshold` (default 500) — rank
+  só aparece se for top N.
+
+### 🔧 Schema
+
+- **`admin_users.role`** — VARCHAR(20) DEFAULT 'super_admin'.
+- **`reviews.source`** + `purchase_id`/`steam_id` NULL.
+- **`newsletter_emails`** — tabela nova.
+- Migration: `migrations/v1.2.0_rbac_reviews_newsletter.sql` (idempotente, usa
+  information_schema pra checks).
+
+### 🐛 Bugfixes
+
+- **Loop infinito** em `/admin?err=csrf` causado por CSRF check inserido em
+  GET por engano (regex de batch). Removido.
+- **Logo footer** pesava 65KB pra render 60×60 — versão dedicada
+  `logo_semfundo_small.png` (120×120 source) = 8KB WebP servido (−87%).
+- **Preload mismatch** hero — preload apontava `.webp` mas CSS pedia `.png`,
+  causando double download. Padronizado: preload usa mesma URL do CSS, Apache
+  faz content negotiation transparente.
+- **Cores chart** invisíveis em skins escuras (var(--rust) bordô em bg bordô).
+  Trocadas por hex high-contrast (`#4ade80`, `#fde047`).
+- **CSS @media legacy** em `admin.css` linhas 610-644 (responsivo antigo do
+  v1.0) sobrescrevia drawer pattern novo. Removido.
+- **Lang-flag** EN com `opacity: 0.55` ficava invisível no drawer mobile.
+  Override pra 0.85 + 56×38px.
+- **CSRF field** ausente em 4 forms (gallery x2, servers x2). Adicionados.
+
+### 📚 Documentação
+
+- `views/pages/admin_forbidden.php` — página 403 dedicada com info do violador.
+- `INSTALACAO.md` atualizado com seção RBAC + migration v1.2.0.
+
+### Como atualizar
+
+1. Pull do repo (ou substitui arquivos preservando `config/config.php` e `theme.override.css`).
+2. Aplica migration:
+   ```bash
+   mysql -u USER -p DB < migrations/v1.2.0_rbac_reviews_newsletter.sql
+   ```
+3. Em `/admin/team`: atribui roles aos membros (todos viram `super_admin` por
+   default — restringe quem precisa).
+4. **Opcional**: descomenta `RewriteCond %{HTTPS} off` no `.htaccess` raiz pra
+   forçar HTTPS 301 (recomendado).
+
+---
+
 ## [1.1.1] — 2026-06-04
 
 ### Alterado — Template 100% skinável via override

@@ -6,7 +6,7 @@
 <div class="admin-page-head">
     <div>
         <h1>Equipe</h1>
-        <p>Administradores do painel. Todos têm acesso igual — não há papéis (roles).</p>
+        <p>Administradores do painel. Cada um tem um <strong>papel</strong> que define o que pode acessar.</p>
     </div>
 </div>
 
@@ -14,19 +14,24 @@
 $err = $_GET['err'] ?? null;
 $ok  = $_GET['ok']  ?? null;
 $errMsg = match($err) {
-    'username'  => 'Usuário inválido (mín. 3 chars, só letras/números/_.-)',
-    'password'  => 'Senha precisa de pelo menos 8 caracteres',
-    'duplicate' => 'Já existe usuário com esse nome',
-    'self'      => 'Você não pode deletar sua própria conta. Peça pra outro admin fazer.',
-    'last'      => 'Não dá pra deletar o último admin — você ficaria sem acesso.',
+    'username'    => 'Usuário inválido (mín. 3 chars, só letras/números/_.-)',
+    'password'    => 'Senha precisa de pelo menos 8 caracteres',
+    'duplicate'   => 'Já existe usuário com esse nome',
+    'self'        => 'Você não pode deletar sua própria conta. Peça pra outro admin fazer.',
+    'last'        => 'Não dá pra deletar o último admin — você ficaria sem acesso.',
+    'invalid_role'=> 'Papel inválido.',
+    'self_demote' => 'Você não pode rebaixar seu próprio papel. Peça pra outro super admin fazer.',
+    'last_super'  => 'Não dá pra rebaixar — você é o último super admin.',
     default => null,
 };
 $okMsg = match($ok) {
     'created'  => 'Admin criado.',
     'deleted'  => 'Admin removido.',
     'password' => 'Senha atualizada.',
+    'role'     => 'Papel atualizado.',
     default => null,
 };
+$roles = \App\Auth::availableRoles();
 ?>
 <?php if ($errMsg): ?>
     <div style="background:var(--danger-overlay);border-left:3px solid var(--rust-2);padding:0.8rem 1rem;margin-bottom:1.5rem;color:var(--text-danger);">
@@ -41,7 +46,7 @@ $okMsg = match($ok) {
     <?= \App\Csrf::field() ?>
     <div class="label" style="margin-bottom: 1rem;">+ Adicionar novo admin</div>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 0.8rem; align-items: end;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 0.8rem; align-items: end;">
         <div>
             <label style="display:block; font-size:0.8rem; color:var(--dim); margin-bottom:0.3rem;">Usuário</label>
             <input type="text" name="username" required minlength="3" pattern="[a-zA-Z0-9_.-]+"
@@ -54,9 +59,17 @@ $okMsg = match($ok) {
                    style="width:100%; padding:0.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:inherit;">
         </div>
         <div>
-            <label style="display:block; font-size:0.8rem; color:var(--dim); margin-bottom:0.3rem;">Senha <small>(min 8 chars)</small></label>
+            <label style="display:block; font-size:0.8rem; color:var(--dim); margin-bottom:0.3rem;">Senha <small>(min 8)</small></label>
             <input type="password" name="password" required minlength="8"
                    style="width:100%; padding:0.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone);">
+        </div>
+        <div>
+            <label style="display:block; font-size:0.8rem; color:var(--dim); margin-bottom:0.3rem;">Papel</label>
+            <select name="role" style="width:100%; padding:0.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:inherit;">
+                <?php foreach ($roles as $key => $label): ?>
+                    <option value="<?= e($key) ?>" <?= $key === 'support' ? 'selected' : '' ?>><?= e($label) ?></option>
+                <?php endforeach; ?>
+            </select>
         </div>
         <button type="submit" class="btn-mini" style="padding: 0.6rem 1.2rem;">Criar</button>
     </div>
@@ -67,25 +80,47 @@ $okMsg = match($ok) {
     <thead>
         <tr>
             <th>Usuário</th>
+            <th>Papel</th>
             <th>E-mail</th>
             <th>Criado</th>
             <th>Último login</th>
-            <th style="width: 250px;">Ações</th>
+            <th style="width: 320px;">Ações</th>
         </tr>
     </thead>
     <tbody>
-        <?php $me = \App\Auth::user(); foreach ($admins as $a): ?>
+        <?php $me = \App\Auth::user(); foreach ($admins as $a):
+            $userRole = $a['role'] ?? 'super_admin';
+            $roleLabel = $roles[$userRole] ?? $userRole;
+            $isSelf = (int)$a['id'] === (int)($me['id'] ?? 0);
+        ?>
             <tr>
                 <td>
                     <strong><?= e($a['username']) ?></strong>
-                    <?php if ((int)$a['id'] === (int)($me['id'] ?? 0)): ?>
+                    <?php if ($isSelf): ?>
                         <span class="badge info" style="margin-left: 0.4rem;">você</span>
                     <?php endif; ?>
+                </td>
+                <td>
+                    <span class="badge <?= $userRole === 'super_admin' ? 'danger' : 'info' ?>"
+                          title="<?= e($roleLabel) ?>"><?= e($userRole) ?></span>
                 </td>
                 <td class="dim"><?= e($a['email'] ?? '—') ?></td>
                 <td class="dim"><?= e($a['created_at']) ?></td>
                 <td class="dim"><?= e($a['last_login_at'] ?? 'nunca') ?></td>
                 <td style="white-space: nowrap;">
+                    <!-- Editar role -->
+                    <details style="display: inline-block; vertical-align: middle; margin-right: 0.3rem;">
+                        <summary class="btn-mini outline" style="display: inline-block; cursor: pointer; padding: 0.3rem 0.7rem;">Papel</summary>
+                        <form method="POST" action="/admin/team/<?= (int)$a['id'] ?>/role" style="display: inline-flex; gap: 0.4rem; margin-left: 0.5rem; align-items: center;">
+                            <?= \App\Csrf::field() ?>
+                            <select name="role" style="padding: 0.3rem 0.5rem; background: var(--bg-0); border: 1px solid var(--border); color: var(--bone); font-size: 0.8rem;">
+                                <?php foreach ($roles as $key => $label): ?>
+                                    <option value="<?= e($key) ?>" <?= $key === $userRole ? 'selected' : '' ?>><?= e($key) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <button type="submit" class="btn-mini" style="padding: 0.3rem 0.7rem; font-size: 0.75rem;">OK</button>
+                        </form>
+                    </details>
                     <!-- Trocar senha -->
                     <details style="display: inline-block; vertical-align: middle;">
                         <summary class="btn-mini outline" style="display: inline-block; cursor: pointer; padding: 0.3rem 0.7rem;">Mudar senha</summary>
@@ -116,8 +151,39 @@ $okMsg = match($ok) {
         <li>Cada membro da staff deve ter <strong>seu próprio usuário</strong>. Não compartilhe senha.</li>
         <li>Use senhas com <strong>12+ caracteres</strong>, misturando letras/números/símbolos.</li>
         <li>Quando alguém sair da staff, <strong>remova imediatamente</strong>.</li>
-        <li>Não há sistema de auditoria — qualquer admin pode fazer qualquer ação. Confie só em pessoas conhecidas.</li>
+        <li>Atribua o <strong>menor papel necessário</strong>. Não dê super_admin pra todo mundo.</li>
+        <li>Todas as ações são registradas em <a href="/admin/audit" style="color: var(--hazard);">Audit Log</a> com usuário + horário.</li>
     </ul>
+</div>
+
+<div class="stat-card" style="margin-top: 1rem; padding: 1.2rem;">
+    <div class="label">Matriz de permissões</div>
+    <table style="width: 100%; margin-top: 1rem; font-size: 0.85rem; border-collapse: collapse;">
+        <thead>
+            <tr style="border-bottom: 1px solid var(--border); color: var(--dim);">
+                <th style="text-align: left; padding: 0.4rem;">Papel</th>
+                <th style="text-align: left; padding: 0.4rem;">Acessa</th>
+            </tr>
+        </thead>
+        <tbody style="color: var(--bone);">
+            <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 0.6rem 0.4rem;"><strong>super_admin</strong></td>
+                <td style="padding: 0.6rem 0.4rem; color: var(--dim);">Tudo — gerencia equipe, settings, integrações e dados sensíveis</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 0.6rem 0.4rem;"><strong>finance</strong></td>
+                <td style="padding: 0.6rem 0.4rem; color: var(--dim);">Dashboard, Pacotes, Combos, Compras, Cupons (tudo financeiro)</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 0.6rem 0.4rem;"><strong>support</strong></td>
+                <td style="padding: 0.6rem 0.4rem; color: var(--dim);">Só Jogadores e Avaliações — atende player, ajusta moedas. <strong style="color: var(--text-danger);">Não vê valor financeiro</strong></td>
+            </tr>
+            <tr>
+                <td style="padding: 0.6rem 0.4rem;"><strong>editor</strong></td>
+                <td style="padding: 0.6rem 0.4rem; color: var(--dim);">Páginas, Galeria, Anúncios, Visual (conteúdo do site)</td>
+            </tr>
+        </tbody>
+    </table>
 </div>
 
 <?php \App\View::endSection(); ?>

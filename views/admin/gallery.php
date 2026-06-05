@@ -30,6 +30,7 @@
 <div class="admin-card" style="margin-bottom:2rem;">
     <h3>Enviar nova imagem</h3>
     <form method="POST" action="/admin/gallery/upload" enctype="multipart/form-data" class="admin-form">
+        <?= \App\Csrf::field() ?>
         <input type="hidden" name="csrf_token" value="<?= e(\App\Csrf::token()) ?>">
         <label>Arquivo (JPG/PNG/WEBP, máx 5 MB)
             <input type="file" name="file" accept="image/jpeg,image/png,image/webp,image/gif" required>
@@ -58,6 +59,7 @@
                 <?php endif; ?>
             </div>
             <form method="POST" action="/admin/gallery/update" class="gallery-admin-form">
+        <?= \App\Csrf::field() ?>
                 <input type="hidden" name="csrf_token" value="<?= e(\App\Csrf::token()) ?>">
                 <input type="hidden" name="id" value="<?= (int)$it['id'] ?>">
                 <input type="text" name="caption" value="<?= e($it['caption'] ?? '') ?>" placeholder="Legenda" maxlength="200">

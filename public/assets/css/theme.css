@@ -23,7 +23,7 @@
      por compatibilidade — não renomear o que já está espalhado em
      258+ lugares no CSS. Para skin customizada, faça override de
      valor em :root no theme.override.css.
-   - Veja exemplo completo de override (cliente Danoninhoz) em
+   - Veja exemplo completo de override de skin em
      `theme.override.example.css`.
    ============================================================ */
 
@@ -871,8 +871,44 @@ body:has(.site-header.scrolled) .announcements-strip {
     text-transform: uppercase;
 }
 .mobile-drawer a:hover { color: var(--rust-2); }
-.mobile-drawer .btn { width: 100%; margin-top: 1.5rem; }
-.mobile-drawer .lang-select { justify-content: center; margin-top: 1.5rem; }
+.mobile-drawer-cta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-top: 1.5rem;
+}
+.mobile-drawer-cta .btn { width: 100%; margin: 0; text-align: center; }
+/* Footer compacto do drawer mobile: links rápidos + copyright */
+.mobile-drawer-foot {
+    margin-top: 2rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+.mobile-drawer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1rem;
+    justify-content: center;
+}
+.mobile-drawer-links a {
+    color: var(--dim);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    text-decoration: none;
+    padding: 0.3rem 0;
+    border-bottom: none !important; /* anula border-bottom do .mobile-drawer li a */
+}
+.mobile-drawer-links a:hover { color: var(--rust-2); }
+.mobile-drawer-copy {
+    color: var(--dim);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    text-align: center;
+    letter-spacing: 0.05em;
+}
 .mobile-drawer .lang-flag { width: 40px; height: 28px; }
 
 .drawer-backdrop {
@@ -893,17 +929,51 @@ body:has(.site-header.scrolled) .announcements-strip {
     .header-actions .btn { display: none; }
     .header-actions .lang-select { display: none; }
     .hamburger { display: block; }
-    .hero { min-height: auto; padding-top: 100px; padding-bottom: 4rem; }
-    .hero-title { font-size: clamp(2rem, 9vw, 3.2rem); }
-    .hero-subtitle { font-size: 1rem; }
-    .hero-status {
-        position: static;
-        margin: 2rem auto 0;
-        width: fit-content;
-        padding: 0.7rem 1rem;
-        font-size: 0.85rem;
+    /* MOBILE HERO: flex column pra empilhar content + status verticalmente.
+       Antes era flex row default = hero-content e hero-status lado a lado,
+       espremendo o texto pra esquerda. */
+    .hero {
+        min-height: auto;
+        padding: 100px 1.2rem 2rem; /* bottom 2rem pra aproximar da próxima section */
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: flex-start;
     }
-    .section { padding: 4rem 0; }
+    .hero-content {
+        padding: 0;
+        max-width: 100%;
+        width: 100%;
+        margin: 0 auto;
+        text-align: center; /* centra kicker, H1, subkicker, subtitle */
+    }
+    .hero-kicker { display: inline-block; }
+    .hero-title { font-size: clamp(2rem, 9vw, 3.2rem); }
+    .hero-subtitle { font-size: 1rem; margin-left: auto; margin-right: auto; }
+    .hero-subkicker { margin-left: auto; margin-right: auto; text-align: center; }
+    .hero-actions {
+        margin-top: 1.5rem;
+        justify-content: center; /* VER LOJA + COMO CONECTAR centralizados */
+        flex-wrap: wrap;
+    }
+    .hero-status {
+        position: static !important;
+        bottom: auto !important; right: auto !important; left: auto !important;
+        margin: 2rem auto 0 !important;
+        width: 100%;
+        max-width: 360px;
+        box-sizing: border-box;
+        padding: 0.8rem 1rem;
+        font-size: 0.85rem;
+        text-align: center;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        flex-wrap: wrap;
+        writing-mode: horizontal-tb !important;
+        white-space: normal;
+    }
+    .section { padding: 2.5rem 0 4rem; } /* top reduzido pra aproximar do hero */
     .footer-grid { grid-template-columns: 1fr 1fr; }
     .footer-brand { grid-column: 1 / -1; }
     .brand-name { font-size: 1.1rem; }

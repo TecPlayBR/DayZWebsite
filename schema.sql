@@ -16,11 +16,13 @@ DROP TABLE IF EXISTS admin_users;
 CREATE TABLE admin_users (
     id              INT AUTO_INCREMENT PRIMARY KEY,
     username        VARCHAR(50)  NOT NULL UNIQUE,
+    role            VARCHAR(20)  NOT NULL DEFAULT 'super_admin',
     password_hash   VARCHAR(255) NOT NULL,
     email           VARCHAR(255) NULL,
     created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     last_login_at   DATETIME NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+-- Role values: super_admin | finance | support | editor (matriz em src/Auth.php::PERMISSIONS)
 
 -- ============================================================
 -- TABELA: players
@@ -147,17 +149,36 @@ CREATE TABLE announcements (
 DROP TABLE IF EXISTS reviews;
 CREATE TABLE reviews (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    purchase_id INT NOT NULL UNIQUE,
-    steam_id VARCHAR(20) NOT NULL,
+    purchase_id INT NULL,                 -- NULL pra reviews públicas (source='public')
+    steam_id VARCHAR(20) NULL,            -- NULL pra reviews públicas
     display_name VARCHAR(100) NULL,
     rating TINYINT NOT NULL,
     body TEXT NULL,
+    source VARCHAR(20) NOT NULL DEFAULT 'purchase',  -- 'purchase' (compra real) | 'public' (form em /depoimentos)
     approved TINYINT(1) NOT NULL DEFAULT 0,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_approved (approved, created_at DESC),
     INDEX idx_steam (steam_id),
+    INDEX idx_source (source),
     CHECK (rating BETWEEN 1 AND 5)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ============================================================
+-- TABELA: newsletter_emails
+-- Inscrições no email capture do footer. Endpoint /api/newsletter-subscribe.
+-- ============================================================
+DROP TABLE IF EXISTS newsletter_emails;
+CREATE TABLE newsletter_emails (
+    id              INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    email           VARCHAR(190) NOT NULL UNIQUE,
+    source          VARCHAR(40)  NOT NULL DEFAULT 'footer',
+    ip              VARCHAR(45)  NULL,
+    user_agent      VARCHAR(255) NULL,
+    confirmed_at    TIMESTAMP    NULL,
+    unsubscribed_at TIMESTAMP    NULL,
+    created_at      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_created (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
 -- TABELA: coupons

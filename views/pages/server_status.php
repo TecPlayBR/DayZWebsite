@@ -1,5 +1,6 @@
 <?php /** @var array $config, $status, $players */ ?>
 <?php \App\View::extend('layouts.main'); ?>
+<?php \App\View::with('hero_image', 'img/background2.png'); // LCP preload sync ?>
 <?php \App\View::section('content'); ?>
 
 <section class="hero" style="min-height: 40vh; padding-bottom: 2rem;">

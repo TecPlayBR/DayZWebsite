@@ -13,7 +13,13 @@
 </head>
 <body class="admin-body">
 
-<div class="admin-shell">
+<!-- Hamburger (mobile only — CSS esconde em desktop) -->
+<button type="button" class="admin-hamburger" id="admin-hamburger" aria-label="Abrir menu" aria-controls="admin-shell" aria-expanded="false">☰</button>
+
+<div class="admin-shell" id="admin-shell">
+
+    <!-- Backdrop pra fechar drawer ao clicar fora -->
+    <div class="admin-drawer-backdrop" id="admin-drawer-backdrop"></div>
 
     <aside class="admin-sidebar">
         <a href="/admin" class="admin-brand">
@@ -24,26 +30,38 @@
             </div>
         </a>
 
-        <?php $current = strtok($_SERVER['REQUEST_URI'] ?? '', '?'); ?>
+        <?php
+        $current = strtok($_SERVER['REQUEST_URI'] ?? '', '?');
+        // Nav itens filtrados por permissão. Se user não tem can(area), item some.
+        // Cada tupla: [area, href, label, isActive bool]
+        $navItems = [
+            ['dashboard',           '/admin',                    '📊 Dashboard',           $current === '/admin'],
+            ['players',             '/admin/players',            '👥 Jogadores',           str_starts_with($current, '/admin/players')],
+            ['packages',            '/admin/packages',           '📦 Pacotes',             str_starts_with($current, '/admin/packages')],
+            ['servers',             '/admin/servers',            '🛰 Integração Agent',    str_starts_with($current, '/admin/servers')],
+            ['discord_integration', '/admin/discord-integration','🤖 Integração Discord',  str_starts_with($current, '/admin/discord-integration')],
+            ['combos',              '/admin/combos',             '🎁 Combos',              str_starts_with($current, '/admin/combos')],
+            ['purchases',           '/admin/purchases',          '💰 Compras',             str_starts_with($current, '/admin/purchases')],
+            ['pages',               '/admin/pages',              '📄 Páginas',             str_starts_with($current, '/admin/pages')],
+            ['announcements',       '/admin/announcements',      '📢 Anúncios',            str_starts_with($current, '/admin/announcements')],
+            ['coupons',             '/admin/coupons',            '🎟 Cupons',              str_starts_with($current, '/admin/coupons')],
+            ['reviews',             '/admin/reviews',            '⭐ Avaliações',          str_starts_with($current, '/admin/reviews')],
+            ['gallery',             '/admin/gallery',            '🖼 Galeria',             str_starts_with($current, '/admin/gallery')],
+            ['team',                '/admin/team',               '🧑‍💼 Equipe',            str_starts_with($current, '/admin/team')],
+            ['audit',               '/admin/audit',              '📋 Audit Log',           str_starts_with($current, '/admin/audit')],
+            ['logs',                '/admin/logs',               '🐛 Logs PHP',            str_starts_with($current, '/admin/logs')],
+            ['customize',           '/admin/customize',          '🎨 Visual',              str_starts_with($current, '/admin/customize')],
+            ['settings',            '/admin/settings',           '⚙️ Config',              str_starts_with($current, '/admin/settings')],
+        ];
+        ?>
         <nav class="admin-nav">
-            <a href="/admin" class="<?= $current === '/admin' ? 'active' : '' ?>">▣ Dashboard</a>
-            <a href="/admin/players" class="<?= str_starts_with($current, '/admin/players') ? 'active' : '' ?>">☣ Jogadores</a>
-            <a href="/admin/packages" class="<?= str_starts_with($current, '/admin/packages') ? 'active' : '' ?>">⛁ Pacotes</a>
-            <a href="/admin/servers" class="<?= str_starts_with($current, '/admin/servers') ? 'active' : '' ?>">▣ Servidores</a>
-            <a href="/admin/combos" class="<?= str_starts_with($current, '/admin/combos') ? 'active' : '' ?>">⛓ Combos</a>
-            <a href="/admin/purchases" class="<?= str_starts_with($current, '/admin/purchases') ? 'active' : '' ?>">⛏ Compras</a>
-            <a href="/admin/pages" class="<?= str_starts_with($current, '/admin/pages') ? 'active' : '' ?>">▤ Páginas</a>
-            <a href="/admin/announcements" class="<?= str_starts_with($current, '/admin/announcements') ? 'active' : '' ?>">⚑ Anúncios</a>
-            <a href="/admin/coupons" class="<?= str_starts_with($current, '/admin/coupons') ? 'active' : '' ?>">◎ Cupons</a>
-            <a href="/admin/reviews" class="<?= str_starts_with($current, '/admin/reviews') ? 'active' : '' ?>">★ Avaliações</a>
-            <a href="/admin/gallery" class="<?= str_starts_with($current, '/admin/gallery') ? 'active' : '' ?>">▭ Galeria</a>
-            <a href="/admin/team" class="<?= str_starts_with($current, '/admin/team') ? 'active' : '' ?>">◈ Equipe</a>
-            <a href="/admin/audit" class="<?= str_starts_with($current, '/admin/audit') ? 'active' : '' ?>">⊟ Audit Log</a>
-            <a href="/admin/logs" class="<?= str_starts_with($current, '/admin/logs') ? 'active' : '' ?>">⌨ Logs PHP</a>
-            <a href="/admin/customize" class="<?= str_starts_with($current, '/admin/customize') ? 'active' : '' ?>">◐ Visual</a>
-            <a href="/admin/settings" class="<?= str_starts_with($current, '/admin/settings') ? 'active' : '' ?>">⚙ Config</a>
-            <a href="/admin/discord-integration" class="<?= str_starts_with($current, '/admin/discord-integration') ? 'active' : '' ?>">🤖 Integração Discord</a>
-            <a href="/admin/support" class="<?= str_starts_with($current, '/admin/support') ? 'active' : '' ?>" style="margin-top: auto;">✉ Suporte Tecplay</a>
+            <?php foreach ($navItems as [$area, $href, $label, $active]):
+                if (!\App\Auth::can($area)) continue; ?>
+                <a href="<?= e($href) ?>" class="<?= $active ? 'active' : '' ?>"><?= $label ?></a>
+            <?php endforeach; ?>
+            <?php if (\App\Auth::can('support')): ?>
+                <a href="/admin/support" class="<?= str_starts_with($current, '/admin/support') ? 'active' : '' ?>" style="margin-top: auto;">🛟 Suporte Tecplay</a>
+            <?php endif; ?>
         </nav>
 
         <div class="admin-foot">
@@ -64,6 +82,79 @@
 </div>
 
 <script src="<?= asset('js/app.js') ?>"></script>
+<script>
+// ============ MOBILE DRAWER ============
+(function() {
+    const shell = document.getElementById('admin-shell');
+    const btn   = document.getElementById('admin-hamburger');
+    const bd    = document.getElementById('admin-drawer-backdrop');
+    if (!shell || !btn) return;
+    let savedScrollY = 0;
+    function setOpen(open) {
+        shell.classList.toggle('drawer-open', open);
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        btn.textContent = open ? '×' : '☰';
+        // Scroll lock: salva posição, fixa body pra não rolar atrás do drawer.
+        // Restaura ao fechar. Funciona no Edge 60 (não usa body.overflow:hidden
+        // direto que quebrou no patchG).
+        if (open) {
+            savedScrollY = window.scrollY;
+            document.body.style.position = 'fixed';
+            document.body.style.top = '-' + savedScrollY + 'px';
+            document.body.style.left = '0';
+            document.body.style.right = '0';
+        } else {
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.left = '';
+            document.body.style.right = '';
+            window.scrollTo(0, savedScrollY);
+        }
+    }
+    btn.addEventListener('click', () => setOpen(!shell.classList.contains('drawer-open')));
+    bd && bd.addEventListener('click', () => setOpen(false));
+    // Fecha ao clicar em qualquer link da sidebar (mobile nav UX)
+    shell.querySelector('.admin-nav')?.addEventListener('click', e => {
+        if (e.target.closest('a')) setOpen(false);
+    });
+    // Fecha com ESC
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
+
+    // ============ AUTO-WRAP TABELAS pra scroll horizontal ============
+    // Toda .admin-table que NÃO está dentro de .admin-table-wrap ganha um wrapper.
+    // Cobre TODAS as pages admin (Pacotes, Compras, Cupons, Equipe, Audit, etc).
+    const mainEl = document.querySelector('.admin-main');
+    function wrapAdminTables(root) {
+        (root || document).querySelectorAll('.admin-table').forEach(t => {
+            if (t.parentElement?.classList.contains('admin-table-wrap')) return;
+            const wrap = document.createElement('div');
+            wrap.className = 'admin-table-wrap';
+            t.parentNode.insertBefore(wrap, t);
+            wrap.appendChild(t);
+        });
+    }
+    wrapAdminTables();
+    // Re-aplica quando PJAX troca o conteúdo do main
+    if (mainEl) new MutationObserver(() => wrapAdminTables(mainEl)).observe(mainEl, { childList: true, subtree: false });
+
+    // ============ HIDE-ON-SCROLL DO HAMBÚRGUER ============
+    // Quando user rola pra baixo, esconde (libera viewport). Volta ao rolar pra cima.
+    // Não esconde nos primeiros 100px (área do título — hambúrguer ainda relevante).
+    let lastY = 0, ticking = false;
+    window.addEventListener('scroll', () => {
+        if (shell.classList.contains('drawer-open')) return; // não esconde com drawer aberto
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(() => {
+            const y = window.scrollY;
+            if (y > lastY && y > 100)      btn.classList.add('hidden');  // rolando pra baixo
+            else if (y < lastY - 5)         btn.classList.remove('hidden'); // pra cima (threshold pra não tremer)
+            lastY = y;
+            ticking = false;
+        });
+    }, { passive: true });
+})();
+</script>
 <script>
 // ============ PJAX-lite admin ============
 // Intercepta clicks na sidebar e troca só o <main> via fetch — sem refresh.

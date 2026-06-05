@@ -11,6 +11,8 @@ class View {
     private static array  $sections  = [];
     private static array  $stack     = [];
     private static ?string $layout    = null;
+    /** Variaveis injetadas pela view filha pra mesclar no $data do layout (View::with). */
+    private static array  $extraData = [];
 
     public static function setViewsPath(string $path): void {
         self::$viewsPath = rtrim($path, '/\\');
@@ -20,9 +22,10 @@ class View {
      * Renderiza uma view. Suporta dot notation: 'pages.home' -> views/pages/home.php
      */
     public static function render(string $view, array $data = []): string {
-        self::$sections = [];
-        self::$stack    = [];
-        self::$layout   = null;
+        self::$sections  = [];
+        self::$stack     = [];
+        self::$layout    = null;
+        self::$extraData = [];
 
         $content = self::renderRaw($view, $data);
 
@@ -34,9 +37,20 @@ class View {
             if (!isset(self::$sections['content']) || self::$sections['content'] === '') {
                 self::$sections['content'] = $content;
             }
-            return self::renderRaw(self::$layout, $data);
+            // View filha pode ter usado View::with() pra setar title/description/etc
+            // que so existem no escopo dela — propaga pro layout via merge (extraData wins).
+            $layoutData = array_merge($data, self::$extraData);
+            return self::renderRaw(self::$layout, $layoutData);
         }
         return $content;
+    }
+
+    /**
+     * Exporta uma variavel da view filha pro layout (ex: title, description, og_image).
+     * Sobrescreve qualquer valor com a mesma chave que o controller passou pro render().
+     */
+    public static function with(string $key, $value): void {
+        self::$extraData[$key] = $value;
     }
 
     public static function display(string $view, array $data = []): void {

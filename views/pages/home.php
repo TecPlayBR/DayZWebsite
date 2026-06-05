@@ -1,6 +1,20 @@
 <?php /** @var array $config */ ?>
 <?php \App\View::extend('layouts.main'); ?>
 
+<?php
+// SEO: title/description otimizados pra home (keywords BR DayZ). Settings podem
+// override (seo_home_title / seo_home_description) — senão monta default com
+// nome do servidor + tagline. View::with() propaga pro layout main.php.
+$siteName    = $config['settings']['site_name'] ?? $config['site_name'] ?? 'DayZ';
+$tagline     = $config['settings']['site_tagline'] ?? $config['site_tagline'] ?? '';
+$seoTitle    = ($config['settings']['seo_home_title'] ?? '')
+    ?: "Servidor DayZ BR — {$siteName} | PVP Hardcore, Loja & Comunidade";
+$seoDesc     = ($config['settings']['seo_home_description'] ?? '')
+    ?: ($tagline ?: "Servidor DayZ brasileiro com PVP hardcore, loja de moedas via PIX, eventos semanais e comunidade ativa. Entre no {$siteName}.");
+\App\View::with('title',       $seoTitle);
+\App\View::with('description', $seoDesc);
+?>
+
 <?php \App\View::section('content'); ?>
 
 <!-- ============ ANÚNCIOS ============ -->
@@ -41,11 +55,20 @@
             <span class="accent"><?= e($second ?: '') ?></span>
         </h1>
 
+        <?php
+        // Subkicker SEO: keyword "servidor DayZ Brasil" no markup pro Google capturar
+        // sem queimar o impacto criativo do H1. Lang-driven pra cliente custom.
+        $subkicker = __('hero.subkicker');
+        if ($subkicker && $subkicker !== 'hero.subkicker'):
+        ?>
+            <p class="hero-subkicker"><?= $subkicker /* permite <strong> via lang */ ?></p>
+        <?php endif; ?>
+
         <p class="hero-subtitle"><?= e(__('hero.subtitle')) ?></p>
 
         <div class="hero-actions">
             <a href="#shop" class="btn"><?= e(__('hero.cta')) ?></a>
-            <a href="/rules" class="btn btn-outline"><?= e(__('hero.cta_alt')) ?></a>
+            <a href="/page/connect" class="btn btn-outline"><?= e(__('hero.cta_alt')) ?></a>
         </div>
     </div>
 
@@ -62,8 +85,16 @@
         </div>
     <?php endif; ?>
 
-    <!-- Status do servidor (live via BattleMetrics API) -->
-    <?php $ss = $server_status ?? ['configured' => false]; ?>
+    <!-- Status do servidor (live via BattleMetrics API)
+         quando offline, mostra "voltando em breve"
+         em vez de Offline cru + CTA Discord. Rank BM só aparece se <= bm_rank_threshold
+         (default 500) — não queima credibilidade com rank ruim. -->
+    <?php
+    $ss = $server_status ?? ['configured' => false];
+    $bmRankMax    = (int)($config['settings']['bm_rank_threshold'] ?? 500);
+    $discordUrl   = $config['settings']['social_discord'] ?? '';
+    $showRank     = !empty($ss['rank']) && (int)$ss['rank'] > 0 && (int)$ss['rank'] <= $bmRankMax;
+    ?>
     <?php if (!empty($ss['configured'])): ?>
         <div class="hero-status hero-status-<?= $ss['online'] ? 'online' : 'offline' ?>" aria-live="polite">
             <span class="dot"></span>
@@ -71,17 +102,97 @@
                 <span><?= e(__('hero.status_online')) ?></span>
                 <span style="color: var(--dim);">&middot;</span>
                 <span><strong><?= (int)$ss['players'] ?></strong>/<?= (int)$ss['max'] ?: 60 ?> <?= e(__('hero.status_players')) ?></span>
-                <?php if (!empty($ss['rank'])): ?>
+                <?php if ($showRank): ?>
                     <span style="color: var(--dim);">&middot;</span>
                     <span title="Ranking BattleMetrics" style="color: var(--hazard);">#<?= (int)$ss['rank'] ?></span>
                 <?php endif; ?>
             <?php else: ?>
-                <span><?= e(__('hero.status_offline')) ?></span>
+                <span><?= e(__('hero.status_voltando')) ?></span>
+                <?php if (!empty($discordUrl)): ?>
+                    <span style="color: var(--dim);">&middot;</span>
+                    <a href="<?= e($discordUrl) ?>" target="_blank" rel="noopener" style="color: var(--moss); font-weight: 600;"><?= e(__('hero.status_avise_discord')) ?></a>
+                <?php endif; ?>
             <?php endif; ?>
-            <a href="/server-status" style="margin-left: 0.6rem; color: var(--dim); font-size: 0.75rem;">detalhes →</a>
+            <a href="/server-status" style="margin-left: 0.6rem; color: var(--dim); font-size: 0.75rem;"><?= e(__('hero.status_detalhes')) ?></a>
+        </div>
+    <?php endif; ?>
+
+    <!-- Social proof: stats agregados (jogadores cadastrados, compras semana, online agora).
+         Esconde sozinho se controller não passou home_stats. -->
+    <?php
+    $hs       = $home_stats ?? null;
+    $onlineNow = !empty($ss['configured']) && $ss['online'] ? (int)$ss['players'] : null;
+    $hasAnyStat = $hs && ((int)($hs['players_total'] ?? 0) > 0 || (int)($hs['purchases_week'] ?? 0) > 0);
+    if ($hasAnyStat):
+    ?>
+        <div class="hero-stats" aria-label="Estatísticas da comunidade">
+            <?php if ($onlineNow !== null): ?>
+                <div class="hero-stat">
+                    <span class="hero-stat-num"><?= $onlineNow ?></span>
+                    <span class="hero-stat-label"><?= e(__('hero_stats.playing_now')) ?></span>
+                </div>
+            <?php endif; ?>
+            <?php if ((int)$hs['players_total'] > 0): ?>
+                <div class="hero-stat">
+                    <span class="hero-stat-num"><?= (int)$hs['players_total'] ?></span>
+                    <span class="hero-stat-label"><?= e(__('hero_stats.registered')) ?></span>
+                </div>
+            <?php endif; ?>
+            <?php if ((int)$hs['purchases_week'] > 0): ?>
+                <div class="hero-stat">
+                    <span class="hero-stat-num"><?= (int)$hs['purchases_week'] ?></span>
+                    <span class="hero-stat-label"><?= e(__('hero_stats.week_sales')) ?></span>
+                </div>
+            <?php endif; ?>
         </div>
     <?php endif; ?>
 </section>
+
+<style>
+.hero-subkicker {
+    color: var(--bone);
+    font-family: var(--font-mono);
+    font-size: 0.92rem;
+    letter-spacing: 0.03em;
+    margin: 0.4rem 0 1.2rem;
+    opacity: 0.85;
+}
+.hero-subkicker strong { color: var(--hazard); font-weight: 700; }
+.hero-stats {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 1.8rem;
+    padding: 1rem 1.5rem;
+    background: rgba(0,0,0,0.45);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    max-width: 720px;
+    margin-left: auto; margin-right: auto;
+}
+.hero-stat { display: flex; flex-direction: column; align-items: center; min-width: 100px; }
+.hero-stat-num {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    color: var(--hazard);
+    line-height: 1;
+}
+.hero-stat-label {
+    color: var(--dim);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-top: 0.3rem;
+    text-align: center;
+}
+@media (max-width: 540px) {
+    .hero-stats { gap: 1rem; padding: 0.7rem 0.8rem; }
+    .hero-stat-num { font-size: 1.5rem; }
+    .hero-stat-label { font-size: 0.65rem; }
+}
+</style>
 
 <!-- ============ MURAL DE VENDAS AO VIVO (opcional via settings) ============ -->
 <?php if ((int)($config['settings']['live_purchases_enabled'] ?? 0)): ?>
@@ -89,7 +200,7 @@
     <div class="container">
         <div class="live-purchases-strip">
             <span class="live-purchases-icon" title="ao vivo">●</span>
-            <span class="live-purchases-label">ÚLTIMAS COMPRAS</span>
+            <span class="live-purchases-label"><?= e(__('live_purchases.label')) ?></span>
             <div class="live-purchases-rail" id="live-purchases-rail"></div>
         </div>
     </div>
@@ -202,6 +313,101 @@
     setInterval(fetchItems, 60000); // refresh do dataset a cada 1min
 })();
 </script>
+<?php endif; ?>
+
+<!-- ============ TESTIMONIALS (Social Proof) — reviews REAIS aprovadas ============
+     Vem de /admin/reviews (rating >= 4 + approved=1). Esconde sozinho se vazio. -->
+<?php if (!empty($home_reviews)): ?>
+<section class="section section-testimonials" id="testimonials">
+    <div class="container">
+        <div class="section-header">
+            <h2><?= e(__('testimonials.title')) ?></h2>
+            <p><?= e(__('testimonials.subtitle')) ?> <?= e(__('testimonials.see_all')) ?> <a href="/depoimentos" style="color: var(--hazard);">/depoimentos</a>.</p>
+        </div>
+
+        <div class="testimonials-grid">
+            <?php foreach ($home_reviews as $r):
+                $name = $r['display_name'] ?? __('profile.fallback_name');
+                $rating = (int)$r['rating'];
+                $roleKey = $r['source'] === 'purchase' ? 'testimonials.verified' : 'testimonials.member';
+            ?>
+                <figure class="testimonial">
+                    <div class="testimonial-stars" aria-label="<?= $rating ?> / 5">
+                        <?= str_repeat('★', $rating) . str_repeat('☆', 5 - $rating) ?>
+                    </div>
+                    <blockquote class="testimonial-text">
+                        <span class="testimonial-quote">"</span>
+                        <?= e($r['body']) ?>
+                    </blockquote>
+                    <figcaption class="testimonial-meta">
+                        <span class="testimonial-avatar testimonial-avatar-letter"><?= e(mb_strtoupper(mb_substr($name, 0, 1))) ?></span>
+                        <span class="testimonial-author">
+                            <strong><?= e($name) ?></strong>
+                            <em><?= e(__($roleKey)) ?></em>
+                        </span>
+                    </figcaption>
+                </figure>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+<style>
+.section-testimonials {
+    background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.6) 100%);
+    border-top: 1px solid var(--border);
+}
+.testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+.testimonial {
+    background: var(--bg-1);
+    border: 1px solid var(--border);
+    padding: 1.6rem 1.5rem;
+    margin: 0;
+    position: relative;
+}
+.testimonial-text {
+    color: var(--bone);
+    font-size: 0.95rem;
+    line-height: 1.55;
+    margin: 0 0 1.2rem;
+    font-style: italic;
+}
+.testimonial-quote {
+    color: var(--hazard);
+    font-family: var(--font-display);
+    font-size: 2rem;
+    line-height: 0;
+    vertical-align: -0.4rem;
+    margin-right: 0.2rem;
+}
+.testimonial-stars {
+    color: var(--hazard);
+    font-size: 1rem;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.8rem;
+    text-shadow: 0 0 6px var(--hazard-border);
+}
+.testimonial-meta { display: flex; align-items: center; gap: 0.75rem; font-style: normal; }
+.testimonial-avatar {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    object-fit: cover;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--hazard);
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+}
+.testimonial-avatar-letter { background: rgba(193,68,14,0.18); }
+.testimonial-author { display: flex; flex-direction: column; line-height: 1.3; }
+.testimonial-author strong { color: var(--bone); font-size: 0.9rem; }
+.testimonial-author em { color: var(--dim); font-size: 0.78rem; font-style: normal; }
+</style>
 <?php endif; ?>
 
 <!-- ============ FEATURES ============ -->
