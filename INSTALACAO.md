@@ -171,6 +171,11 @@ Use as 4 informações que você anotou no Passo 1:
 - **Senha:** mínimo 8 caracteres, **NÃO** use senhas óbvias
 - **Confirmar senha:** repita
 
+> 🛡 **Papéis (RBAC):** o usuário do install nasce como `super_admin` (acesso total). Depois você cria os outros membros da equipe em `Admin → Equipe` escolhendo o papel:
+> - **finance** — só compras/pacotes/cupons (financeiro)
+> - **support** — só atende jogadores e modera reviews (não vê valor financeiro)
+> - **editor** — só conteúdo do site (páginas, galeria, anúncios)
+
 ### Card 4: AGENT_TOKEN
 O wizard **já sugere um token aleatório forte**. Clique no campo amarelo pra copiar o valor sugerido pro input abaixo. Anote esse token! Você vai precisar dele depois pra configurar o `tecplay-agent.exe`.
 
