@@ -5,6 +5,21 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [1.2.1] — 2026-06-06
+
+### 🐛 Bugfix CRÍTICO — sync-players compat com Tecplay Agent
+
+- **`/api/sync-players.php`** agora devolve `steamid` como **alias** de `steam_id`
+  no GET, e aceita `steamid` como fallback no POST.
+- **Por quê (grave):** o `tecplay-agent.exe` usa o campo `steamid` (sem underline).
+  Como o template renomeou para `steam_id`, o agent não enxergava nenhum player do
+  site → **compras pagas não chegavam no jogo** (sincronização DB→JSON quebrada).
+  Afeta TODO cliente que roda o Agent.
+- **Ação pro cliente:** atualizar `public/api/sync-players.php` (pull/redeploy do
+  template). Não precisa mexer no Agent — o alias resolve do lado do site.
+
+---
+
 ## [1.2.0] — 2026-06-05
 
 Release com foco em **segurança, RBAC, performance mobile e experiência

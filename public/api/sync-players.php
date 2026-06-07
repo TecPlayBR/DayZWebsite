@@ -7,11 +7,16 @@
 // Auth: header X-Agent-Token: <agent_token do config.php>
 //
 // GET  → retorna lista de players do site (pro agent comparar com JSON local)
-//        Response: { "ok": true, "count": N, "players": [{steam_id, coins, ...}] }
+//        Response: { "ok": true, "count": N, "players": [{steam_id, steamid, coins, ...}] }
 //
 // POST → recebe lista de players atualizados pelo agent (delta tracking)
-//        Body:    { "players": [{steam_id, coins, display_name?}, ...] }
+//        Body:    { "players": [{steam_id|steamid, coins, display_name?}, ...] }
 //        Response: { "ok": true, "updated": N, "inserted": N }
+//
+// COMPAT (CRITICO): o tecplay-agent.exe usa o campo "steamid" (sem underline).
+// Por isso o GET devolve "steamid" como alias de "steam_id" e o POST aceita os
+// dois. Sem isso, o agent NAO enxerga o DB -> compra paga nunca chega no jogo
+// (DB->JSON quebra). NAO remover o alias sem antes atualizar o agent.
 // ============================================================
 
 declare(strict_types=1);
@@ -73,6 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $players = array_map(function($r) {
         return [
             'steam_id'        => $r['steam_id'],
+            'steamid'         => $r['steam_id'],   // alias retrocompat: tecplay-agent lê 'steamid'
             'display_name'    => $r['display_name'],
             'coins'           => (int)$r['coins'],
             'total_spent_brl' => (float)$r['total_spent_brl'],
@@ -96,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $rejected = 0;
 
     foreach ($body['players'] as $p) {
-        $steam = (string)($p['steam_id'] ?? '');
+        $steam = (string)($p['steam_id'] ?? $p['steamid'] ?? '');
         if (!preg_match('/^7656119[0-9]{10}$/', $steam)) {
             $rejected++;
             continue;
