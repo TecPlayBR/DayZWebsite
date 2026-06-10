@@ -1142,6 +1142,107 @@ $collectDashboardData = function() {
     exit;
 });
 
+// ============ LOJA IN-GAME (catálogo gastável — Fase 2) ============
+// Gerido por quem tem a permissão 'packages' (mesma da loja de moedas).
+
+\App\Router::get('/admin/shop', function() use ($config) {
+    \App\Auth::requireCan('packages');
+    $items = \App\Database::fetchAll("SELECT * FROM shop_items ORDER BY sort_order ASC, name ASC");
+    \App\View::display('admin.shop_items', ['config' => $config, 'items' => $items]);
+});
+
+\App\Router::get('/admin/shop/new', function() use ($config) {
+    \App\Auth::requireCan('packages');
+    \App\View::display('admin.shop_item_edit', ['config' => $config, 'item' => null]);
+});
+
+\App\Router::get('/admin/shop/{id}/edit', function($id) use ($config) {
+    \App\Auth::requireCan('packages');
+    $item = \App\Database::fetchOne("SELECT * FROM shop_items WHERE id = ? LIMIT 1", [(int)$id]);
+    if (!$item) { http_response_code(404); echo 'Item não encontrado'; exit; }
+    \App\View::display('admin.shop_item_edit', ['config' => $config, 'item' => $item]);
+});
+
+\App\Router::post('/admin/shop/{id}/toggle', function($id) use ($config) {
+    \App\Auth::requireCan('packages');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
+    \App\Database::query("UPDATE shop_items SET enabled = 1 - enabled WHERE id = ?", [(int)$id]);
+    header('Location: /admin/shop?ok=1');
+    exit;
+});
+
+\App\Router::post('/admin/shop/{id}/delete', function($id) use ($config) {
+    \App\Auth::requireCan('packages');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
+    \App\Database::query("DELETE FROM shop_items WHERE id = ?", [(int)$id]);
+    header('Location: /admin/shop?ok=1');
+    exit;
+});
+
+\App\Router::post('/admin/shop/save', function() use ($config) {
+    \App\Auth::requireCan('packages');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
+
+    $id        = (int)($_POST['id'] ?? 0);
+    $name      = trim($_POST['name'] ?? '');
+    $icon      = trim($_POST['icon'] ?? '') ?: null;
+    $coinsCost = max(0, (int)($_POST['coins_cost'] ?? 0));
+    $sortOrder = (int)($_POST['sort_order'] ?? 0);
+    $enabled   = isset($_POST['enabled']) ? 1 : 0;
+    $sku       = trim($_POST['sku'] ?? '');
+    $isNew     = $id === 0;
+
+    $back = $isNew ? '/admin/shop/new' : '/admin/shop/' . $id . '/edit';
+
+    if ($name === '' || $sku === '' || !preg_match('/^[A-Za-z0-9_\-]+$/', $sku)) {
+        header('Location: ' . $back . '?err=invalid'); exit;
+    }
+
+    // deliver[]: valida JSON e normaliza cada entrada (classname obrigatório).
+    $deliver = json_decode((string)($_POST['deliver'] ?? ''), true);
+    if (!is_array($deliver)) {
+        header('Location: ' . $back . '?err=bad_deliver'); exit;
+    }
+    $clean = [];
+    foreach ($deliver as $d) {
+        if (!is_array($d) || empty($d['classname']) || !is_string($d['classname'])) continue;
+        $clean[] = [
+            'classname'   => trim($d['classname']),
+            'quantity'    => max(1, (int)($d['quantity'] ?? 1)),
+            'attachments' => array_values(array_filter(array_map(
+                static fn($x) => is_string($x) ? trim($x) : '', (array)($d['attachments'] ?? [])
+            ))),
+            'cargo'       => array_values(array_filter(array_map(
+                static fn($x) => is_string($x) ? trim($x) : '', (array)($d['cargo'] ?? [])
+            ))),
+            'health'      => isset($d['health']) ? max(0.0, min(1.0, (float)$d['health'])) : 1.0,
+        ];
+    }
+    if (empty($clean)) {
+        header('Location: ' . $back . '?err=bad_deliver'); exit;
+    }
+    $deliverJson = json_encode($clean, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+    if ($isNew) {
+        $taken = \App\Database::fetchColumn("SELECT 1 FROM shop_items WHERE sku = ? LIMIT 1", [$sku]);
+        if ($taken) { header('Location: /admin/shop/new?err=sku_taken'); exit; }
+        \App\Database::query(
+            "INSERT INTO shop_items (sku, name, icon, coins_cost, enabled, sort_order, deliver_json)
+             VALUES (?, ?, ?, ?, ?, ?, ?)",
+            [$sku, $name, $icon, $coinsCost, $enabled, $sortOrder, $deliverJson]
+        );
+    } else {
+        // SKU é imutável após criado (o bot referencia) — não atualiza o sku.
+        \App\Database::query(
+            "UPDATE shop_items SET name = ?, icon = ?, coins_cost = ?, enabled = ?, sort_order = ?, deliver_json = ?
+             WHERE id = ?",
+            [$name, $icon, $coinsCost, $enabled, $sortOrder, $deliverJson, $id]
+        );
+    }
+    header('Location: /admin/shop?ok=1');
+    exit;
+});
+
 \App\Router::get('/admin/purchases', function() use ($config) {
     \App\Auth::requireCan('purchases');
     $filter = $_GET['status'] ?? '';

@@ -17,8 +17,22 @@
 //   GET  ?action=player&steam_id=76561198XXXXX
 //                             → dados do player (404 se não existe)
 //   GET  ?action=stats        → métricas agregadas
+//   GET  ?action=packages     → lista pacotes de coins habilitados (pro /comprar)
 //   POST ?action=link_player  → cria/atualiza player (origin='bot')
 //                               Body JSON: {steam_id, display_name?}
+//   POST ?action=create_checkout → compra de coins pelo Discord via LINK (reusa
+//                               o checkout web). Body: {steam_id, package_id,
+//                               server_id?, coupon_code?} → {init_point, purchase_id}
+//   POST ?action=create_pix   → compra de coins pelo Discord via QR Pix DIRETO.
+//                               Mesmo body → {qr_code, qr_code_base64, ticket_url,
+//                               purchase_id, expires_at}. Pix criado no MP do site.
+//                               Coins creditados pelo mp-webhook.php na aprovação (ambos).
+//   GET  ?action=shop_items   → catálogo de itens gastáveis (pro bot /loja):
+//                               {items:[{sku,name,icon,coins_cost,enabled,deliver:[...]}]}
+//   POST ?action=spend        → gasta moeda num item. Body: {steam_id, sku,
+//                               server_id?, spend_ref}. Debita players.coins ATÔMICO
+//                               (402 se insuficiente), idempotente por spend_ref →
+//                               {ok, new_balance, deliver:[{classname,quantity,...}]}.
 //
 // LOG: toda chamada vai pra tabela discord_integration_log
 // CORS: bloqueado pra browser (server-to-server only)
@@ -28,6 +42,9 @@ declare(strict_types=1);
 
 $ROOT = dirname(__DIR__, 2);
 require $ROOT . '/src/Database.php';
+require $ROOT . '/src/MercadoPago.php';
+require $ROOT . '/src/Coupon.php';
+require $ROOT . '/src/Servers.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
@@ -126,6 +143,65 @@ function _mark_last_ok(): void {
          ON DUPLICATE KEY UPDATE `value` = VALUES(`value`)",
         [(string) time()]
     );
+}
+
+/**
+ * Valida steam_id + package + server + cupom e cria a purchase pending.
+ * Compartilhado por create_checkout e create_pix (mesma regra do checkout web).
+ * Retorna [purchaseId, pkg, coinsTotal, priceBrl, steamId]. Faz _bail em erro.
+ */
+function _prepare_purchase(array $body, string $action): array {
+    $steamId   = trim((string) ($body['steam_id'] ?? ''));
+    $packageId = trim((string) ($body['package_id'] ?? ''));
+    if (!preg_match('/^7656119\d{10}$/', $steamId)) {
+        _bail(400, 'invalid_steam_id', $action);
+    }
+    $pkg = \App\Database::fetchOne(
+        "SELECT * FROM packages WHERE id = ? AND enabled = 1 LIMIT 1",
+        [$packageId]
+    );
+    if (!$pkg) {
+        _bail(404, 'package_not_found', $action);
+    }
+    $serverId = (int) ($body['server_id'] ?? 0);
+    if ($serverId < 1) $serverId = \App\Servers::defaultId();
+    $server = \App\Servers::find($serverId);
+    if (!$server || empty($server['active'])) {
+        _bail(400, 'invalid_server', $action);
+    }
+    $bonusEnabled = (int) (\App\Database::fetchColumn(
+        "SELECT `value` FROM settings WHERE `key` = 'bonus_enabled'"
+    ) ?: 0);
+    $coinsBase  = (int) $pkg['coins'];
+    $coinsBonus = $bonusEnabled ? (int) $pkg['bonus_coins'] : 0;
+    $coinsTotal = $coinsBase + $coinsBonus;
+    $priceOriginal = (float) $pkg['price_brl'];
+
+    $couponCode = strtoupper(trim((string) ($body['coupon_code'] ?? '')));
+    $discount = 0.0;
+    $appliedCouponCode = null;
+    $priceFinal = $priceOriginal;
+    if ($couponCode !== '') {
+        [$coupon, $err] = \App\Coupon::lookup($couponCode, $packageId, $priceOriginal);
+        if ($err) {
+            _bail(400, 'invalid_coupon', $action);
+        }
+        [$discount, $priceFinal] = \App\Coupon::applyDiscount($coupon, $priceOriginal);
+        $appliedCouponCode = $coupon['code'];
+    }
+    $priceBrl = $priceFinal;
+
+    \App\Database::query(
+        "INSERT INTO purchases
+            (steam_id, package_id, server_id, coins_base, coins_bonus, coins_total,
+             price_brl, coupon_code, discount_brl,
+             mp_status, terms_accepted_at, terms_version)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW(), ?)",
+        [$steamId, $packageId, $serverId, $coinsBase, $coinsBonus, $coinsTotal,
+         $priceBrl, $appliedCouponCode, $discount, '2026-05-27']
+    );
+    $purchaseId = (int) \App\Database::pdo()->lastInsertId();
+    return [$purchaseId, $pkg, $coinsTotal, $priceBrl, $steamId];
 }
 
 switch ($action) {
@@ -247,6 +323,265 @@ case 'stats':
         'sales_today'       => $salesToday,
         'revenue_month_brl' => round($revenueMonth, 2),
         'vip_active'        => $vipActive,
+    ]));
+
+case 'packages':
+    // Lista os pacotes de coins habilitados (pro bot exibir no Discord).
+    $bonusEnabled = (int) (\App\Database::fetchColumn(
+        "SELECT `value` FROM settings WHERE `key` = 'bonus_enabled'"
+    ) ?: 0);
+    $rows = \App\Database::fetchAll(
+        "SELECT id, name, icon, coins, bonus_coins, price_brl, badge, ribbon, featured
+           FROM packages WHERE enabled = 1 ORDER BY sort_order ASC, price_brl ASC"
+    );
+    $packages = array_map(static function (array $r) use ($bonusEnabled): array {
+        return [
+            'id'          => $r['id'],
+            'name'        => $r['name'],
+            'icon'        => $r['icon'],
+            'coins'       => (int) $r['coins'],
+            'bonus_coins' => $bonusEnabled ? (int) $r['bonus_coins'] : 0,
+            'price_brl'   => (float) $r['price_brl'],
+            'badge'       => $r['badge'],
+            'ribbon'      => $r['ribbon'],
+            'featured'    => (bool) $r['featured'],
+        ];
+    }, $rows);
+    _mark_last_ok();
+    _log_call('packages', 200);
+    die(json_encode(['bonus_enabled' => (bool) $bonusEnabled, 'packages' => $packages]));
+
+case 'create_checkout':
+    // Compra de coins pelo Discord via LINK de checkout web (reusa o fluxo do site).
+    // O cliente paga pelo link e o mp-webhook.php credita os coins — zero duplicação.
+    if ($method !== 'POST') {
+        _bail(405, 'method_not_allowed', 'create_checkout');
+    }
+    $body = json_decode(file_get_contents('php://input') ?: '', true) ?: [];
+    [$purchaseId, $pkg, $coinsTotal, $priceBrl, $steamId] = _prepare_purchase($body, 'create_checkout');
+
+    $mp = new \App\MercadoPago(
+        $config['mercado_pago']['access_token'] ?? '',
+        $config['mercado_pago']['webhook_secret'] ?? null
+    );
+    if (!$mp->isConfigured()) {
+        _bail(503, 'payments_not_configured', 'create_checkout');
+    }
+
+    $siteUrl = rtrim($config['site_url'] ?? '', '/');
+    $pref = $mp->createPreference([
+        'items' => [[
+            'id'          => $pkg['id'],
+            'title'       => $pkg['name'] . ' — ' . $coinsTotal . ' moedas',
+            'description' => 'Compra (Discord) para SteamID ' . $steamId,
+            'quantity'    => 1,
+            'currency_id' => 'BRL',
+            'unit_price'  => $priceBrl,
+        ]],
+        'external_reference' => (string) $purchaseId,
+        'back_urls' => [
+            'success' => $siteUrl . '/shop/return?status=success',
+            'pending' => $siteUrl . '/shop/return?status=pending',
+            'failure' => $siteUrl . '/shop/return?status=failure',
+        ],
+        'auto_return'          => 'approved',
+        'notification_url'     => $siteUrl . '/api/mp-webhook.php',
+        'statement_descriptor' => $config['site_name'] ?? 'DAYZ',
+    ]);
+    if (!$pref || empty($pref['init_point'])) {
+        _bail(502, 'preference_failed', 'create_checkout');
+    }
+    \App\Database::query(
+        "UPDATE purchases SET mp_payment_id = ? WHERE id = ?",
+        [$pref['id'], $purchaseId]
+    );
+
+    _mark_last_ok();
+    _log_call('create_checkout', 201);
+    http_response_code(201);
+    die(json_encode([
+        'ok'          => true,
+        'purchase_id' => $purchaseId,
+        'init_point'  => $pref['init_point'],
+        'price_brl'   => round($priceBrl, 2),
+        'coins_total' => $coinsTotal,
+    ]));
+
+case 'create_pix':
+    // /comprar no Discord = QR Pix DIRETO (sem link). Mesma regra do checkout,
+    // mas cria um pagamento Pix no MP do site e devolve o QR copia-e-cola + PNG.
+    // O MESMO mp-webhook.php credita os coins na aprovação (Pix notifica igual).
+    if ($method !== 'POST') {
+        _bail(405, 'method_not_allowed', 'create_pix');
+    }
+    $body = json_decode(file_get_contents('php://input') ?: '', true) ?: [];
+    [$purchaseId, $pkg, $coinsTotal, $priceBrl, $steamId] = _prepare_purchase($body, 'create_pix');
+    if ($priceBrl < 0.01) {
+        _bail(400, 'invalid_amount', 'create_pix'); // Pix não cobra R$0 (ex: cupom 100%)
+    }
+
+    $mp = new \App\MercadoPago(
+        $config['mercado_pago']['access_token'] ?? '',
+        $config['mercado_pago']['webhook_secret'] ?? null
+    );
+    if (!$mp->isConfigured()) {
+        _bail(503, 'payments_not_configured', 'create_pix');
+    }
+
+    $siteUrl = rtrim($config['site_url'] ?? '', '/');
+    $expires = gmdate("Y-m-d\\TH:i:s.000P", time() + 1800); // QR válido ~30 min
+    $pay = $mp->createPixPayment([
+        'transaction_amount' => round($priceBrl, 2),
+        'description'        => $pkg['name'] . ' — ' . $coinsTotal . ' moedas (Discord)',
+        'external_reference' => (string) $purchaseId,
+        'notification_url'   => $siteUrl . '/api/mp-webhook.php',
+        'date_of_expiration' => $expires,
+        'payer'              => ['email' => $steamId . '@pix.tecplay.inf.br'],
+    ]);
+    $tx = $pay['point_of_interaction']['transaction_data'] ?? null;
+    if (!$pay || !$tx || empty($tx['qr_code'])) {
+        _bail(502, 'pix_failed', 'create_pix');
+    }
+    \App\Database::query(
+        "UPDATE purchases SET mp_payment_id = ? WHERE id = ?",
+        [(string) $pay['id'], $purchaseId]
+    );
+
+    _mark_last_ok();
+    _log_call('create_pix', 201);
+    http_response_code(201);
+    die(json_encode([
+        'ok'             => true,
+        'purchase_id'    => $purchaseId,
+        'qr_code'        => $tx['qr_code'],
+        'qr_code_base64' => $tx['qr_code_base64'] ?? null,
+        'ticket_url'     => $tx['ticket_url'] ?? null,
+        'price_brl'      => round($priceBrl, 2),
+        'coins_total'    => $coinsTotal,
+        'expires_at'     => $pay['date_of_expiration'] ?? $expires,
+    ]));
+
+case 'shop_items':
+    // Catálogo de itens GASTÁVEIS (moeda → item in-game). O bot lista no /loja.
+    $rows = \App\Database::fetchAll(
+        "SELECT sku, name, icon, coins_cost, enabled, deliver_json
+           FROM shop_items WHERE enabled = 1 ORDER BY sort_order ASC, name ASC"
+    );
+    $items = array_map(static function (array $r): array {
+        return [
+            'sku'        => $r['sku'],
+            'name'       => $r['name'],
+            'icon'       => $r['icon'],
+            'coins_cost' => (int) $r['coins_cost'],
+            'enabled'    => (bool) $r['enabled'],
+            'deliver'    => json_decode((string) $r['deliver_json'], true) ?: [],
+        ];
+    }, $rows);
+    _mark_last_ok();
+    _log_call('shop_items', 200);
+    die(json_encode(['items' => $items]));
+
+case 'spend':
+    // Gasto de moeda no Discord (estilo ShopBot): debita o saldo (players.coins)
+    // de forma ATÔMICA e devolve os classnames pro bot enfileirar a entrega.
+    // spend_ref = idempotência: mesmo ref NÃO debita 2x (retry de rede seguro).
+    if ($method !== 'POST') {
+        _bail(405, 'method_not_allowed', 'spend');
+    }
+    $body = json_decode(file_get_contents('php://input') ?: '', true) ?: [];
+    $steamId  = trim((string) ($body['steam_id'] ?? ''));
+    $sku      = trim((string) ($body['sku'] ?? ''));
+    $spendRef = substr(trim((string) ($body['spend_ref'] ?? '')), 0, 80);
+    $serverId = (int) ($body['server_id'] ?? 0);
+    $serverId = $serverId > 0 ? $serverId : null;
+
+    if (!preg_match('/^7656119\d{10}$/', $steamId)) {
+        _bail(400, 'invalid_steam_id', 'spend');
+    }
+    if ($sku === '')      _bail(400, 'missing_sku', 'spend');
+    if ($spendRef === '') _bail(400, 'missing_spend_ref', 'spend');
+
+    // 1) Idempotência: esse spend_ref já foi processado? Devolve o mesmo resultado.
+    $prev = \App\Database::fetchOne(
+        "SELECT new_balance, deliver_json FROM shop_spends WHERE spend_ref = ? LIMIT 1",
+        [$spendRef]
+    );
+    if ($prev) {
+        _mark_last_ok();
+        _log_call('spend', 200);
+        die(json_encode([
+            'ok'          => true,
+            'idempotent'  => true,
+            'new_balance' => (int) $prev['new_balance'],
+            'deliver'     => json_decode((string) $prev['deliver_json'], true) ?: [],
+        ]));
+    }
+
+    // 2) Item precisa existir e estar habilitado.
+    $item = \App\Database::fetchOne(
+        "SELECT coins_cost, deliver_json FROM shop_items WHERE sku = ? AND enabled = 1 LIMIT 1",
+        [$sku]
+    );
+    if (!$item) {
+        _bail(404, 'item_not_found', 'spend');
+    }
+    $cost = (int) $item['coins_cost'];
+
+    // 3) Débito atômico + registro do gasto numa transação (rollback desfaz tudo).
+    $pdo = \App\Database::pdo();
+    $pdo->beginTransaction();
+    try {
+        // O WHERE coins >= ? garante que NUNCA fica negativo (atômico no row lock).
+        $aff = \App\Database::execute(
+            "UPDATE players SET coins = coins - ? WHERE steam_id = ? AND coins >= ?",
+            [$cost, $steamId, $cost]
+        );
+        if ($aff === 0) {
+            $pdo->rollBack();
+            $exists = \App\Database::fetchColumn(
+                "SELECT 1 FROM players WHERE steam_id = ? LIMIT 1", [$steamId]
+            );
+            if (!$exists) _bail(404, 'player_not_found', 'spend');
+            _bail(402, 'insufficient_coins', 'spend');
+        }
+        $newBalance = (int) \App\Database::fetchColumn(
+            "SELECT coins FROM players WHERE steam_id = ? LIMIT 1", [$steamId]
+        );
+        \App\Database::query(
+            "INSERT INTO shop_spends
+                (spend_ref, steam_id, sku, coins_spent, new_balance, deliver_json, server_id)
+             VALUES (?, ?, ?, ?, ?, ?, ?)",
+            [$spendRef, $steamId, $sku, $cost, $newBalance, (string) $item['deliver_json'], $serverId]
+        );
+        $pdo->commit();
+    } catch (\Throwable $e) {
+        if ($pdo->inTransaction()) $pdo->rollBack();
+        // Corrida no spend_ref (UNIQUE): outro request idêntico já processou →
+        // devolve o resultado dele (idempotente), sem cobrar de novo.
+        $raced = \App\Database::fetchOne(
+            "SELECT new_balance, deliver_json FROM shop_spends WHERE spend_ref = ? LIMIT 1",
+            [$spendRef]
+        );
+        if ($raced) {
+            _mark_last_ok();
+            _log_call('spend', 200);
+            die(json_encode([
+                'ok'          => true,
+                'idempotent'  => true,
+                'new_balance' => (int) $raced['new_balance'],
+                'deliver'     => json_decode((string) $raced['deliver_json'], true) ?: [],
+            ]));
+        }
+        error_log('[bot-integration] spend falhou: ' . $e->getMessage());
+        _bail(500, 'spend_failed', 'spend');
+    }
+
+    _mark_last_ok();
+    _log_call('spend', 200);
+    die(json_encode([
+        'ok'          => true,
+        'new_balance' => $newBalance,
+        'deliver'     => json_decode((string) $item['deliver_json'], true) ?: [],
     ]));
 
 default:

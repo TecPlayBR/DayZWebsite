@@ -5,6 +5,61 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [1.4.0] — 2026-06-10
+
+### 🛒 Loja in-game — catálogo gastável + entrega (Fase 2)
+
+Os jogadores agora **gastam moeda** (no Discord, via `/loja` do bot) pra receber
+**itens dentro do DayZ**. O site é a fonte da verdade do saldo e do catálogo; o
+bot debita e o mod (PBO) entrega in-game.
+
+- **Nova tabela `shop_items`** — itens gastáveis: `sku`, `name`, `icon`,
+  `coins_cost`, `enabled`, `sort_order` e `deliver_json` (o que o servidor
+  entrega: `[{classname, quantity, attachments[], cargo[], health}]`).
+- **Nova tabela `shop_spends`** — registro de cada gasto com `spend_ref` UNIQUE
+  (idempotência: retry de rede não debita 2x) + snapshot do `deliver`.
+- **`/api/bot-integration.php`** ganhou duas actions:
+  - **`GET ?action=shop_items`** — catálogo habilitado pro bot listar no `/loja`.
+  - **`POST ?action=spend`** `{steam_id, sku, server_id?, spend_ref}` — debita
+    `players.coins` de forma **atômica** (`UPDATE ... WHERE coins >= custo` +
+    transação, nunca fica negativo), idempotente por `spend_ref`, devolve
+    `{ ok, new_balance, deliver:[...] }`. Erros: `402 insufficient_coins`,
+    `404 item_not_found`/`player_not_found`.
+- **Admin `/admin/shop`** — cadastro dos itens (criar/editar/ativar/excluir),
+  com o `deliver[]` editável (permissão `packages`).
+
+> **Update:** rode `migrations/v1.4.0_shop_catalog.sql` no banco. Aditivo, não
+> mexe em nada existente. Cadastre os itens em **Admin → 🛒 Loja in-game**.
+
+---
+
+## [1.3.0] — 2026-06-08
+
+### ✨ Loja via Discord (bot-integration) — multi-canal
+
+- **`/api/bot-integration.php`** ganhou duas actions pra loja funcionar 100% pelo
+  Discord (cliente que não usa o site web):
+  - **`GET ?action=packages`** — lista os pacotes de coins habilitados
+    (`{ bonus_enabled, packages:[{id,name,icon,coins,bonus_coins,price_brl,badge,ribbon,featured}] }`).
+  - **`POST ?action=create_checkout`** `{steam_id, package_id, server_id?, coupon_code?}`
+    — **reusa o mesmo fluxo do checkout web**: cria `purchases` pending + preference
+    do Mercado Pago e devolve `{ ok, purchase_id, init_point, price_brl, coins_total }`.
+    O cliente paga pelo link e o **`mp-webhook.php` credita os coins** — mesma entrega
+    do site, sem duplicar pagamento.
+  - **`POST ?action=create_pix`** (mesmo body) — **QR Pix DIRETO** pro `/comprar` do
+    Discord: cria um pagamento Pix no Mercado Pago do site e devolve
+    `{ qr_code (copia-e-cola), qr_code_base64 (PNG), ticket_url, purchase_id, expires_at }`.
+    Coins creditados pelo mesmo `mp-webhook.php` na aprovação. Novo método
+    `MercadoPago::createPixPayment()` (com idempotência) suporta isso.
+  - A validação/criação de `purchases` foi fatorada em `_prepare_purchase()` —
+    `create_checkout` e `create_pix` compartilham (sem duplicar regra de cupom/bônus/server).
+- **Por quê:** a loja é a mesma (este site/DB), então comprar pelo Discord ou pelo
+  site bate no mesmo saldo/compras. Auth e log inalterados (Bearer + `discord_integration_log`).
+- **Pendente (próxima versão):** `?action=spend` (gastar coins em kit/VIP pelo Discord)
+  — depende do catálogo de itens in-game (em desenvolvimento).
+
+---
+
 ## [1.2.1] — 2026-06-06
 
 ### 🐛 Bugfix CRÍTICO — sync-players compat com Tecplay Agent

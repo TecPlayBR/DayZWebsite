@@ -33,6 +33,23 @@ class MercadoPago {
     }
 
     /**
+     * Cria um pagamento Pix DIRETO (sem checkout web). Retorna o payment do MP,
+     * incluindo point_of_interaction.transaction_data (qr_code copia-e-cola,
+     * qr_code_base64 PNG, ticket_url). null em erro.
+     * $payload deve conter: transaction_amount, description, external_reference,
+     * payer.email, notification_url e (opcional) date_of_expiration.
+     * Usado pelo /comprar do Discord (bot-integration.php ?action=create_pix).
+     */
+    public function createPixPayment(array $payload): ?array {
+        $payload['payment_method_id'] = 'pix';
+        // Idempotência: evita duplicar cobrança se a chamada repetir.
+        $idem = 'pix-' . ($payload['external_reference'] ?? '') . '-' . bin2hex(random_bytes(6));
+        $resp = $this->request('POST', '/v1/payments', $payload, ['X-Idempotency-Key: ' . $idem]);
+        if (!$resp || empty($resp['id'])) return null;
+        return $resp;
+    }
+
+    /**
      * Busca um payment pelo ID (apos receber webhook).
      */
     public function getPayment(string $paymentId): ?array {
@@ -59,12 +76,15 @@ class MercadoPago {
         return hash_equals($expected, $parts['v1']);
     }
 
-    private function request(string $method, string $path, ?array $body = null): ?array {
+    private function request(string $method, string $path, ?array $body = null, ?array $extraHeaders = null): ?array {
         $ch = curl_init($this->baseUrl . $path);
         $headers = [
             'Authorization: Bearer ' . $this->accessToken,
             'Content-Type: application/json',
         ];
+        if ($extraHeaders) {
+            $headers = array_merge($headers, $extraHeaders);
+        }
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_CUSTOMREQUEST  => $method,

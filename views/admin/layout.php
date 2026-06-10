@@ -38,6 +38,7 @@
             ['dashboard',           '/admin',                    '📊 Dashboard',           $current === '/admin'],
             ['players',             '/admin/players',            '👥 Jogadores',           str_starts_with($current, '/admin/players')],
             ['packages',            '/admin/packages',           '📦 Pacotes',             str_starts_with($current, '/admin/packages')],
+            ['packages',            '/admin/shop',               '🛒 Loja in-game',        str_starts_with($current, '/admin/shop')],
             ['servers',             '/admin/servers',            '🛰 Integração Agent',    str_starts_with($current, '/admin/servers')],
             ['discord_integration', '/admin/discord-integration','🤖 Integração Discord',  str_starts_with($current, '/admin/discord-integration')],
             ['combos',              '/admin/combos',             '🎁 Combos',              str_starts_with($current, '/admin/combos')],

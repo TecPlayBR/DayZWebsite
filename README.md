@@ -56,6 +56,7 @@ A venda não autorizada é **crime** previsto no **Art. 184 §2º do Código Pen
 
 - **Dashboard** com gráfico de vendas 30 dias (Chart.js)
 - **CRUD completo** de Jogadores, Pacotes, Combos, Cupons, Páginas, Anúncios, Reviews, Servidores, Galeria
+- **Loja in-game** (🛒) — cadastre itens que o jogador compra com moeda no Discord (`/loja`): SKU, custo e o que é entregue in-game (classnames). O bot debita e o servidor dropa o item
 - **Audit log** de toda ação administrativa
 - **Histórico granular de saldo** por jogador
 - **Console de logs PHP** integrado ao painel
@@ -68,7 +69,7 @@ A venda não autorizada é **crime** previsto no **Art. 184 §2º do Código Pen
 ### 🔌 Integrações nativas
 
 - **`tecplay-agent.exe`** — sincronização de moedas in-game ↔ site (`/api/sync-players.php`)
-- **Bot Discord Tecplay** — endpoint `/notify/purchase` notifica bot quando venda aprovada
+- **Bot Discord Tecplay** — endpoint `/notify/purchase` notifica bot quando venda aprovada; `/api/bot-integration.php` expõe saldo, compra de coins (`/comprar`) e **loja in-game** (`/loja`: `shop_items` + `spend`)
 - **BattleMetrics API** — status servidor live com cache 60s
 - **Steam Web API** — avatar e display name dos jogadores
 
