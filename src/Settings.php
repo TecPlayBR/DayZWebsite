@@ -82,6 +82,9 @@ class Settings {
     public static function deliveryActive(): bool {
         $agent = (int) self::get('agent_last_sync', 0);
         if ($agent > 0 && (time() - $agent) < 1800) return true;
+        // Entrega nativa Sparda (mod lê/grava via getcoins/postcoins)
+        $sparda = (int) self::get('sparda_last_sync', 0);
+        if ($sparda > 0 && (time() - $sparda) < 1800) return true;
         $token = (string) self::get('discord_integration_token', '');
         $botOk = (string) self::get('discord_integration_last_ok', '0');
         if ($token !== '' && $botOk !== '' && $botOk !== '0') return true;
