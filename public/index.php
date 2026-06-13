@@ -730,18 +730,39 @@ $config['delivery_active'] = \App\Settings::deliveryActive();
     }
     $priceBrl = $priceFinal;
 
-    // Cria purchase pending com registro de aceite de termos + cupom (se aplicado)
-    \App\Database::query(
-        "INSERT INTO purchases
-            (steam_id, package_id, server_id, coins_base, coins_bonus, coins_total,
-             price_brl, coupon_code, discount_brl,
-             mp_status, terms_accepted_at, terms_version)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW(), ?)",
-        [$steamId, $packageId, $serverId, $coinsBase, $coinsBonus, $coinsTotal,
-         $priceBrl, $appliedCouponCode, $discount,
-         '2026-05-27']
+    // Reaproveita pendência RECENTE igual (mesmo steam+pacote+servidor, não paga, <30min):
+    // se o jogador clicou "Comprar" de novo / gerou outro PIX, NÃO cria linha duplicada.
+    $reuse = \App\Database::fetchOne(
+        "SELECT id FROM purchases
+          WHERE steam_id = ? AND package_id = ? AND server_id = ?
+            AND mp_status = 'pending' AND delivered_at IS NULL
+            AND created_at > (NOW() - INTERVAL 30 MINUTE)
+          ORDER BY id DESC LIMIT 1",
+        [$steamId, $packageId, $serverId]
     );
-    $purchaseId = (int)\App\Database::pdo()->lastInsertId();
+    if ($reuse) {
+        $purchaseId = (int)$reuse['id'];
+        \App\Database::query(
+            "UPDATE purchases
+                SET coins_base = ?, coins_bonus = ?, coins_total = ?, price_brl = ?,
+                    coupon_code = ?, discount_brl = ?, terms_accepted_at = NOW(), terms_version = ?
+              WHERE id = ?",
+            [$coinsBase, $coinsBonus, $coinsTotal, $priceBrl, $appliedCouponCode, $discount, '2026-05-27', $purchaseId]
+        );
+    } else {
+        // Cria purchase pending com registro de aceite de termos + cupom (se aplicado)
+        \App\Database::query(
+            "INSERT INTO purchases
+                (steam_id, package_id, server_id, coins_base, coins_bonus, coins_total,
+                 price_brl, coupon_code, discount_brl,
+                 mp_status, terms_accepted_at, terms_version)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW(), ?)",
+            [$steamId, $packageId, $serverId, $coinsBase, $coinsBonus, $coinsTotal,
+             $priceBrl, $appliedCouponCode, $discount,
+             '2026-05-27']
+        );
+        $purchaseId = (int)\App\Database::pdo()->lastInsertId();
+    }
 
     // Cria preference no MP
     $mp = new \App\MercadoPago($config['mercado_pago']['access_token'] ?? '', $config['mercado_pago']['webhook_secret'] ?? null);
@@ -922,33 +943,41 @@ $config['delivery_active'] = \App\Settings::deliveryActive();
         'config' => $config, 'reviews' => $reviews,
         'avg_rating' => (float)($avgRow['avg_rating'] ?? 0),
         'total_reviews' => (int)($avgRow['total'] ?? 0),
+        'steam_user' => \App\SteamAuth::user(),
     ]);
 });
 
-// ============ AVALIAÇÃO PÚBLICA (sem login Steam) ============
-// Qualquer visitante pode avaliar o servidor. Vai como pending (approved=0)
-// pro admin moderar antes de publicar em /depoimentos.
+// ============ AVALIAÇÃO (exige login Steam) ============
+// Só quem logou com Steam avalia: o nome vem do nick Steam (reaproveita o login).
+// Vai como pending (approved=0) pro admin moderar antes de publicar em /depoimentos.
 \App\Router::post('/reviews/public-submit', function() use ($config) {
+    if (!\App\SteamAuth::check()) {
+        $_SESSION['steam_login_return'] = '/depoimentos';
+        header('Location: /auth/steam'); exit;
+    }
+    $steamId = \App\SteamAuth::steamId();
     $ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-    // 3 reviews por IP por hora basta pra usuário real (anti-spam)
-    $rl = \App\RateLimit::check('review-public:' . $ip, 3, 3600);
+    // 3 reviews por hora por jogador (anti-spam)
+    $rl = \App\RateLimit::check('review-public:' . $steamId, 3, 3600);
     if (empty($rl['allowed'])) {
         header('Location: /depoimentos?err=rate_limited'); exit;
     }
     if (!\App\Csrf::check()) { header('Location: /depoimentos?err=csrf'); exit; }
 
-    $name   = trim((string)($_POST['name'] ?? ''));
+    // Nome = nick do Steam (não confia em input livre). Fallback pro display_name do DB.
+    $user = \App\SteamAuth::user();
+    $name = trim((string)($user['display_name'] ?? ''));
+    if ($name === '') {
+        $name = (string) (\App\Database::fetchColumn("SELECT display_name FROM players WHERE steam_id = ?", [$steamId]) ?: 'Sobrevivente');
+    }
     $rating = max(1, min(5, (int)($_POST['rating'] ?? 0)));
     $body   = trim((string)($_POST['body'] ?? ''));
-
-    // Validações básicas: nome 2-60 chars, body 10-500 chars
-    if (mb_strlen($name) < 2 || mb_strlen($name) > 60) { header('Location: /depoimentos?err=invalid_name'); exit; }
     if (mb_strlen($body) < 10 || mb_strlen($body) > 500) { header('Location: /depoimentos?err=invalid_body'); exit; }
 
     \App\Database::query(
         "INSERT INTO reviews (purchase_id, steam_id, display_name, rating, body, source, approved)
-         VALUES (NULL, NULL, ?, ?, ?, 'public', 0)",
-        [$name, $rating, $body]
+         VALUES (NULL, ?, ?, ?, ?, 'public', 0)",
+        [$steamId, mb_substr($name, 0, 60), $rating, $body]
     );
     header('Location: /depoimentos?ok=submitted');
     exit;
@@ -1069,8 +1098,13 @@ $config['delivery_active'] = \App\Settings::deliveryActive();
         "SELECT id, steam_id, display_name, coins, total_spent_brl, last_seen_at
            FROM players WHERE steam_id = ? LIMIT 1", [$steamId]
     );
+    // Mostra compras concluídas/falhas + pendências RECENTES (<35min, ainda pagáveis).
+    // Esconde pendências abandonadas (PIX gerado e nunca pago) pra não duplicar o histórico.
     $purchases = \App\Database::fetchAll(
-        "SELECT * FROM purchases WHERE steam_id = ? ORDER BY created_at DESC LIMIT 50",
+        "SELECT * FROM purchases
+          WHERE steam_id = ?
+            AND (mp_status <> 'pending' OR created_at > (NOW() - INTERVAL 35 MINUTE))
+          ORDER BY created_at DESC LIMIT 50",
         [$steamId]
     );
     // IDs de compras que JÁ têm review

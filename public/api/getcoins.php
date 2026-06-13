@@ -53,6 +53,19 @@ try {
     } else {
         $coins = (int) $row['coins'];
     }
+    // Heartbeat: o mod conversou com o site (mesmo só lendo) -> entrega ativa.
+    // Throttle: só grava se o último sync foi há >60s (evita write a cada poll).
+    try {
+        $last = (int) \App\Database::fetchColumn("SELECT `value` FROM settings WHERE `key` = 'sparda_last_sync'");
+        if (time() - $last > 60) {
+            \App\Database::query(
+                "INSERT INTO settings (`key`, `value`) VALUES ('sparda_last_sync', ?)
+                 ON DUPLICATE KEY UPDATE `value` = VALUES(`value`)",
+                [(string) time()]
+            );
+        }
+    } catch (\Throwable $e) { /* settings opcional */ }
+
     echo json_encode(['steamid' => $steamid, 'moedas' => (string) $coins, 'coins' => $coins]);
 } catch (\Throwable $e) {
     error_log('[getcoins] ' . $e->getMessage());

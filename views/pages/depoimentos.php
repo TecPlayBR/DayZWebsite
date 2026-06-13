@@ -1,4 +1,4 @@
-<?php /** @var array $config, $reviews; @var float $avg_rating; @var int $total_reviews */ ?>
+<?php /** @var array $config, $reviews; @var float $avg_rating; @var int $total_reviews; @var ?array $steam_user */ ?>
 <?php \App\View::extend('layouts.main'); ?>
 <?php \App\View::with('hero_image', 'img/background3.png'); // LCP preload sync ?>
 <?php \App\View::section('content'); ?>
@@ -73,16 +73,23 @@
                 <div class="review-flash danger"><?= e(__($errKeys[$errCode])) ?></div>
             <?php endif; ?>
 
+            <?php if (empty($steam_user)): ?>
+                <div class="review-login-cta">
+                    <p>Pra avaliar, entre com a sua conta Steam — assim o depoimento sai com o seu nick verificado.</p>
+                    <a href="/auth/steam" class="btn btn-steam">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right:0.4rem;"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.72 4.01 10.5 9.39 11.7l3.11-6.7H12c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5v.5c0 .83-.67 1.5-1.5 1.5s-1.5-.67-1.5-1.5V12c0-2.21-1.79-4-4-4s-4 1.79-4 4 1.79 4 4 4h.14c.86 1.44 2.43 2.41 4.23 2.49L12 23.99C18.63 24 24 18.63 24 12S18.63 0 12 0z"/></svg>
+                        Entrar com Steam
+                    </a>
+                </div>
+            <?php else: ?>
             <form method="POST" action="/reviews/public-submit" class="public-review-fields">
                 <?= \App\Csrf::field() ?>
                 <input type="hidden" name="rating" id="public-rating-value" value="5">
 
-                <label>
-                    <span><?= e(__('depoimentos_page.label_name')) ?></span>
-                    <input type="text" name="name" maxlength="60" required minlength="2"
-                           placeholder="<?= e(__('depoimentos_page.ph_name')) ?>"
-                           value="<?= e($_POST['name'] ?? '') ?>">
-                </label>
+                <div class="review-as">
+                    Avaliando como <strong><?= e($steam_user['display_name'] ?? 'Sobrevivente') ?></strong>
+                    <span style="color:var(--dim);">· <a href="/auth/logout" style="color:var(--dim);">trocar conta</a></span>
+                </div>
 
                 <label>
                     <span><?= e(__('depoimentos_page.label_rating')) ?></span>
@@ -103,6 +110,7 @@
 
                 <button type="submit" class="btn"><?= e(__('depoimentos_page.submit')) ?></button>
             </form>
+            <?php endif; ?>
         </div>
     </div>
 </section>
@@ -172,6 +180,9 @@
     margin: 0; font-style: italic; opacity: 0.95;
 }
 
+.review-login-cta { text-align:center; padding:1rem 0; }
+.review-login-cta p { color:var(--dim); margin-bottom:1rem; }
+.review-as { font-size:0.9rem; color:var(--bone); background:var(--bg-0); border:1px solid var(--border); border-left:3px solid var(--moss); padding:0.6rem 0.9rem; margin-bottom:0.4rem; }
 /* Form público de avaliação */
 .public-review-form {
     margin-top: 3.5rem;
