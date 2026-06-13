@@ -7,6 +7,7 @@ $gameplay_stats = $gameplay_stats ?? [];
 $cftools_on     = $cftools_on ?? false;
 $stat           = $stat ?? 'invest';
 $rewards        = $rewards ?? [];
+$online         = $online ?? [];
 ?>
 <?php \App\View::extend('layouts.main'); ?>
 <?php \App\View::with('hero_image', 'img/background5.png'); // LCP preload sync ?>
@@ -23,6 +24,23 @@ $rewards        = $rewards ?? [];
 
 <section class="section section-bg-2">
     <div class="container">
+
+        <!-- Online agora (CFTools) -->
+        <?php if (!empty($online)): ?>
+            <div class="online-box">
+                <div class="online-head"><span class="online-dot"></span> <?= count($online) ?> online agora</div>
+                <div class="online-list">
+                    <?php foreach ($online as $o): ?>
+                        <a class="online-player" href="/player/<?= e($o['steam_id']) ?>" title="<?= e($o['name']) ?><?= $o['ping'] ? ' · ping ' . (int)$o['ping'] . 'ms' : '' ?>">
+                            <?php if (!empty($o['avatar'])): ?>
+                                <img src="<?= e($o['avatar']) ?>" alt="" referrerpolicy="no-referrer" onerror="this.style.display='none'">
+                            <?php endif; ?>
+                            <span><?= e($o['name']) ?></span>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        <?php endif; ?>
 
         <!-- Abas -->
         <?php if ($cftools_on): ?>
@@ -176,6 +194,14 @@ $rewards        = $rewards ?? [];
 
 <style>
 #rank-results { transition: opacity .15s ease; }
+.online-box { background:var(--bg-1); border:1px solid var(--border); border-left:3px solid var(--moss); border-radius:4px; padding:1rem 1.2rem; margin-bottom:1.5rem; }
+.online-head { font-family:var(--font-display); color:var(--bone); font-size:.95rem; margin-bottom:.7rem; display:flex; align-items:center; gap:.5rem; }
+.online-dot { width:9px; height:9px; border-radius:50%; background:var(--moss); box-shadow:0 0 8px var(--moss); animation:onlinePulse 2s infinite; }
+@keyframes onlinePulse { 0%,100%{opacity:1;} 50%{opacity:.4;} }
+.online-list { display:flex; flex-wrap:wrap; gap:.6rem; }
+.online-player { display:flex; align-items:center; gap:.4rem; background:var(--bg-2); border:1px solid var(--border); border-radius:3px; padding:.3rem .6rem; color:var(--bone); text-decoration:none; font-size:.82rem; }
+.online-player:hover { border-color:var(--moss); }
+.online-player img { width:22px; height:22px; border-radius:2px; }
 .rank-tabs { display:flex; flex-wrap:wrap; gap:.5rem; margin-bottom:2rem; justify-content:center; }
 .rank-tab {
     padding:.5rem 1rem; border:1px solid var(--border); border-radius:3px;

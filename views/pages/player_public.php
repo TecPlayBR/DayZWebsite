@@ -47,6 +47,7 @@ $ex = is_array($stats['extra'] ?? null) ? $stats['extra'] : [];
             <div>
                 <span class="hero-kicker">// PERFIL DE SOBREVIVENTE</span>
                 <h1 class="hero-title" style="font-size: clamp(1.6rem, 4vw, 2.4rem); margin:.2rem 0;"><?= e($display_name) ?></h1>
+                <div class="pp-steamid" title="SteamID64 (clique pra copiar)">🎮 <span style="user-select:all;"><?= e($player['steam_id']) ?></span></div>
                 <a class="pp-steam-link" href="https://steamcommunity.com/profiles/<?= e($player['steam_id']) ?>" target="_blank" rel="noopener">ver no Steam →</a>
             </div>
         </div>
@@ -131,6 +132,7 @@ $ex = is_array($stats['extra'] ?? null) ? $stats['extra'] : [];
 .pp-head { display:flex; align-items:center; gap:1.2rem; }
 .pp-avatar, .pp-avatar-fb { width:88px; height:88px; border-radius:6px; border:2px solid var(--rust); object-fit:cover; display:block; }
 .pp-avatar-fb { display:flex; align-items:center; justify-content:center; font-size:2.2rem; color:var(--dim); background:var(--bg-2); }
+.pp-steamid { font-family:var(--font-mono); color:var(--dim); font-size:.8rem; margin:.2rem 0 .3rem; }
 .pp-steam-link { color:var(--rust-2); font-size:.85rem; text-decoration:none; }
 .pp-steam-link:hover { text-decoration:underline; }
 .pp-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:1rem; margin-bottom:1.5rem; }

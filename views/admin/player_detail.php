@@ -6,7 +6,11 @@
 <div class="admin-page-head">
     <div>
         <h1><?= e($player['display_name'] ?? 'Sem nome') ?></h1>
-        <p class="mono dim" style="font-family: var(--font-mono);"><?= e($player['steam_id']) ?></p>
+        <p class="mono dim" style="font-family: var(--font-mono); user-select: all;"><?= e($player['steam_id']) ?></p>
+        <p style="margin-top:.5rem; display:flex; gap:.6rem; flex-wrap:wrap;">
+            <a href="/player/<?= e($player['steam_id']) ?>" target="_blank" rel="noopener" class="btn-mini outline">👤 Perfil público (foto/nick) ↗</a>
+            <a href="https://steamcommunity.com/profiles/<?= e($player['steam_id']) ?>" target="_blank" rel="noopener" class="btn-mini outline">🎮 Ver na Steam ↗</a>
+        </p>
     </div>
     <a href="/admin/players" class="btn-mini outline">← Voltar</a>
 </div>

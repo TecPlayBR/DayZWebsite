@@ -189,6 +189,34 @@ class CFTools {
         return Database::fetchOne("SELECT * FROM player_stats WHERE steam_id = ?", [$steamId64]);
     }
 
+    /**
+     * Players online AGORA no servidor (GET /GSM/list). Cache 45s.
+     * Normaliza pro essencial: steam_id, nome in-game, avatar, ping, desde quando.
+     * Contrato validado live: { sessions: [ { gamedata:{player_name,steam64},
+     *   persona:{profile:{avatar,name}}, live:{ping:{actual}}, created_at, id } ], status }
+     */
+    public static function onlinePlayers(): ?array {
+        if (!self::isConfigured()) return null;
+        $c = self::cacheGet('online', 45);
+        if ($c !== null) return $c['rows'];
+        $d = self::authGet('/v1/server/' . self::$serverApiId . '/GSM/list');
+        $sessions = $d['sessions'] ?? null;
+        if (!is_array($sessions)) return null;
+        $rows = [];
+        foreach ($sessions as $s) {
+            $rows[] = [
+                'steam_id'    => (string)($s['gamedata']['steam64'] ?? ''),
+                'name'        => (string)($s['gamedata']['player_name'] ?? ($s['persona']['profile']['name'] ?? '?')),
+                'avatar'      => $s['persona']['profile']['avatar'] ?? null,
+                'ping'        => $s['live']['ping']['actual'] ?? null,
+                'since'       => $s['created_at'] ?? null,
+                'gamesession' => (string)($s['id'] ?? ''),
+            ];
+        }
+        self::cachePut('online', ['rows' => $rows]);
+        return $rows;
+    }
+
     /** Leaderboard pronto. stat: kills|deaths|suicides|playtime|longest_kill|longest_shot|kdratio. Cache 10min. */
     public static function leaderboard(string $stat, int $limit = 50): ?array {
         if (!self::isConfigured()) return null;

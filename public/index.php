@@ -325,13 +325,15 @@ $config['delivery_active'] = \App\Settings::deliveryActive();
     $rewardsRaw = \App\Settings::get('leaderboard_rewards', '');
     $rewards = $rewardsRaw ? (json_decode($rewardsRaw, true) ?: []) : [];
     $cfOn = \App\CFTools::isConfigured();
+    $online = $cfOn ? (\App\CFTools::onlinePlayers() ?: []) : [];
     $stat = (string)($_GET['stat'] ?? 'invest');
 
     if ($stat !== 'invest' && isset($gameplayStats[$stat]) && $cfOn) {
         $lb = \App\CFTools::leaderboard($stat, 50) ?: [];
         \App\View::display('pages.ranking', [
             'config' => $config, 'mode' => 'gameplay', 'stat' => $stat,
-            'gameplay_stats' => $gameplayStats, 'cftools_on' => true, 'lb' => $lb, 'rewards' => $rewards,
+            'gameplay_stats' => $gameplayStats, 'cftools_on' => true, 'lb' => $lb,
+            'rewards' => $rewards, 'online' => $online,
         ]);
         return;
     }
@@ -346,6 +348,7 @@ $config['delivery_active'] = \App\Settings::deliveryActive();
     \App\View::display('pages.ranking', [
         'config' => $config, 'mode' => 'invest', 'top' => $top,
         'gameplay_stats' => $gameplayStats, 'cftools_on' => $cfOn, 'rewards' => $rewards,
+        'online' => $online,
     ]);
 });
 
