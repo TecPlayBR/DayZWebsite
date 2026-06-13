@@ -17,6 +17,7 @@
                     <li><a href="/servidores"><?= e(__('nav.servers') ?: 'Servidores') ?></a></li>
                 <?php endif; ?>
                 <li><a href="/galeria"><?= e(__('nav.gallery') ?: 'Galeria') ?></a></li>
+                <li><a href="/ranking"><?= e(__('nav.ranking') ?: 'Ranking') ?></a></li>
                 <li><a href="/rules"><?= e(__('nav.rules')) ?></a></li>
                 <?php $discord = $config['settings']['discord_invite'] ?? ''; ?>
                 <?php if ($discord): ?>
@@ -96,6 +97,7 @@
             <li><a href="/servidores" data-close><?= e(__('nav.servers') ?: 'Servidores') ?></a></li>
         <?php endif; ?>
         <li><a href="/galeria" data-close><?= e(__('nav.gallery') ?: 'Galeria') ?></a></li>
+        <li><a href="/ranking" data-close><?= e(__('nav.ranking') ?: 'Ranking') ?></a></li>
         <li><a href="/rules" data-close><?= e(__('nav.rules')) ?></a></li>
         <?php $discord = $config['settings']['discord_invite'] ?? ''; ?>
         <?php if ($discord): ?>

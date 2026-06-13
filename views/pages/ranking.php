@@ -34,6 +34,7 @@ $rewards        = $rewards ?? [];
             </div>
         <?php endif; ?>
 
+        <div id="rank-results">
         <?php if ($mode === 'gameplay'): ?>
             <?php if (empty($lb)): ?>
                 <div style="text-align:center; padding:4rem 1rem; color:var(--dim);">
@@ -138,10 +139,43 @@ $rewards        = $rewards ?? [];
             </p>
 
         <?php endif; ?>
+        </div><!-- /#rank-results -->
     </div>
 </section>
 
+<script>
+// Troca de aba do ranking SEM recarregar a página (mantém o scroll, atualiza a URL).
+// Fallback: se o fetch falhar ou JS estiver off, os links funcionam normal.
+(function(){
+  function setActive(url){
+    document.querySelectorAll('.rank-tab').forEach(function(t){
+      t.classList.toggle('active', t.getAttribute('href') === url);
+    });
+  }
+  function load(url, push){
+    var box = document.getElementById('rank-results');
+    if (!box) { window.location = url; return; }
+    box.style.opacity = '0.45';
+    fetch(url).then(function(r){ return r.text(); }).then(function(html){
+      var fresh = new DOMParser().parseFromString(html, 'text/html').getElementById('rank-results');
+      box.innerHTML = fresh ? fresh.innerHTML : box.innerHTML;
+      box.style.opacity = '';
+      setActive(url);
+      if (push) history.pushState({}, '', url);
+    }).catch(function(){ window.location = url; });
+  }
+  document.addEventListener('click', function(e){
+    var a = e.target.closest('.rank-tab');
+    if (!a) return;
+    e.preventDefault();
+    load(a.getAttribute('href'), true);
+  });
+  window.addEventListener('popstate', function(){ load(location.pathname + location.search, false); });
+})();
+</script>
+
 <style>
+#rank-results { transition: opacity .15s ease; }
 .rank-tabs { display:flex; flex-wrap:wrap; gap:.5rem; margin-bottom:2rem; justify-content:center; }
 .rank-tab {
     padding:.5rem 1rem; border:1px solid var(--border); border-radius:3px;
