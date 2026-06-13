@@ -2,7 +2,9 @@
 
 > **Calma — atualizar NÃO apaga nada do seu site** se você seguir estes passos.
 > Seus dados (jogadores, pacotes, compras, páginas, cores, configurações) ficam **no banco e em arquivos protegidos** — o update não encosta neles.
-> Você está na versão **1.4.0**. Este guia leva pra versão atual com segurança.
+> **Não importa de qual versão você está vindo** (1.0, 1.1, 1.2, 1.4…): o comando do Passo 4 (`migrate.php`) detecta sozinho o que falta no seu banco e aplica **só isso**, em ordem, sem apagar nada. Funciona vindo de qualquer versão.
+>
+> 🧪 **Recomendado pra quem é cauteloso:** se der, teste primeiro numa cópia (subdomínio/staging) — cria suas páginas de teste, confere, e só depois faz no site de produção. Mas seguindo os passos, dá certo direto.
 
 Tempo: ~15 minutos. Precisa: acesso ao **FTP/Gerenciador de Arquivos** da sua hospedagem e ao **phpMyAdmin** (ou SSH/Cron). Não precisa saber programar.
 

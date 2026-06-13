@@ -211,11 +211,20 @@ Textos do site (nome, tagline, links sociais, regras, termos, anúncios) ficam e
 
 Quer mostrar **kills, K/D, tempo online e armas** do seu servidor no `/ranking` e no perfil de cada jogador (`/player/SEU_STEAMID`)? O site puxa isso direto do **CFTools Cloud** — você usa o **SEU próprio app** (o segredo fica só com você, controlando só o seu servidor).
 
+> ⚠️ **Atenção (causa de 90% da confusão):** as **Aplicações** ficam no **PORTAL DE DESENVOLVEDOR**, que é **um site separado** do painel normal de servidores. Muita gente procura em `app.cftools.cloud` (o painel dos servidores) e não acha — o lugar certo é **`developer.cftools.cloud`**.
+
 **Passo a passo:**
 1. Tenha o **CFTools** ativo no seu servidor DayZ (o agente CFTools rodando — é o que coleta os stats).
-2. Acesse **https://developer.cftools.cloud**, logue e crie uma **Application** → copie o **Application ID** e o **Secret**.
-3. Em **app.cftools.cloud**, abra seu servidor → pegue o **Server API ID** (UUID).
-4. No painel da sua Application, abra a **Grant URL** e **autorize** o app a ver o seu servidor (sem isso a API responde `no-grant`).
+2. **Criar a Aplicação (pega o `app_id` + `secret`):**
+   - Abra **https://developer.cftools.cloud** e faça login com a sua conta CFTools (a MESMA que é dona do servidor).
+   - No menu, vá em **Applications** → **Create application** (dê um nome, ex: "Meu Site").
+   - Copie o **Application ID** e o **Secret** (o Secret só aparece uma vez — guarde).
+3. **Autorizar a Aplicação a ver seu servidor (Grant):**
+   - Ainda na página da sua Application no `developer.cftools.cloud`, vai ter uma **Grant URL** (botão/link tipo "Authorize" ou "Grant access").
+   - Abra essa Grant URL **logado na conta dona do servidor** e confirme. Sem isso, a API responde `no-grant`.
+4. **Pegar o `server_api_id` (UUID do servidor):**
+   - Vá no painel dos servidores: **https://app.cftools.cloud** → abra o seu servidor.
+   - O **Server API ID** é o identificador (UUID, tipo `ad221e8f-8c63-...`) que fica em **Settings/Manage do servidor** (ou no endereço da página de gerenciamento dele). É esse valor que vai em `server_api_id`.
 5. Edite `config/config.php` e preencha o bloco:
    ```php
    'cftools' => [
