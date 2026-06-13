@@ -103,7 +103,9 @@ class MercadoPago {
             return null;
         }
         if ($code >= 400) {
-            error_log("MP $method $path HTTP $code: $resp");
+            // Loga so codigo+path. A resposta do MP pode conter dados do pagador
+            // (PII) / detalhes sensiveis -> NAO vai pro error_log.
+            error_log("MP $method $path HTTP $code (corpo omitido)");
             return null;
         }
         $decoded = json_decode($resp, true);

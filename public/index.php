@@ -14,7 +14,9 @@ set_exception_handler(function (\Throwable $e) {
     http_response_code(500);
     // Se o usuário é admin (sessão ativa), mostra detalhes (debug-friendly)
     $isAdmin = !empty($_SESSION['admin_user']['id']);
-    $detail = $isAdmin ? ($e->getMessage() . "\n" . $e->getFile() . ':' . $e->getLine()) : null;
+    // So a MENSAGEM pro admin (sem arquivo/linha/path — nao vaza estrutura do servidor).
+    // O detalhe completo (file:line) ja foi pro error_log acima.
+    $detail = $isAdmin ? $e->getMessage() : null;
     $errorPage = dirname(__DIR__) . '/views/pages/error_500.php';
     if (file_exists($errorPage)) {
         // Mini-bootstrap pra view renderizar standalone (não depende de Router)
@@ -911,7 +913,7 @@ if (!empty($config['db'])) {
 
 \App\Router::post('/admin/forgot', function() use ($config, $ROOT) {
     $ip = \App\RateLimit::clientIp();
-    if (!\App\RateLimit::check('forgot_' . $ip, 5, 15 * 60)['allowed']) { header('Location: /admin/forgot?e=rate'); exit; }
+    if (!\App\RateLimit::check('forgot_' . $ip, 5, 60 * 60)['allowed']) { header('Location: /admin/forgot?e=rate'); exit; }
     if (!\App\Csrf::check()) { header('Location: /admin/forgot?e=csrf'); exit; }
 
     $email = trim(strtolower($_POST['email'] ?? ''));
