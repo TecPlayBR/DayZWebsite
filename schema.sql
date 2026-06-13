@@ -17,10 +17,12 @@ CREATE TABLE admin_users (
     id              INT AUTO_INCREMENT PRIMARY KEY,
     username        VARCHAR(50)  NOT NULL UNIQUE,
     role            VARCHAR(20)  NOT NULL DEFAULT 'super_admin',
-    password_hash   VARCHAR(255) NOT NULL,
-    email           VARCHAR(255) NULL,
-    created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    last_login_at   DATETIME NULL
+    password_hash    VARCHAR(255) NOT NULL,
+    email            VARCHAR(255) NULL,
+    reset_token_hash VARCHAR(64)  NULL,
+    reset_expires    DATETIME     NULL,
+    created_at       DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_login_at    DATETIME NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 -- Role values: super_admin | finance | support | editor (matriz em src/Auth.php::PERMISSIONS)
 
