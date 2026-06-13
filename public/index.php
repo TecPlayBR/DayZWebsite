@@ -139,6 +139,10 @@ if (!empty($config['db'])) {
 // por request e centraliza o whitelist/validação de escrita.
 \App\Settings::init($config['settings'] ?? []);
 
+// Entrega in-game ativa? (Agent/Bot detectado). Usado pra não prometer entrega
+// automática quando não há entregador, e pra avisar o admin no dashboard.
+$config['delivery_active'] = \App\Settings::deliveryActive();
+
 // Timeout de inatividade da sessão admin (segundos). Default 1h.
 \App\Auth::setSessionTtl((int)($config['admin_session_ttl'] ?? 3600));
 

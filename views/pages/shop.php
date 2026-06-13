@@ -15,7 +15,7 @@ $siteName = $config['settings']['site_name'] ?? $config['site_name'] ?? 'DayZ';
 \App\View::with(
     'description',
     ($config['settings']['seo_shop_description'] ?? '')
-        ?: "Compre moedas DayZ pra usar no servidor {$siteName}. Pagamento via PIX, cartão ou boleto. Liberação automática em até 15 segundos."
+        ?: "Compre moedas DayZ pra usar no servidor {$siteName}. Pagamento via PIX, cartão ou boleto."
 );
 // Hero usa background3 — sinaliza pro layout preloadar o certo (LCP fix)
 \App\View::with('hero_image', 'img/background3.png');
@@ -177,7 +177,7 @@ $siteName = $config['settings']['site_name'] ?? $config['site_name'] ?? 'DayZ';
         </div>
 
         <p class="shop-note">
-            🔒 <strong>Mercado Pago</strong><?= __('shop.auto_delivery') ?><br>
+            🔒 <strong>Mercado Pago</strong><?= ($config['delivery_active'] ?? false) ? __('shop.auto_delivery') : __('shop.delivery_manual', [], ' — a entrega das moedas no jogo é feita pelo servidor (Agent/Bot) após a confirmação.') ?><br>
             <?= __('shop.steamid_warning') ?>
         </p>
     </div>

@@ -73,6 +73,21 @@ class Settings {
         return self::$cache;
     }
 
+    /**
+     * A entrega in-game está ativa? (Agent ou Bot funcionando).
+     * Usado pra NÃO prometer "liberação automática" quando não há quem entregue.
+     * - Agent: heartbeat `agent_last_sync` nos últimos 30 min (ele sincroniza a cada ~15s).
+     * - Bot: token configurado E já integrou com sucesso (`discord_integration_last_ok`).
+     */
+    public static function deliveryActive(): bool {
+        $agent = (int) self::get('agent_last_sync', 0);
+        if ($agent > 0 && (time() - $agent) < 1800) return true;
+        $token = (string) self::get('discord_integration_token', '');
+        $botOk = (string) self::get('discord_integration_last_ok', '0');
+        if ($token !== '' && $botOk !== '' && $botOk !== '0') return true;
+        return false;
+    }
+
     public static function isAllowed(string $key): bool {
         return isset(self::SCHEMA[$key]);
     }

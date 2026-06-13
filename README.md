@@ -32,6 +32,21 @@ A venda não autorizada é **crime** previsto no **Art. 184 §2º do Código Pen
 
 ---
 
+## 🧩 IMPORTANTE — o que é grátis × o que entrega no jogo
+
+O **site é grátis** e faz a loja, o painel, a carteira de moedas e o leaderboard. Mas **o site sozinho NÃO entrega as moedas/itens dentro do jogo** — ele registra a compra e credita o saldo. Quem **entrega no DayZ automaticamente** é uma destas peças (separadas do site):
+
+| Peça | O que faz | Custo |
+|---|---|---|
+| **Site (este template)** | Loja, checkout, painel admin, carteira de moedas, leaderboard, perfis | **Grátis** |
+| **Tecplay Agent** (`.exe`) | Lê as compras do site e **entrega as moedas/itens no servidor** (roda na máquina do servidor de jogo) | **Pago** — R$49,90/mês ou R$700 vitalício |
+| **Bot Discord Tecplay** | Integra o site + entrega in-game (alternativa pra quem **não tem servidor dedicado**) | Pago (planos) |
+
+> 👉 **Sem o Agent ou o Bot, o jogador paga e a moeda NÃO chega no jogo sozinha** (a liberação seria manual). Por isso o site **não promete "liberação automática"** enquanto não detecta um entregador, e o **painel admin avisa** quando a entrega in-game não está ativa.
+> Detalhes do Agent: **https://tecplay.inf.br/produtos/detalhe/?slug=tecplay-agent**
+
+---
+
 ## ✨ Features
 
 ### 🌐 Lado público

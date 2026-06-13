@@ -15,6 +15,18 @@
     </div>
 </div>
 
+<?php if (empty($config['delivery_active'])): ?>
+    <div style="background:var(--danger-overlay,rgba(231,57,70,.12)); border-left:4px solid var(--rust-2); padding:1rem 1.2rem; margin-bottom:1.5rem; border-radius:3px;">
+        <strong style="color:var(--text-danger,#ff6b6b);">⚠ Entrega in-game NÃO detectada</strong>
+        <p style="color:var(--bone); margin:.5rem 0 0; font-size:.9rem; line-height:1.6;">
+            As compras estão sendo <strong>registradas e creditadas no site</strong>, mas <strong>não há quem entregue as moedas/itens dentro do jogo</strong> automaticamente.
+            Pra entrega automática você precisa do <strong>Tecplay Agent</strong> (roda no servidor) ou do <strong>Bot Discord</strong> integrado.
+            Enquanto não ativar um dos dois, o site funciona como loja/carteira, mas a liberação no jogo é manual — e o site não promete "liberação automática" pros jogadores.
+            <br><a href="https://tecplay.inf.br/produtos/detalhe/?slug=tecplay-agent" target="_blank" rel="noopener" style="color:var(--hazard);">Ver o Tecplay Agent →</a>
+        </p>
+    </div>
+<?php endif; ?>
+
 <div class="stats-grid" id="stats-grid">
     <div class="stat-card">
         <div class="label">Jogadores</div>

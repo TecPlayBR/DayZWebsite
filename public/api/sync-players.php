@@ -66,6 +66,16 @@ if (!$authServer) {
 
 $serverId = (int)$authServer['id'];
 
+// Heartbeat do Agent: marca que ele está vivo. O site usa isso pra saber que a
+// ENTREGA in-game está ativa (e não prometer "liberação automática" sem entregador).
+try {
+    \App\Database::query(
+        "INSERT INTO settings (`key`, `value`) VALUES ('agent_last_sync', ?)
+         ON DUPLICATE KEY UPDATE `value` = VALUES(`value`)",
+        [(string) time()]
+    );
+} catch (\Throwable $e) { /* settings pode não existir em instalação incompleta — ignora */ }
+
 // ============ GET — agent lê players do site (apenas do SEU servidor) ============
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $rows = \App\Database::fetchAll(
