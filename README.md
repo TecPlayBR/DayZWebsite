@@ -123,6 +123,37 @@ A venda não autorizada é **crime** previsto no **Art. 184 §2º do Código Pen
 
 ---
 
+## 🔄 Atualizar (sem perder seus dados/config)
+
+Já tem o site instalado e quer atualizar pra uma versão nova **sem apagar nada**? Seu `config/config.php`, banco, skin e uploads ficam intactos:
+
+1. **Backup primeiro** (cPanel → Backup, ou exporta o banco no phpMyAdmin).
+2. **Suba os arquivos novos via FTP por cima** — `public/` vai pro `public_html`, o resto um nível acima. **NÃO suba `config/config.php`** (mantém o seu), nem `storage/`.
+3. **Rode as migrations que faltam** no phpMyAdmin (Importar → escolhe o `.sql` → Executar), na ordem:
+   - `migrations/v1.1.0_discord_integration.sql`
+   - `migrations/v1.2.0_rbac_reviews_newsletter.sql`
+   - `migrations/v1.4.0_shop_catalog.sql`
+   - `migrations/v1.4.1_password_reset.sql`
+   - (+ as mais novas que aparecerem na pasta `migrations/`)
+   São **idempotentes** — se der "table/column already exists", ignora, é normal.
+4. Acessa o `/admin` e confere.
+
+> ⚠️ O `install.php` só monta o banco do ZERO (instalação nova) — ele **NÃO roda as migrations**. Por isso, atualizar = subir arquivos **+ rodar as migrations acima**.
+
+## 🔑 Esqueci a senha do admin (recuperação)
+
+Travou fora do painel? Três caminhos, do mais simples ao mais robusto:
+
+1. **Outro admin:** se existe outra conta admin, ela entra em `/admin/team` e reseta a sua.
+2. **"Esqueci minha senha"** no `/admin/login` → link por email. *(Precisa de email configurado e funcionando — em hospedagem compartilhada o `mail()` às vezes não sai ou cai no spam.)*
+3. **À prova de tudo — reset por linha de comando (NÃO depende de email):**
+   ```
+   php cli/reset-password.php <usuario> <nova_senha>
+   ```
+   - **Com SSH:** roda direto na pasta do site.
+   - **Sem SSH (Hostinger/cPanel):** Painel → **Cron Jobs** → adiciona um cron "uma vez" com esse comando (o caminho completo do `cli/reset-password.php` você vê no File Manager) → roda → remove o cron.
+   Só roda por CLI (o navegador não executa) → seguro.
+
 ## 🏠 Onde hospedar
 
 Você pode rodar este template em qualquer hospedagem PHP. Recomendações **Tecplay-tested**:

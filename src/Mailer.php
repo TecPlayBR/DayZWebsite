@@ -24,17 +24,29 @@ class Mailer {
      * Em modo dev (sem config), apenas loga em /storage/cache/mail-log.txt
      */
     public static function send(string $to, string $subject, string $htmlBody, ?string $textBody = null): bool {
-        $from     = self::$config['from']      ?? 'no-reply@example.com';
+        $from     = trim((string)(self::$config['from'] ?? ''));
         $fromName = self::$config['from_name'] ?? 'Tecplay';
         $devLog   = self::$config['dev_log_path'] ?? null;
 
-        // Em dev (sem from configurado): log em arquivo
-        if (empty(self::$config['from']) && $devLog) {
-            $logEntry = "=====\n[" . date('Y-m-d H:i:s') . "] " .
-                        "To: $to\nSubject: $subject\n\n" .
-                        ($textBody ?: strip_tags($htmlBody)) . "\n\n";
-            @file_put_contents($devLog, $logEntry, FILE_APPEND);
-            return true;
+        // Sem 'from' configurado: deriva do dominio do site. mail() em shared
+        // hosting (Hostinger) aceita remetente do MESMO dominio; 'no-reply@example.com'
+        // (fallback antigo) era rejeitado/spam -> email "sumia". Antes a gente caia
+        // em dev-log e NUNCA enviava.
+        if ($from === '') {
+            $host = preg_replace('/:\d+$/', '', (string)($_SERVER['HTTP_HOST'] ?? ''));
+            if ($host !== '') {
+                $from = 'no-reply@' . $host;
+            }
+        }
+
+        // Sem from E sem dominio (ex: CLI sem config) -> so loga; senao ENVIA de verdade.
+        if ($from === '') {
+            if ($devLog) {
+                $logEntry = "=====\n[" . date('Y-m-d H:i:s') . "] (sem 'from'/host - nao enviado)\n" .
+                            "To: $to\nSubject: $subject\n\n" . ($textBody ?: strip_tags($htmlBody)) . "\n\n";
+                @file_put_contents($devLog, $logEntry, FILE_APPEND);
+            }
+            return false;
         }
 
         $headers = [
@@ -44,10 +56,13 @@ class Mailer {
             'Reply-To: ' . $from,
             'X-Mailer: Tecplay-DayZWebsite/1.0',
         ];
-
         $encodedSubject = '=?utf-8?B?' . base64_encode($subject) . '?=';
 
-        return @mail($to, $encodedSubject, $htmlBody, implode("\r\n", $headers));
+        $ok = @mail($to, $encodedSubject, $htmlBody, implode("\r\n", $headers));
+        if (!$ok && $devLog) {
+            @file_put_contents($devLog, "=====\n[" . date('Y-m-d H:i:s') . "] [MAIL FALHOU] To: $to | From: $from | Subject: $subject\n\n", FILE_APPEND);
+        }
+        return $ok;
     }
 
     private static function encodeHeader(string $value): string {
