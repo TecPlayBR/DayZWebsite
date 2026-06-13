@@ -107,6 +107,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $configContent .= "        'currency'          => 'BRL',\n";
             $configContent .= "        'min_purchase_brl'  => 5,\n";
             $configContent .= "    ],\n\n";
+            $configContent .= "    'mail' => [\n";
+            $configContent .= "        'from'      => " . var_export('no-reply@' . preg_replace('#^https?://([^/]+).*#', '$1', $site_url ?: ('http://' . ($_SERVER['HTTP_HOST'] ?? 'localhost'))), true) . ",\n";
+            $configContent .= "        'from_name' => " . var_export($site_name, true) . ",\n";
+            $configContent .= "        // Email via mail() do PHP. Pra entrega confiavel (sem cair em spam), troque por SMTP/remetente verificado do seu dominio.\n";
+            $configContent .= "    ],\n\n";
             $configContent .= "    'show_payment_methods' => true,\n";
             $configContent .= "    'show_language_select' => true,\n";
             $configContent .= "];\n";
