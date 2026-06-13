@@ -79,14 +79,24 @@ $rarityColor = [
 /* CRÍTICO: o atributo hidden precisa vencer o display:flex/.btn abaixo,
    senão o overlay/result/botão ficam sempre visíveis. */
 [hidden] { display: none !important; }
-.caixas-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:1.2rem; }
-.caixa-card { background:linear-gradient(180deg,var(--bg-2),var(--bg-1)); border:1px solid var(--border); border-radius:6px; padding:1.2rem; text-align:center; position:relative; display:flex; flex-direction:column; transition:transform .2s,border-color .2s; }
-.caixa-card:hover { transform:translateY(-4px); border-color:var(--hazard); }
-.caixa-tag { position:absolute; top:0.6rem; left:0.6rem; font-size:0.65rem; font-family:var(--font-mono); padding:0.15rem 0.5rem; border-radius:3px; letter-spacing:0.05em; }
-.caixa-tag-free { background:var(--moss); color:#fff; }
-.caixa-img { height:140px; display:flex; align-items:center; justify-content:center; margin-bottom:0.8rem; }
-.caixa-img img { max-height:140px; max-width:100%; object-fit:contain; filter:drop-shadow(0 6px 16px rgba(0,0,0,0.5)); }
-.caixa-img-ph { font-size:4rem; }
+.caixas-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:1.4rem; }
+.caixa-card { background:linear-gradient(180deg,var(--bg-2),var(--bg-1)); border:1px solid var(--border); border-radius:8px; padding:1.4rem 1.2rem; text-align:center; position:relative; display:flex; flex-direction:column; overflow:hidden; transition:transform .25s, border-color .25s, box-shadow .25s; }
+.caixa-card:hover { transform:translateY(-6px); border-color:var(--hazard); box-shadow:0 14px 34px rgba(0,0,0,0.55), 0 0 26px var(--hazard-border); }
+/* brilho diagonal que varre no hover */
+.caixa-card::after { content:''; position:absolute; top:0; left:-70%; width:45%; height:100%; background:linear-gradient(120deg,transparent,rgba(255,255,255,0.10),transparent); transform:skewX(-20deg); transition:left .6s ease; pointer-events:none; z-index:3; }
+.caixa-card:hover::after { left:130%; }
+.caixa-tag { position:absolute; top:0.6rem; left:0.6rem; z-index:4; font-size:0.65rem; font-family:var(--font-mono); padding:0.15rem 0.5rem; border-radius:3px; letter-spacing:0.05em; }
+.caixa-tag-free { background:var(--moss); color:#fff; box-shadow:0 0 12px rgba(74,157,91,0.5); }
+.caixa-img { position:relative; height:150px; display:flex; align-items:center; justify-content:center; margin-bottom:0.8rem; }
+/* glow radial pulsante atrás da caixa */
+.caixa-img::before { content:''; position:absolute; inset:0; margin:auto; width:130px; height:130px; border-radius:50%; background:radial-gradient(circle, var(--hazard-overlay, rgba(212,160,23,0.28)) 0%, transparent 70%); filter:blur(6px); z-index:0; animation:caixa-glow 4s ease-in-out infinite; }
+.caixa-img img, .caixa-img-ph { position:relative; z-index:1; animation:caixa-float 3.6s ease-in-out infinite; transition:transform .25s; }
+.caixa-img img { max-height:150px; max-width:90%; object-fit:contain; filter:drop-shadow(0 8px 18px rgba(0,0,0,0.6)); }
+.caixa-card:hover .caixa-img img, .caixa-card:hover .caixa-img-ph { transform:scale(1.08); }
+.caixa-img-ph { font-size:4.2rem; }
+@keyframes caixa-float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+@keyframes caixa-glow { 0%,100%{opacity:0.55; transform:scale(0.95)} 50%{opacity:1; transform:scale(1.05)} }
+@media (prefers-reduced-motion: reduce) { .caixa-img img, .caixa-img-ph, .caixa-img::before { animation:none; } }
 .caixa-name { font-family:var(--font-display); color:var(--bone); font-size:1.05rem; letter-spacing:0.04em; margin-bottom:0.3rem; }
 .caixa-desc { font-size:0.8rem; color:var(--dim); margin-bottom:0.6rem; flex:1; }
 .caixa-cost { color:var(--hazard); font-family:var(--font-mono); margin:0.5rem 0 0.9rem; }

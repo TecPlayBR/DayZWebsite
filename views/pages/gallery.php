@@ -3,6 +3,11 @@
 <?php \App\View::extend('layouts.main'); ?>
 <?php \App\View::section('content'); ?>
 
+<style>
+/* A navbar é fixa — dá folga no topo pra ela não cobrir o título/subtítulo. */
+.page-section { padding-top: clamp(110px, 13vh, 150px); }
+</style>
+
 <section class="page-section">
     <div class="container">
 
