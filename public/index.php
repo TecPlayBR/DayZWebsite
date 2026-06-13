@@ -58,6 +58,7 @@ require $ROOT . '/src/RateLimit.php';
 require $ROOT . '/src/MercadoPago.php';
 require $ROOT . '/src/SteamAuth.php';
 require $ROOT . '/src/ServerStatus.php';
+require $ROOT . '/src/Restart.php';
 require $ROOT . '/src/Mailer.php';
 require $ROOT . '/src/Coupon.php';
 require $ROOT . '/src/AuditLog.php';
@@ -149,6 +150,9 @@ if (!empty($config['db'])) {
 // Entrega in-game ativa? (Agent/Bot detectado). Usado pra não prometer entrega
 // automática quando não há entregador, e pra avisar o admin no dashboard.
 $config['delivery_active'] = \App\Settings::deliveryActive();
+
+// Próximo restart do servidor (pro badge discreto + blindagem do drop da caixa).
+$config['restart'] = \App\Restart::summary();
 
 // Timeout de inatividade da sessão admin (segundos). Default 1h.
 \App\Auth::setSessionTtl((int)($config['admin_session_ttl'] ?? 3600));
@@ -1665,9 +1669,11 @@ $collectDashboardData = function() {
                'social_tiktok','social_twitch','social_kick','social_x',
                'battlemetrics_id','next_wipe_at','wipe_label',
                'maintenance_message','maintenance_eta',
-               'discord_sales_webhook','promo_coupon_code','promo_label'];
+               'discord_sales_webhook','promo_coupon_code','promo_label',
+               'restart_times','restart_warn_minutes'];
     // Toggles (checkbox): se não veio no POST, vira 0
-    $toggles = ['maintenance_enabled', 'live_purchases_enabled', 'live_purchases_anonymize', 'live_purchases_show_price'];
+    $toggles = ['maintenance_enabled', 'live_purchases_enabled', 'live_purchases_anonymize', 'live_purchases_show_price',
+                'restart_enabled'];
 
     // Escrita via Settings::set(): valida contra o whitelist (SCHEMA), normaliza
     // por tipo e atualiza o cache em memória. Chave fora do SCHEMA é rejeitada.

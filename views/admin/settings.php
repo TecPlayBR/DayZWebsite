@@ -77,6 +77,26 @@
                 Encontre seu servidor em <a href="https://www.battlemetrics.com/servers/dayz" target="_blank" rel="noopener" style="color: var(--hazard);">battlemetrics.com/servers/dayz</a> e copie o número da URL (ex: <code>/servers/dayz/<strong>12345678</strong></code>). Deixe vazio se não quiser mostrar status.
             </p>
         </div>
+
+        <div style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.2rem;">
+            <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.9rem; color:var(--bone); margin-bottom:0.6rem;">
+                <input type="checkbox" name="restart_enabled" value="1" <?= !empty($settings['restart_enabled']) ? 'checked' : '' ?> style="width:18px;height:18px;">
+                🔄 Mostrar próximo restart do servidor
+            </label>
+            <div style="display:grid; grid-template-columns: 2fr 1fr; gap:1rem;">
+                <div>
+                    <label style="display:block; font-size:0.85rem; color:var(--bone); margin-bottom:0.3rem;">Horários de restart (BR)</label>
+                    <input type="text" name="restart_times" value="<?= e($settings['restart_times'] ?? '') ?>" placeholder="00:00, 04:00, 08:00, 12:00, 16:00, 20:00" style="width:100%; padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:var(--font-mono);">
+                </div>
+                <div>
+                    <label style="display:block; font-size:0.85rem; color:var(--bone); margin-bottom:0.3rem;">Aviso (min antes)</label>
+                    <input type="number" name="restart_warn_minutes" value="<?= e($settings['restart_warn_minutes'] ?? '5') ?>" min="1" max="30" style="width:100%; padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:var(--font-mono);">
+                </div>
+            </div>
+            <p style="margin-top: 0.4rem; font-size: 0.8rem; color: var(--dim);">
+                Horários separados por vírgula. O site mostra o próximo discretamente e <strong>blinda o drop de itens</strong> perto do restart (segura como pendente pra não cair no limbo).
+            </p>
+        </div>
     </div>
 
     <div class="stat-card" style="margin-bottom: 1rem; border-left-color: var(--hazard);">

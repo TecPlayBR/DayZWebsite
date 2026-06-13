@@ -46,6 +46,10 @@ class Settings {
         'bonus_enabled'            => 'bool',
         // Config de recompensas do leaderboard (JSON gerenciado em /admin/rewards).
         'leaderboard_rewards'      => 'json',
+        // Restart do servidor: horários (BR) pra mostrar o próximo + blindar o drop.
+        'restart_enabled'          => 'bool',
+        'restart_times'            => 'string',  // "00:00, 04:00, 08:00, ..."
+        'restart_warn_minutes'     => 'int',     // janela de aviso vermelho (default 5)
     ];
 
     private static array $cache = [];

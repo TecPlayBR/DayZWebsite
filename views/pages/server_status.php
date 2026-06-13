@@ -47,6 +47,18 @@
                     <div class="server-card-value"><?= e($status['map']) ?></div>
                 </div>
                 <?php endif; ?>
+                <?php $rs = $config['restart'] ?? null; if ($rs): ?>
+                <div class="server-card <?= $rs['warn'] ? 'server-card-warn' : '' ?>">
+                    <div class="server-card-label">Próximo restart</div>
+                    <div class="server-card-value" style="font-size:1.3rem;">
+                        🔄 <?= e($rs['at']) ?>
+                        <span style="color:var(--dim);font-size:0.7em;">(em <?= e($rs['relative']) ?>)</span>
+                    </div>
+                    <?php if ($rs['warn']): ?>
+                        <div style="color:var(--rust-2);font-size:0.75rem;margin-top:0.3rem;">⚠ Restart próximo — saia de combate</div>
+                    <?php endif; ?>
+                </div>
+                <?php endif; ?>
             </div>
 
             <!-- Conectar via Steam -->
@@ -125,6 +137,7 @@
     display: flex; align-items: center; gap: 0.6rem;
 }
 .server-card-big { font-size: 2.4rem; line-height: 1; }
+.server-card-warn { border-left-color: var(--rust-2); background: linear-gradient(180deg, rgba(231,57,70,0.08) 0%, var(--bg-1) 100%); }
 .server-dot { width: 12px; height: 12px; border-radius: 50%; }
 .server-dot-online  { background: var(--moss); box-shadow: 0 0 12px var(--moss); animation: pulse 2s infinite; }
 .server-dot-offline { background: var(--rust-2); box-shadow: 0 0 12px var(--rust-2); }
