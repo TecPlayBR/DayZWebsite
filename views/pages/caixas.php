@@ -76,6 +76,9 @@ $rarityColor = [
 </div>
 
 <style>
+/* CRÍTICO: o atributo hidden precisa vencer o display:flex/.btn abaixo,
+   senão o overlay/result/botão ficam sempre visíveis. */
+[hidden] { display: none !important; }
 .caixas-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:1.2rem; }
 .caixa-card { background:linear-gradient(180deg,var(--bg-2),var(--bg-1)); border:1px solid var(--border); border-radius:6px; padding:1.2rem; text-align:center; position:relative; display:flex; flex-direction:column; transition:transform .2s,border-color .2s; }
 .caixa-card:hover { transform:translateY(-4px); border-color:var(--hazard); }
