@@ -40,7 +40,7 @@
                             <div class="podium-trophy"><?= $trophy ?></div>
                             <div class="podium-pos">#<?= $pos ?></div>
                             <?php $pName = $p['display_name'] ?? 'Anônimo'; ?>
-                            <div class="podium-name" title="<?= e($pName) ?>"><?= e($pName) ?></div>
+                            <div class="podium-name" title="<?= e($pName) ?>"><a href="/player/<?= e($p['steam_id']) ?>" style="color:inherit;text-decoration:none;"><?= e($pName) ?></a></div>
                             <div class="podium-value">R$ <?= number_format((float)$p['total_spent_brl'], 2, ',', '.') ?></div>
                         </div>
                     <?php endforeach; ?>
@@ -64,7 +64,7 @@
                             <tr>
                                 <td class="rank-num">#<?= $pos ?></td>
                                 <td>
-                                    <strong><?= e($p['display_name'] ?? 'Anônimo') ?></strong>
+                                    <strong><a href="/player/<?= e($p['steam_id']) ?>" style="color:var(--bone);text-decoration:none;"><?= e($p['display_name'] ?? 'Anônimo') ?></a></strong>
                                     <div class="rank-steamid"><?= e(substr($p['steam_id'], 0, 8) . '...' . substr($p['steam_id'], -4)) ?></div>
                                 </td>
                                 <td class="rank-spent">R$ <?= number_format((float)$p['total_spent_brl'], 2, ',', '.') ?></td>

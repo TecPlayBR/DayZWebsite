@@ -316,6 +316,58 @@ if (!empty($config['db'])) {
     \App\View::display('pages.ranking', ['config' => $config, 'top' => $top]);
 });
 
+// Perfil público de jogador. Usa dados REAIS que já temos (players/purchases) +
+// avatar Steam (cache 6h) + stats de gameplay quando o player_stats tiver (via CFTools/Bot).
+\App\Router::get('/player/{steamId}', function($steamId) use ($config, $ROOT) {
+    if (!preg_match('/^7656119[0-9]{10}$/', $steamId)) {
+        http_response_code(404);
+        \App\View::display('pages.404', ['config' => $config]);
+        return;
+    }
+    $player = \App\Database::fetchOne(
+        "SELECT steam_id, display_name, coins, total_spent_brl, last_seen_at FROM players WHERE steam_id = ?",
+        [$steamId]
+    );
+    if (!$player) {
+        http_response_code(404);
+        \App\View::display('pages.404', ['config' => $config]);
+        return;
+    }
+    $stats = \App\Database::fetchOne("SELECT * FROM player_stats WHERE steam_id = ?", [$steamId]);
+    if ($stats && !empty($stats['extra_json'])) {
+        $stats['extra'] = json_decode($stats['extra_json'], true) ?: [];
+    }
+    $purchaseCount = (int) \App\Database::fetchColumn(
+        "SELECT COUNT(*) FROM purchases WHERE steam_id = ? AND mp_status = 'approved'", [$steamId]
+    );
+
+    // Avatar/nome via XML público (cache 6h em storage/cache — evita curl por view + rate-limit).
+    $avatar = null;
+    $name   = $player['display_name'] ?? null;
+    $cacheFile = $ROOT . '/storage/cache/steam-' . $steamId . '.json';
+    if (is_file($cacheFile) && (time() - filemtime($cacheFile) < 21600)) {
+        $c = json_decode((string)@file_get_contents($cacheFile), true) ?: [];
+        $avatar = $c['avatar'] ?? null;
+        $name   = $c['display_name'] ?? $name;
+    } else {
+        $prof = \App\SteamAuth::fetchProfilePublic($steamId);
+        if ($prof) {
+            $avatar = $prof['avatar'] ?? null;
+            $name   = $prof['display_name'] ?? $name;
+            @file_put_contents($cacheFile, json_encode($prof));
+        }
+    }
+
+    \App\View::display('pages.player_public', [
+        'config'         => $config,
+        'player'         => $player,
+        'stats'          => $stats ?: null,
+        'purchase_count' => $purchaseCount,
+        'avatar'         => $avatar,
+        'display_name'   => $name ?: 'Sobrevivente',
+    ]);
+});
+
 \App\Router::get('/server-status', function() use ($config) {
     $bmId = $config['settings']['battlemetrics_id'] ?? null;
     $status  = \App\ServerStatus::fetch($bmId);
