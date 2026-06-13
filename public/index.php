@@ -51,6 +51,7 @@ require $ROOT . '/src/View.php';
 require $ROOT . '/src/Lang.php';
 require $ROOT . '/src/Database.php';
 require $ROOT . '/src/Settings.php';
+require $ROOT . '/src/CFTools.php';
 require $ROOT . '/src/Auth.php';
 require $ROOT . '/src/Csrf.php';
 require $ROOT . '/src/RateLimit.php';
@@ -140,6 +141,9 @@ if (!empty($config['db'])) {
 
 // Timeout de inatividade da sessão admin (segundos). Default 1h.
 \App\Auth::setSessionTtl((int)($config['admin_session_ttl'] ?? 3600));
+
+// CFTools Cloud (leaderboard/stats de gameplay) — o site consulta direto, com cache.
+\App\CFTools::init($config['cftools'] ?? [], $ROOT . '/storage/cache');
 
 // i18n
 \App\Lang::init(
@@ -334,6 +338,13 @@ if (!empty($config['db'])) {
         return;
     }
     $stats = \App\Database::fetchOne("SELECT * FROM player_stats WHERE steam_id = ?", [$steamId]);
+    // Se o CFTools está configurado e o cache local está velho (>15min) ou vazio,
+    // busca direto na API (que tem seu próprio cache de 10min) e atualiza o player_stats.
+    $stale = !$stats || (strtotime($stats['updated_at'] ?? '1970-01-01 00:00:00') < time() - 900);
+    if (\App\CFTools::isConfigured() && $stale) {
+        $fresh = \App\CFTools::syncSteam($steamId);
+        if ($fresh) $stats = $fresh;
+    }
     if ($stats && !empty($stats['extra_json'])) {
         $stats['extra'] = json_decode($stats['extra_json'], true) ?: [];
     }
