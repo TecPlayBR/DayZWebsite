@@ -9,7 +9,7 @@ Tema apocalipse · Painel admin completo · Mercado Pago · Login Steam · Multi
 [![MySQL](https://img.shields.io/badge/MySQL-5.7+-4479A1?style=flat-square&logo=mysql&logoColor=white)](https://www.mysql.com)
 [![License](https://img.shields.io/badge/License-Tecplay--NC-a855f7?style=flat-square)](LICENSE.txt)
 [![Status](https://img.shields.io/badge/Status-Produção-16a34a?style=flat-square)]()
-[![Versão](https://img.shields.io/badge/Versão-1.2.0-facc15?style=flat-square)](CHANGELOG.md)
+[![Versão](https://img.shields.io/badge/Versão-1.4.3-facc15?style=flat-square)](CHANGELOG.md)
 
 *Sobreviva. Construa. Domine. Agora também na web.*
 
@@ -123,29 +123,41 @@ A venda não autorizada é **crime** previsto no **Art. 184 §2º do Código Pen
 
 ---
 
-## 🔄 Atualizar (sem perder seus dados/config)
+## 🔄 Atualizar (GARANTIDO sem perder seus dados)
 
-Já tem o site instalado e quer atualizar pra uma versão nova **sem apagar nada**? Seu `config/config.php`, banco, skin e uploads ficam intactos:
+Atualizar pra uma versão nova **nunca apaga seus dados nem sua personalização** — desde que você siga a regra de ouro abaixo. Banco, config, skin, logos e uploads ficam intactos.
 
-1. **Backup primeiro** (cPanel → Backup, ou exporta o banco no phpMyAdmin).
-2. **Suba os arquivos novos via FTP por cima.** O conteúdo de `public/` vai pra raiz pública (`public_html`); **todas estas pastas/arquivos ficam um nível ACIMA** (ao lado de `src/`). Suba **todos** — se faltar um, o site quebra silenciosamente (ex.: sem `lang/` o menu vira **NAV.RULES**):
+### 🛑 Regra de ouro: NUNCA sobrescreva estes (são SEUS, não do template)
 
-   | Sobe pra raiz pública (`public_html`) | Sobe um nível acima (junto de `src/`) |
-   |---|---|
-   | tudo que está dentro de `public/` | `src/` &nbsp;`views/` &nbsp;**`lang/`** &nbsp;`config/` &nbsp;`migrations/` &nbsp;`cli/` &nbsp;`schema.sql` |
+Ao subir os arquivos novos, **pule / não sobrescreva**:
 
-   ⚠️ **NÃO suba/sobrescreva `config/config.php`** (mantém o seu) nem a pasta `storage/`. **Não pule a pasta `lang/`** — é a que mais some em upload parcial.
-3. **Confira o deploy:** abra `https://seusite.com/verificar.php` no navegador. Ele mostra um checklist verde/vermelho do que subiu (sem expor nenhum segredo). Se tiver algo vermelho, reenvie só aquela pasta. **Apague o `verificar.php` depois.**
-4. **Rode as migrations que faltam** no phpMyAdmin (Importar → escolhe o `.sql` → Executar), na ordem:
-   - `migrations/v1.1.0_discord_integration.sql`
-   - `migrations/v1.2.0_rbac_reviews_newsletter.sql`
-   - `migrations/v1.4.0_shop_catalog.sql`
-   - `migrations/v1.4.1_password_reset.sql`
-   - (+ as mais novas que aparecerem na pasta `migrations/`)
-   São **idempotentes** — se der "table/column already exists", ignora, é normal.
-5. Acessa o `/admin` e confere.
+| Item | O que é |
+|---|---|
+| `config/config.php` | suas credenciais de banco, tokens, Mercado Pago |
+| `public/assets/css/theme.override.css` | suas cores (do painel Personalização) |
+| `public/assets/img/custom/` | seu logo, favicon e backgrounds enviados pelo painel |
+| `public/assets/img/gallery/` | suas screenshots da galeria |
+| `storage/` | cache, logs, backups e rate-limit |
+| `.htaccess` | **se você editou à mão** (HTTPS forçado, regras próprias) |
+| `lang/pt-br.php` / `lang/en-us.php` | **só se você editou os textos à mão** — nesse caso faça backup e re-aplique depois (ou customize textos pelo painel, que é à prova de update) |
 
-> ⚠️ O `install.php` só monta o banco do ZERO (instalação nova) — ele **NÃO roda as migrations**. Por isso, atualizar = subir arquivos **+ rodar as migrations acima**.
+> Tudo isso já vem no `.gitignore` — se você baixou o ZIP do GitHub, esses arquivos do cliente **nem estão no pacote**, então um upload normal não os toca. A atenção é só pra não copiá-los por cima manualmente.
+
+### Passo a passo
+
+1. **Backup primeiro** (sempre). Duas formas:
+   - Banco: `php cli/backup.php` (gera um `.sql` em `storage/backups/`), ou exporte pelo phpMyAdmin.
+   - Arquivos: baixe por FTP uma cópia de `config/`, `lang/`, `public/assets/css/theme.override.css` e `public/assets/img/custom/`.
+2. **Suba os arquivos novos por FTP.** Conteúdo de `public/` → raiz pública (`public_html`); o resto (`src/ views/ lang/ config/ migrations/ cli/ schema.sql`) → **um nível acima**, ao lado de `src/`. Suba **todas** as pastas — se faltar uma, o site quebra silenciosamente (ex.: sem `lang/`, o menu vira **NAV.RULES**). **Respeite a regra de ouro acima.**
+3. **Atualize o banco** — rode UMA vez:
+   ```
+   php cli/migrate.php
+   ```
+   Roda só as migrations que faltam, é **idempotente** e **nunca apaga dados** (só adiciona tabela/coluna que falta). Sem SSH? Use **Cron Jobs** do painel: agende um cron "uma vez" com `php /home/SEU_USER/public_html/cli/migrate.php`, rode e remova.
+4. **Confira o deploy:** abra `https://seusite.com/verificar.php` — checklist verde/vermelho do que subiu (não expõe segredo). Algo vermelho? Reenvie só aquela pasta. **Apague o `verificar.php` depois.**
+5. Acesse o `/admin` e confira home, loja e login.
+
+> ⚠️ O `install.php` é **só pra instalação do ZERO** — ele **NÃO atualiza** e, se rodado por engano num site já instalado, dá `Já instalado`. Atualizar = subir arquivos **+ `php cli/migrate.php`**.
 
 ## 🔑 Esqueci a senha do admin (recuperação)
 
@@ -160,6 +172,37 @@ Travou fora do painel? Três caminhos, do mais simples ao mais robusto:
    - **Com SSH:** roda direto na pasta do site.
    - **Sem SSH (Hostinger/cPanel):** Painel → **Cron Jobs** → adiciona um cron "uma vez" com esse comando (o caminho completo do `cli/reset-password.php` você vê no File Manager) → roda → remove o cron.
    Só roda por CLI (o navegador não executa) → seguro.
+
+## 🎨 Personalizar a aparência (sem FTP, sem código)
+
+Tudo pelo painel, em **Admin → Personalização Visual** (`/admin/customize`). O que você muda aqui **sobrevive a updates** (fica isolado do template):
+
+- **Logo, logo pequeno e favicon** — botão "Enviar", escolhe a imagem, pronto. "Voltar ao padrão" desfaz.
+- **Backgrounds** (hero, login, loja, 404, páginas) — mesmo esquema. Otimize imagens grandes no [TinyPNG](https://tinypng.com) antes (background pesado deixa o site lento).
+- **Cores do site** — color picker com 10 cores (principal, acento, fundos, texto…). Clica em "Salvar cores" e aplica na hora, no site e no painel.
+
+Textos do site (nome, tagline, links sociais, regras, termos, anúncios) ficam em **Admin → Configurações** e **Páginas** — também à prova de update (ficam no banco).
+
+> Se você der "Enviar" e a imagem não mudar na hora, dê **Ctrl+F5** (cache do navegador). É normal.
+
+---
+
+## 🆘 Problemas comuns (resolva você mesmo)
+
+| Sintoma | Causa provável | Solução |
+|---|---|---|
+| Menu/textos aparecem como **`NAV.RULES`**, `SHOP.TITLE` etc. | A pasta `lang/` não subiu (ou subiu incompleta) | Reenvie a pasta `lang/` (fica ao lado de `src/`). Rode `/verificar.php` pra confirmar. |
+| **Internal Server Error / 500** em tudo | PHP abaixo de 8.0, ou `mod_rewrite`/`AllowOverride` desligado | Confirme PHP 8.0+ no painel e que o `.htaccess` está ativo. Veja `storage/logs/php-errors.log`. |
+| **"Banco indisponível"** | Credenciais erradas em `config/config.php` ou banco fora do ar | Confira host/usuário/senha do banco no `config/config.php`. |
+| **500 só em `/loja` ou `/perfil`** | Faltou rodar as migrations (tabela nova ausente) | Rode `php cli/migrate.php` (veja a seção Atualizar). |
+| **Email de recuperação não chega** | `mail()` do PHP é instável em hospedagem compartilhada (cai em spam ou não sai) | Use o reset por CLI: `php cli/reset-password.php <usuario> <senha>` (não depende de email). |
+| **Logo/cores sumiram após atualizar** | Sobrescreveu os arquivos do cliente no upload | Reenvie `public/assets/img/custom/` e `theme.override.css` do seu backup. Veja a "Regra de ouro" em Atualizar. |
+| **Travei fora do admin** | Perdeu a senha e não tem outro admin | `php cli/reset-password.php <usuario> <nova_senha>` (via SSH ou Cron Jobs). |
+| Compra fica **"pendente" pra sempre** | Webhook do Mercado Pago não chegou (token/URL errados) | Confira o webhook no painel do Mercado Pago e o `access_token` no `config/config.php`. |
+
+> Ferramenta de diagnóstico: suba `public/verificar.php`, abra `https://seusite.com/verificar.php` — ele mostra um checklist do que está certo/errado no deploy (não expõe senha). **Apague depois de usar.**
+
+---
 
 ## 🏠 Onde hospedar
 

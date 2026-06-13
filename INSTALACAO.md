@@ -219,15 +219,14 @@ Cole os links que tiver:
 
 Os ícones aparecem automaticamente no rodapé. Deixe vazio pra esconder.
 
-### 5.2 — Trocar logo
+### 5.2 — Logo, favicon, backgrounds e cores (tudo pelo painel)
 
-Substitua o arquivo `public_html/assets/img/logo_semfundo.png` pelo seu logo (PNG transparente, ~250x250 recomendado).
+`Admin → Personalização Visual` (`/admin/customize`). **Não precisa mais de FTP nem editar arquivo:**
+- **Logo, logo pequeno, favicon** — botão "Enviar" em cada um. PNG transparente (~250×250 pro logo principal).
+- **Backgrounds** (hero, login, loja, 404, páginas) — botão "Enviar". Mínimo 1920×1080; **otimize antes** no [TinyPNG](https://tinypng.com) ou [Squoosh](https://squoosh.app) (de 2MB pra ~300KB sem perda visual).
+- **Cores do site** — color picker com 10 cores; "Salvar cores" aplica na hora.
 
-### 5.3 — Trocar background do hero
-
-O `public_html/assets/img/background.png` é o background da hero principal. Recomendado:
-- Resolução mínima: 1920x1080
-- **Otimize antes de subir** via [TinyPNG](https://tinypng.com) ou [Squoosh](https://squoosh.app) — pode reduzir de 2MB pra 300KB sem perda visual
+> Tudo que você envia/edita aqui fica isolado (`assets/img/custom/` + `theme.override.css`) e **NÃO é perdido quando você atualizar o template**. Botão "Voltar ao padrão" desfaz qualquer item.
 
 ### 5.4 — Configurar IP/porta do servidor DayZ
 
