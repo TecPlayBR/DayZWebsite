@@ -14,7 +14,7 @@
 
         <?php if (empty($items)): ?>
             <div class="empty-state">
-                <span class="empty-icon">▭</span>
+                <span class="empty-icon" style="font-size: 4rem; opacity: 0.4;">📷</span>
                 <p><?= e(__('gallery.empty')) ?></p>
             </div>
         <?php else: ?>

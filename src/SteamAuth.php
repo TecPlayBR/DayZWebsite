@@ -105,34 +105,74 @@ class SteamAuth {
     }
 
     /**
-     * Busca perfil publico via Steam Web API (precisa API key).
-     * Sem API key: retorna null (front pode mostrar placeholder).
-     * Pega a API key em https://steamcommunity.com/dev/apikey
+     * Busca o perfil público (nome + avatar) do jogador.
+     * 1º tenta a Steam Web API (se o cliente configurou steam_api_key — mais dados);
+     * 2º cai pro XML público do perfil (NÃO precisa de key) → a fotinha aparece
+     *    out-of-the-box pra QUALQUER instalação, sem o cliente configurar nada.
      */
     public static function fetchProfile(string $steamId, ?string $apiKey): ?array {
-        if (!$apiKey) return null;
+        if ($apiKey) {
+            $viaApi = self::fetchViaApiKey($steamId, $apiKey);
+            if ($viaApi) return $viaApi;
+        }
+        return self::fetchProfilePublic($steamId);
+    }
+
+    /** GetPlayerSummaries (precisa de API key). https://steamcommunity.com/dev/apikey */
+    private static function fetchViaApiKey(string $steamId, string $apiKey): ?array {
         $url = 'https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key='
              . urlencode($apiKey) . '&steamids=' . urlencode($steamId);
-
         $ch = curl_init($url);
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT        => 8,
+            CURLOPT_CONNECTTIMEOUT => 5,
         ]);
         $resp = curl_exec($ch);
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
-
         if ($code !== 200) return null;
         $data = json_decode($resp, true);
         $player = $data['response']['players'][0] ?? null;
         if (!$player) return null;
-
         return [
             'display_name' => $player['personaname']    ?? null,
-            'avatar'       => $player['avatarfull']     ?? ($player['avatar'] ?? null),
-            'profile_url'  => $player['profileurl']     ?? null,
-            'country'      => $player['loccountrycode'] ?? null,
+            'avatar'       => $player['avatarfull']      ?? ($player['avatar'] ?? null),
+            'profile_url'  => $player['profileurl']      ?? null,
+            'country'      => $player['loccountrycode']  ?? null,
+        ];
+    }
+
+    /**
+     * Perfil público via XML (sem API key). Endpoint estável da Steam:
+     * https://steamcommunity.com/profiles/<id64>?xml=1 → traz avatarFull e steamID (nome).
+     * É como a maioria dos sites de servidor mostra a fotinha sem configurar key.
+     */
+    public static function fetchProfilePublic(string $steamId): ?array {
+        $url = 'https://steamcommunity.com/profiles/' . urlencode($steamId) . '?xml=1';
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 8,
+            CURLOPT_CONNECTTIMEOUT => 5,
+            CURLOPT_USERAGENT      => 'Mozilla/5.0 (compatible; DayZWebsite)',
+        ]);
+        $resp = curl_exec($ch);
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        if ($code !== 200 || !$resp) return null;
+
+        // Steam é fonte confiável; libxml moderno não resolve entidades externas por padrão.
+        $xml = @simplexml_load_string($resp, 'SimpleXMLElement', LIBXML_NOCDATA);
+        if (!$xml || !isset($xml->avatarFull)) return null;
+
+        $avatar = trim((string) $xml->avatarFull);
+        $name   = isset($xml->steamID) ? trim((string) $xml->steamID) : null;
+        return [
+            'display_name' => $name !== '' ? $name : null,
+            'avatar'       => $avatar !== '' ? $avatar : null,
+            'profile_url'  => 'https://steamcommunity.com/profiles/' . $steamId,
+            'country'      => null,
         ];
     }
 }

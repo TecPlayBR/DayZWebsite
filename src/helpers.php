@@ -72,6 +72,33 @@ if (!function_exists('theme_override_tag')) {
     }
 }
 
+if (!function_exists('fmt_dt')) {
+    /** Formata data ('Y-m-d H:i:s' ou timestamp) pra algo legível: "13 jun 2026, 04:10". */
+    function fmt_dt($value, string $fallback = '—'): string {
+        if (empty($value)) return $fallback;
+        $ts = is_numeric($value) ? (int)$value : strtotime((string)$value);
+        if (!$ts) return $fallback;
+        static $m = [1=>'jan',2=>'fev',3=>'mar',4=>'abr',5=>'mai',6=>'jun',7=>'jul',8=>'ago',9=>'set',10=>'out',11=>'nov',12=>'dez'];
+        return date('j', $ts) . ' ' . $m[(int)date('n', $ts)] . ' ' . date('Y, H:i', $ts);
+    }
+}
+
+if (!function_exists('time_ago')) {
+    /** Tempo relativo amigável: "agora mesmo", "há 2h", "ontem", "há 3 dias"; data se antigo. */
+    function time_ago($value, string $fallback = '—'): string {
+        if (empty($value)) return $fallback;
+        $ts = is_numeric($value) ? (int)$value : strtotime((string)$value);
+        if (!$ts) return $fallback;
+        $d = max(0, time() - $ts);
+        if ($d < 60)      return 'agora mesmo';
+        if ($d < 3600)    return 'há ' . (int)floor($d / 60) . ' min';
+        if ($d < 86400)   return 'há ' . (int)floor($d / 3600) . 'h';
+        if ($d < 172800)  return 'ontem';
+        if ($d < 2592000) return 'há ' . (int)floor($d / 86400) . ' dias';
+        return fmt_dt($value, $fallback);
+    }
+}
+
 if (!function_exists('url')) {
     function url(string $path = '/'): string {
         $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';

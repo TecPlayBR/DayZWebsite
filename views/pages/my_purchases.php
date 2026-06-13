@@ -55,7 +55,7 @@ if (!empty($_GET['err'])) {
             </div>
             <div class="profile-card">
                 <div class="profile-card-label"><?= e(__('profile.last_seen')) ?></div>
-                <div class="profile-card-value" style="font-size: 1rem;"><?= e($player['last_seen_at'] ?? '—') ?></div>
+                <div class="profile-card-value" style="font-size: 1rem;"><?= e(time_ago($player['last_seen_at'] ?? null)) ?></div>
             </div>
         </div>
 
@@ -79,8 +79,9 @@ if (!empty($_GET['err'])) {
         </h2>
 
         <?php if (empty($purchases)): ?>
-            <div style="text-align: center; padding: 3rem 1rem; color: var(--dim);">
-                <p><?= e(__('profile.no_purchases')) ?> <a href="/shop" style="color: var(--rust-2);">→</a></p>
+            <div style="text-align: center; padding: 3rem 1rem;">
+                <p style="color: var(--dim); margin-bottom: 1.2rem;"><?= e(__('profile.no_purchases')) ?></p>
+                <a href="/shop" class="btn"><?= e(__('nav.shop')) ?> →</a>
             </div>
         <?php else: ?>
             <table class="purchases-table">
@@ -104,7 +105,7 @@ if (!empty($_GET['err'])) {
                         $alreadyReviewed = !empty($reviewed_ids[(int)$p['id']]);
                     ?>
                         <tr>
-                            <td class="dim"><?= e($p['created_at']) ?></td>
+                            <td class="dim"><?= e(fmt_dt($p['created_at'])) ?></td>
                             <td><strong><?= e($p['package_id']) ?></strong></td>
                             <td class="mono">
                                 <?= (int)$p['coins_total'] ?>
@@ -145,11 +146,11 @@ if (!empty($_GET['err'])) {
             </table>
 
             <!-- Modal de review -->
-            <div id="review-modal" class="review-modal" hidden>
+            <div id="review-modal" class="review-modal" hidden role="dialog" aria-modal="true" aria-labelledby="review-modal-title">
                 <div class="review-modal-card">
                     <form method="POST" action="/reviews/submit">
                         <?= \App\Csrf::field() ?>
-                        <h3 style="font-family: var(--font-display); color: var(--bone); margin-bottom: 0.5rem;"><?= e(__('profile.review_title')) ?></h3>
+                        <h3 id="review-modal-title" style="font-family: var(--font-display); color: var(--bone); margin-bottom: 0.5rem;"><?= e(__('profile.review_title')) ?></h3>
                         <p style="color: var(--dim); font-size: 0.85rem; margin-bottom: 1.2rem;">
                             <?= e(__('profile.pack_label')) ?> <strong id="review-pkg-name" style="color: var(--hazard);">—</strong>
                         </p>
@@ -201,6 +202,11 @@ if (!empty($_GET['err'])) {
                 });
                 document.getElementById('review-modal')?.addEventListener('click', e => {
                     if (e.target.id === 'review-modal') closeReviewForm();
+                });
+                // Fecha no ESC (UX esperada de modal)
+                document.addEventListener('keydown', e => {
+                    const m = document.getElementById('review-modal');
+                    if (e.key === 'Escape' && m && !m.hidden) closeReviewForm();
                 });
             </script>
         <?php endif; ?>

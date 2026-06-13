@@ -16,8 +16,9 @@
     <div class="container">
 
         <?php if (empty($top)): ?>
-            <div style="text-align: center; padding: 4rem 1rem; color: var(--dim);">
-                <p>Ranking ainda vazio. <a href="/shop" style="color: var(--rust-2);">Seja o primeiro a entrar pra história.</a></p>
+            <div style="text-align: center; padding: 4rem 1rem;">
+                <p style="color: var(--dim); margin-bottom: 1.5rem;">O ranking ainda está vazio. Seja o primeiro a entrar pra história.</p>
+                <a href="/shop" class="btn">Comprar e dominar →</a>
             </div>
         <?php else: ?>
 
@@ -68,7 +69,7 @@
                                 </td>
                                 <td class="rank-spent">R$ <?= number_format((float)$p['total_spent_brl'], 2, ',', '.') ?></td>
                                 <td class="hide-mobile"><?= number_format((int)$p['coins'], 0, ',', '.') ?> moedas</td>
-                                <td class="hide-mobile rank-time"><?= e($p['last_seen_at'] ?? '—') ?></td>
+                                <td class="hide-mobile rank-time"><?= e(time_ago($p['last_seen_at'] ?? null, 'nunca conectou')) ?></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>

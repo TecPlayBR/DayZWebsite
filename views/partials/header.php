@@ -60,7 +60,9 @@
                 <a href="/my-purchases" class="user-pill" title="Minhas compras">
                     <?php $steamName = $steamUser['display_name'] ?? 'Steam User'; ?>
                     <?php if (!empty($steamUser['avatar'])): ?>
-                        <img src="<?= e($steamUser['avatar']) ?>" alt="<?= e('Avatar de ' . $steamName) ?>" class="user-pill-avatar">
+                        <img src="<?= e($steamUser['avatar']) ?>" alt="<?= e('Avatar de ' . $steamName) ?>" class="user-pill-avatar"
+                             loading="lazy" referrerpolicy="no-referrer"
+                             onerror="this.outerHTML='<span class=\'user-pill-avatar user-pill-avatar-fallback\' aria-hidden=\'true\'>&#9881;</span>'">
                     <?php else: ?>
                         <span class="user-pill-avatar user-pill-avatar-fallback" aria-hidden="true">⚙</span>
                     <?php endif; ?>

@@ -92,7 +92,7 @@
 
             <p class="status-meta">
                 Dados atualizados a cada 60s via BattleMetrics.
-                Última atualização: <?= date('H:i:s', $status['fetched_at']) ?>
+                Última atualização: <?= e(time_ago($status['fetched_at'])) ?>
             </p>
 
         <?php endif; ?>

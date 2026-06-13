@@ -24,8 +24,9 @@
     <div class="container" style="max-width: 1000px;">
 
         <?php if (empty($reviews)): ?>
-            <div style="text-align: center; padding: 4rem 1rem; color: var(--dim);">
-                <p><?= e(__('depoimentos_page.empty')) ?> <a href="/shop" style="color: var(--rust-2);"><?= e(__('depoimentos_page.be_first')) ?></a></p>
+            <div style="text-align: center; padding: 4rem 1rem;">
+                <p style="color: var(--dim); margin-bottom: 1.5rem;"><?= e(__('depoimentos_page.empty')) ?></p>
+                <a href="/shop" class="btn"><?= e(__('depoimentos_page.be_first')) ?></a>
             </div>
         <?php else: ?>
             <div class="reviews-grid">
