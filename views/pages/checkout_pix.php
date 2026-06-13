@@ -1,5 +1,5 @@
 <?php
-/** @var array $config, $pkg; @var int $purchase_id, $coins_total; @var string $steam_id, $qr_code, $qr_base64, $ticket_url, $expires_at; @var float $price_brl, $discount */
+/** @var array $config, $pkg; @var int $purchase_id, $coins_total, $server_id; @var string $steam_id, $qr_code, $qr_base64, $ticket_url, $expires_at; @var float $price_brl, $discount; @var ?string $coupon_code */
 ?>
 <?php \App\View::with('title', 'Pagamento PIX — ' . ($config['settings']['site_name'] ?? $config['site_name'] ?? 'Loja')); ?>
 <?php \App\View::extend('layouts.main'); ?>
@@ -32,6 +32,28 @@
                     <div class="pix-amount">R$ <?= number_format($price_brl, 2, ',', '.') ?></div>
                     <div class="pix-steam">SteamID: <code><?= e($steam_id) ?></code></div>
                 </div>
+
+                <!-- Cupom no momento de finalizar: aplicar regenera o QR com desconto -->
+                <form method="POST" action="/shop/checkout" class="pix-coupon-form">
+                    <?= \App\Csrf::field() ?>
+                    <input type="hidden" name="package_id" value="<?= e($pkg['id']) ?>">
+                    <input type="hidden" name="steam_id" value="<?= e($steam_id) ?>">
+                    <input type="hidden" name="server_id" value="<?= (int)$server_id ?>">
+                    <input type="hidden" name="terms_accepted" value="1">
+                    <?php if (!empty($coupon_code)): ?>
+                        <div class="pix-coupon-applied">
+                            🎟 Cupom <strong><?= e($coupon_code) ?></strong> aplicado
+                            <input type="hidden" name="coupon_code" value="">
+                            <button type="submit" class="pix-coupon-clear">remover</button>
+                        </div>
+                    <?php else: ?>
+                        <div class="pix-coupon-row">
+                            <input type="text" name="coupon_code" placeholder="🎟 Cupom de desconto" maxlength="40"
+                                   oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9_-]/g,'')">
+                            <button type="submit">Aplicar</button>
+                        </div>
+                    <?php endif; ?>
+                </form>
 
                 <label class="pix-cc-label">PIX copia-e-cola</label>
                 <textarea id="pix-code" class="pix-cc" readonly rows="3"><?= e($qr_code) ?></textarea>
@@ -73,6 +95,14 @@
 .pix-amount { font-family:var(--font-display); font-size:2rem; color:var(--moss); margin:0.3rem 0; }
 .pix-steam { font-size:0.75rem; color:var(--dim); }
 .pix-steam code { color:var(--bone); }
+.pix-coupon-form { margin:0.2rem 0; }
+.pix-coupon-row { display:flex; gap:0.4rem; }
+.pix-coupon-row input { flex:1; background:var(--bg-0); border:1px solid var(--border); color:var(--hazard);
+    font-family:var(--font-mono); font-size:0.8rem; padding:0.45rem 0.6rem; text-transform:uppercase; letter-spacing:0.05em; }
+.pix-coupon-row input:focus { outline:none; border-color:var(--rust); }
+.pix-coupon-row button { background:var(--rust); color:var(--bone); border:none; padding:0.45rem 0.9rem; cursor:pointer; font-size:0.8rem; }
+.pix-coupon-applied { font-size:0.82rem; color:var(--moss); display:flex; align-items:center; gap:0.5rem; }
+.pix-coupon-clear { background:none; border:none; color:var(--dim); text-decoration:underline; cursor:pointer; font-size:0.75rem; }
 .pix-cc-label { font-size:0.78rem; color:var(--dim); text-transform:uppercase; letter-spacing:0.08em; }
 .pix-cc { width:100%; background:var(--bg-0); border:1px solid var(--border); color:var(--bone);
     font-family:var(--font-mono); font-size:0.72rem; padding:0.6rem; resize:none; word-break:break-all; }
