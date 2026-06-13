@@ -81,10 +81,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$structureMissing) {
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             ]);
 
-            // Confere se ja tem tabelas (preventivo)
-            $existing = $pdo->query("SHOW TABLES LIKE 'admin_users'")->fetch();
-            if ($existing) {
-                $errors[] = 'Banco ja tem tabelas (admin_users existe). Use um banco vazio ou apague as tabelas antes.';
+            // SALVAGUARDA ANTI-DESTRUIÇÃO: o schema.sql dropa tabelas. Se o banco já
+            // tem QUALQUER dado de cliente (não só admin_users), recusamos reinstalar —
+            // senão um "reinstalar pra atualizar" apagaria páginas/pacotes/jogadores/compras.
+            // Pra ATUALIZAR é subir arquivos + `php cli/migrate.php` (nunca o install.php).
+            foreach (['admin_users', 'players', 'purchases', 'pages', 'packages', 'settings'] as $t) {
+                try {
+                    if (!$pdo->query("SHOW TABLES LIKE " . $pdo->quote($t))->fetch()) continue;
+                    $n = (int) $pdo->query("SELECT COUNT(*) FROM `$t`")->fetchColumn();
+                    if ($n > 0) {
+                        $errors[] = "Esse banco JÁ TEM dados (tabela <code>$t</code> com $n registro(s)). "
+                                  . "O instalador NÃO vai rodar pra não apagar o que existe. "
+                                  . "Se a intenção é <strong>atualizar</strong>, NÃO use o install.php: "
+                                  . "suba os arquivos novos e rode <code>php cli/migrate.php</code>. "
+                                  . "Pra instalar do zero de verdade, use um banco vazio.";
+                        break;
+                    }
+                } catch (\Throwable $e) { /* tabela não existe ou inacessível — segue */ }
             }
         } catch (PDOException $e) {
             $errors[] = 'Erro ao conectar no banco: ' . htmlspecialchars($e->getMessage());

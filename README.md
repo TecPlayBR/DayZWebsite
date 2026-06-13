@@ -131,17 +131,20 @@ Atualizar pra uma versão nova **nunca apaga seus dados nem sua personalização
 
 Ao subir os arquivos novos, **pule / não sobrescreva**:
 
-| Item | O que é |
-|---|---|
-| `config/config.php` | suas credenciais de banco, tokens, Mercado Pago |
-| `public/assets/css/theme.override.css` | suas cores (do painel Personalização) |
-| `public/assets/img/custom/` | seu logo, favicon e backgrounds enviados pelo painel |
-| `public/assets/img/gallery/` | suas screenshots da galeria |
-| `storage/` | cache, logs, backups e rate-limit |
-| `.htaccess` | **se você editou à mão** (HTTPS forçado, regras próprias) |
-| `lang/pt-br.php` / `lang/en-us.php` | **só se você editou os textos à mão** — nesse caso faça backup e re-aplique depois (ou customize textos pelo painel, que é à prova de update) |
+| Item | O que é | Vem no ZIP? |
+|---|---|---|
+| `config/config.php` | suas credenciais de banco, tokens, Mercado Pago | ❌ não (gitignored) |
+| `public/assets/css/theme.override.css` | suas cores (painel Personalização) | ❌ não |
+| `public/assets/img/custom/` | logo/favicon/backgrounds enviados pelo **painel** | ❌ não |
+| `public/assets/img/gallery/` | suas screenshots da galeria | ❌ não |
+| `storage/` | cache, logs, backups, rate-limit | ❌ não |
+| `.htaccess` | **se você editou à mão** (HTTPS, regras próprias) | ⚠️ vem um padrão |
+| `lang/pt-br.php` · `lang/en-us.php` | **só se editou textos à mão** (melhor usar o painel) | ⚠️ vem |
+| **`public/assets/img/logo*.png`, `background*.png`, `favicon.ico`** | **logos/fundos trocados DIRETO no arquivo (método antigo)** | ⚠️ **VÊM e sobrescrevem!** |
 
-> Tudo isso já vem no `.gitignore` — se você baixou o ZIP do GitHub, esses arquivos do cliente **nem estão no pacote**, então um upload normal não os toca. A atenção é só pra não copiá-los por cima manualmente.
+> ✅ Os 5 primeiros são **gitignored** — nem estão no ZIP do GitHub, então um upload normal **não os toca**.
+> ⚠️ Os 3 últimos **vêm no pacote**. Em especial: **se você trocou seu logo/fundo substituindo o arquivo direto** em `assets/img/` (método antigo), faça **backup deles antes** ou eles voltam pro padrão do template.
+> 💡 **A prova de update de vez:** mande seu logo/favicon/fundos e cores pelo painel **Admin → Personalização** — eles passam a ficar em `custom/` (gitignored) e **nunca mais** são sobrescritos por nenhum update.
 
 ### Passo a passo
 
@@ -157,7 +160,7 @@ Ao subir os arquivos novos, **pule / não sobrescreva**:
 4. **Confira o deploy:** abra `https://seusite.com/verificar.php` — checklist verde/vermelho do que subiu (não expõe segredo). Algo vermelho? Reenvie só aquela pasta. **Apague o `verificar.php` depois.**
 5. Acesse o `/admin` e confira home, loja e login.
 
-> ⚠️ O `install.php` é **só pra instalação do ZERO** — ele **NÃO atualiza** e, se rodado por engano num site já instalado, dá `Já instalado`. Atualizar = subir arquivos **+ `php cli/migrate.php`**.
+> 🚨 **NUNCA use o `install.php` pra atualizar, e NUNCA apague o `config.php` pra "reinstalar".** O `install.php` é **só pra instalação do ZERO**. Num site já instalado ele se recusa a rodar (`Já instalado`) — mas se você apagar o `config.php` pra forçar, ele roda do zero e **pode apagar tudo o que você tem** (páginas, pacotes, jogadores, configs). Pra atualizar é **sempre**: subir arquivos (respeitando a Regra de Ouro) **+ `php cli/migrate.php`**. Nunca o install.
 
 ## 🔑 Esqueci a senha do admin (recuperação)
 
