@@ -357,6 +357,15 @@ $siteName = $config['settings']['site_name'] ?? $config['site_name'] ?? 'DayZ';
     letter-spacing: 0.05em;
 }
 .pack-buy { width: 100%; }
+.pack-input.invalid { border-color: var(--rust-2) !important; box-shadow: 0 0 0 2px var(--danger-overlay, rgba(231,57,70,0.2)); }
+.btn.loading { position: relative; color: transparent !important; pointer-events: none; opacity: 0.85; }
+.btn.loading::after {
+    content: ''; position: absolute; top: 50%; left: 50%;
+    width: 16px; height: 16px; margin: -8px 0 0 -8px;
+    border: 2px solid rgba(255,255,255,0.35); border-top-color: #fff;
+    border-radius: 50%; animation: btn-spin 0.7s linear infinite;
+}
+@keyframes btn-spin { to { transform: rotate(360deg); } }
 
 .shop-note {
     text-align: center;
@@ -508,6 +517,8 @@ document.querySelectorAll('[data-wish]').forEach(btn => {
     if (!cb) return;
     document.querySelectorAll('[data-shop-form]').forEach(f => {
         f.addEventListener('submit', e => {
+            // Anti duplo-clique: se já está enviando, ignora.
+            if (f.dataset.submitting === '1') { e.preventDefault(); return false; }
             if (!cb.checked) {
                 e.preventDefault();
                 termsBox.classList.remove('shake');
@@ -527,6 +538,19 @@ document.querySelectorAll('[data-wish]').forEach(btn => {
                 const manual = couponInput ? couponInput.value.trim() : '';
                 couponFlag.value = manual !== '' ? manual : promoCode;
             }
+            // Estado de carregamento (feedback + trava duplo-submit). Usa classe, não
+            // disabled, pra não atrapalhar o envio do form.
+            f.dataset.submitting = '1';
+            const buyBtn = f.querySelector('button[type="submit"]');
+            if (buyBtn) { buyBtn.classList.add('loading'); buyBtn.setAttribute('aria-busy', 'true'); }
+        });
+    });
+
+    // Validação inline do SteamID — feedback imediato (SteamID errado = entrega no player errado).
+    document.querySelectorAll('.pack-input[name="steam_id"]').forEach(inp => {
+        inp.addEventListener('input', () => {
+            const v = inp.value.trim();
+            inp.classList.toggle('invalid', v !== '' && !/^7656119\d{10}$/.test(v));
         });
     });
 })();

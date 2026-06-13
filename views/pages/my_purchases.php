@@ -264,7 +264,7 @@ if (!empty($_GET['err'])) {
 .badge-danger  { background: var(--danger-overlay);  color: var(--text-danger); }
 .badge-info    { background: rgba(160,160,160,0.2);color: var(--dim); }
 
-@media (max-width: 600px) { .hide-mobile { display: none; } }
+@media (max-width: 760px) { .hide-mobile { display: none; } }
 
 .review-modal {
     position: fixed; inset: 0; z-index: 9999;
