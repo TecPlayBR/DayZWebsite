@@ -80,6 +80,11 @@ $GLOBALS['__config_for_errors'] = &$config; // pro handler de erro acessar
 
 // Garante charset UTF-8 em todas as respostas HTML (defesa em profundidade)
 header('Content-Type: text/html; charset=utf-8');
+// Headers de segurança (defesa em profundidade): anti-MIME-sniffing, anti-clickjacking,
+// e Referrer-Policy pra não vazar URL completa pra terceiros.
+header('X-Content-Type-Options: nosniff');
+header('X-Frame-Options: SAMEORIGIN');
+header('Referrer-Policy: strict-origin-when-cross-origin');
 
 // Cookies de sessao com flags de seguranca (Secure, HttpOnly, SameSite=Lax)
 $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
@@ -410,6 +415,15 @@ if (!empty($config['db'])) {
 \App\Router::post('/api/newsletter-subscribe', function() use ($config) {
     header('Content-Type: application/json; charset=utf-8');
 
+    // Same-origin: bloqueia POST cross-site (anti-abuso usando o browser de uma vítima).
+    // Origin só vem em POST de browser; se ausente (cliente não-browser), cai no rate-limit.
+    $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+    if ($origin !== '' && parse_url($origin, PHP_URL_HOST) !== ($_SERVER['HTTP_HOST'] ?? '')) {
+        http_response_code(403);
+        echo json_encode(['ok' => false, 'error' => 'bad_origin']);
+        return;
+    }
+
     // Rate-limit por IP — anti-bot e anti-scrape. 10/hora basta pra usuario real.
     $ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? 'unknown';
     $rl = \App\RateLimit::check('newsletter:' . $ip, 10, 3600);
@@ -475,17 +489,28 @@ if (!empty($config['db'])) {
     // Configura no /admin/settings ⇒ newsletter_forward_url. Falha silenciosa, nao quebra UX.
     $fwdUrl = $config['settings']['newsletter_forward_url'] ?? '';
     if ($fwdUrl !== '' && filter_var($fwdUrl, FILTER_VALIDATE_URL)) {
-        $ch = curl_init($fwdUrl);
-        curl_setopt_array($ch, [
-            CURLOPT_POST           => true,
-            CURLOPT_POSTFIELDS     => http_build_query(['email' => $email, 'source' => $source]),
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT        => 5,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_SSL_VERIFYPEER => true,
-        ]);
-        @curl_exec($ch);
-        curl_close($ch);
+        // Anti-SSRF: resolve o host e bloqueia IP privado/reservado (localhost, rede
+        // interna, metadata de cloud). Sem FOLLOWLOCATION (redirect pra IP interno) e
+        // com VERIFYHOST=2 (evita MITM). Forward é best-effort: bloquear não quebra UX.
+        $fwdHost = parse_url($fwdUrl, PHP_URL_HOST) ?: '';
+        $fwdIp   = filter_var($fwdHost, FILTER_VALIDATE_IP) ? $fwdHost : gethostbyname($fwdHost);
+        $publicIp = $fwdIp && filter_var($fwdIp, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false;
+        if (!$publicIp) {
+            error_log('[newsletter] forward bloqueado (IP privado/reservado ou host não resolvido): ' . $fwdHost);
+        } else {
+            $ch = curl_init($fwdUrl);
+            curl_setopt_array($ch, [
+                CURLOPT_POST           => true,
+                CURLOPT_POSTFIELDS     => http_build_query(['email' => $email, 'source' => $source]),
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT        => 5,
+                CURLOPT_FOLLOWLOCATION => false,
+                CURLOPT_SSL_VERIFYPEER => true,
+                CURLOPT_SSL_VERIFYHOST => 2,
+            ]);
+            @curl_exec($ch);
+            curl_close($ch);
+        }
     }
 
     echo json_encode(['ok' => true]);
