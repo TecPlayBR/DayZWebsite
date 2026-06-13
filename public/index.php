@@ -80,6 +80,9 @@ if (!file_exists($configFile)) {
 $config = file_exists($configFile) ? require $configFile : [];
 $GLOBALS['__config_for_errors'] = &$config; // pro handler de erro acessar
 
+// Fuso horário do site (datas exibidas no fuso certo, não UTC). Brasil por padrão.
+date_default_timezone_set($config['timezone'] ?? 'America/Sao_Paulo');
+
 // Garante charset UTF-8 em todas as respostas HTML (defesa em profundidade)
 header('Content-Type: text/html; charset=utf-8');
 // Headers de segurança (defesa em profundidade): anti-MIME-sniffing, anti-clickjacking,
@@ -124,6 +127,10 @@ if ($currentLog === '' || $currentLog === 'syslog' || stripos($currentLog, 'xamp
 if (!empty($config['db'])) {
     \App\Database::init($config['db']);
 
+    // Alinha o fuso da SESSÃO MySQL com o do PHP (offset, ex: -03:00) pra NOW()
+    // gravar e exibir no mesmo fuso. Offset (não nome) p/ não depender das tz tables.
+    try { \App\Database::query("SET time_zone = ?", [(new \DateTime('now'))->format('P')]); } catch (\Throwable $e) {}
+
     // Carrega settings do DB e injeta no $config pra views usarem
     try {
         $dbSettings = \App\Database::fetchAll("SELECT `key`, `value` FROM settings");
@@ -148,6 +155,9 @@ $config['delivery_active'] = \App\Settings::deliveryActive();
 
 // CFTools Cloud (leaderboard/stats de gameplay) — o site consulta direto, com cache.
 \App\CFTools::init($config['cftools'] ?? [], $ROOT . '/storage/cache');
+
+// Sessão Steam: completa nome/foto se faltar (sessões antigas / fetch que falhou no login).
+\App\SteamAuth::enrich($config['steam_api_key'] ?? null);
 
 // i18n
 \App\Lang::init(
@@ -425,6 +435,26 @@ $config['delivery_active'] = \App\Settings::deliveryActive();
     $bmId = $config['settings']['battlemetrics_id'] ?? null;
     $status  = \App\ServerStatus::fetch($bmId);
     $players = \App\ServerStatus::fetchPlayers($bmId, 60);
+
+    // CFTools dá os players online em TEMPO REAL (BattleMetrics atrasa minutos).
+    // Quando configurado E há alguém online, prevalece pra lista e contagem.
+    if (\App\CFTools::isConfigured()) {
+        $cfOnline = \App\CFTools::onlinePlayers();
+        if (!empty($cfOnline)) {
+            $mapped = [];
+            foreach ($cfOnline as $row) {
+                $since = $row['since'] ?? null;
+                $connectedAt = is_numeric($since) ? (int)$since : ($since ? strtotime((string)$since) : null);
+                $mapped[] = ['name' => $row['name'] ?? 'Sobrevivente', 'connected_at' => $connectedAt ?: null];
+            }
+            $players = $mapped;
+            $status['configured'] = true;
+            $status['online']     = true;
+            $status['players']    = count($mapped);
+            $status['source']     = 'cftools';
+        }
+    }
+
     \App\View::display('pages.server_status', [
         'config' => $config, 'status' => $status, 'players' => $players,
     ]);

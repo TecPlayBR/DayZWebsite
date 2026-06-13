@@ -91,8 +91,12 @@
             <?php endif; ?>
 
             <p class="status-meta">
-                Dados atualizados a cada 60s via BattleMetrics.
-                Última atualização: <?= e(time_ago($status['fetched_at'])) ?>
+                <?php if (($status['source'] ?? '') === 'cftools'): ?>
+                    Jogadores online em tempo real via CFTools.
+                <?php else: ?>
+                    Dados atualizados a cada 60s via BattleMetrics.
+                <?php endif; ?>
+                Última atualização: <?= e(time_ago($status['fetched_at'] ?? time())) ?>
             </p>
 
         <?php endif; ?>

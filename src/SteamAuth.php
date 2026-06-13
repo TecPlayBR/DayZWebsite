@@ -92,6 +92,24 @@ class SteamAuth {
         unset($_SESSION[self::SESSION_KEY]);
     }
 
+    /**
+     * Enriquece a sessão com nome/foto se estiverem faltando (ex: sessão antiga,
+     * criada antes do enrichment, ou login cujo fetch falhou). Roda UMA vez por
+     * sessão (flag _enriched) pra não bater no Steam a cada page load.
+     */
+    public static function enrich(?string $apiKey): void {
+        if (empty($_SESSION[self::SESSION_KEY]['steam_id'])) return;
+        $u = &$_SESSION[self::SESSION_KEY];
+        if (!empty($u['display_name']) && !empty($u['avatar'])) return;
+        if (!empty($u['_enriched'])) return;
+        $u['_enriched'] = time();
+        $p = self::fetchProfile($u['steam_id'], $apiKey);
+        if ($p) {
+            if (empty($u['display_name']) && !empty($p['display_name'])) $u['display_name'] = $p['display_name'];
+            if (empty($u['avatar']) && !empty($p['avatar']))             $u['avatar']       = $p['avatar'];
+        }
+    }
+
     public static function check(): bool {
         return !empty($_SESSION[self::SESSION_KEY]['steam_id']);
     }
