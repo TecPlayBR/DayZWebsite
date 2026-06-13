@@ -2379,6 +2379,57 @@ $BRAND_SLOTS = [
     exit;
 });
 
+\App\Router::get('/admin/sparda', function() use ($config) {
+    \App\Auth::requireCan('servers');
+
+    $token = (string) ($config['agent_token'] ?? '');
+    $tokenMasked = '';
+    if ($token !== '') {
+        $tokenMasked = strlen($token) > 8
+            ? substr($token, 0, 4) . str_repeat('•', max(0, strlen($token) - 8)) . substr($token, -4)
+            : str_repeat('•', strlen($token));
+    }
+
+    $lastSync = (int) \App\Settings::get('sparda_last_sync', 0);
+    $age = $lastSync > 0 ? (time() - $lastSync) : PHP_INT_MAX;
+    if ($age < 1800) {
+        $statusColor = 'var(--moss)'; $statusLabel = '🟢 Ativa';
+    } elseif ($age < 86400) {
+        $statusColor = '#f59e0b'; $statusLabel = '🟡 Inativa recente';
+    } else {
+        $statusColor = '#dc2626'; $statusLabel = $lastSync > 0 ? '🔴 Sem sincronizar' : '⚫ Nunca usada';
+    }
+
+    $publicUrl = rtrim(($config['app_url'] ?? ('https://' . ($_SERVER['HTTP_HOST'] ?? 'localhost'))), '/');
+    $tok = rawurlencode($token);
+    $apiGet  = $publicUrl . '/api/getcoins.php?token=' . $tok;
+    $apiPost = $publicUrl . '/api/postcoins.php?token=' . $tok;
+    $jsonSnippet = "\"EnableWebsiteAPI\": 1,\n\"Api_Get\": \"" . $apiGet . "&steamid=#STEAMID#\",\n\"Api_Post\": \"" . $apiPost . "\"";
+
+    $log = [];
+    try {
+        $log = \App\Database::fetchAll(
+            "SELECT created_at, steam_id, balance_before, balance_after
+             FROM balance_log WHERE source = 'sparda' ORDER BY id DESC LIMIT 10"
+        );
+    } catch (\Throwable $e) {
+        $log = [];
+    }
+
+    \App\View::display('admin.sparda', [
+        'config'      => $config,
+        'token'       => $token,
+        'tokenMasked' => $tokenMasked,
+        'apiGet'      => $apiGet,
+        'apiPost'     => $apiPost,
+        'jsonSnippet' => $jsonSnippet,
+        'lastSync'    => $lastSync,
+        'statusColor' => $statusColor,
+        'statusLabel' => $statusLabel,
+        'log'         => $log,
+    ]);
+});
+
 \App\Router::get('/admin/players/{id}', function($id) use ($config) {
     \App\Auth::requireCan('players');
     $player = \App\Database::fetchOne("SELECT * FROM players WHERE id = ? LIMIT 1", [(int)$id]);
