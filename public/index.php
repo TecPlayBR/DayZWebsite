@@ -2180,7 +2180,8 @@ $BRAND_SLOTS = [
     $coupons = \App\Database::fetchAll(
         "SELECT * FROM coupons ORDER BY active DESC, created_at DESC"
     );
-    \App\View::display('admin.coupons', ['config' => $config, 'coupons' => $coupons]);
+    $packages = \App\Database::fetchAll("SELECT id, name FROM packages ORDER BY sort_order ASC");
+    \App\View::display('admin.coupons', ['config' => $config, 'coupons' => $coupons, 'packages' => $packages]);
 });
 
 \App\Router::post('/admin/coupons/create', function() use ($config) {
@@ -2193,6 +2194,15 @@ $BRAND_SLOTS = [
     $validFrom  = trim($_POST['valid_from']  ?? '') ?: null;
     $validUntil = trim($_POST['valid_until'] ?? '') ?: null;
     $notes = trim($_POST['notes'] ?? '') ?: null;
+    // Restrição por pacote (opcional): nenhum marcado = vale pra TODOS (null).
+    // Só aceita ids que existem de verdade (defesa).
+    $packageIds = null;
+    $sel = $_POST['package_ids'] ?? [];
+    if (is_array($sel) && $sel) {
+        $validIds = array_column(\App\Database::fetchAll("SELECT id FROM packages"), 'id');
+        $keep = array_values(array_intersect($validIds, $sel));
+        if ($keep) $packageIds = json_encode($keep);
+    }
 
     if (!$code || strlen($code) < 3) {
         header('Location: /admin/coupons?err=code'); exit;
@@ -2201,9 +2211,9 @@ $BRAND_SLOTS = [
 
     try {
         \App\Database::query(
-            "INSERT INTO coupons (code, discount_type, discount_value, max_uses, valid_from, valid_until, notes, active)
-             VALUES (?, ?, ?, ?, ?, ?, ?, 1)",
-            [$code, $type, $value, $maxUses, $validFrom, $validUntil, $notes]
+            "INSERT INTO coupons (code, discount_type, discount_value, max_uses, valid_from, valid_until, notes, package_ids, active)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)",
+            [$code, $type, $value, $maxUses, $validFrom, $validUntil, $notes, $packageIds]
         );
         \App\AuditLog::record('coupon.created', 'coupon', $code, [
             'type' => $type, 'value' => $value, 'max_uses' => $maxUses,

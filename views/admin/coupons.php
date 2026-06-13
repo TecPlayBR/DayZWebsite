@@ -23,6 +23,7 @@ $okMsg = match($ok) {
     'deleted'  => 'Cupom removido.',
     default => null,
 };
+$pkgMap = array_column($packages ?? [], 'name', 'id');
 ?>
 <?php if ($errMsg): ?>
     <div style="background:var(--danger-overlay);border-left:3px solid var(--rust-2);padding:0.8rem 1rem;margin-bottom:1.5rem;color:var(--text-danger);"><?= e($errMsg) ?></div>
@@ -58,6 +59,19 @@ $okMsg = match($ok) {
                    style="width:100%; padding:0.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone);">
         </div>
     </div>
+    <?php if (!empty($packages)): ?>
+    <div style="margin-bottom: 0.8rem;">
+        <label style="display:block; font-size:0.75rem; color:var(--dim); margin-bottom:0.4rem; text-transform: uppercase;">Vale só pra estes pacotes <small>(opcional — nada marcado = todos)</small></label>
+        <div style="display:flex; flex-wrap:wrap; gap:0.9rem;">
+            <?php foreach ($packages as $pk): ?>
+                <label style="display:flex; align-items:center; gap:0.35rem; font-size:0.85rem; color:var(--bone); cursor:pointer;">
+                    <input type="checkbox" name="package_ids[]" value="<?= e($pk['id']) ?>"> <?= e($pk['name']) ?>
+                </label>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <?php endif; ?>
+
     <div style="display: grid; grid-template-columns: 1fr 1fr 2fr auto; gap: 0.8rem; align-items: end;">
         <div>
             <label style="display:block; font-size:0.75rem; color:var(--dim); margin-bottom:0.3rem; text-transform: uppercase;">Válido a partir <small>(opcional)</small></label>
@@ -95,7 +109,13 @@ $okMsg = match($ok) {
             <tr><td colspan="7" style="text-align:center;color:var(--dim);padding:2rem;">Nenhum cupom ainda.</td></tr>
         <?php else: foreach ($coupons as $c): ?>
             <tr>
-                <td><strong class="mono" style="color: var(--hazard); user-select: all;"><?= e($c['code']) ?></strong></td>
+                <td>
+                    <strong class="mono" style="color: var(--hazard); user-select: all;"><?= e($c['code']) ?></strong>
+                    <?php $cpids = !empty($c['package_ids']) ? (json_decode($c['package_ids'], true) ?: []) : []; ?>
+                    <?php if ($cpids): ?>
+                        <div class="dim" style="font-size:0.72rem;">só: <?= e(implode(', ', array_map(fn($id) => $pkgMap[$id] ?? $id, $cpids))) ?></div>
+                    <?php endif; ?>
+                </td>
                 <td>
                     <?php if ($c['discount_type'] === 'percent'): ?>
                         <span style="color: var(--rust-2); font-family: var(--font-display); font-size: 1.1rem;"><?= rtrim(rtrim(number_format((float)$c['discount_value'], 2, ',', ''), '0'), ',') ?>%</span>
