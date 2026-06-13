@@ -1,4 +1,12 @@
-<?php /** @var array $config, $top */ ?>
+<?php /** @var array $config; @var string $mode; @var array $gameplay_stats; @var bool $cftools_on */ ?>
+<?php
+$mode           = $mode ?? 'invest';
+$top            = $top ?? [];
+$lb             = $lb ?? [];
+$gameplay_stats = $gameplay_stats ?? [];
+$cftools_on     = $cftools_on ?? false;
+$stat           = $stat ?? 'invest';
+?>
 <?php \App\View::extend('layouts.main'); ?>
 <?php \App\View::with('hero_image', 'img/background5.png'); // LCP preload sync ?>
 <?php \App\View::section('content'); ?>
@@ -8,14 +16,53 @@
     <div class="container hero-content">
         <span class="hero-kicker">// HALL OF FAME</span>
         <h1 class="hero-title">Os <span class="accent">Sobreviventes</span><br>Mais Resistentes.</h1>
-        <p class="hero-subtitle">Ranking dos jogadores que mais investiram no servidor. Cada centavo trocado por mais chance de continuar inteiro.</p>
+        <p class="hero-subtitle"><?= $mode === 'gameplay' ? 'Os melhores do servidor em combate — direto do jogo.' : 'Ranking dos jogadores que mais investiram no servidor. Cada centavo trocado por mais chance de continuar inteiro.' ?></p>
     </div>
 </section>
 
 <section class="section section-bg-2">
     <div class="container">
 
-        <?php if (empty($top)): ?>
+        <!-- Abas -->
+        <?php if ($cftools_on): ?>
+            <div class="rank-tabs">
+                <a class="rank-tab <?= $mode === 'invest' ? 'active' : '' ?>" href="/ranking">Investimento</a>
+                <?php foreach ($gameplay_stats as $sk => $sl): ?>
+                    <a class="rank-tab <?= ($mode === 'gameplay' && $stat === $sk) ? 'active' : '' ?>" href="/ranking?stat=<?= e($sk) ?>"><?= e($sl) ?></a>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if ($mode === 'gameplay'): ?>
+            <?php if (empty($lb)): ?>
+                <div style="text-align:center; padding:4rem 1rem; color:var(--dim);">
+                    <p>Ainda sem dados de <strong><?= e($gameplay_stats[$stat] ?? $stat) ?></strong> — o servidor pode não ter estatísticas registradas ainda.</p>
+                </div>
+            <?php else: ?>
+                <table class="ranking-table">
+                    <thead><tr><th style="width:60px;">#</th><th>Jogador</th><th><?= e($gameplay_stats[$stat] ?? $stat) ?></th></tr></thead>
+                    <tbody>
+                        <?php foreach ($lb as $i => $p):
+                            $pos  = (int)($p['rank'] ?? $i + 1);
+                            $name = $p['latest_name'] ?? '?';
+                            $raw  = $p[$stat] ?? 0;
+                            if ($stat === 'playtime')       { $val = intdiv((int)$raw, 3600) . 'h ' . intdiv((int)$raw % 3600, 60) . 'm'; }
+                            elseif ($stat === 'kdratio')    { $val = number_format((float)$raw, 2, ',', '.'); }
+                            elseif ($stat === 'longest_kill') { $val = (int)$raw . ' m'; }
+                            else                            { $val = number_format((int)$raw, 0, ',', '.'); }
+                        ?>
+                            <tr>
+                                <td class="rank-num"><?= $i < 3 ? ['🥇','🥈','🥉'][$i] : '#' . $pos ?></td>
+                                <td><strong><?= e($name) ?></strong></td>
+                                <td class="rank-spent"><?= e($val) ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+                <p style="text-align:center; margin-top:2rem; color:var(--dim); font-size:.85rem;">Dados do servidor via CFTools · atualiza a cada poucos minutos</p>
+            <?php endif; ?>
+
+        <?php elseif (empty($top)): ?>
             <div style="text-align: center; padding: 4rem 1rem;">
                 <p style="color: var(--dim); margin-bottom: 1.5rem;">O ranking ainda está vazio. Seja o primeiro a entrar pra história.</p>
                 <a href="/shop" class="btn">Comprar e dominar →</a>
@@ -85,6 +132,14 @@
 </section>
 
 <style>
+.rank-tabs { display:flex; flex-wrap:wrap; gap:.5rem; margin-bottom:2rem; justify-content:center; }
+.rank-tab {
+    padding:.5rem 1rem; border:1px solid var(--border); border-radius:3px;
+    color:var(--dim); text-decoration:none; font-size:.85rem; letter-spacing:.03em;
+    background:var(--bg-1); transition:all .15s;
+}
+.rank-tab:hover { color:var(--bone); border-color:var(--rust); }
+.rank-tab.active { background:var(--rust); color:var(--bone); border-color:var(--rust); }
 .podium {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;

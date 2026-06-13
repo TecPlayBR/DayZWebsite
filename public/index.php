@@ -310,6 +310,26 @@ if (!empty($config['db'])) {
 });
 
 \App\Router::get('/ranking', function() use ($config) {
+    // Abas de gameplay (CFTools) + a aba padrão de investimento (dados do site).
+    $gameplayStats = [
+        'kills'        => 'Kills',
+        'kdratio'      => 'K/D',
+        'playtime'     => 'Tempo online',
+        'longest_kill' => 'Kill mais longa',
+        'deaths'       => 'Mortes',
+    ];
+    $cfOn = \App\CFTools::isConfigured();
+    $stat = (string)($_GET['stat'] ?? 'invest');
+
+    if ($stat !== 'invest' && isset($gameplayStats[$stat]) && $cfOn) {
+        $lb = \App\CFTools::leaderboard($stat, 50) ?: [];
+        \App\View::display('pages.ranking', [
+            'config' => $config, 'mode' => 'gameplay', 'stat' => $stat,
+            'gameplay_stats' => $gameplayStats, 'cftools_on' => true, 'lb' => $lb,
+        ]);
+        return;
+    }
+
     $top = \App\Database::fetchAll(
         "SELECT steam_id, display_name, total_spent_brl, coins, last_seen_at
            FROM players
@@ -317,7 +337,10 @@ if (!empty($config['db'])) {
           ORDER BY total_spent_brl DESC
           LIMIT 50"
     );
-    \App\View::display('pages.ranking', ['config' => $config, 'top' => $top]);
+    \App\View::display('pages.ranking', [
+        'config' => $config, 'mode' => 'invest', 'top' => $top,
+        'gameplay_stats' => $gameplayStats, 'cftools_on' => $cfOn,
+    ]);
 });
 
 // Perfil público de jogador. Usa dados REAIS que já temos (players/purchases) +
