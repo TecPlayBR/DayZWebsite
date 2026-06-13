@@ -9,7 +9,7 @@
             <span class="hero-kicker" style="margin-left:auto; margin-right:auto; border-left-color: var(--moss); color: var(--moss); background: rgba(90,108,78,0.08);">// <?= e(__('checkout.success_kicker')) ?></span>
             <h1 class="hero-title"><?= e(__('checkout.success_title1')) ?><br><span class="accent" style="color: var(--moss);"><?= e(__('checkout.success_title2')) ?></span></h1>
             <p class="hero-subtitle" style="margin: 0 auto;">
-                <?= ($config['delivery_active'] ?? false) ? __('checkout.success_text') : __('checkout.success_text_manual', [], 'Pagamento confirmado e moedas creditadas! A liberação dentro do jogo é feita pelo servidor (Agent/Bot) após a confirmação.') ?><br>
+                <?= ($config['delivery_active'] ?? false) ? __('checkout.success_text') : __('checkout.success_text_manual', [], locale() === 'en-us' ? 'Payment confirmed and coins credited! In-game release is handled by the server (Agent/Bot) after confirmation.' : 'Pagamento confirmado e moedas creditadas! A liberação dentro do jogo é feita pelo servidor (Agent/Bot) após a confirmação.') ?><br>
                 <em style="color: var(--dim);"><?= __('checkout.success_relog') ?></em>
             </p>
         <?php elseif ($status === 'pending'): ?>

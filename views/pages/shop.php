@@ -34,7 +34,7 @@ $siteName = $config['settings']['site_name'] ?? $config['site_name'] ?? 'DayZ';
 <section class="hero" style="min-height: 50vh; padding-bottom: 2rem;">
     <div class="hero-bg" style="background-image: linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.95) 100%), url('<?= asset('img/background3.png') ?>');"></div>
     <div class="container hero-content">
-        <span class="hero-kicker">// <?= e(($config['delivery_active'] ?? false) ? __('shop.subtitle') : __('shop.subtitle_manual', [], 'Pague com PIX, boleto ou cartão. Liberação após a confirmação.')) ?></span>
+        <span class="hero-kicker">// <?= e(($config['delivery_active'] ?? false) ? __('shop.subtitle') : __('shop.subtitle_manual', [], locale() === 'en-us' ? 'Pay with PIX, card or boleto. Released after confirmation.' : 'Pague com PIX, boleto ou cartão. Liberação após a confirmação.')) ?></span>
         <h1 class="hero-title"><?= e(__('shop.title')) ?></h1>
     </div>
 </section>
@@ -177,7 +177,7 @@ $siteName = $config['settings']['site_name'] ?? $config['site_name'] ?? 'DayZ';
         </div>
 
         <p class="shop-note">
-            🔒 <strong>Mercado Pago</strong><?= ($config['delivery_active'] ?? false) ? __('shop.auto_delivery') : __('shop.delivery_manual', [], ' — a entrega das moedas no jogo é feita pelo servidor (Agent/Bot) após a confirmação.') ?><br>
+            🔒 <strong>Mercado Pago</strong><?= ($config['delivery_active'] ?? false) ? __('shop.auto_delivery') : __('shop.delivery_manual', [], locale() === 'en-us' ? ' — in-game coin delivery is handled by the server (Agent/Bot) after confirmation.' : ' — a entrega das moedas no jogo é feita pelo servidor (Agent/Bot) após a confirmação.') ?><br>
             <?= __('shop.steamid_warning') ?>
         </p>
     </div>
