@@ -889,8 +889,10 @@ $config['delivery_active'] = \App\Settings::deliveryActive();
 \App\Router::get('/admin/reviews', function() use ($config) {
     \App\Auth::requireCan('reviews');
     $filter = $_GET['filter'] ?? 'pending';
+    // LEFT JOIN: depoimentos PÚBLICOS têm purchase_id NULL — com INNER JOIN eles
+    // sumiam do painel (admin nunca via/aprovava). LEFT JOIN traz os dois tipos.
     $sql = "SELECT r.*, p.package_id, p.price_brl
-              FROM reviews r JOIN purchases p ON p.id = r.purchase_id";
+              FROM reviews r LEFT JOIN purchases p ON p.id = r.purchase_id";
     if ($filter === 'pending')  $sql .= " WHERE r.approved = 0";
     if ($filter === 'approved') $sql .= " WHERE r.approved = 1";
     $sql .= " ORDER BY r.created_at DESC LIMIT 100";

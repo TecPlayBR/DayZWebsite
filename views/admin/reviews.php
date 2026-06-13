@@ -30,8 +30,12 @@
                         <strong style="color: var(--bone); font-family: var(--font-mono);"><?= e($r['display_name'] ?? 'Anônimo') ?></strong>
                         <span class="dim" style="font-family: var(--font-mono); font-size: 0.75rem; margin-left: 0.5rem;"><?= e($r['steam_id']) ?></span>
                         <div style="color: var(--dim); font-size: 0.75rem; margin-top: 0.2rem;">
-                            Pacote <strong style="color: var(--bone);"><?= e($r['package_id']) ?></strong> · R$ <?= number_format((float)$r['price_brl'], 2, ',', '.') ?>
-                            · <?= e($r['created_at']) ?>
+                            <?php if (!empty($r['purchase_id'])): ?>
+                                Pacote <strong style="color: var(--bone);"><?= e($r['package_id']) ?></strong> · R$ <?= number_format((float)$r['price_brl'], 2, ',', '.') ?>
+                            <?php else: ?>
+                                <span style="color:var(--hazard);">📝 Depoimento público</span>
+                            <?php endif; ?>
+                            · <?= e(fmt_dt($r['created_at'])) ?>
                         </div>
                     </div>
                     <div style="color: var(--hazard); font-size: 1.2rem; letter-spacing: 0.05em;">
