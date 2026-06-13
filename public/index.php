@@ -508,7 +508,14 @@ $config['restart'] = \App\Restart::summary();
     $box = \App\Boxes::find($slug);
     if (!$box) { http_response_code(404); echo json_encode(['ok' => false, 'error' => 'Caixa não encontrada.']); return; }
 
-    $res = \App\Boxes::open($box, $steamId);
+    try {
+        $res = \App\Boxes::open($box, $steamId);
+    } catch (\Throwable $e) {
+        error_log('[caixas] open: ' . $e->getMessage());
+        http_response_code(500);
+        echo json_encode(['ok' => false, 'error' => 'Erro ao abrir a caixa. Tente de novo.']);
+        return;
+    }
     if (!$res['ok']) { echo json_encode(['ok' => false, 'error' => $res['error']]); return; }
 
     $won = $res['won'];

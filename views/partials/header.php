@@ -11,9 +11,8 @@
         <nav>
             <ul class="nav-main">
                 <li><a href="/"><?= e(__('nav.home')) ?></a></li>
-                <li><a href="/#features"><?= e(__('nav.features')) ?></a></li>
                 <li><a href="/shop"><?= e(__('nav.shop')) ?></a></li>
-                <li><a href="/caixas"><?= e(__('nav.boxes') ?: 'Caixas') ?></a></li>
+                <li><a href="/caixas">Caixas</a></li>
                 <?php if (\App\Servers::isMulti()): ?>
                     <li><a href="/servidores"><?= e(__('nav.servers') ?: 'Servidores') ?></a></li>
                 <?php endif; ?>
@@ -92,9 +91,8 @@
 <aside class="mobile-drawer" id="mobile-drawer" aria-hidden="true">
     <ul>
         <li><a href="/" data-close><?= e(__('nav.home')) ?></a></li>
-        <li><a href="/#features" data-close><?= e(__('nav.features')) ?></a></li>
         <li><a href="/shop" data-close><?= e(__('nav.shop')) ?></a></li>
-        <li><a href="/caixas" data-close><?= e(__('nav.boxes') ?: 'Caixas') ?></a></li>
+        <li><a href="/caixas" data-close>Caixas</a></li>
         <?php if (\App\Servers::isMulti()): ?>
             <li><a href="/servidores" data-close><?= e(__('nav.servers') ?: 'Servidores') ?></a></li>
         <?php endif; ?>
