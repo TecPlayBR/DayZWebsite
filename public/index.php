@@ -1732,9 +1732,144 @@ $collectDashboardData = function() {
     ]);
 });
 
-\App\Router::get('/admin/customize', function() use ($config) {
+\App\Router::get('/admin/customize', function() use ($config, $ROOT) {
     \App\Auth::requireCan('customize');
-    \App\View::display('admin.customize', ['config' => $config]);
+    // Detecta quais imagens de marca já têm versão custom ativa (pra UI mostrar
+    // status + botão de reset). Casa por nome-base sem extensão, como o asset().
+    $customDir = $ROOT . '/public/assets/img/custom';
+    $isCustom = function(string $slot) use ($customDir): bool {
+        $stem = pathinfo($slot, PATHINFO_FILENAME);
+        foreach (['png', 'jpg', 'jpeg', 'webp', 'gif'] as $e) {
+            if (is_file($customDir . '/' . $stem . '.' . $e)) return true;
+        }
+        return false;
+    };
+
+    // Cores do tema: defaults do template (theme.css :root), sobrescritos pelos
+    // valores do theme.override.css se ele existir (pra prefill do color picker).
+    $themeDefaults = [
+        '--bg-0' => '#0a0612', '--bg-1' => '#120a1f', '--bg-2' => '#1c1230', '--bg-3' => '#271942',
+        '--rust' => '#a855f7', '--rust-2' => '#c084fc', '--bone' => '#ede9fe',
+        '--moss' => '#16a34a', '--hazard' => '#facc15', '--dim' => '#a1a1aa',
+    ];
+    $themeColors  = $themeDefaults;
+    $overrideFile = $ROOT . '/public/assets/css/theme.override.css';
+    $themeActive  = is_file($overrideFile);
+    if ($themeActive) {
+        $css = (string)file_get_contents($overrideFile);
+        foreach ($themeDefaults as $var => $_) {
+            if (preg_match('/' . preg_quote($var, '/') . '\s*:\s*(#[0-9a-fA-F]{6})\b/', $css, $m)) {
+                $themeColors[$var] = strtolower($m[1]);
+            }
+        }
+    }
+
+    \App\View::display('admin.customize', [
+        'config' => $config, 'isCustom' => $isCustom,
+        'themeColors' => $themeColors, 'themeActive' => $themeActive,
+    ]);
+});
+
+\App\Router::post('/admin/customize/theme', function() use ($ROOT) {
+    \App\Auth::requireCan('customize');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
+
+    $overrideFile = $ROOT . '/public/assets/css/theme.override.css';
+
+    if (isset($_POST['reset_theme'])) {
+        if (is_file($overrideFile)) @unlink($overrideFile);
+        \App\AuditLog::record('customize.theme_reset', 'theme', null);
+        header('Location: /admin/customize?ok=theme_reset'); exit;
+    }
+
+    $vars  = ['--bg-0','--bg-1','--bg-2','--bg-3','--rust','--rust-2','--bone','--moss','--hazard','--dim'];
+    $lines = [];
+    foreach ($vars as $v) {
+        $val = $_POST['c_' . ltrim($v, '-')] ?? '';
+        if (!preg_match('/^#[0-9a-fA-F]{6}$/', $val)) continue; // ignora inválido (defesa)
+        $lines[] = '    ' . $v . ': ' . strtolower($val) . ';';
+    }
+    if (!$lines) { header('Location: /admin/customize?err=theme'); exit; }
+
+    $css = "/* Tema customizado — gerado pelo painel (/admin/customize).\n"
+         . "   Gitignored: sobrevive a updates do template. Pra voltar ao padrão, use o botão no painel. */\n"
+         . ":root {\n" . implode("\n", $lines) . "\n}\n";
+
+    if (file_put_contents($overrideFile, $css) === false) {
+        header('Location: /admin/customize?err=theme_write'); exit;
+    }
+    \App\AuditLog::record('customize.theme', 'theme', null);
+    header('Location: /admin/customize?ok=theme'); exit;
+});
+
+// Slots de marca que o cliente pode trocar pelo painel. A imagem custom é gravada
+// em assets/img/custom/<stem>.<ext> (gitignored) e o asset() a usa no lugar da
+// padrão — então o update do template NUNCA sobrescreve a marca do cliente.
+// chave = nome canônico do arquivo padrão (precisa bater com o que o asset() pede).
+$BRAND_SLOTS = [
+    'logo_semfundo.png'       => 5,  // logo principal (header/footer/emails) — MB
+    'logo_semfundo_small.png' => 2,
+    'logo.png'                => 2,  // favicon
+    'background.png'          => 6,  // hero home
+    'background2.png'         => 6,
+    'background3.png'         => 6,
+    'background4.png'         => 6,
+    'background5.png'         => 6,
+];
+
+\App\Router::post('/admin/customize/upload', function() use ($BRAND_SLOTS, $ROOT) {
+    \App\Auth::requireCan('customize');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
+
+    $slot = $_POST['slot'] ?? '';
+    if (!isset($BRAND_SLOTS[$slot])) { header('Location: /admin/customize?err=slot'); exit; }
+
+    if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
+        header('Location: /admin/customize?err=upload'); exit;
+    }
+    $file = $_FILES['file'];
+    if ($file['size'] > $BRAND_SLOTS[$slot] * 1024 * 1024) {
+        header('Location: /admin/customize?err=size'); exit;
+    }
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mime  = finfo_file($finfo, $file['tmp_name']);
+    finfo_close($finfo);
+    $allowed = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif'];
+    if (!isset($allowed[$mime])) { header('Location: /admin/customize?err=type'); exit; }
+    $ext = $allowed[$mime];
+
+    $customDir = $ROOT . '/public/assets/img/custom';
+    if (!is_dir($customDir)) @mkdir($customDir, 0755, true);
+
+    $stem = pathinfo($slot, PATHINFO_FILENAME);
+    // Remove qualquer versão anterior desse slot (qualquer extensão) antes de gravar.
+    foreach (['png', 'jpg', 'jpeg', 'webp', 'gif'] as $e) {
+        $old = $customDir . '/' . $stem . '.' . $e;
+        if (is_file($old)) @unlink($old);
+    }
+    $dest = $customDir . '/' . $stem . '.' . $ext;
+    if (!move_uploaded_file($file['tmp_name'], $dest)) {
+        header('Location: /admin/customize?err=move'); exit;
+    }
+    \App\AuditLog::record('customize.upload', 'brand', null, ['slot' => $slot, 'ext' => $ext]);
+    header('Location: /admin/customize?ok=upload'); exit;
+});
+
+\App\Router::post('/admin/customize/reset', function() use ($BRAND_SLOTS, $ROOT) {
+    \App\Auth::requireCan('customize');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
+
+    $slot = $_POST['slot'] ?? '';
+    if (!isset($BRAND_SLOTS[$slot])) { header('Location: /admin/customize?err=slot'); exit; }
+
+    $customDir = $ROOT . '/public/assets/img/custom';
+    $stem = pathinfo($slot, PATHINFO_FILENAME);
+    foreach (['png', 'jpg', 'jpeg', 'webp', 'gif'] as $e) {
+        $old = $customDir . '/' . $stem . '.' . $e;
+        if (is_file($old)) @unlink($old);
+    }
+    \App\AuditLog::record('customize.reset', 'brand', null, ['slot' => $slot]);
+    header('Location: /admin/customize?ok=reset'); exit;
 });
 
 \App\Router::get('/admin/team', function() use ($config) {

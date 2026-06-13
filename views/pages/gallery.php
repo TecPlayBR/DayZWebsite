@@ -39,7 +39,7 @@
     <button class="gallery-lightbox-close" aria-label="Fechar (Esc)" title="Fechar (Esc)">×</button>
     <button class="gallery-lightbox-nav prev" aria-label="Anterior (←)" title="Anterior (←)">‹</button>
     <button class="gallery-lightbox-nav next" aria-label="Próxima (→)" title="Próxima (→)">›</button>
-    <img id="gallery-lightbox-img" src="" alt="">
+    <img id="gallery-lightbox-img" src="" alt="Imagem ampliada da galeria">
     <div class="gallery-lightbox-foot">
         <div id="gallery-lightbox-cap" class="gallery-lightbox-cap"></div>
         <div id="gallery-lightbox-count" class="gallery-lightbox-count"></div>

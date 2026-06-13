@@ -6,41 +6,86 @@
 <div class="admin-page-head">
     <div>
         <h1>Personalização Visual</h1>
-        <p>Troque logo, favicon, backgrounds e paleta de cores via FTP. Não há upload pelo painel ainda.</p>
+        <p>Troque logo, favicon e backgrounds direto por aqui — sem FTP. Suas imagens ficam isoladas e <strong>não são perdidas quando você atualiza o template</strong>.</p>
     </div>
 </div>
 
+<?php
+$czOk  = $_GET['ok']  ?? '';
+$czErr = $_GET['err'] ?? '';
+$czOkMsg = [
+    'upload'      => '✓ Imagem atualizada. Se não mudar na hora, dê Ctrl+F5 (cache do navegador).',
+    'reset'       => '✓ Voltou pra imagem padrão do template.',
+    'theme'       => '✓ Cores salvas e aplicadas. Dê Ctrl+F5 se não atualizar na hora.',
+    'theme_reset' => '✓ Cores voltaram pro padrão do template.',
+];
+$czErrMsg = [
+    'slot'        => 'Item inválido.',
+    'upload'      => 'Falha no envio do arquivo. Tente de novo.',
+    'size'        => 'Arquivo grande demais pro limite desse item.',
+    'type'        => 'Formato não suportado. Use PNG, JPG, WEBP ou GIF.',
+    'move'        => 'Não consegui salvar — a pasta public/assets/img/custom/ precisa ter permissão de escrita (chmod 755).',
+    'theme'       => 'Nenhuma cor válida pra salvar.',
+    'theme_write' => 'Não consegui gravar o tema — a pasta public/assets/css/ precisa ter permissão de escrita (chmod 755).',
+];
+?>
+<?php if (isset($czOkMsg[$czOk])): ?>
+    <div class="cz-banner cz-ok"><?= e($czOkMsg[$czOk]) ?></div>
+<?php elseif ($czErr): ?>
+    <div class="cz-banner cz-err">✕ <?= e($czErrMsg[$czErr] ?? 'Erro ao processar.') ?></div>
+<?php endif; ?>
+
+<?php
+/** @var callable $isCustom */
+// Renderiza um card de upload pra um slot de marca (logo ou background).
+$brandCard = function(string $slot, string $label, string $help, string $type = 'logo', string $previewMod = '') use ($isCustom) {
+    $active = $isCustom($slot);
+    ?>
+    <div class="customize-card">
+        <?php if ($type === 'logo'): ?>
+            <div class="customize-preview <?= $previewMod ?>">
+                <img src="<?= asset('img/' . $slot) ?>" alt="<?= e($label) ?>" style="max-height: 100px;">
+            </div>
+        <?php else: ?>
+            <div class="customize-preview" style="background-image: url('<?= asset('img/' . $slot) ?>'); background-size: cover; background-position: center;"></div>
+        <?php endif; ?>
+        <div class="customize-info">
+            <div class="customize-label">
+                <?= e($label) ?>
+                <?php if ($active): ?>
+                    <span class="cz-badge">customizado</span>
+                <?php else: ?>
+                    <span class="cz-badge cz-badge-default">padrão</span>
+                <?php endif; ?>
+            </div>
+            <p class="customize-help"><?= $help ?></p>
+            <form method="POST" action="/admin/customize/upload" enctype="multipart/form-data" class="cz-form">
+                <?= \App\Csrf::field() ?>
+                <input type="hidden" name="slot" value="<?= e($slot) ?>">
+                <input type="file" name="file" accept="image/png,image/jpeg,image/webp,image/gif" required class="cz-file">
+                <button type="submit" class="btn-mini">Enviar</button>
+            </form>
+            <?php if ($active): ?>
+                <form method="POST" action="/admin/customize/reset" class="cz-form-reset"
+                      onsubmit="return confirm('Voltar pra imagem padrão do template?');">
+                    <?= \App\Csrf::field() ?>
+                    <input type="hidden" name="slot" value="<?= e($slot) ?>">
+                    <button type="submit" class="btn-mini btn-mini-ghost">Voltar ao padrão</button>
+                </form>
+            <?php endif; ?>
+        </div>
+    </div>
+    <?php
+};
+?>
+
 <!-- Logos -->
 <div class="customize-section">
-    <h2>Logos</h2>
+    <h2>Logos & Favicon</h2>
     <div class="customize-grid">
-        <div class="customize-card">
-            <div class="customize-preview customize-preview-dark">
-                <img src="<?= asset('img/logo_semfundo.png') ?>" alt="logo atual" style="max-height: 100px;">
-            </div>
-            <div class="customize-info">
-                <div class="customize-label">Logo principal</div>
-                <div class="customize-path">public/assets/img/logo_semfundo.png</div>
-                <p class="customize-help">
-                    Aparece no header, footer e e-mails. <strong>PNG com fundo transparente</strong>,
-                    recomendado 250×250px ou maior (proporcional).
-                </p>
-            </div>
-        </div>
-
-        <div class="customize-card">
-            <div class="customize-preview customize-preview-light">
-                <img src="<?= asset('img/logo.png') ?>" alt="logo com fundo" style="max-height: 100px;">
-            </div>
-            <div class="customize-info">
-                <div class="customize-label">Favicon</div>
-                <div class="customize-path">public/assets/img/logo.png</div>
-                <p class="customize-help">
-                    Ícone que aparece na aba do navegador. PNG quadrado (com ou sem fundo),
-                    recomendado 64×64 ou 128×128.
-                </p>
-            </div>
-        </div>
+        <?php $brandCard('logo_semfundo.png', 'Logo principal', 'Aparece no header, rodapé e e-mails. <strong>PNG transparente</strong>, ~250×250px ou maior.', 'logo', 'customize-preview-dark'); ?>
+        <?php $brandCard('logo_semfundo_small.png', 'Logo pequeno', 'Versão compacta no header/rodapé. PNG transparente, ~120×120px.', 'logo', 'customize-preview-dark'); ?>
+        <?php $brandCard('logo.png', 'Favicon', 'Ícone na aba do navegador. PNG quadrado, 64×64 ou 128×128.', 'logo', 'customize-preview-light'); ?>
     </div>
 </div>
 
@@ -48,7 +93,7 @@
 <div class="customize-section">
     <h2>Backgrounds</h2>
     <p style="color: var(--dim); font-size: 0.9rem; margin-bottom: 1rem;">
-        São usados como pano de fundo em diferentes seções. Resolução recomendada: <strong>1920×1080</strong> ou maior.
+        Pano de fundo das seções. Resolução recomendada: <strong>1920×1080</strong> ou maior.
         <span style="color: var(--hazard);">⚠ Otimize com TinyPNG/Squoosh antes de subir — backgrounds grandes deixam o site lento.</span>
     </p>
     <div class="customize-grid">
@@ -60,75 +105,68 @@
             'background4.png' => 'Página 404',
             'background5.png' => 'Páginas estáticas (regras, FAQ, etc)',
         ];
-        foreach ($bgs as $file => $purpose):
+        foreach ($bgs as $file => $purpose) {
+            $brandCard($file, $purpose, 'PNG ou JPG, 1920×1080 ou maior.', 'bg');
+        }
         ?>
-            <div class="customize-card">
-                <div class="customize-preview" style="background-image: url('<?= asset('img/' . $file) ?>'); background-size: cover; background-position: center;"></div>
-                <div class="customize-info">
-                    <div class="customize-label"><?= e($purpose) ?></div>
-                    <div class="customize-path">public/assets/img/<?= $file ?></div>
-                </div>
-            </div>
-        <?php endforeach; ?>
     </div>
 </div>
 
 <!-- Cores / paleta -->
 <div class="customize-section">
-    <h2>Paleta de Cores</h2>
+    <h2>Paleta de Cores
+        <?php if (!empty($themeActive)): ?><span class="cz-badge">customizada</span><?php else: ?><span class="cz-badge cz-badge-default">padrão</span><?php endif; ?>
+    </h2>
     <p style="color: var(--dim); font-size: 0.9rem; margin-bottom: 1rem;">
-        Pra customizar a paleta sem tocar no template oficial, copie <code>public/assets/css/theme.override.example.css</code> pra
-        <code>public/assets/css/theme.override.css</code> e edite os valores. Mudanças são imediatas (sem rebuild).
-        O arquivo override fica isolado da sua instalação — atualizações do template não sobrescrevem suas cores.
+        Escolha as cores e clique em <strong>Salvar cores</strong>. Aplica na hora, no site inteiro e no painel.
+        Fica guardado isolado (<code>theme.override.css</code>) e <strong>não é perdido em update</strong>.
     </p>
-    <div class="palette-grid">
-        <?php
-        // Valores default da identidade Tecplay (roxo brand).
-        // Se o cliente tem theme.override.css ativo, os values do JS abaixo refletem as cores reais aplicadas.
-        $palette = [
-            ['--rust',   'var(--rust)', 'Cor principal (brand roxo)',       'var(--rust)'],
-            ['--rust-2', 'var(--rust-2)', 'Acento vivo (lilás)',              'var(--rust-2)'],
-            ['--hazard', 'var(--hazard)', 'Destaque (accent dourado)',        'var(--hazard)'],
-            ['--moss',   'var(--moss)', 'Sucesso (verde)',                  'var(--moss)'],
-            ['--bone',   'var(--bone)', 'Texto principal (osso lilás)',     'var(--bone)'],
-            ['--bg-0',   'var(--bg-0)', 'Fundo principal (noite violeta)',  'var(--bg-0)'],
-            ['--bg-1',   'var(--bg-1)', 'Fundo de cards',                   'var(--bg-1)'],
-            ['--bg-2',   'var(--bg-2)', 'Fundo de tabelas',                 'var(--bg-2)'],
-            ['--dim',    'var(--dim)', 'Texto secundário',                 'var(--dim)'],
-        ];
-        foreach ($palette as [$var, $hex, $label, $color]):
-        ?>
-            <div class="palette-chip">
-                <div class="palette-swatch" style="background: <?= $color ?>;"></div>
-                <div class="palette-meta">
-                    <code class="palette-var"><?= $var ?></code>
-                    <span class="palette-hex"><?= $hex ?></span>
-                    <span class="palette-label"><?= e($label) ?></span>
-                </div>
-            </div>
-        <?php endforeach; ?>
-    </div>
+    <?php
+    /** @var array $themeColors */
+    $palette = [
+        ['--rust',   'Cor principal (brand)'],
+        ['--rust-2', 'Acento vivo'],
+        ['--hazard', 'Destaque (accent)'],
+        ['--moss',   'Sucesso (verde/online)'],
+        ['--bone',   'Texto principal'],
+        ['--dim',    'Texto secundário'],
+        ['--bg-0',   'Fundo principal'],
+        ['--bg-1',   'Fundo de cards'],
+        ['--bg-2',   'Fundo de tabelas'],
+        ['--bg-3',   'Fundo elevado'],
+    ];
+    ?>
+    <form method="POST" action="/admin/customize/theme" id="theme-form">
+        <?= \App\Csrf::field() ?>
+        <div class="palette-grid">
+            <?php foreach ($palette as [$var, $label]): $val = $themeColors[$var] ?? '#000000'; ?>
+                <label class="palette-chip">
+                    <input type="color" class="palette-input" name="c_<?= e(ltrim($var, '-')) ?>" value="<?= e($val) ?>">
+                    <div class="palette-meta">
+                        <span class="palette-label"><?= e($label) ?></span>
+                        <code class="palette-var"><?= e($var) ?></code>
+                    </div>
+                </label>
+            <?php endforeach; ?>
+        </div>
+        <div class="cz-theme-actions">
+            <button type="submit" class="btn-mini">Salvar cores</button>
+            <?php if (!empty($themeActive)): ?>
+                <button type="submit" name="reset_theme" value="1" class="btn-mini btn-mini-ghost"
+                        onclick="return confirm('Voltar as cores pro padrão do template?');">Voltar ao padrão</button>
+            <?php endif; ?>
+        </div>
+    </form>
 </div>
 
-<!-- Tutorial passo a passo -->
-<div class="customize-section">
-    <h2>Como subir arquivos novos</h2>
-    <ol style="color: var(--bone); line-height: 1.8; margin-left: 1.5rem;">
-        <li>Conecte ao servidor via <strong>FTP</strong> (FileZilla recomendado) ou Gerenciador de Arquivos do cPanel</li>
-        <li>Navegue até a pasta <code>public_html/assets/img/</code></li>
-        <li>Faça <strong>upload do arquivo novo com o MESMO nome</strong> do antigo (substitui por cima)</li>
-        <li>No navegador, abra o site e dê <strong>Ctrl+F5</strong> (hard refresh) — cache de imagens é agressivo</li>
-        <li>Pronto. Não precisa mexer em código nem reiniciar nada.</li>
-    </ol>
-</div>
-
-<!-- Aviso de cache -->
-<div class="stat-card" style="border-left-color: var(--hazard); padding: 1.2rem;">
-    <div class="label" style="color: var(--hazard);">⚠ Cache do navegador</div>
+<!-- Nota sobre persistência -->
+<div class="stat-card" style="border-left-color: var(--moss); padding: 1.2rem;">
+    <div class="label" style="color: var(--moss);">✓ Suas imagens são à prova de update</div>
     <p style="color: var(--bone); margin-top: 0.5rem; font-size: 0.9rem;">
-        O <code>.htaccess</code> diz pros navegadores cachearem imagens por <strong>1 ano</strong> (boa pra performance, ruim pra ver mudanças na hora).
-        Após substituir, peça pros jogadores darem <strong>Ctrl+F5</strong>. Pra forçar invalidação global, mude o nome do arquivo
-        (ex: <code>logo-v2.png</code>) e atualize as referências em <code>views/partials/header.php</code> e <code>footer.php</code>.
+        O que você envia aqui fica guardado em <code>assets/img/custom/</code> — uma pasta isolada que
+        <strong>não é tocada quando você atualiza o template</strong>. O site usa a sua imagem no lugar da padrão
+        automaticamente, e o cache é invalidado sozinho a cada novo envio (sem precisar renomear nada).
+        Quiser voltar atrás, é só clicar em <strong>"Voltar ao padrão"</strong>.
     </p>
 </div>
 
@@ -184,8 +222,56 @@
     color: var(--dim);
     font-size: 0.8rem;
     line-height: 1.5;
-    margin: 0;
+    margin: 0 0 0.8rem;
 }
+
+.cz-banner {
+    padding: 0.8rem 1.1rem;
+    border-radius: 3px;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+}
+.cz-ok  { background: rgba(34,197,94,0.12);  border-left: 3px solid var(--moss); color: var(--bone); }
+.cz-err { background: var(--danger-overlay); border-left: 3px solid var(--rust-2); color: var(--bone); }
+
+.cz-badge {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 0.1rem 0.45rem;
+    border-radius: 2px;
+    margin-left: 0.4rem;
+    vertical-align: middle;
+    background: var(--hazard-overlay, rgba(217,164,65,0.15));
+    color: var(--hazard);
+    border: 1px solid var(--hazard-border, rgba(217,164,65,0.3));
+}
+.cz-badge-default { background: transparent; color: var(--dim); border-color: var(--border); }
+
+.cz-form { display: flex; gap: 0.4rem; align-items: center; }
+.cz-file {
+    flex: 1; min-width: 0;
+    font-size: 0.75rem; color: var(--dim);
+}
+.cz-file::file-selector-button {
+    background: var(--bg-2); color: var(--bone);
+    border: 1px solid var(--border); border-radius: 2px;
+    padding: 0.3rem 0.6rem; font-size: 0.75rem; cursor: pointer; margin-right: 0.5rem;
+}
+.cz-form-reset { margin-top: 0.5rem; }
+.btn-mini {
+    background: var(--rust); color: var(--bone); border: none; cursor: pointer;
+    padding: 0.4rem 0.9rem; font-size: 0.78rem; border-radius: 2px;
+    font-family: var(--font-display); letter-spacing: 0.03em; white-space: nowrap;
+}
+.btn-mini:hover { background: var(--rust-2); }
+.btn-mini-ghost {
+    background: transparent; color: var(--dim); border: 1px solid var(--border);
+    font-family: inherit; letter-spacing: 0;
+}
+.btn-mini-ghost:hover { background: var(--bg-2); color: var(--bone); }
 
 .palette-grid {
     display: grid;
@@ -199,27 +285,29 @@
     background: var(--bg-1);
     border: 1px solid var(--border);
     padding: 0.6rem 0.8rem;
+    cursor: pointer;
 }
-.palette-swatch {
-    width: 36px; height: 36px;
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    flex-shrink: 0;
+.palette-chip:hover { border-color: var(--rust); }
+.palette-input {
+    width: 42px; height: 42px;
+    padding: 0; border: 1px solid var(--border); border-radius: 3px;
+    background: none; cursor: pointer; flex-shrink: 0;
 }
-.palette-meta { display: flex; flex-direction: column; gap: 0.15rem; }
+.palette-input::-webkit-color-swatch-wrapper { padding: 2px; }
+.palette-input::-webkit-color-swatch { border: none; border-radius: 2px; }
+.palette-input::-moz-color-swatch { border: none; border-radius: 2px; }
+.palette-meta { display: flex; flex-direction: column; gap: 0.2rem; }
+.palette-label {
+    color: var(--bone);
+    font-size: 0.82rem;
+}
 .palette-var {
     font-family: var(--font-mono);
     color: var(--hazard);
-    font-size: 0.8rem;
+    font-size: 0.72rem;
 }
-.palette-hex {
-    font-family: var(--font-mono);
-    color: var(--bone);
-    font-size: 0.75rem;
-}
-.palette-label {
-    color: var(--dim);
-    font-size: 0.75rem;
+.cz-theme-actions {
+    display: flex; gap: 0.6rem; margin-top: 1.2rem;
 }
 </style>
 

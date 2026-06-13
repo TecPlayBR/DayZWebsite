@@ -58,12 +58,13 @@
             <?php $steamUser = \App\SteamAuth::user(); ?>
             <?php if ($steamUser): ?>
                 <a href="/my-purchases" class="user-pill" title="Minhas compras">
+                    <?php $steamName = $steamUser['display_name'] ?? 'Steam User'; ?>
                     <?php if (!empty($steamUser['avatar'])): ?>
-                        <img src="<?= e($steamUser['avatar']) ?>" alt="" class="user-pill-avatar">
+                        <img src="<?= e($steamUser['avatar']) ?>" alt="<?= e('Avatar de ' . $steamName) ?>" class="user-pill-avatar">
                     <?php else: ?>
-                        <span class="user-pill-avatar user-pill-avatar-fallback">⚙</span>
+                        <span class="user-pill-avatar user-pill-avatar-fallback" aria-hidden="true">⚙</span>
                     <?php endif; ?>
-                    <span class="user-pill-name"><?= e($steamUser['display_name'] ?? 'Steam User') ?></span>
+                    <span class="user-pill-name" title="<?= e($steamName) ?>"><?= e($steamName) ?></span>
                 </a>
                 <a href="/auth/logout" class="logout-mini" title="Sair">✕</a>
             <?php else: ?>

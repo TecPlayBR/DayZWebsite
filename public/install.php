@@ -15,6 +15,23 @@ $configFile = $ROOT . '/config/config.php';
 $schemaFile = $ROOT . '/schema.sql';
 $exampleFile = $ROOT . '/config/config.example.php';
 
+// =========== PRE-FLIGHT: estrutura do deploy ===========
+// As pastas src/, views/, lang/, config/ e o schema.sql ficam um nivel ACIMA de
+// public/. Se o upload (FTP) for parcial e faltar alguma, o site quebra de forma
+// silenciosa (ex: sem lang/ o menu vira "NAV.RULES"). Conferimos ANTES de instalar.
+$structureRequired = [
+    'src'            => $ROOT . '/src',
+    'views'          => $ROOT . '/views',
+    'lang'           => $ROOT . '/lang',
+    'lang/pt-br.php' => $ROOT . '/lang/pt-br.php',
+    'config'         => $ROOT . '/config',
+    'schema.sql'     => $ROOT . '/schema.sql',
+];
+$structureMissing = [];
+foreach ($structureRequired as $label => $path) {
+    if (!file_exists($path)) $structureMissing[] = $label;
+}
+
 if (file_exists($configFile)) {
     http_response_code(403);
     die('<h1>Ja instalado.</h1><p>Apague <code>config/config.php</code> se quiser reinstalar (vai perder a senha admin atual).</p>');
@@ -24,7 +41,13 @@ $errors = [];
 $success = false;
 
 // =========== PROCESSA POST ===========
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $structureMissing) {
+    // Bloqueia a instalacao: faltam pastas/arquivos essenciais. Instalar assim
+    // geraria um site quebrado (config gravado mas sem lang/views/etc.).
+    $errors[] = 'Instalacao bloqueada: faltam arquivos essenciais no servidor (veja o aviso acima). '
+              . 'Reenvie o template completo por FTP antes de continuar.';
+}
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$structureMissing) {
     $site_name      = trim($_POST['site_name'] ?? '');
     $site_tagline   = trim($_POST['site_tagline'] ?? '');
     $site_url       = rtrim(trim($_POST['site_url'] ?? ''), '/');
@@ -192,6 +215,22 @@ header p { color: var(--dim); margin-top: 0.5rem; font-size: 0.95rem; }
     <p>Instalacao em uma pagina — preencha os campos abaixo</p>
 </header>
 
+<?php if ($structureMissing): ?>
+    <div class="alert alert-err">
+        <strong>⛔ Faltam arquivos essenciais no servidor — NAO da pra instalar ainda.</strong>
+        <p style="margin-top:.6rem;">O upload por FTP parece ter ficado incompleto. Estas pastas/arquivos
+        precisam ficar <strong>um nivel ACIMA</strong> da pasta publica (ao lado de <code>src/</code>),
+        e nao foram encontrados:</p>
+        <ul>
+            <?php foreach ($structureMissing as $m): ?><li><code><?= htmlspecialchars($m) ?></code></li><?php endforeach; ?>
+        </ul>
+        <p style="margin-top:.6rem;">Reenvie o template <strong>completo</strong> (todas as pastas do ZIP) por
+        FTP e recarregue esta pagina. So o conteudo de <code>public/</code> vai pra raiz publica
+        (<code>public_html</code>); <code>src/ views/ lang/ config/ migrations/</code> + <code>schema.sql</code>
+        ficam um nivel acima.</p>
+    </div>
+<?php endif; ?>
+
 <?php if ($success): ?>
     <div class="alert alert-ok">
         <strong>Instalado com sucesso!</strong>
@@ -215,7 +254,7 @@ header p { color: var(--dim); margin-top: 0.5rem; font-size: 0.95rem; }
             <?php endif; ?>
         </p>
     </div>
-<?php else: ?>
+<?php elseif (!$structureMissing): ?>
 
     <?php if ($errors): ?>
         <div class="alert alert-err">

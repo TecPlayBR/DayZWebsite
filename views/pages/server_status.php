@@ -71,7 +71,7 @@
                     <?php foreach ($players as $p): ?>
                         <div class="player-chip">
                             <span class="player-dot"></span>
-                            <span class="player-name"><?= e($p['name']) ?></span>
+                            <span class="player-name" title="<?= e($p['name']) ?>"><?= e($p['name']) ?></span>
                             <?php if ($p['connected_at']): ?>
                                 <?php $elapsed = time() - $p['connected_at']; ?>
                                 <?php

@@ -38,7 +38,8 @@
                         <div class="podium-step <?= $cls ?>">
                             <div class="podium-trophy"><?= $trophy ?></div>
                             <div class="podium-pos">#<?= $pos ?></div>
-                            <div class="podium-name"><?= e($p['display_name'] ?? 'Anônimo') ?></div>
+                            <?php $pName = $p['display_name'] ?? 'Anônimo'; ?>
+                            <div class="podium-name" title="<?= e($pName) ?>"><?= e($pName) ?></div>
                             <div class="podium-value">R$ <?= number_format((float)$p['total_spent_brl'], 2, ',', '.') ?></div>
                         </div>
                     <?php endforeach; ?>

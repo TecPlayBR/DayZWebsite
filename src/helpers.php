@@ -21,13 +21,33 @@ if (!function_exists('e')) {
 
 if (!function_exists('asset')) {
     function asset(string $path): string {
-        $url = '/assets/' . ltrim($path, '/');
+        $rel = ltrim($path, '/');
+        $publicAssets = dirname(__DIR__) . '/public/assets/';
+
+        // Override de marca: se o cliente subiu pelo painel uma versão custom de
+        // uma imagem (logo/favicon/background), ela fica em assets/img/custom/ —
+        // pasta GITIGNORED, que NÃO é sobrescrita quando ele atualiza o template.
+        // Casa por nome-base SEM extensão (logo.png -> custom/logo.{png,jpg,webp,...})
+        // pra o upload poder manter a extensão real e o content-type correto.
+        // Usa a custom no lugar da padrão, com cache-bust (muda quando re-upa).
+        if (strncmp($rel, 'img/', 4) === 0 && strpos($rel, 'custom/') === false) {
+            $stem = pathinfo($rel, PATHINFO_FILENAME);
+            $customDir = $publicAssets . 'img/custom/';
+            foreach (['png', 'jpg', 'jpeg', 'webp', 'gif'] as $e) {
+                $cand = $customDir . $stem . '.' . $e;
+                if (is_file($cand)) {
+                    return '/assets/img/custom/' . rawurlencode($stem . '.' . $e) . '?v=' . filemtime($cand);
+                }
+            }
+        }
+
+        $url = '/assets/' . $rel;
         // Cache-busting via filemtime: ?v=<unix-ts> só pra CSS/JS — quando o
         // cliente edita o tema, o browser pega a versão nova em vez do cache
-        // de 1 mês do .htaccess. Imagens ficam sem versionar (raramente mudam).
+        // de 1 mês do .htaccess. Imagens padrão ficam sem versionar (raramente mudam).
         $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
         if (in_array($ext, ['css', 'js'], true)) {
-            $abs = dirname(__DIR__) . '/public/assets/' . ltrim($path, '/');
+            $abs = $publicAssets . $rel;
             if (is_file($abs)) {
                 $url .= '?v=' . filemtime($abs);
             }

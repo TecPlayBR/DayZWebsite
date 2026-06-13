@@ -84,6 +84,42 @@ class Lang {
         if (!file_exists($file)) {
             $file = self::$langPath . '/' . self::$defaultLocale . '.php';
         }
-        self::$translations = file_exists($file) ? (require $file) : [];
+        if (file_exists($file)) {
+            $loaded = require $file;
+            self::$translations = is_array($loaded) ? $loaded : self::fallback();
+            return;
+        }
+        // Arquivo de idioma AUSENTE. Causa quase sempre = a pasta lang/ nao subiu
+        // no deploy (ela fica ao lado de src/ e views/, um nivel ACIMA de public/).
+        // Sem isso, __('nav.rules') devolveria "nav.rules" cru e o CSS do menu
+        // mostraria "NAV.RULES". Em vez de quebrar a navegacao, logamos claramente
+        // e usamos um fallback embutido pro site continuar legivel.
+        error_log(
+            '[Lang] ARQUIVO DE IDIOMA NAO ENCONTRADO. Procurei em "' . self::$langPath
+            . '/' . self::$currentLocale . '.php" e no fallback "' . self::$defaultLocale
+            . '.php" e nenhum existe. Quase sempre = a pasta lang/ nao foi enviada pro '
+            . 'servidor (ela deve ficar ao lado de src/ e views/). Usando textos embutidos. '
+            . 'Rode /verificar.php pra checar a estrutura do deploy.'
+        );
+        self::$translations = self::fallback();
+    }
+
+    /**
+     * Fallback minimo embutido — usado SO quando o arquivo de idioma some no deploy.
+     * Cobre a navegacao e rotulos criticos pra UI nunca exibir "NAV.RULES" cru.
+     * Nao substitui lang/<locale>.php (que tem tudo); e uma rede de seguranca.
+     */
+    private static function fallback(): array {
+        return [
+            'nav' => [
+                'home' => 'Início', 'features' => 'Recursos', 'shop' => 'Loja',
+                'gallery' => 'Galeria', 'servers' => 'Servidores', 'rules' => 'Regras',
+                'discord' => 'Discord', 'login' => 'Entrar',
+            ],
+            'footer' => [
+                'about' => 'Sobre', 'contact' => 'Contato', 'privacy' => 'Privacidade',
+                'terms' => 'Termos', 'payments' => 'Aceitamos',
+            ],
+        ];
     }
 }

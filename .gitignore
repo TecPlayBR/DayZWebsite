@@ -8,6 +8,11 @@ config/config.php
 # Skin customizada do cliente (override CSS) — cada instalação tem o seu
 public/assets/css/theme.override.css
 
+# Marca customizada do cliente (logo/favicon/backgrounds enviados pelo painel)
+# — NÃO é sobrescrita em update; cada instalação tem a sua.
+public/assets/img/custom/*
+!public/assets/img/custom/.gitkeep
+
 # Storage runtime — só estrutura vai pro repo via .gitkeep
 storage/backups/*
 !storage/backups/.gitkeep

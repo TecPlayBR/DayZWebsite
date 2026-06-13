@@ -268,17 +268,30 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
         if (s < 86400)return Math.floor(s / 3600) + 'h atrás';
         return Math.floor(s / 86400) + 'd atrás';
     }
+    // Cria um <span class> com texto seguro (textContent escapa — evita XSS:
+    // it.name/it.package vêm do nome Steam do jogador, que é controlável).
+    function span(cls, text) {
+        const s = document.createElement('span');
+        s.className = cls;
+        s.textContent = text;
+        return s;
+    }
+    function txt(t) { return document.createTextNode(t); }
     function renderItem(it) {
         const el = document.createElement('div');
         el.className = 'live-purchase-item';
-        const price = it.price ? ` <span class="live-purchase-meta">— R$ ${it.price.toFixed(2).replace('.', ',')}</span>` : '';
-        el.innerHTML =
-            `<span class="live-purchase-icon">${it.icon || '🪙'}</span>` +
-            `<span class="live-purchase-name">${it.name}</span>` +
-            ` <span class="live-purchase-meta">comprou</span> ` +
-            `<span class="live-purchase-coins">${it.coins} moedas</span>` +
-            ` <span class="live-purchase-meta">(${it.package})</span>${price}` +
-            `<span class="live-purchase-ago">${fmtAgo(it.ago_secs)}</span>`;
+        el.appendChild(span('live-purchase-icon', it.icon || '🪙'));
+        el.appendChild(span('live-purchase-name', it.name || ''));
+        el.appendChild(txt(' '));
+        el.appendChild(span('live-purchase-meta', 'comprou'));
+        el.appendChild(txt(' '));
+        el.appendChild(span('live-purchase-coins', (Number(it.coins) || 0) + ' moedas'));
+        el.appendChild(txt(' '));
+        el.appendChild(span('live-purchase-meta', '(' + (it.package || '') + ')'));
+        if (it.price) {
+            el.appendChild(span('live-purchase-meta', ' — R$ ' + (Number(it.price) || 0).toFixed(2).replace('.', ',')));
+        }
+        el.appendChild(span('live-purchase-ago', fmtAgo(it.ago_secs)));
         return el;
     }
     function rotate() {

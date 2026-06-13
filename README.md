@@ -128,15 +128,22 @@ A venda não autorizada é **crime** previsto no **Art. 184 §2º do Código Pen
 Já tem o site instalado e quer atualizar pra uma versão nova **sem apagar nada**? Seu `config/config.php`, banco, skin e uploads ficam intactos:
 
 1. **Backup primeiro** (cPanel → Backup, ou exporta o banco no phpMyAdmin).
-2. **Suba os arquivos novos via FTP por cima** — `public/` vai pro `public_html`, o resto um nível acima. **NÃO suba `config/config.php`** (mantém o seu), nem `storage/`.
-3. **Rode as migrations que faltam** no phpMyAdmin (Importar → escolhe o `.sql` → Executar), na ordem:
+2. **Suba os arquivos novos via FTP por cima.** O conteúdo de `public/` vai pra raiz pública (`public_html`); **todas estas pastas/arquivos ficam um nível ACIMA** (ao lado de `src/`). Suba **todos** — se faltar um, o site quebra silenciosamente (ex.: sem `lang/` o menu vira **NAV.RULES**):
+
+   | Sobe pra raiz pública (`public_html`) | Sobe um nível acima (junto de `src/`) |
+   |---|---|
+   | tudo que está dentro de `public/` | `src/` &nbsp;`views/` &nbsp;**`lang/`** &nbsp;`config/` &nbsp;`migrations/` &nbsp;`cli/` &nbsp;`schema.sql` |
+
+   ⚠️ **NÃO suba/sobrescreva `config/config.php`** (mantém o seu) nem a pasta `storage/`. **Não pule a pasta `lang/`** — é a que mais some em upload parcial.
+3. **Confira o deploy:** abra `https://seusite.com/verificar.php` no navegador. Ele mostra um checklist verde/vermelho do que subiu (sem expor nenhum segredo). Se tiver algo vermelho, reenvie só aquela pasta. **Apague o `verificar.php` depois.**
+4. **Rode as migrations que faltam** no phpMyAdmin (Importar → escolhe o `.sql` → Executar), na ordem:
    - `migrations/v1.1.0_discord_integration.sql`
    - `migrations/v1.2.0_rbac_reviews_newsletter.sql`
    - `migrations/v1.4.0_shop_catalog.sql`
    - `migrations/v1.4.1_password_reset.sql`
    - (+ as mais novas que aparecerem na pasta `migrations/`)
    São **idempotentes** — se der "table/column already exists", ignora, é normal.
-4. Acessa o `/admin` e confere.
+5. Acessa o `/admin` e confere.
 
 > ⚠️ O `install.php` só monta o banco do ZERO (instalação nova) — ele **NÃO roda as migrations**. Por isso, atualizar = subir arquivos **+ rodar as migrations acima**.
 
