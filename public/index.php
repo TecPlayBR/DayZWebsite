@@ -465,6 +465,79 @@ $config['restart'] = \App\Restart::summary();
     ]);
 });
 
+// ============ CAIXAS / LOOTBOXES (player) ============
+\App\Router::get('/caixas', function() use ($config) {
+    // Entrega oportunista: aproveita o page-load pra dropar pendências de quem está online.
+    try { \App\Boxes::deliverPending(20); } catch (\Throwable $e) {}
+
+    $boxes = \App\Boxes::all();
+    $steamUser = \App\SteamAuth::user();
+    $coins = 0;
+    $dailyReady = [];
+    if ($steamUser) {
+        $coins = (int)(\App\Database::fetchColumn("SELECT coins FROM players WHERE steam_id = ?", [$steamUser['steam_id']]) ?: 0);
+    }
+    foreach ($boxes as &$b) {
+        $b['items'] = \App\Boxes::items((int)$b['id']);
+        if ((int)$b['is_daily'] === 1 && $steamUser) {
+            $last = \App\Boxes::lastOpening((int)$b['id'], $steamUser['steam_id']);
+            $cd = max(1, (int)$b['cooldown_hours']) * 3600;
+            $b['daily_wait'] = ($last !== null && (time() - $last) < $cd) ? ($cd - (time() - $last)) : 0;
+        }
+    }
+    unset($b);
+    \App\View::display('pages.caixas', [
+        'config' => $config, 'boxes' => $boxes,
+        'steam_user' => $steamUser, 'coins' => $coins,
+    ]);
+});
+
+\App\Router::post('/caixas/{slug}/open', function($slug) use ($config) {
+    header('Content-Type: application/json; charset=utf-8');
+    if (!\App\SteamAuth::check()) {
+        http_response_code(401);
+        echo json_encode(['ok' => false, 'error' => 'login', 'login_url' => '/auth/steam']);
+        return;
+    }
+    if (!\App\Csrf::check()) { http_response_code(403); echo json_encode(['ok' => false, 'error' => 'csrf']); return; }
+    $steamId = \App\SteamAuth::steamId();
+    // Rate limit: no máx 30 aberturas/min por player (anti-abuso)
+    $rl = \App\RateLimit::check('box-open:' . $steamId, 30, 60);
+    if (empty($rl['allowed'])) { http_response_code(429); echo json_encode(['ok' => false, 'error' => 'Muito rápido. Aguarde um pouco.']); return; }
+
+    $box = \App\Boxes::find($slug);
+    if (!$box) { http_response_code(404); echo json_encode(['ok' => false, 'error' => 'Caixa não encontrada.']); return; }
+
+    $res = \App\Boxes::open($box, $steamId);
+    if (!$res['ok']) { echo json_encode(['ok' => false, 'error' => $res['error']]); return; }
+
+    $won = $res['won'];
+    // Saldo novo + pool (pro carrossel da animação)
+    $coins = (int)(\App\Database::fetchColumn("SELECT coins FROM players WHERE steam_id = ?", [$steamId]) ?: 0);
+    $pool = array_map(fn($i) => [
+        'name' => $i['name'], 'image' => $i['image'], 'rarity' => $i['rarity'],
+    ], $box['items']);
+    echo json_encode([
+        'ok' => true,
+        'status' => $res['status'],
+        'coins' => $coins,
+        'won' => [
+            'name' => $won['name'], 'image' => $won['image'], 'rarity' => $won['rarity'],
+            'quantity' => (int)$won['quantity'], 'classname' => $won['classname'],
+        ],
+        'pool' => $pool,
+    ]);
+});
+
+// Cron opcional: entrega pendências (chamar via cron a cada 1-2min). Token = agent_token.
+\App\Router::get('/api/deliver-boxes.php', function() use ($config) {
+    header('Content-Type: application/json; charset=utf-8');
+    $token = $_GET['token'] ?? '';
+    if (!hash_equals((string)($config['agent_token'] ?? ''), (string)$token)) { http_response_code(401); echo json_encode(['error' => 'unauthorized']); return; }
+    $n = \App\Boxes::deliverPending(100);
+    echo json_encode(['ok' => true, 'delivered' => $n]);
+});
+
 \App\Router::get('/rules', function() use ($config) {
     // Rota explícita pra rules: tenta página dinâmica primeiro, fallback pra view estática
     $page = \App\Database::fetchOne(
@@ -1685,6 +1758,113 @@ $collectDashboardData = function() {
         \App\Settings::set($k, !empty($_POST[$k]) ? '1' : '0');
     }
     header('Location: /admin/settings?ok=1');
+    exit;
+});
+
+// ============ ADMIN: CAIXAS / LOOTBOXES ============
+\App\Router::get('/admin/caixas', function() use ($config) {
+    \App\Auth::requireCan('packages');
+    $boxes = \App\Database::fetchAll("SELECT * FROM boxes ORDER BY sort_order ASC, id ASC");
+    foreach ($boxes as &$b) {
+        $b['item_count'] = (int)\App\Database::fetchColumn("SELECT COUNT(*) FROM box_items WHERE box_id = ?", [(int)$b['id']]);
+    }
+    unset($b);
+    $pending = (int)\App\Database::fetchColumn("SELECT COUNT(*) FROM box_openings WHERE status = 'pending'");
+    \App\View::display('admin.caixas', ['config' => $config, 'boxes' => $boxes, 'pending' => $pending]);
+});
+
+\App\Router::post('/admin/caixas/save', function() use ($config) {
+    \App\Auth::requireCan('packages');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
+    $id    = (int)($_POST['id'] ?? 0);
+    $name  = trim((string)($_POST['name'] ?? ''));
+    if ($name === '') { header('Location: /admin/caixas?err=name'); exit; }
+    $slug  = preg_replace('/[^a-z0-9-]/', '', strtolower(str_replace(' ', '-', $_POST['slug'] ?: $name)));
+    if ($slug === '') $slug = 'caixa-' . substr(md5($name), 0, 6);
+    $isDaily = !empty($_POST['is_daily']) ? 1 : 0;
+    $fields = [
+        $name, $slug,
+        trim((string)($_POST['image'] ?? '')) ?: null,
+        trim((string)($_POST['description'] ?? '')) ?: null,
+        $isDaily ? 0 : max(0, (int)($_POST['cost_coins'] ?? 0)),
+        $isDaily,
+        max(1, (int)($_POST['cooldown_hours'] ?? 24)),
+        !empty($_POST['enabled']) ? 1 : 0,
+        (int)($_POST['sort_order'] ?? 0),
+    ];
+    if ($id > 0) {
+        \App\Database::query(
+            "UPDATE boxes SET name=?, slug=?, image=?, description=?, cost_coins=?, is_daily=?, cooldown_hours=?, enabled=?, sort_order=? WHERE id=?",
+            array_merge($fields, [$id])
+        );
+    } else {
+        \App\Database::query(
+            "INSERT INTO boxes (name, slug, image, description, cost_coins, is_daily, cooldown_hours, enabled, sort_order) VALUES (?,?,?,?,?,?,?,?,?)",
+            $fields
+        );
+        $id = (int)\App\Database::pdo()->lastInsertId();
+    }
+    \App\AuditLog::record('box.save', 'box', $id);
+    header('Location: /admin/caixas/' . $id . '?ok=1');
+    exit;
+});
+
+\App\Router::get('/admin/caixas/{id}', function($id) use ($config) {
+    \App\Auth::requireCan('packages');
+    $box = \App\Database::fetchOne("SELECT * FROM boxes WHERE id = ? LIMIT 1", [(int)$id]);
+    if (!$box) { header('Location: /admin/caixas'); exit; }
+    $items = \App\Database::fetchAll("SELECT * FROM box_items WHERE box_id = ? ORDER BY sort_order ASC, id ASC", [(int)$id]);
+    $totalW = 0; foreach ($items as $it) $totalW += max(0, (int)$it['weight']);
+    \App\View::display('admin.caixa_edit', ['config' => $config, 'box' => $box, 'items' => $items, 'total_weight' => $totalW]);
+});
+
+\App\Router::post('/admin/caixas/{id}/delete', function($id) use ($config) {
+    \App\Auth::requireCan('packages');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
+    \App\Database::query("DELETE FROM box_items WHERE box_id = ?", [(int)$id]);
+    \App\Database::query("DELETE FROM boxes WHERE id = ?", [(int)$id]);
+    \App\AuditLog::record('box.delete', 'box', (int)$id);
+    header('Location: /admin/caixas?ok=deleted');
+    exit;
+});
+
+\App\Router::post('/admin/caixas/{id}/items/save', function($id) use ($config) {
+    \App\Auth::requireCan('packages');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
+    $boxId = (int)$id;
+    $itemId = (int)($_POST['item_id'] ?? 0);
+    $classname = trim((string)($_POST['classname'] ?? ''));
+    $name = trim((string)($_POST['name'] ?? '')) ?: $classname;
+    if ($classname === '') { header('Location: /admin/caixas/' . $boxId . '?err=classname'); exit; }
+    $f = [
+        $classname, $name,
+        trim((string)($_POST['image'] ?? '')) ?: null,
+        max(1, (int)($_POST['quantity'] ?? 1)),
+        max(0, (int)($_POST['weight'] ?? 1)),
+        in_array($_POST['rarity'] ?? 'common', ['common','uncommon','rare','epic','legendary'], true) ? $_POST['rarity'] : 'common',
+        !empty($_POST['enabled']) ? 1 : 0,
+        (int)($_POST['sort_order'] ?? 0),
+    ];
+    if ($itemId > 0) {
+        \App\Database::query(
+            "UPDATE box_items SET classname=?, name=?, image=?, quantity=?, weight=?, rarity=?, enabled=?, sort_order=? WHERE id=? AND box_id=?",
+            array_merge($f, [$itemId, $boxId])
+        );
+    } else {
+        \App\Database::query(
+            "INSERT INTO box_items (classname, name, image, quantity, weight, rarity, enabled, sort_order, box_id) VALUES (?,?,?,?,?,?,?,?,?)",
+            array_merge($f, [$boxId])
+        );
+    }
+    header('Location: /admin/caixas/' . $boxId . '?ok=item');
+    exit;
+});
+
+\App\Router::post('/admin/caixas/{id}/items/{itemId}/delete', function($id, $itemId) use ($config) {
+    \App\Auth::requireCan('packages');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
+    \App\Database::query("DELETE FROM box_items WHERE id = ? AND box_id = ?", [(int)$itemId, (int)$id]);
+    header('Location: /admin/caixas/' . (int)$id . '?ok=item_del');
     exit;
 });
 
