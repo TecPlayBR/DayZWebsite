@@ -204,6 +204,29 @@ Textos do site (nome, tagline, links sociais, regras, termos, anúncios) ficam e
 
 ---
 
+## 📊 Ativar leaderboard + estatísticas (CFTools — opcional)
+
+Quer mostrar **kills, K/D, tempo online e armas** do seu servidor no `/ranking` e no perfil de cada jogador (`/player/SEU_STEAMID`)? O site puxa isso direto do **CFTools Cloud** — você usa o **SEU próprio app** (o segredo fica só com você, controlando só o seu servidor).
+
+**Passo a passo:**
+1. Tenha o **CFTools** ativo no seu servidor DayZ (o agente CFTools rodando — é o que coleta os stats).
+2. Acesse **https://developer.cftools.cloud**, logue e crie uma **Application** → copie o **Application ID** e o **Secret**.
+3. Em **app.cftools.cloud**, abra seu servidor → pegue o **Server API ID** (UUID).
+4. No painel da sua Application, abra a **Grant URL** e **autorize** o app a ver o seu servidor (sem isso a API responde `no-grant`).
+5. Edite `config/config.php` e preencha o bloco:
+   ```php
+   'cftools' => [
+       'app_id'        => 'SEU_APPLICATION_ID',
+       'secret'        => 'SEU_SECRET',
+       'server_api_id' => 'SEU_SERVER_API_ID',
+   ],
+   ```
+6. Pronto. O site cacheia as respostas (respeita os limites do CFTools) e as stats aparecem sozinhas no ranking e nos perfis. **Sem isso preenchido, o site funciona normal — só não mostra stats de gameplay.**
+
+> 🔒 O `secret` é seu e fica só no seu `config/config.php` (que é gitignored e nunca vai pro repositório).
+
+---
+
 ## 🏠 Onde hospedar
 
 Você pode rodar este template em qualquer hospedagem PHP. Recomendações **Tecplay-tested**:

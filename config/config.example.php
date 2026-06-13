@@ -55,6 +55,25 @@ return [
     // Deixe vazio se nao for usar.
     'steam_api_key' => '',
 
+    // ======== CFTOOLS CLOUD (opcional — leaderboard + perfil de gameplay) ========
+    // Liga as estatisticas REAIS do seu servidor (kills, K/D, tempo online, armas)
+    // no /ranking e no perfil /player/{steamid}. Use o SEU PROPRIO app CFTools
+    // (cada dono usa o seu — seu secret so controla o SEU servidor).
+    //
+    // Como obter (3 valores), passo a passo:
+    //   1. Acesse https://developer.cftools.cloud e faca login com sua conta CFTools.
+    //   2. Crie uma "Application" -> copie o Application ID e o Secret -> 'app_id' / 'secret'.
+    //   3. Pegue o "Server API ID" (UUID) do SEU servidor em app.cftools.cloud
+    //      (Server -> Settings/API) -> 'server_api_id'.
+    //   4. Abra a "Grant URL" do app (no painel da Application) e AUTORIZE o app a
+    //      ver o seu servidor. Sem o grant, a API responde "no-grant".
+    // Deixe os 3 vazios se nao for usar — o site funciona normal, so sem stats de gameplay.
+    'cftools' => [
+        'app_id'        => '',   // Application ID do seu app CFTools
+        'secret'        => '',   // Secret do seu app CFTools (NUNCA compartilhe)
+        'server_api_id' => '',   // UUID do seu servidor registrado no CFTools
+    ],
+
     // ======== MERCADO PAGO (pagamentos PIX/boleto/cartao) ========
     // Pega ambos os tokens em: https://www.mercadopago.com.br/developers/panel
     // Sem isso o site funciona, mas o checkout cai em "modo dev" que so
