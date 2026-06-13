@@ -342,6 +342,52 @@ INSERT INTO packages (id, name, icon, coins, bonus_coins, price_brl, bonus_badge
 ('master',   'PACOTE MASTER',   '🪙',  200, 50,  149.90,'BONUS +50',
     '["200 moedas no jogo","Entrega instantanea","Sem expiracao","Maior pacote disponivel"]', '["+50 moedas de bonus"]', 0, NULL, 60);
 
+-- ============================================================
+-- TABELA: discord_integration_log  (migration v1.1.0)
+-- Auditoria das chamadas ao /api/bot-integration.php (mantida curta, ~200).
+-- ============================================================
+DROP TABLE IF EXISTS discord_integration_log;
+CREATE TABLE discord_integration_log (
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    called_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    ip          VARCHAR(45) NOT NULL DEFAULT '',
+    action      VARCHAR(64) NOT NULL DEFAULT '',
+    status_code SMALLINT    NOT NULL DEFAULT 0,
+    INDEX idx_called (called_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- TABELAS: shop_items + shop_spends  (migration v1.4.0 — loja in-game)
+-- Catalogo gastavel (/admin/shop, ?action=shop_items) + debito (?action=spend).
+-- ============================================================
+DROP TABLE IF EXISTS shop_items;
+CREATE TABLE shop_items (
+    id           INT AUTO_INCREMENT PRIMARY KEY,
+    sku          VARCHAR(64)  NOT NULL UNIQUE,
+    name         VARCHAR(120) NOT NULL,
+    icon         VARCHAR(16)  NULL,
+    coins_cost   INT          NOT NULL,
+    enabled      TINYINT(1)   NOT NULL DEFAULT 1,
+    sort_order   INT          NOT NULL DEFAULT 0,
+    deliver_json JSON         NOT NULL,
+    created_at   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_enabled_order (enabled, sort_order)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+DROP TABLE IF EXISTS shop_spends;
+CREATE TABLE shop_spends (
+    id           INT AUTO_INCREMENT PRIMARY KEY,
+    spend_ref    VARCHAR(80)  NOT NULL UNIQUE,
+    steam_id     VARCHAR(20)  NOT NULL,
+    sku          VARCHAR(64)  NOT NULL,
+    coins_spent  INT          NOT NULL,
+    new_balance  INT          NOT NULL,
+    deliver_json JSON         NOT NULL,
+    server_id    INT          NULL,
+    created_at   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_steam (steam_id, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- Settings padrao
 INSERT INTO settings (`key`, `value`) VALUES
 ('bonus_enabled', '1'),
