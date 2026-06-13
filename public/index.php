@@ -65,6 +65,7 @@ require $ROOT . '/src/AuditLog.php';
 require $ROOT . '/src/BalanceLog.php';
 require $ROOT . '/src/Achievements.php';
 require $ROOT . '/src/Servers.php';
+require $ROOT . '/src/Boxes.php';
 require $ROOT . '/src/Html.php';
 require $ROOT . '/src/helpers.php';
 

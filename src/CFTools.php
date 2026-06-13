@@ -105,6 +105,20 @@ class CFTools {
         return $r['data'];
     }
 
+    /** POST autenticado (1 retry se token expirou). Retorna o array de resposta http() cru. */
+    private static function authPost(string $path, array $body): ?array {
+        $token = self::token();
+        if (!$token) return null;
+        $r = self::http('POST', $path, [], $body, $token);
+        if ($r['code'] === 403 && (($r['data']['error'] ?? '') === 'expired-token')) {
+            self::cachePut('token', []);
+            $token = self::token();
+            if (!$token) return null;
+            $r = self::http('POST', $path, [], $body, $token);
+        }
+        return $r;
+    }
+
     // ---------- API pública ----------
 
     /** Steam64 -> cftools_id (cache 7 dias; mapeamento é estável). null se não achar. */
@@ -229,5 +243,60 @@ class CFTools {
         $rows = $d['leaderboard'] ?? ($d['players'] ?? ($d['data'] ?? null));
         if (is_array($rows)) { self::cachePut($ck, ['rows' => $rows]); return $rows; }
         return null;
+    }
+
+    // ---------- GameLabs (drop de item / ações no jogo) ----------
+
+    /** Schema de uma action GameLabs (cache 24h — lista raramente muda + rate limit baixo). */
+    private static function gameLabsAction(string $code): ?array {
+        $c = self::cacheGet('gamelabs-actions', 86400);
+        if (!$c || empty($c['actions'])) {
+            $d = self::authGet('/v1/server/' . self::$serverApiId . '/GameLabs/actions');
+            $list = $d['available_actions'] ?? null;
+            if (!is_array($list)) return null;
+            $c = ['actions' => $list];
+            self::cachePut('gamelabs-actions', $c);
+        }
+        foreach ($c['actions'] as $a) {
+            if (($a['actionCode'] ?? '') === $code) return $a;
+        }
+        return null;
+    }
+
+    /**
+     * Dropa um item no personagem do jogador (precisa estar ONLINE).
+     * Validado live: CFCloud_SpawnPlayerItem + quantity>=1 + referenceKey=SteamID64.
+     * Retorna true se a API aceitou (204). NÃO garante que o player estava online —
+     * cheque isOnline() antes pra decidir entre dropar agora ou enfileirar.
+     */
+    public static function spawnPlayerItem(string $steamId64, string $classname, int $qty = 1, bool $stacked = false): bool {
+        if (!self::isConfigured() || $classname === '') return false;
+        $action = self::gameLabsAction('CFCloud_SpawnPlayerItem');
+        if (!$action || empty($action['parameters'])) return false;
+        $p = $action['parameters'];
+        if (isset($p['item']))     $p['item']['valueString']     = $classname;
+        if (isset($p['quantity'])) $p['quantity']['valueInt']    = max(1, $qty);
+        if (isset($p['stacked']))  $p['stacked']['valueBoolean'] = $stacked ? 1 : 0;
+        if (isset($p['debug']))    $p['debug']['valueBoolean']   = 0;
+        $r = self::authPost('/v1/server/' . self::$serverApiId . '/GameLabs/action', [
+            'actionCode'    => 'CFCloud_SpawnPlayerItem',
+            'actionContext' => 'player',
+            'referenceKey'  => $steamId64,
+            'parameters'    => $p,
+        ]);
+        if ($r === null) return false;
+        if (in_array((int)$r['code'], [200, 204], true)) return true;
+        error_log('[CFTools] spawnPlayerItem -> HTTP ' . $r['code'] . ' ' . ($r['data']['error'] ?? $r['error']));
+        return false;
+    }
+
+    /** O SteamID64 está online AGORA no servidor? (usa o cache de onlinePlayers, 45s). */
+    public static function isOnline(string $steamId64): bool {
+        $rows = self::onlinePlayers();
+        if (!is_array($rows)) return false;
+        foreach ($rows as $r) {
+            if (($r['steam_id'] ?? '') === $steamId64) return true;
+        }
+        return false;
     }
 }
