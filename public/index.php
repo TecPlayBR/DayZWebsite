@@ -383,6 +383,15 @@ $config['delivery_active'] = \App\Settings::deliveryActive();
     $purchaseCount = (int) \App\Database::fetchColumn(
         "SELECT COUNT(*) FROM purchases WHERE steam_id = ? AND mp_status = 'approved'", [$steamId]
     );
+    // Últimas transações aprovadas (pro perfil mostrar o histórico após a compra).
+    $recentTx = \App\Database::fetchAll(
+        "SELECT p.coins_total, p.price_brl, p.created_at, p.payment_method, pk.name AS package_name, pk.icon AS package_icon
+           FROM purchases p
+           LEFT JOIN packages pk ON pk.id = p.package_id
+          WHERE p.steam_id = ? AND p.mp_status = 'approved'
+          ORDER BY p.created_at DESC LIMIT 8",
+        [$steamId]
+    );
 
     // Avatar/nome via XML público (cache 6h em storage/cache — evita curl por view + rate-limit).
     $avatar = null;
@@ -406,6 +415,7 @@ $config['delivery_active'] = \App\Settings::deliveryActive();
         'player'         => $player,
         'stats'          => $stats ?: null,
         'purchase_count' => $purchaseCount,
+        'recent_tx'      => $recentTx,
         'avatar'         => $avatar,
         'display_name'   => $name ?: 'Sobrevivente',
     ]);
@@ -714,38 +724,99 @@ $config['delivery_active'] = \App\Settings::deliveryActive();
         return;
     }
 
-    $siteUrl = rtrim($config['site_url'] ?? ('http://' . $_SERVER['HTTP_HOST']), '/');
+    $siteUrl = rtrim($config['site_url'] ?? ('https://' . $_SERVER['HTTP_HOST']), '/');
+
+    // Pix não cobra R$0 (ex: cupom 100%). Bloqueia com mensagem amigável.
+    if ($priceBrl < 0.01) {
+        \App\View::display('pages.checkout_error', ['config' => $config, 'msg' => 'O cupom cobre 100% do valor — fale com o admin pra liberar manualmente.']);
+        return;
+    }
+
+    // ===== CHECKOUT TRANSPARENTE: Pix DIRETO no site (sem sair pro Mercado Pago) =====
+    // QR copia-e-cola gerado aqui; o jogador paga sem deixar a página. O mp-webhook.php
+    // credita os coins na aprovação. Cartão/boleto ficam no fallback /shop/card/{id}.
+    $expires = gmdate("Y-m-d\\TH:i:s.000P", time() + 1800); // QR válido ~30 min
+    $pay = $mp->createPixPayment([
+        'transaction_amount' => round($priceBrl, 2),
+        'description'        => $pkg['name'] . ' — ' . $coinsTotal . ' moedas',
+        'external_reference' => (string)$purchaseId,
+        'notification_url'   => $siteUrl . '/api/mp-webhook.php',
+        'date_of_expiration' => $expires,
+        'payer'              => ['email' => $steamId . '@pix.tecplay.inf.br'],
+    ]);
+    $tx = $pay['point_of_interaction']['transaction_data'] ?? null;
+    if (!$pay || !$tx || empty($tx['qr_code'])) {
+        \App\View::display('pages.checkout_error', ['config' => $config, 'msg' => 'Não foi possível gerar o Pix. Tente novamente em alguns minutos.']);
+        return;
+    }
+    \App\Database::query(
+        "UPDATE purchases SET mp_payment_id = ? WHERE id = ?",
+        [(string)$pay['id'], $purchaseId]
+    );
+
+    \App\View::display('pages.checkout_pix', [
+        'config'      => $config,
+        'purchase_id' => $purchaseId,
+        'steam_id'    => $steamId,
+        'pkg'         => $pkg,
+        'coins_total' => $coinsTotal,
+        'price_brl'   => $priceBrl,
+        'discount'    => $discount,
+        'qr_code'     => $tx['qr_code'],
+        'qr_base64'   => $tx['qr_code_base64'] ?? '',
+        'ticket_url'  => $tx['ticket_url'] ?? '',
+        'expires_at'  => $pay['date_of_expiration'] ?? $expires,
+    ]);
+});
+
+// Polling do checkout transparente: o JS pergunta aqui se o Pix já caiu. JSON.
+\App\Router::get('/shop/status/{id}', function($id) use ($config) {
+    header('Content-Type: application/json; charset=utf-8');
+    $p = \App\Database::fetchOne(
+        "SELECT steam_id, mp_status, delivered_at FROM purchases WHERE id = ? LIMIT 1",
+        [(int)$id]
+    );
+    if (!$p) { http_response_code(404); echo json_encode(['error' => 'not_found']); return; }
+    $paid = !empty($p['delivered_at']) || $p['mp_status'] === 'approved';
+    echo json_encode([
+        'status'   => $p['mp_status'],
+        'paid'     => $paid,
+        'redirect' => $paid ? ('/player/' . $p['steam_id']) : null,
+    ]);
+});
+
+// Fallback cartão/boleto: cria preference pra uma purchase pendente e manda pro MP.
+\App\Router::get('/shop/card/{id}', function($id) use ($config) {
+    $p = \App\Database::fetchOne("SELECT * FROM purchases WHERE id = ? LIMIT 1", [(int)$id]);
+    if (!$p) { http_response_code(404); \App\View::display('pages.checkout_error', ['config' => $config, 'msg' => 'Compra não encontrada.']); return; }
+    if (!empty($p['delivered_at'])) { header('Location: /player/' . $p['steam_id']); exit; }
+    $mp = new \App\MercadoPago($config['mercado_pago']['access_token'] ?? '', $config['mercado_pago']['webhook_secret'] ?? null);
+    if (!$mp->isConfigured()) { http_response_code(503); \App\View::display('pages.checkout_error', ['config' => $config, 'msg' => 'Pagamento indisponível.']); return; }
+    $siteUrl = rtrim($config['site_url'] ?? ('https://' . $_SERVER['HTTP_HOST']), '/');
+    $pkgRow = \App\Database::fetchOne("SELECT name FROM packages WHERE id = ? LIMIT 1", [$p['package_id']]);
     $pref = $mp->createPreference([
         'items' => [[
-            'id'          => $pkg['id'],
-            'title'       => $pkg['name'] . ' — ' . $coinsTotal . ' moedas',
-            'description' => 'Compra para SteamID ' . $steamId,
+            'id'          => $p['package_id'],
+            'title'       => ($pkgRow['name'] ?? 'Moedas') . ' — ' . (int)$p['coins_total'] . ' moedas',
+            'description' => 'Compra para SteamID ' . $p['steam_id'],
             'quantity'    => 1,
             'currency_id' => 'BRL',
-            'unit_price'  => $priceBrl,
+            'unit_price'  => (float)$p['price_brl'],
         ]],
-        'external_reference' => (string)$purchaseId,
+        'external_reference' => (string)$p['id'],
         'back_urls' => [
-            'success' => $siteUrl . '/shop/return?status=success',
+            'success' => $siteUrl . '/player/' . $p['steam_id'],
             'pending' => $siteUrl . '/shop/return?status=pending',
             'failure' => $siteUrl . '/shop/return?status=failure',
         ],
         'auto_return'    => 'approved',
         'notification_url' => $siteUrl . '/api/mp-webhook.php',
-        'statement_descriptor' => $config['site_name'] ?? 'DAYZ',
+        'statement_descriptor' => $config['settings']['site_name'] ?? $config['site_name'] ?? 'DAYZ',
     ]);
-
     if (!$pref || empty($pref['init_point'])) {
         \App\View::display('pages.checkout_error', ['config' => $config, 'msg' => 'Não foi possível criar o pagamento. Tente novamente em alguns minutos.']);
         return;
     }
-
-    // Salva preference id pra rastrear
-    \App\Database::query(
-        "UPDATE purchases SET mp_payment_id = ? WHERE id = ?",
-        [$pref['id'], $purchaseId]
-    );
-
     header('Location: ' . $pref['init_point']);
     exit;
 });
