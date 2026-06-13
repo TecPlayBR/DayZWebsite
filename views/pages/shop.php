@@ -34,7 +34,7 @@ $siteName = $config['settings']['site_name'] ?? $config['site_name'] ?? 'DayZ';
 <section class="hero" style="min-height: 50vh; padding-bottom: 2rem;">
     <div class="hero-bg" style="background-image: linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.95) 100%), url('<?= asset('img/background3.png') ?>');"></div>
     <div class="container hero-content">
-        <span class="hero-kicker">// <?= e(__('shop.subtitle')) ?></span>
+        <span class="hero-kicker">// <?= e(($config['delivery_active'] ?? false) ? __('shop.subtitle') : __('shop.subtitle_manual', [], 'Pague com PIX, boleto ou cartão. Liberação após a confirmação.')) ?></span>
         <h1 class="hero-title"><?= e(__('shop.title')) ?></h1>
     </div>
 </section>
