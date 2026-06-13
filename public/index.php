@@ -2402,9 +2402,11 @@ $BRAND_SLOTS = [
 
     $publicUrl = rtrim(($config['app_url'] ?? ('https://' . ($_SERVER['HTTP_HOST'] ?? 'localhost'))), '/');
     $tok = rawurlencode($token);
-    $apiGet  = $publicUrl . '/api/getcoins.php?token=' . $tok;
-    $apiPost = $publicUrl . '/api/postcoins.php?token=' . $tok;
-    $jsonSnippet = "\"EnableWebsiteAPI\": 1,\n\"Api_Get\": \"" . $apiGet . "&steamid=#STEAMID#\",\n\"Api_Post\": \"" . $apiPost . "\"";
+    // O mod Sparda cola o SteamID no FINAL da URL (GetRestContext(url)+GET(steamid)).
+    // Por isso as URLs terminam em "&steamid=" — o mod completa com o ID do jogador.
+    $apiGet  = $publicUrl . '/api/getcoins.php?token=' . $tok . '&steamid=';
+    $apiPost = $publicUrl . '/api/postcoins.php?token=' . $tok . '&steamid=';
+    $jsonSnippet = "\"EnableWebsiteAPI\": 1,\n\"Api_Get\": \"" . $apiGet . "\",\n\"Api_Post\": \"" . $apiPost . "\"";
 
     $log = [];
     try {

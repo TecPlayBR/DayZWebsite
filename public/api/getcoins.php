@@ -27,6 +27,9 @@ $config = require $configFile;
 header('Content-Type: application/json; charset=utf-8');
 
 $token    = $_GET['token'] ?? $_SERVER['HTTP_X_SPARDA_TOKEN'] ?? '';
+// Mod Sparda chama URL limpa + anexa ?steamid=; não manda ?token=. Aceita token
+// no PATH_INFO: /api/getcoins.php/<TOKEN>?steamid=765... (compat total com o mod).
+if ($token === '' && !empty($_SERVER['PATH_INFO'])) { $token = ltrim((string) $_SERVER['PATH_INFO'], '/'); }
 $expected = (string) ($config['agent_token'] ?? '');
 if ($expected === '' || !hash_equals($expected, (string) $token)) {
     http_response_code(401);

@@ -66,7 +66,7 @@
 <div class="stat-card" style="margin-bottom: 1rem;">
     <div class="label">URLs pro mod (Api_Get / Api_Post)</div>
     <p style="color:var(--dim); font-size:0.85rem; margin: 0.7rem 0;">
-        Cola cada uma no campo correspondente da config do mod Sparda. <strong>Já vêm com o token.</strong>
+        Cola cada uma no campo correspondente da config do mod Sparda. <strong>Já vêm com o token e terminam em <code>&amp;steamid=</code></strong> — o mod cola o SteamID do jogador no final automaticamente. Não remova o final.
     </p>
 
     <div style="margin-bottom:0.9rem;">

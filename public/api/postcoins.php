@@ -25,14 +25,19 @@ $config = require $configFile;
 
 header('Content-Type: application/json; charset=utf-8');
 
+$__rawbody = (string) file_get_contents('php://input');
+
 $token    = $_GET['token'] ?? $_SERVER['HTTP_X_SPARDA_TOKEN'] ?? '';
+// Mod Sparda chama URL limpa + body JSON; aceita token no PATH_INFO também:
+// /api/postcoins.php/<TOKEN>  (compat total com o mod, sem ?token=).
+if ($token === '' && !empty($_SERVER['PATH_INFO'])) { $token = ltrim((string) $_SERVER['PATH_INFO'], '/'); }
 $expected = (string) ($config['agent_token'] ?? '');
 if ($expected === '' || !hash_equals($expected, (string) $token)) {
     http_response_code(401);
     die(json_encode(['error' => 'unauthorized']));
 }
 
-$input = json_decode((string) file_get_contents('php://input'), true);
+$input = json_decode($__rawbody, true);
 if (!is_array($input) || !$input) $input = $_POST;
 
 $steamid = trim((string) ($input['steamid'] ?? $_GET['steamid'] ?? ''));
