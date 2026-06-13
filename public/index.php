@@ -903,6 +903,83 @@ if (!empty($config['db'])) {
     exit;
 });
 
+// ── Esqueci minha senha (reset por email) ──────────────────────────────
+\App\Router::get('/admin/forgot', function() use ($config) {
+    if (\App\Auth::check()) { header('Location: /admin'); exit; }
+    \App\View::display('admin.forgot', ['config' => $config, 'sent' => isset($_GET['sent'])]);
+});
+
+\App\Router::post('/admin/forgot', function() use ($config, $ROOT) {
+    $ip = \App\RateLimit::clientIp();
+    if (!\App\RateLimit::check('forgot_' . $ip, 5, 15 * 60)['allowed']) { header('Location: /admin/forgot?e=rate'); exit; }
+    if (!\App\Csrf::check()) { header('Location: /admin/forgot?e=csrf'); exit; }
+
+    $email = trim(strtolower($_POST['email'] ?? ''));
+    // Resposta SEMPRE generica (anti-enumeracao de emails).
+    if ($email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $user = \App\Database::fetchOne("SELECT id, username, email FROM admin_users WHERE email = ? LIMIT 1", [$email]);
+        if ($user && !empty($user['email'])) {
+            $token   = bin2hex(random_bytes(32));
+            $expires = date('Y-m-d H:i:s', time() + 3600); // 1h
+            \App\Database::query(
+                "UPDATE admin_users SET reset_token_hash = ?, reset_expires = ? WHERE id = ?",
+                [hash('sha256', $token), $expires, (int)$user['id']]
+            );
+            $siteUrl = rtrim($config['site_url'] ?? '', '/');
+            $link    = $siteUrl . '/admin/reset?token=' . $token;
+            $siteName = htmlspecialchars($config['site_name'] ?? 'seu site');
+            require_once $ROOT . '/src/Mailer.php';
+            \App\Mailer::init($config['mail'] ?? []);
+            $html = '<div style="font-family:Arial,sans-serif;background:#0d0d10;padding:24px;color:#d4d4d8;">'
+                . '<h2 style="color:#fff;">Redefinir senha do painel</h2>'
+                . '<p>Recebemos um pedido pra redefinir a senha do admin de <strong>' . $siteName . '</strong>.</p>'
+                . '<p><a href="' . htmlspecialchars($link) . '" style="display:inline-block;padding:12px 24px;background:#a855f7;color:#fff;text-decoration:none;border-radius:8px;">Redefinir minha senha</a></p>'
+                . '<p style="font-size:13px;color:#a1a1aa;">O link vale por 1 hora e só pode ser usado uma vez. Se você não pediu isso, ignore — sua senha continua a mesma.</p>'
+                . '<p style="font-size:12px;color:#71717a;word-break:break-all;">Ou cole no navegador: ' . htmlspecialchars($link) . '</p>'
+                . '</div>';
+            @\App\Mailer::send($email, 'Redefinir senha do painel', $html);
+        }
+    }
+    header('Location: /admin/forgot?sent=1');
+    exit;
+});
+
+\App\Router::get('/admin/reset', function() use ($config) {
+    if (\App\Auth::check()) { header('Location: /admin'); exit; }
+    $token = (string)($_GET['token'] ?? '');
+    $valid = false;
+    if ($token !== '') {
+        $row = \App\Database::fetchOne(
+            "SELECT id FROM admin_users WHERE reset_token_hash = ? AND reset_expires > NOW() LIMIT 1",
+            [hash('sha256', $token)]
+        );
+        $valid = (bool)$row;
+    }
+    \App\View::display('admin.reset', ['config' => $config, 'token' => $token, 'valid' => $valid]);
+});
+
+\App\Router::post('/admin/reset', function() use ($config) {
+    if (!\App\Csrf::check()) { header('Location: /admin/login?e=csrf'); exit; }
+    $ip = \App\RateLimit::clientIp();
+    if (!\App\RateLimit::check('reset_' . $ip, 10, 15 * 60)['allowed']) { header('Location: /admin/login?e=rate'); exit; }
+
+    $token = (string)($_POST['token'] ?? '');
+    $pass  = (string)($_POST['password'] ?? '');
+    $row = $token !== '' ? \App\Database::fetchOne(
+        "SELECT id FROM admin_users WHERE reset_token_hash = ? AND reset_expires > NOW() LIMIT 1",
+        [hash('sha256', $token)]
+    ) : null;
+    if (!$row) { header('Location: /admin/reset?token=' . urlencode($token) . '&e=invalid'); exit; }
+    if (strlen($pass) < 8) { header('Location: /admin/reset?token=' . urlencode($token) . '&e=short'); exit; }
+
+    \App\Database::query(
+        "UPDATE admin_users SET password_hash = ?, reset_token_hash = NULL, reset_expires = NULL WHERE id = ?",
+        [password_hash($pass, PASSWORD_BCRYPT), (int)$row['id']]
+    );
+    header('Location: /admin/login?reset=ok');
+    exit;
+});
+
 \App\Router::get('/admin/logout', function() {
     \App\Auth::logout();
     header('Location: /admin/login');

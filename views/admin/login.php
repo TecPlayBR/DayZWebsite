@@ -27,6 +27,8 @@
             <div class="login-error">Sessão expirada. Recarregue a página.</div>
         <?php elseif (!empty($error)): ?>
             <div class="login-error">Usuário ou senha inválidos.</div>
+        <?php elseif (($_GET['reset'] ?? '') === 'ok'): ?>
+            <div class="login-error" style="border-color:#16a34a;color:#86efac;">Senha redefinida! Faça login com a nova senha.</div>
         <?php endif; ?>
 
         <div class="field">
@@ -39,6 +41,7 @@
         </div>
 
         <button type="submit" class="btn">Entrar</button>
+        <p style="text-align:center;margin-top:14px;font-size:0.9rem;"><a href="/admin/forgot">Esqueci minha senha</a></p>
     </form>
 </div>
 </body>
