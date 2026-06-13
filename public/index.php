@@ -312,12 +312,14 @@ if (!empty($config['db'])) {
 \App\Router::get('/ranking', function() use ($config) {
     // Abas de gameplay (CFTools) + a aba padrão de investimento (dados do site).
     $gameplayStats = [
-        'kills'        => 'Kills',
-        'kdratio'      => 'K/D',
-        'playtime'     => 'Tempo online',
-        'longest_kill' => 'Kill mais longa',
-        'deaths'       => 'Mortes',
+        'kills'          => 'Kills',
+        'kills_infected' => 'Zumbis',
+        'kdratio'        => 'K/D',
+        'playtime'       => 'Tempo online',
+        'longest_kill'   => 'Kill mais longa',
     ];
+    $rewardsRaw = \App\Settings::get('leaderboard_rewards', '');
+    $rewards = $rewardsRaw ? (json_decode($rewardsRaw, true) ?: []) : [];
     $cfOn = \App\CFTools::isConfigured();
     $stat = (string)($_GET['stat'] ?? 'invest');
 
@@ -325,7 +327,7 @@ if (!empty($config['db'])) {
         $lb = \App\CFTools::leaderboard($stat, 50) ?: [];
         \App\View::display('pages.ranking', [
             'config' => $config, 'mode' => 'gameplay', 'stat' => $stat,
-            'gameplay_stats' => $gameplayStats, 'cftools_on' => true, 'lb' => $lb,
+            'gameplay_stats' => $gameplayStats, 'cftools_on' => true, 'lb' => $lb, 'rewards' => $rewards,
         ]);
         return;
     }
@@ -339,7 +341,7 @@ if (!empty($config['db'])) {
     );
     \App\View::display('pages.ranking', [
         'config' => $config, 'mode' => 'invest', 'top' => $top,
-        'gameplay_stats' => $gameplayStats, 'cftools_on' => $cfOn,
+        'gameplay_stats' => $gameplayStats, 'cftools_on' => $cfOn, 'rewards' => $rewards,
     ]);
 });
 
@@ -1533,6 +1535,47 @@ $collectDashboardData = function() {
     exit;
 });
 
+// ============ RECOMPENSAS DO LEADERBOARD ============
+// Categorias ranqueáveis no CFTools que aceitam premiação. Animais NÃO entra
+// (o CFTools não expõe leaderboard de animais — só stat individual no perfil).
+$REWARD_CATEGORIES = [
+    'kills'          => 'Kills (jogadores)',
+    'kills_infected' => 'Zumbis mortos',
+    'kdratio'        => 'K/D',
+    'playtime'       => 'Tempo online',
+    'longest_kill'   => 'Kill mais longa',
+];
+
+\App\Router::get('/admin/rewards', function() use ($config, $REWARD_CATEGORIES) {
+    \App\Auth::requireCan('settings');
+    $raw = \App\Settings::get('leaderboard_rewards', '');
+    $rewards = $raw ? (json_decode($raw, true) ?: []) : [];
+    \App\View::display('admin.rewards', [
+        'config' => $config, 'categories' => $REWARD_CATEGORIES, 'rewards' => $rewards,
+        'cftools_on' => \App\CFTools::isConfigured(),
+    ]);
+});
+
+\App\Router::post('/admin/rewards', function() use ($REWARD_CATEGORIES) {
+    \App\Auth::requireCan('settings');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
+    $out = ['enabled' => !empty($_POST['master_enabled']) ? 1 : 0, 'cats' => []];
+    foreach (array_keys($REWARD_CATEGORIES) as $key) {
+        $out['cats'][$key] = [
+            'enabled' => !empty($_POST['cat_' . $key . '_enabled']) ? 1 : 0,
+            'coins'   => [
+                '1' => max(0, (int)($_POST['cat_' . $key . '_1'] ?? 0)),
+                '2' => max(0, (int)($_POST['cat_' . $key . '_2'] ?? 0)),
+                '3' => max(0, (int)($_POST['cat_' . $key . '_3'] ?? 0)),
+            ],
+        ];
+    }
+    \App\Settings::set('leaderboard_rewards', json_encode($out, JSON_UNESCAPED_UNICODE));
+    \App\AuditLog::record('rewards.save', 'rewards', null);
+    header('Location: /admin/rewards?ok=1');
+    exit;
+});
+
 \App\Router::get('/admin/pages', function() use ($config) {
     \App\Auth::requireCan('pages');
     $pages = \App\Database::fetchAll(
@@ -2300,7 +2343,6 @@ $BRAND_SLOTS = [
 \App\Router::post('/admin/discord-integration/regenerate', function() use ($config) {
     \App\Auth::requireCan('discord_integration');
     if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
-    \App\Csrf::require();
     // tcp_ + 48 hex chars (24 bytes = 192 bits de entropia) = ~52 chars
     $new = 'tcp_' . bin2hex(random_bytes(24));
     \App\Database::query(

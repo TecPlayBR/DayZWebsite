@@ -42,6 +42,7 @@
             ['servers',             '/admin/servers',            '🛰 Integração Agent',    str_starts_with($current, '/admin/servers')],
             ['discord_integration', '/admin/discord-integration','🤖 Integração Discord',  str_starts_with($current, '/admin/discord-integration')],
             ['combos',              '/admin/combos',             '🎁 Combos',              str_starts_with($current, '/admin/combos')],
+            ['settings',            '/admin/rewards',            '🏆 Recompensas',         str_starts_with($current, '/admin/rewards')],
             ['purchases',           '/admin/purchases',          '💰 Compras',             str_starts_with($current, '/admin/purchases')],
             ['pages',               '/admin/pages',              '📄 Páginas',             str_starts_with($current, '/admin/pages')],
             ['announcements',       '/admin/announcements',      '📢 Anúncios',            str_starts_with($current, '/admin/announcements')],

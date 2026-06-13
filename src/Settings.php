@@ -44,6 +44,8 @@ class Settings {
         'live_purchases_anonymize' => 'bool',
         'live_purchases_show_price'=> 'bool',
         'bonus_enabled'            => 'bool',
+        // Config de recompensas do leaderboard (JSON gerenciado em /admin/rewards).
+        'leaderboard_rewards'      => 'json',
     ];
 
     private static array $cache = [];
@@ -96,6 +98,7 @@ class Settings {
         switch ($type) {
             case 'int':  return (string) (int) $v;
             case 'bool': return ($v === '1' || $v === 'on' || $v === 'true') ? '1' : '0';
+            case 'json': json_decode($v); return json_last_error() === JSON_ERROR_NONE ? $v : '{}';
             // url/datetime/string: trim apenas (o whitelist já é a barreira de segurança;
             // ser estrito demais aqui só quebraria o form do admin com falso-negativo).
             default:     return $v;

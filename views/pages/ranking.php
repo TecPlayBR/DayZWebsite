@@ -6,6 +6,7 @@ $lb             = $lb ?? [];
 $gameplay_stats = $gameplay_stats ?? [];
 $cftools_on     = $cftools_on ?? false;
 $stat           = $stat ?? 'invest';
+$rewards        = $rewards ?? [];
 ?>
 <?php \App\View::extend('layouts.main'); ?>
 <?php \App\View::with('hero_image', 'img/background5.png'); // LCP preload sync ?>
@@ -39,8 +40,13 @@ $stat           = $stat ?? 'invest';
                     <p>Ainda sem dados de <strong><?= e($gameplay_stats[$stat] ?? $stat) ?></strong> — o servidor pode não ter estatísticas registradas ainda.</p>
                 </div>
             <?php else: ?>
+                <?php
+                // Premiação ativa pra esta categoria?
+                $rw   = $rewards['cats'][$stat] ?? [];
+                $rwOn = !empty($rewards['enabled']) && !empty($rw['enabled']);
+                ?>
                 <table class="ranking-table">
-                    <thead><tr><th style="width:60px;">#</th><th>Jogador</th><th><?= e($gameplay_stats[$stat] ?? $stat) ?></th></tr></thead>
+                    <thead><tr><th style="width:60px;">#</th><th>Jogador</th><th><?= e($gameplay_stats[$stat] ?? $stat) ?></th><?php if ($rwOn): ?><th>🪙 Prêmio</th><?php endif; ?></tr></thead>
                     <tbody>
                         <?php foreach ($lb as $i => $p):
                             $pos  = (int)($p['rank'] ?? $i + 1);
@@ -50,16 +56,20 @@ $stat           = $stat ?? 'invest';
                             elseif ($stat === 'kdratio')    { $val = number_format((float)$raw, 2, ',', '.'); }
                             elseif ($stat === 'longest_kill') { $val = (int)$raw . ' m'; }
                             else                            { $val = number_format((int)$raw, 0, ',', '.'); }
+                            $prize = ($rwOn && $i < 3) ? (int)($rw['coins'][(string)($i + 1)] ?? 0) : 0;
                         ?>
-                            <tr>
+                            <tr<?= $prize > 0 ? ' class="rank-prized"' : '' ?>>
                                 <td class="rank-num"><?= $i < 3 ? ['🥇','🥈','🥉'][$i] : '#' . $pos ?></td>
                                 <td><strong><?= e($name) ?></strong></td>
                                 <td class="rank-spent"><?= e($val) ?></td>
+                                <?php if ($rwOn): ?>
+                                    <td><?= $prize > 0 ? '<span class="rank-prize">🪙 ' . number_format($prize, 0, ',', '.') . '</span>' : '<span class="dim">—</span>' ?></td>
+                                <?php endif; ?>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
-                <p style="text-align:center; margin-top:2rem; color:var(--dim); font-size:.85rem;">Dados do servidor via CFTools · atualiza a cada poucos minutos</p>
+                <p style="text-align:center; margin-top:2rem; color:var(--dim); font-size:.85rem;">Dados do servidor via CFTools · atualiza a cada poucos minutos<?= $rwOn ? ' · premiação mensal em moedas pros melhores' : '' ?></p>
             <?php endif; ?>
 
         <?php elseif (empty($top)): ?>
@@ -140,6 +150,8 @@ $stat           = $stat ?? 'invest';
 }
 .rank-tab:hover { color:var(--bone); border-color:var(--rust); }
 .rank-tab.active { background:var(--rust); color:var(--bone); border-color:var(--rust); }
+.rank-prize { color:var(--hazard); font-family:var(--font-display); white-space:nowrap; }
+.rank-prized td { background:rgba(217,164,65,.06); }
 .podium {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
