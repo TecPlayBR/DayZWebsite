@@ -382,7 +382,7 @@ $config['delivery_active'] = \App\Settings::deliveryActive();
     $stats = \App\Database::fetchOne("SELECT * FROM player_stats WHERE steam_id = ?", [$steamId]);
     // Se o CFTools está configurado e o cache local está velho (>15min) ou vazio,
     // busca direto na API (que tem seu próprio cache de 10min) e atualiza o player_stats.
-    $stale = !$stats || (strtotime($stats['updated_at'] ?? '1970-01-01 00:00:00') < time() - 900);
+    $stale = !$stats || (strtotime($stats['updated_at'] ?? '1970-01-01 00:00:00') < time() - 300);
     if (\App\CFTools::isConfigured() && $stale) {
         $fresh = \App\CFTools::syncSteam($steamId);
         if ($fresh) $stats = $fresh;

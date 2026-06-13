@@ -119,11 +119,11 @@ class CFTools {
         return $id;
     }
 
-    /** Stats individuais (v2). Cache 10min. */
+    /** Stats individuais (v2). Cache 5min (refresca o perfil mais rápido). */
     public static function player(string $cftoolsId): ?array {
         if (!self::isConfigured()) return null;
         $ck = 'player-' . $cftoolsId;
-        $c = self::cacheGet($ck, 600);
+        $c = self::cacheGet($ck, 300);
         if ($c) return $c;
         $d = self::authGet('/v2/server/' . self::$serverApiId . '/player', ['cftools_id' => $cftoolsId]);
         if ($d) self::cachePut($ck, $d);
