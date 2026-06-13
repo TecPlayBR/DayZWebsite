@@ -14,6 +14,14 @@ namespace App;
 class Auth {
     private const SESSION_KEY = 'admin_user';
 
+    /** TTL de inatividade da sessão admin (segundos). 0 = desativado.
+     *  Setado no bootstrap a partir de config['admin_session_ttl']. */
+    private static int $sessionTtl = 0;
+
+    public static function setSessionTtl(int $seconds): void {
+        self::$sessionTtl = max(0, $seconds);
+    }
+
     /** Matriz role → áreas permitidas. super_admin tem '*' (todas).
      *  IMPORTANTE: support NÃO vê dashboard nem nada com valor financeiro —
      *  só relação direta com jogadores (atendimento, moedas, reviews). */
@@ -56,10 +64,11 @@ class Auth {
         if (!password_verify($password, $user['password_hash'])) return false;
 
         $_SESSION[self::SESSION_KEY] = [
-            'id'       => (int)$user['id'],
-            'username' => $user['username'],
-            'role'     => $user['role'] ?? 'super_admin',
-            'login_at' => time(),
+            'id'            => (int)$user['id'],
+            'username'      => $user['username'],
+            'role'          => $user['role'] ?? 'super_admin',
+            'login_at'      => time(),
+            'last_activity' => time(),
         ];
 
         Database::query("UPDATE admin_users SET last_login_at = NOW() WHERE id = ?", [$user['id']]);
@@ -94,6 +103,17 @@ class Auth {
         if (!self::check()) {
             header('Location: /admin/login');
             exit;
+        }
+        // Timeout por inatividade: se passou do TTL desde a última ação, expira a sessão.
+        if (self::$sessionTtl > 0) {
+            $last = $_SESSION[self::SESSION_KEY]['last_activity']
+                 ?? $_SESSION[self::SESSION_KEY]['login_at'] ?? time();
+            if (time() - $last > self::$sessionTtl) {
+                self::logout();
+                header('Location: /admin/login?expired=1');
+                exit;
+            }
+            $_SESSION[self::SESSION_KEY]['last_activity'] = time();
         }
     }
 

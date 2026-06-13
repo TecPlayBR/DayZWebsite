@@ -62,11 +62,23 @@ class RateLimit {
         @unlink($file);
     }
 
-    /** Helper pra pegar IP do cliente (respeita X-Forwarded-For se atras de proxy) */
+    /**
+     * IP do cliente — à prova de spoof. X-Forwarded-For SÓ é considerado quando a
+     * conexão chega de um proxy LOCAL/privado (reverse proxy na mesma máquina/rede).
+     * Em hospedagem direta (cPanel/VPS), REMOTE_ADDR já é o IP real do cliente e o
+     * X-Forwarded-For seria forjado por um atacante pra furar o rate-limit (cada IP
+     * falso = bucket novo). Atrás de CDN/Cloudflare, ajuste conforme sua infra.
+     */
     public static function clientIp(): string {
-        if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            return trim(explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0]);
+        $remote = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+        // filter_var com NO_PRIV_RANGE|NO_RES_RANGE retorna false se o IP é privado/reservado.
+        $remoteIsPublic = filter_var($remote, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false;
+        if (!$remoteIsPublic && !empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $first = trim(explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0]);
+            if (filter_var($first, FILTER_VALIDATE_IP)) {
+                return $first;
+            }
         }
-        return $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+        return $remote;
     }
 }

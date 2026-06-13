@@ -77,7 +77,6 @@ class MercadoPago {
     }
 
     private function request(string $method, string $path, ?array $body = null, ?array $extraHeaders = null): ?array {
-        $ch = curl_init($this->baseUrl . $path);
         $headers = [
             'Authorization: Bearer ' . $this->accessToken,
             'Content-Type: application/json',
@@ -85,30 +84,47 @@ class MercadoPago {
         if ($extraHeaders) {
             $headers = array_merge($headers, $extraHeaders);
         }
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_CUSTOMREQUEST  => $method,
-            CURLOPT_HTTPHEADER     => $headers,
-            CURLOPT_TIMEOUT        => 15,
-        ]);
-        if ($body !== null) {
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
+        $payload = $body !== null ? json_encode($body) : null;
+
+        // Retry com backoff em falhas TRANSITÓRIAS (timeout de rede, 5xx, 429).
+        // Seguro: pagamentos usam X-Idempotency-Key (em $extraHeaders), reutilizada
+        // entre as tentativas -> retry NÃO duplica cobrança. GET é naturalmente idempotente.
+        $maxAttempts = 3;
+        for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
+            $ch = curl_init($this->baseUrl . $path);
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_CUSTOMREQUEST  => $method,
+                CURLOPT_HTTPHEADER     => $headers,
+                CURLOPT_CONNECTTIMEOUT => 8,
+                CURLOPT_TIMEOUT        => 15,
+            ]);
+            if ($payload !== null) {
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+            }
+            $resp = curl_exec($ch);
+            $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $err  = curl_error($ch);
+            curl_close($ch);
+
+            $transient = ($err !== '') || $code >= 500 || $code === 429;
+            if ($transient && $attempt < $maxAttempts) {
+                usleep(200000 * $attempt); // 0.2s, 0.4s
+                continue;
+            }
+            if ($err) {
+                error_log("MP request error (tentativa $attempt): $err");
+                return null;
+            }
+            if ($code >= 400) {
+                // Loga so codigo+path. A resposta do MP pode conter dados do pagador
+                // (PII) / detalhes sensiveis -> NAO vai pro error_log.
+                error_log("MP $method $path HTTP $code (corpo omitido)");
+                return null;
+            }
+            $decoded = json_decode($resp, true);
+            return is_array($decoded) ? $decoded : null;
         }
-        $resp = curl_exec($ch);
-        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $err  = curl_error($ch);
-        curl_close($ch);
-        if ($err) {
-            error_log("MP request error: $err");
-            return null;
-        }
-        if ($code >= 400) {
-            // Loga so codigo+path. A resposta do MP pode conter dados do pagador
-            // (PII) / detalhes sensiveis -> NAO vai pro error_log.
-            error_log("MP $method $path HTTP $code (corpo omitido)");
-            return null;
-        }
-        $decoded = json_decode($resp, true);
-        return is_array($decoded) ? $decoded : null;
+        return null;
     }
 }

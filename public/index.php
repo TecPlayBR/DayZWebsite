@@ -138,6 +138,9 @@ if (!empty($config['db'])) {
 // por request e centraliza o whitelist/validação de escrita.
 \App\Settings::init($config['settings'] ?? []);
 
+// Timeout de inatividade da sessão admin (segundos). Default 1h.
+\App\Auth::setSessionTtl((int)($config['admin_session_ttl'] ?? 3600));
+
 // i18n
 \App\Lang::init(
     $ROOT . '/lang',
@@ -424,7 +427,7 @@ if (!empty($config['db'])) {
     }
 
     // Rate-limit por IP — anti-bot e anti-scrape. 10/hora basta pra usuario real.
-    $ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+    $ip = \App\RateLimit::clientIp();
     $rl = \App\RateLimit::check('newsletter:' . $ip, 10, 3600);
     if (empty($rl['allowed'])) {
         http_response_code(429);
