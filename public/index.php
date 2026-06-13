@@ -50,6 +50,7 @@ require $ROOT . '/src/Router.php';
 require $ROOT . '/src/View.php';
 require $ROOT . '/src/Lang.php';
 require $ROOT . '/src/Database.php';
+require $ROOT . '/src/Settings.php';
 require $ROOT . '/src/Auth.php';
 require $ROOT . '/src/Csrf.php';
 require $ROOT . '/src/RateLimit.php';
@@ -133,6 +134,10 @@ if (!empty($config['db'])) {
     }
 }
 
+// Settings: snapshot em memória (cache) — evita re-consultar a mesma chave N vezes
+// por request e centraliza o whitelist/validação de escrita.
+\App\Settings::init($config['settings'] ?? []);
+
 // i18n
 \App\Lang::init(
     $ROOT . '/lang',
@@ -153,22 +158,16 @@ if (!empty($config['db'])) {
     header('Content-Type: application/json; charset=utf-8');
     header('Cache-Control: public, max-age=15'); // micro-cache evita martelar DB
 
-    $enabled = (int)\App\Database::fetchColumn(
-        "SELECT `value` FROM settings WHERE `key` = 'live_purchases_enabled'"
-    );
+    $enabled = \App\Settings::getInt('live_purchases_enabled');
     if (!$enabled) {
         echo json_encode(['enabled' => false, 'items' => []]);
         return;
     }
-    $anonymize = (int)\App\Database::fetchColumn(
-        "SELECT `value` FROM settings WHERE `key` = 'live_purchases_anonymize'"
-    );
+    $anonymize = \App\Settings::getInt('live_purchases_anonymize');
     if ($anonymize === 0) $anonymize = 0; else $anonymize = 1; // default on
 
     // Mostra preço? Default: NÃO (admin pode revelar)
-    $showPrice = (int)\App\Database::fetchColumn(
-        "SELECT `value` FROM settings WHERE `key` = 'live_purchases_show_price'"
-    );
+    $showPrice = \App\Settings::getInt('live_purchases_show_price');
 
     $rows = \App\Database::fetchAll(
         "SELECT p.coins_total, p.price_brl, p.created_at,
@@ -261,7 +260,7 @@ if (!empty($config['db'])) {
     $packages = \App\Database::fetchAll(
         "SELECT * FROM packages WHERE enabled = 1 ORDER BY featured DESC, sort_order ASC"
     );
-    $bonusEnabled = (int)\App\Database::fetchColumn("SELECT `value` FROM settings WHERE `key` = 'bonus_enabled'");
+    $bonusEnabled = \App\Settings::getInt('bonus_enabled');
     $serverStatus = \App\ServerStatus::fetch($config['settings']['battlemetrics_id'] ?? null);
 
     // Promo sazonal: idem loja, pra preço riscado bater
@@ -340,7 +339,7 @@ if (!empty($config['db'])) {
     $packages = \App\Database::fetchAll(
         "SELECT * FROM packages WHERE enabled = 1 ORDER BY sort_order ASC"
     );
-    $bonusEnabled = (int)\App\Database::fetchColumn("SELECT `value` FROM settings WHERE `key` = 'bonus_enabled'");
+    $bonusEnabled = \App\Settings::getInt('bonus_enabled');
 
     // Promo sazonal: se setting promo_coupon_code está setado E o cupom existe E é válido,
     // pré-calcula desconto pra cada pacote (pra renderizar tag "X% OFF" + preço riscado).
@@ -567,7 +566,7 @@ if (!empty($config['db'])) {
         return;
     }
 
-    $bonusEnabled = (int)\App\Database::fetchColumn("SELECT `value` FROM settings WHERE `key` = 'bonus_enabled'");
+    $bonusEnabled = \App\Settings::getInt('bonus_enabled');
     $coinsBase  = (int)$pkg['coins'];
     $coinsBonus = $bonusEnabled ? (int)$pkg['bonus_coins'] : 0;
     $coinsTotal = $coinsBase + $coinsBonus;
@@ -1174,7 +1173,7 @@ $collectDashboardData = function() {
     $packages = \App\Database::fetchAll(
         "SELECT * FROM packages ORDER BY sort_order ASC"
     );
-    $bonusEnabled = (int)\App\Database::fetchColumn("SELECT `value` FROM settings WHERE `key` = 'bonus_enabled'");
+    $bonusEnabled = \App\Settings::getInt('bonus_enabled');
     \App\View::display('admin.packages', [
         'config' => $config, 'packages' => $packages, 'bonus_enabled' => $bonusEnabled,
     ]);
@@ -1183,9 +1182,8 @@ $collectDashboardData = function() {
 \App\Router::post('/admin/packages/toggle-bonus', function() use ($config) {
     \App\Auth::requireCan('packages');
     if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
-    $current = (int)\App\Database::fetchColumn("SELECT `value` FROM settings WHERE `key` = 'bonus_enabled'");
-    $new = $current ? 0 : 1;
-    \App\Database::query("UPDATE settings SET `value` = ? WHERE `key` = 'bonus_enabled'", [(string)$new]);
+    $new = \App\Settings::getInt('bonus_enabled') ? 0 : 1;
+    \App\Settings::set('bonus_enabled', (string)$new);
     header('Location: /admin/packages?ok=1');
     exit;
 });
@@ -1422,32 +1420,25 @@ $collectDashboardData = function() {
 \App\Router::post('/admin/settings', function() use ($config) {
     \App\Auth::requireCan('settings');
     if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
-    $allowed = ['site_name','site_tagline','site_tagline_enus','server_ip','server_port','discord_invite',
-                'social_discord','social_instagram','social_whatsapp','social_facebook','social_youtube',
-                'social_tiktok','social_twitch','social_kick','social_x',
-                'battlemetrics_id','next_wipe_at','wipe_label',
-                'maintenance_message','maintenance_eta',
-                'discord_sales_webhook','promo_coupon_code','promo_label'];
+    // Campos de texto do form (subconjunto do SCHEMA que aparece nesta página).
+    // bonus_enabled NÃO entra aqui (é togglado em /admin/packages) — senão salvar
+    // configurações zeraria o bônus.
+    $fields = ['site_name','site_tagline','site_tagline_enus','server_ip','server_port','discord_invite',
+               'social_discord','social_instagram','social_whatsapp','social_facebook','social_youtube',
+               'social_tiktok','social_twitch','social_kick','social_x',
+               'battlemetrics_id','next_wipe_at','wipe_label',
+               'maintenance_message','maintenance_eta',
+               'discord_sales_webhook','promo_coupon_code','promo_label'];
     // Toggles (checkbox): se não veio no POST, vira 0
     $toggles = ['maintenance_enabled', 'live_purchases_enabled', 'live_purchases_anonymize', 'live_purchases_show_price'];
 
-    foreach ($allowed as $k) {
-        if (isset($_POST[$k])) {
-            $val = trim((string)$_POST[$k]);
-            \App\Database::query(
-                "INSERT INTO settings (`key`, `value`) VALUES (?, ?)
-                 ON DUPLICATE KEY UPDATE `value` = VALUES(`value`)",
-                [$k, $val]
-            );
-        }
+    // Escrita via Settings::set(): valida contra o whitelist (SCHEMA), normaliza
+    // por tipo e atualiza o cache em memória. Chave fora do SCHEMA é rejeitada.
+    foreach ($fields as $k) {
+        if (isset($_POST[$k])) \App\Settings::set($k, (string)$_POST[$k]);
     }
     foreach ($toggles as $k) {
-        $val = !empty($_POST[$k]) ? '1' : '0';
-        \App\Database::query(
-            "INSERT INTO settings (`key`, `value`) VALUES (?, ?)
-             ON DUPLICATE KEY UPDATE `value` = VALUES(`value`)",
-            [$k, $val]
-        );
+        \App\Settings::set($k, !empty($_POST[$k]) ? '1' : '0');
     }
     header('Location: /admin/settings?ok=1');
     exit;
