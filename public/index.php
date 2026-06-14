@@ -67,6 +67,7 @@ require $ROOT . '/src/Achievements.php';
 require $ROOT . '/src/Servers.php';
 require $ROOT . '/src/Boxes.php';
 require $ROOT . '/src/Rewards.php';
+require $ROOT . '/src/Events.php';
 require $ROOT . '/src/Html.php';
 require $ROOT . '/src/helpers.php';
 
@@ -1964,6 +1965,74 @@ $REWARD_CATEGORIES = [
     if (!\App\Rewards::shouldAutoAward()) { echo json_encode(['ok' => true, 'skipped' => true, 'reason' => 'fora de cadencia ou ja premiado']); return; }
     $res = \App\Rewards::award();
     echo json_encode(['ok' => (bool)($res['ok'] ?? false), 'label' => $res['label'] ?? null, 'paid' => count($res['paid'] ?? [])]);
+});
+
+// ============ ADMIN: EVENTOS & SORTEIOS ============
+\App\Router::get('/admin/eventos', function() use ($config) {
+    \App\Auth::requireCan('pages');
+    $events = \App\Database::fetchAll("SELECT * FROM events ORDER BY sort_order ASC, id DESC");
+    \App\View::display('admin.eventos', ['config' => $config, 'events' => $events, 'edit' => null]);
+});
+
+\App\Router::get('/admin/eventos/{id}', function($id) use ($config) {
+    \App\Auth::requireCan('pages');
+    $edit = \App\Database::fetchOne("SELECT * FROM events WHERE id = ? LIMIT 1", [(int)$id]);
+    $events = \App\Database::fetchAll("SELECT * FROM events ORDER BY sort_order ASC, id DESC");
+    \App\View::display('admin.eventos', ['config' => $config, 'events' => $events, 'edit' => $edit ?: null]);
+});
+
+\App\Router::post('/admin/eventos/save', function() use ($config) {
+    \App\Auth::requireCan('pages');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
+    $id    = (int)($_POST['id'] ?? 0);
+    $title = trim((string)($_POST['title'] ?? ''));
+    if ($title === '') { header('Location: /admin/eventos?err=title'); exit; }
+    $slug  = preg_replace('/[^a-z0-9-]/', '', strtolower(str_replace(' ', '-', $_POST['slug'] ?: $title)));
+    if ($slug === '') $slug = 'evento-' . substr(md5($title), 0, 6);
+    $norm = function($v) { $v = trim((string)$v); return $v === '' ? null : date('Y-m-d H:i:s', strtotime($v)); };
+    $wsid = trim((string)($_POST['winner_steam_id'] ?? ''));
+    $f = [
+        $title, $slug,
+        in_array($_POST['type'] ?? 'event', ['event','raffle'], true) ? $_POST['type'] : 'event',
+        trim((string)($_POST['image'] ?? '')) ?: null,
+        trim((string)($_POST['description'] ?? '')) ?: null,
+        trim((string)($_POST['prize'] ?? '')) ?: null,
+        $norm($_POST['starts_at'] ?? ''),
+        $norm($_POST['ends_at'] ?? ''),
+        preg_match('/^\d{17}$/', $wsid) ? $wsid : null,
+        trim((string)($_POST['winner_name'] ?? '')) ?: null,
+        !empty($_POST['enabled']) ? 1 : 0,
+        (int)($_POST['sort_order'] ?? 0),
+    ];
+    if ($id > 0) {
+        \App\Database::query(
+            "UPDATE events SET title=?, slug=?, type=?, image=?, description=?, prize=?, starts_at=?, ends_at=?, winner_steam_id=?, winner_name=?, enabled=?, sort_order=? WHERE id=?",
+            array_merge($f, [$id])
+        );
+    } else {
+        \App\Database::query(
+            "INSERT INTO events (title, slug, type, image, description, prize, starts_at, ends_at, winner_steam_id, winner_name, enabled, sort_order) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+            $f
+        );
+        $id = (int)\App\Database::pdo()->lastInsertId();
+    }
+    \App\AuditLog::record('event.save', 'event', $id);
+    header('Location: /admin/eventos/' . $id . '?ok=1');
+    exit;
+});
+
+\App\Router::post('/admin/eventos/{id}/delete', function($id) use ($config) {
+    \App\Auth::requireCan('pages');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
+    \App\Database::query("DELETE FROM events WHERE id = ?", [(int)$id]);
+    \App\AuditLog::record('event.delete', 'event', (int)$id);
+    header('Location: /admin/eventos?ok=deleted');
+    exit;
+});
+
+// ============ EVENTOS & SORTEIOS (público) ============
+\App\Router::get('/eventos', function() use ($config) {
+    \App\View::display('pages.eventos', ['config' => $config, 'groups' => \App\Events::grouped()]);
 });
 
 \App\Router::get('/admin/pages', function() use ($config) {

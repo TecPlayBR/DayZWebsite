@@ -13,6 +13,7 @@
                 <li><a href="/"><?= e(__('nav.home')) ?></a></li>
                 <li><a href="/shop"><?= e(__('nav.shop')) ?></a></li>
                 <li><a href="/caixas">Caixas</a></li>
+                <li><a href="/eventos">Eventos</a></li>
                 <?php if (\App\Servers::isMulti()): ?>
                     <li><a href="/servidores"><?= e(__('nav.servers') ?: 'Servidores') ?></a></li>
                 <?php endif; ?>
@@ -93,6 +94,7 @@
         <li><a href="/" data-close><?= e(__('nav.home')) ?></a></li>
         <li><a href="/shop" data-close><?= e(__('nav.shop')) ?></a></li>
         <li><a href="/caixas" data-close>Caixas</a></li>
+        <li><a href="/eventos" data-close>Eventos</a></li>
         <?php if (\App\Servers::isMulti()): ?>
             <li><a href="/servidores" data-close><?= e(__('nav.servers') ?: 'Servidores') ?></a></li>
         <?php endif; ?>
