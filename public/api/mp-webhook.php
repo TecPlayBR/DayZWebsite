@@ -108,6 +108,35 @@ if (!$externalRef) {
     die(json_encode(['ok' => true, 'note' => 'no_external_reference']));
 }
 
+// ============ Cobrança avulsa (/cobrar) — external_reference "inv-<ref>" ============
+// Distingue do fluxo de purchases (que usa o id numérico). Roteia ANTES do
+// lookup de purchases pra o cast (int) não engolir o "inv-...".
+if (str_starts_with($externalRef, 'inv-')) {
+    $invRef = substr($externalRef, 4);
+    $inv = \App\Database::fetchOne(
+        "SELECT id, status FROM invoices WHERE invoice_ref = ? LIMIT 1", [$invRef]
+    );
+    if (!$inv) {
+        die(json_encode(['ok' => true, 'note' => 'invoice_not_found']));
+    }
+    if ($status === 'approved') {
+        // Idempotente: vira 'paid' só na 1a aprovação (paid_at via COALESCE).
+        \App\Database::query(
+            "UPDATE invoices
+                SET mp_payment_id = ?, status = 'paid', paid_at = COALESCE(paid_at, NOW())
+              WHERE id = ? AND status <> 'paid'",
+            [(string)$paymentId, (int)$inv['id']]
+        );
+    } else {
+        // cancelled/rejected/refunded: registra o pagamento mas NÃO marca pago.
+        \App\Database::query(
+            "UPDATE invoices SET mp_payment_id = ? WHERE id = ?",
+            [(string)$paymentId, (int)$inv['id']]
+        );
+    }
+    die(json_encode(['ok' => true, 'invoice' => true, 'status' => $status]));
+}
+
 $purchase = \App\Database::fetchOne(
     "SELECT * FROM purchases WHERE id = ? LIMIT 1", [(int)$externalRef]
 );
@@ -116,9 +145,12 @@ if (!$purchase) {
     die(json_encode(['ok' => false, 'error' => 'purchase_not_found']));
 }
 
-// Atualiza status no banco
+// Atualiza status no banco. CONGELA depois de entregue: um webhook tardio (ex: o QR
+// antigo que expirou, mesma compra com >1 Pix gerado) NÃO pode rebaixar approved->cancelled
+// de uma compra já creditada. Por isso o WHERE delivered_at IS NULL.
 \App\Database::query(
-    "UPDATE purchases SET mp_payment_id = ?, mp_status = ?, payment_method = ? WHERE id = ?",
+    "UPDATE purchases SET mp_payment_id = ?, mp_status = ?, payment_method = ?
+      WHERE id = ? AND delivered_at IS NULL",
     [(string)$paymentId, $status, $paymentMethod, (int)$purchase['id']]
 );
 
