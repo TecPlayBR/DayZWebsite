@@ -378,8 +378,10 @@ $config['restart'] = \App\Restart::summary();
         \App\View::display('pages.404', ['config' => $config]);
         return;
     }
+    // Perfil PÚBLICO: NÃO seleciona dados financeiros (saldo/investido) — eles são
+    // privados (dono em /my-purchases, staff em /admin). LGPD: não vaza nem no HTML.
     $player = \App\Database::fetchOne(
-        "SELECT steam_id, display_name, coins, total_spent_brl, last_seen_at FROM players WHERE steam_id = ?",
+        "SELECT steam_id, display_name, last_seen_at FROM players WHERE steam_id = ?",
         [$steamId]
     );
     if (!$player) {
@@ -398,19 +400,6 @@ $config['restart'] = \App\Restart::summary();
     if ($stats && !empty($stats['extra_json'])) {
         $stats['extra'] = json_decode($stats['extra_json'], true) ?: [];
     }
-    $purchaseCount = (int) \App\Database::fetchColumn(
-        "SELECT COUNT(*) FROM purchases WHERE steam_id = ? AND mp_status = 'approved'", [$steamId]
-    );
-    // Últimas transações aprovadas (pro perfil mostrar o histórico após a compra).
-    $recentTx = \App\Database::fetchAll(
-        "SELECT p.coins_total, p.price_brl, p.created_at, p.payment_method, pk.name AS package_name, pk.icon AS package_icon
-           FROM purchases p
-           LEFT JOIN packages pk ON pk.id = p.package_id
-          WHERE p.steam_id = ? AND p.mp_status = 'approved'
-          ORDER BY p.created_at DESC LIMIT 8",
-        [$steamId]
-    );
-
     // Avatar/nome via XML público (cache 6h em storage/cache — evita curl por view + rate-limit).
     $avatar = null;
     $name   = $player['display_name'] ?? null;
@@ -432,8 +421,6 @@ $config['restart'] = \App\Restart::summary();
         'config'         => $config,
         'player'         => $player,
         'stats'          => $stats ?: null,
-        'purchase_count' => $purchaseCount,
-        'recent_tx'      => $recentTx,
         'avatar'         => $avatar,
         'display_name'   => $name ?: 'Sobrevivente',
     ]);

@@ -1,4 +1,4 @@
-<?php /** @var array $config, $player; @var ?array $stats; @var int $purchase_count; @var array $recent_tx; @var ?string $avatar; @var string $display_name */ ?>
+<?php /** @var array $config, $player; @var ?array $stats; @var ?string $avatar; @var string $display_name */ ?>
 <?php \App\View::extend('layouts.main'); ?>
 <?php \App\View::with('hero_image', 'img/background2.png'); ?>
 <?php \App\View::section('content'); ?>
@@ -57,45 +57,13 @@ $ex = is_array($stats['extra'] ?? null) ? $stats['extra'] : [];
 <section class="section section-bg-2">
     <div class="container" style="max-width: 980px;">
 
-        <!-- Dados da conta (reais, já temos hoje) -->
-        <div class="pp-grid">
-            <div class="pp-card">
-                <div class="pp-ic" style="color:var(--hazard)"><?= $icon('coins') ?></div>
-                <div class="pp-label"><?= e(__('profile.pub_coin_balance')) ?></div>
-                <div class="pp-value"><?= number_format((int)($player['coins'] ?? 0), 0, ',', '.') ?></div>
-            </div>
-            <div class="pp-card">
-                <div class="pp-ic" style="color:var(--moss)"><?= $icon('money') ?></div>
-                <div class="pp-label"><?= e(__('profile.invested')) ?></div>
-                <div class="pp-value">R$ <?= number_format((float)($player['total_spent_brl'] ?? 0), 2, ',', '.') ?></div>
-            </div>
-            <div class="pp-card">
-                <div class="pp-ic" style="color:var(--rust-2)"><?= $icon('cart') ?></div>
-                <div class="pp-label"><?= e(__('profile.pub_approved_purchases')) ?></div>
-                <div class="pp-value"><?= (int)$purchase_count ?></div>
-            </div>
-            <div class="pp-card">
-                <div class="pp-ic" style="color:var(--bone)"><?= $icon('clock') ?></div>
-                <div class="pp-label"><?= e(__('profile.last_seen')) ?></div>
-                <div class="pp-value" style="font-size:1rem;"><?= e(time_ago($player['last_seen_at'] ?? null, 'nunca')) ?></div>
-            </div>
-        </div>
-
-        <!-- Últimas transações (aparece após a compra) -->
-        <?php if (!empty($recent_tx)): ?>
-            <h2 class="pp-section-title"><?= $icon('cart') ?> <?= e(__('profile.pub_recent_tx')) ?></h2>
-            <div class="pp-tx">
-                <?php foreach ($recent_tx as $tx): ?>
-                    <div class="pp-tx-row">
-                        <span class="pp-tx-icon"><?= e($tx['package_icon'] ?? '🪙') ?></span>
-                        <span class="pp-tx-name"><?= e($tx['package_name'] ?? __('profile.pub_coins_default')) ?></span>
-                        <span class="pp-tx-coins">+<?= number_format((int)$tx['coins_total'], 0, ',', '.') ?> <?= e(__('profile.coins')) ?></span>
-                        <span class="pp-tx-price">R$ <?= number_format((float)$tx['price_brl'], 2, ',', '.') ?></span>
-                        <span class="pp-tx-date"><?= e(date('d/m/Y H:i', strtotime((string)$tx['created_at']))) ?></span>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-        <?php endif; ?>
+        <!-- Perfil PÚBLICO: só dados não-sensíveis (combate + atividade).
+             Financeiro (saldo, investido, compras, transações) é PRIVADO:
+             o dono vê em /my-purchases; o staff vê em /admin/players. LGPD. -->
+        <p class="pp-lastseen">
+            <span class="pp-ic" style="color:var(--bone);display:inline-flex;vertical-align:-5px;"><?= $icon('clock') ?></span>
+            <?= e(__('profile.last_seen')) ?>: <strong><?= e(time_ago($player['last_seen_at'] ?? null, 'nunca')) ?></strong>
+        </p>
 
         <!-- Estatísticas de gameplay -->
         <h2 class="pp-section-title"><?= $icon('kills') ?> <?= e(__('profile.pub_combat_stats')) ?></h2>
@@ -151,6 +119,8 @@ $ex = is_array($stats['extra'] ?? null) ? $stats['extra'] : [];
 .pp-steamid { font-family:var(--font-mono); color:var(--dim); font-size:.8rem; margin:.2rem 0 .3rem; }
 .pp-steam-link { color:var(--rust-2); font-size:.85rem; text-decoration:none; }
 .pp-steam-link:hover { text-decoration:underline; }
+.pp-lastseen { color:var(--dim); font-size:0.9rem; margin:0 0 0.5rem; }
+.pp-lastseen strong { color:var(--bone); }
 .pp-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:1rem; margin-bottom:1.5rem; }
 .pp-card { background:var(--bg-1); border:1px solid var(--border); border-radius:4px; padding:1.1rem; text-align:left; }
 .pp-ic { color:var(--rust-2); display:flex; align-items:center; }

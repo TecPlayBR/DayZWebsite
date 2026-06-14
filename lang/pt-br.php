@@ -326,6 +326,7 @@ return array (
     'coupon_applied_suffix' => 'aplicado',
     'coupon_remove' => 'remover',
     'coupon_ph' => '🎟 Cupom de desconto',
+    'coupon_title' => 'Tem um cupom de desconto?',
     'coupon_apply' => 'Aplicar',
     'cc_label' => 'PIX copia-e-cola',
     'copy_btn' => 'Copiar código PIX',

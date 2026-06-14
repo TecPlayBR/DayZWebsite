@@ -5,13 +5,13 @@
 /** @var string $statusColor, $statusLabel */
 /** @var array  $log */
 ?>
-<?php $title = 'Entrega Sparda'; ?>
+<?php $title = 'Integração Sparda'; ?>
 <?php \App\View::extend('admin.layout'); ?>
 <?php \App\View::section('content'); ?>
 
 <div class="admin-page-head">
     <div>
-        <h1>🎮 Entrega Sparda (nativa, sem Agent)</h1>
+        <h1>🎮 Integração Sparda (nativa, sem Agent)</h1>
         <p>Entrega de moedas <strong>in-game pelo próprio mod Sparda</strong> — sem precisar do Agent pago nem do Bot. O site vende a moeda (Mercado Pago) e credita o saldo; o mod lê/grava esse saldo direto aqui.</p>
     </div>
 </div>

@@ -33,27 +33,30 @@
                     <div class="pix-steam"><?= e(__('pix.steamid_label')) ?> <code><?= e($steam_id) ?></code></div>
                 </div>
 
-                <!-- Cupom no momento de finalizar: aplicar regenera o QR com desconto -->
-                <form method="POST" action="/shop/checkout" class="pix-coupon-form">
-                    <?= \App\Csrf::field() ?>
-                    <input type="hidden" name="package_id" value="<?= e($pkg['id']) ?>">
-                    <input type="hidden" name="steam_id" value="<?= e($steam_id) ?>">
-                    <input type="hidden" name="server_id" value="<?= (int)$server_id ?>">
-                    <input type="hidden" name="terms_accepted" value="1">
-                    <?php if (!empty($coupon_code)): ?>
-                        <div class="pix-coupon-applied">
-                            🎟 <?= e(__('pix.coupon_label')) ?> <strong><?= e($coupon_code) ?></strong> <?= e(__('pix.coupon_applied_suffix')) ?>
-                            <input type="hidden" name="coupon_code" value="">
-                            <button type="submit" class="pix-coupon-clear"><?= e(__('pix.coupon_remove')) ?></button>
-                        </div>
-                    <?php else: ?>
-                        <div class="pix-coupon-row">
-                            <input type="text" name="coupon_code" placeholder="<?= e(__('pix.coupon_ph')) ?>" maxlength="40"
-                                   oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9_-]/g,'')">
-                            <button type="submit"><?= e(__('pix.coupon_apply')) ?></button>
-                        </div>
-                    <?php endif; ?>
-                </form>
+                <!-- Cupom destacado: aplicar regenera o QR com desconto, sem sair do site -->
+                <div class="pix-coupon-box">
+                    <span class="pix-coupon-title">🎟 <?= e(__('pix.coupon_title')) ?></span>
+                    <form method="POST" action="/shop/checkout" class="pix-coupon-form">
+                        <?= \App\Csrf::field() ?>
+                        <input type="hidden" name="package_id" value="<?= e($pkg['id']) ?>">
+                        <input type="hidden" name="steam_id" value="<?= e($steam_id) ?>">
+                        <input type="hidden" name="server_id" value="<?= (int)$server_id ?>">
+                        <input type="hidden" name="terms_accepted" value="1">
+                        <?php if (!empty($coupon_code)): ?>
+                            <div class="pix-coupon-applied">
+                                <?= e(__('pix.coupon_label')) ?> <strong><?= e($coupon_code) ?></strong> <?= e(__('pix.coupon_applied_suffix')) ?>
+                                <input type="hidden" name="coupon_code" value="">
+                                <button type="submit" class="pix-coupon-clear"><?= e(__('pix.coupon_remove')) ?></button>
+                            </div>
+                        <?php else: ?>
+                            <div class="pix-coupon-row">
+                                <input type="text" name="coupon_code" placeholder="<?= e(__('pix.coupon_ph')) ?>" maxlength="40"
+                                       oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9_-]/g,'')">
+                                <button type="submit"><?= e(__('pix.coupon_apply')) ?></button>
+                            </div>
+                        <?php endif; ?>
+                    </form>
+                </div>
 
                 <label class="pix-cc-label"><?= e(__('pix.cc_label')) ?></label>
                 <textarea id="pix-code" class="pix-cc" readonly rows="3"><?= e($qr_code) ?></textarea>
@@ -72,7 +75,6 @@
         </ol>
 
         <div class="hero-actions" style="justify-content:center; gap:1rem;">
-            <a href="/shop/card/<?= (int)$purchase_id ?>" class="btn btn-outline">💳 <?= e(__('pix.pay_card')) ?></a>
             <a href="/shop" class="btn btn-outline">← <?= e(__('pix.back_shop')) ?></a>
         </div>
     </div>
@@ -95,7 +97,9 @@
 .pix-amount { font-family:var(--font-display); font-size:2rem; color:var(--moss); margin:0.3rem 0; }
 .pix-steam { font-size:0.75rem; color:var(--dim); }
 .pix-steam code { color:var(--bone); }
-.pix-coupon-form { margin:0.2rem 0; }
+.pix-coupon-box { background:rgba(212,160,23,0.10); border:1px solid var(--hazard); border-radius:6px; padding:0.7rem 0.85rem; margin:0.4rem 0; }
+.pix-coupon-title { display:block; font-size:0.82rem; color:var(--hazard); font-weight:700; letter-spacing:0.02em; margin-bottom:0.5rem; }
+.pix-coupon-form { margin:0; }
 .pix-coupon-row { display:flex; gap:0.4rem; }
 .pix-coupon-row input { flex:1; background:var(--bg-0); border:1px solid var(--border); color:var(--hazard);
     font-family:var(--font-mono); font-size:0.8rem; padding:0.45rem 0.6rem; text-transform:uppercase; letter-spacing:0.05em; }

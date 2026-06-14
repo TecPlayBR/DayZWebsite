@@ -326,6 +326,7 @@ return array (
     'coupon_applied_suffix' => 'applied',
     'coupon_remove' => 'remove',
     'coupon_ph' => '🎟 Discount coupon',
+    'coupon_title' => 'Have a discount coupon?',
     'coupon_apply' => 'Apply',
     'cc_label' => 'PIX copy-and-paste',
     'copy_btn' => 'Copy PIX code',
