@@ -9,7 +9,7 @@ Tema apocalipse · Painel admin completo · Mercado Pago · Login Steam · Multi
 [![MySQL](https://img.shields.io/badge/MySQL-5.7+-4479A1?style=flat-square&logo=mysql&logoColor=white)](https://www.mysql.com)
 [![License](https://img.shields.io/badge/License-Tecplay--NC-a855f7?style=flat-square)](LICENSE.txt)
 [![Status](https://img.shields.io/badge/Status-Produção-16a34a?style=flat-square)]()
-[![Versão](https://img.shields.io/badge/Versão-2.0.0-facc15?style=flat-square)](RELEASE_NOTES.md)
+[![Versão](https://img.shields.io/badge/Versão-2.1.0-facc15?style=flat-square)](RELEASE_NOTES.md)
 
 *Sobreviva. Construa. Domine. Agora também na web.*
 
@@ -53,8 +53,9 @@ O **site é grátis** e faz a loja, o painel, a carteira de moedas e o leaderboa
 
 - **Landing page apocalipse** com hero animado, contador de wipe e status do servidor ao vivo (BattleMetrics)
 - **Loja** com 6 pacotes seedados (R$ 9,99 a R$ 149,90), bônus, combos e cupons
-- **Checkout PIX transparente** (QR + copia-e-cola no próprio site, sem sair pro Mercado Pago) → redireciona pro perfil com o saldo novo; cartão/boleto como fallback. **Webhook auto-credit** de moedas
-- **🎁 Caixas / Lootboxes** (`/caixas`): abre com moedas ou diária grátis, **carrossel "sorteando prêmio"**, sorteio por peso, e o item **cai no jogo via CFTools** (fila pendente + blindagem de restart)
+- **Checkout transparente — PIX + Cartão** (QR/copia-e-cola **e** cartão de crédito **dentro do site**, sem sair pro Mercado Pago; o cartão é tokenizado no navegador, o número **não toca o servidor** — PCI SAQ-A). Cupom compartilhado, parcelamento com mínimo configurável. **Webhook auto-credit** de moedas
+- **🎁 Caixas / Lootboxes** (`/caixas`): abre com moedas ou diária grátis, **carrossel "sorteando prêmio"**, **raridade que define a chance**, **countdown ao vivo** da diária, e o item **cai no jogo via CFTools** (fila pendente + blindagem de restart)
+- **📦 Histórico de Caixas** no perfil do jogador (recebidas + pendentes, com horário) — transparência do que caiu
 - **🗓 Eventos & Sorteios** (`/eventos`): ativos / em breve / encerrados + teaser na home
 - **Login Steam OpenID 2.0** com pré-fill automático no checkout
 - **Multi-idioma** PT-BR + EN-US (dropdown elegante no header)
@@ -74,7 +75,7 @@ O **site é grátis** e faz a loja, o painel, a carteira de moedas e o leaderboa
 - **Dashboard** com gráfico de vendas 30 dias (Chart.js)
 - **CRUD completo** de Jogadores, Pacotes, Combos, Cupons, Páginas, Anúncios, Reviews, Servidores, Galeria
 - **Loja in-game** (🛒) — cadastre itens que o jogador compra com moeda no Discord (`/loja`): SKU, custo e o que é entregue in-game (classnames). O bot debita e o servidor dropa o item
-- **🎁 Caixas** — cria caixas (custo/diária + imagem) e o pool de itens com **peso/chance** (% calculado automático). Drop in-game via CFTools GameLabs
+- **🎁 Caixas** — cria caixas (custo/diária + imagem, **ordem na vitrine**, cooldown opcional) e o pool de itens com **raridade que define a chance** (peso auto-preenchido + % ao vivo). Drop in-game via CFTools GameLabs. **📜 Log de aberturas** pesquisável por SteamID com o horário exato do drop (resolve disputa anti-golpista)
 - **🗓 Eventos** — cria eventos/sorteios (datas, prêmio, vencedor); status calculado pelas datas
 - **🏆 Recompensas com agendamento** — premia o top do ranking em moedas: cadência Manual/Semanal/Mensal, **auto-creditar** (cron) ou botão **"Premiar agora"** (idempotente) + histórico
 - **🎮 Entrega Sparda nativa** — gera as URLs pro mod entregar moeda in-game sem o Agent pago
@@ -108,6 +109,10 @@ O **site é grátis** e faz a loja, o painel, a carteira de moedas e o leaderboa
 - Cookies de sessão com `HttpOnly`, `SameSite=Lax`, `Secure` em HTTPS
 - Senhas bcrypt (PASSWORD_BCRYPT)
 - Cap de 64KB no payload de webhooks
+- **Rate-limit anti-bruteforce** nos endpoints `/api/*` — conta **só falhas de auth** por IP, então o mod/agent legítimo (token válido) nunca é limitado
+- **Abertura de caixa serializada** (`GET_LOCK`) contra race de duplo-clique na diária
+- `session_regenerate_id` no login Steam (anti session-fixation); health-check sem métricas de negócio; JSON-LD com `JSON_HEX_TAG`
+- **Pagamento com cartão PCI SAQ-A**: tokenização client-side (Secure Fields do MP), o PAN nunca passa pelo servidor
 
 ### ⚡ Performance otimizada
 

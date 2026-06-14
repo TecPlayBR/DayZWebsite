@@ -1,76 +1,67 @@
-# 🏴 DayZ Website Template — Notas da versão (v2.0.0)
+# 🏴 DayZ Website Template — Notas da versão (v2.1.0)
 
-> Atualização grande. **Atualizar é seguro e não apaga nada** — suba os arquivos novos e rode `php cli/migrate.php`. Passo a passo mastigado no **[ATUALIZAR.md](ATUALIZAR.md)**.
-
----
-
-## 🆕 O que chegou na v2.0.0
-
-### 🎁 Caixas / Lootboxes — **destaque desta versão**
-- O jogador **abre caixas** (gastando moedas ou uma **diária grátis**) com **animação de carrossel** ("sorteando prêmio"), estilo CS:GO.
-- O item sorteado **cai no personagem dentro do jogo** via CFTools (drop real, validado ao vivo).
-- **Sorteio por peso** (raridade) — você define a chance de cada item; o painel calcula o % automático.
-- **Blindagem de restart:** perto de um restart o item não é dropado ao vivo (iria pro limbo) — fica **pendente** e cai quando o servidor volta / o jogador conecta.
-- Admin → **🎁 Caixas**: cria caixa (nome, imagem, custo/diária) e o pool de itens (classname, quantidade, peso, raridade).
-
-### 🗓 Eventos & Sorteios
-- Página `/eventos` (no menu): **Disponíveis agora / Em breve / Encerrados**, com prêmio e vencedor do sorteio.
-- **Teaser na home** destacando o próximo evento (ou o que está acontecendo agora).
-- Admin → **🗓 Eventos**: cria evento/sorteio (datas, prêmio, imagem, vencedor). Status calculado pelas datas.
-
-### 🏆 Recompensas do leaderboard — agora **com agendamento**
-- Define **quando credita**: Manual, **Semanal** ou **Mensal**, com **auto-creditar** na virada do período (via cron).
-- Botão **"Premiar agora"** credita o top atual na hora — **idempotente** (clicar 2x não paga dobrado).
-- **Histórico** das premiações no painel. As moedas caem no saldo do jogador (e no jogo, como qualquer compra).
-
-### 💳 Checkout PIX transparente
-- O jogador paga **dentro do site** (QR + copia-e-cola), **sem ser jogado pro Mercado Pago**. Cupom pode ser aplicado na própria tela.
-- Assim que o PIX aprova, a página **leva sozinha pro perfil** com o saldo novo e as **últimas transações**.
-- Cartão/boleto continuam disponíveis (botão de fallback).
-
-### 🔌 Entrega in-game NATIVA (sem Agent pago)
-- Integração direta com o **mod Sparda** (`getcoins`/`postcoins`): o site vende a moeda e o mod entrega no jogo. Painel **🎮 Entrega Sparda** gera as URLs prontas. (Agent e Bot continuam funcionando como alternativas.)
-
-### 🟢 Status do servidor em tempo real + restart
-- **Jogadores online agora** via CFTools (em tempo real, não depende só do BattleMetrics).
-- **Próximo restart** discreto na página de status, configurável (horários) em Admin → Configurações — e usado pra blindar o drop das caixas.
-
-### 🖼 Perfil & Steam
-- **Foto + nick da Steam** no topo e no perfil (preenche sozinho mesmo em sessão antiga).
-- Perfil mostra **últimas transações** + estatísticas de combate.
-
-### 🛡 Segurança & i18n
-- Auditoria de segurança: **XSS** (caixas) e **IDOR** (status/pagamento de compra) corrigidos; débito de moeda atômico; webhook MP com HMAC + reconsulta.
-- **Fuso horário do Brasil** nas datas. Páginas novas **traduzidas** (PT/EN).
-- **Caminho de update garantido**: `schema.sql` completo pra instalação nova + migrations idempotentes pra quem atualiza.
+> Features + hardening. **Atualizar é seguro e não apaga nada.** **NÃO tem migration nova** nesta versão — é só subir os arquivos. Passo a passo no **[ATUALIZAR.md](ATUALIZAR.md)**.
 
 ---
 
-## 🔜 Em desenvolvimento (próximas versões)
-- **Discord do player** (identificar/pingar) — sob demanda.
-- **Ações de servidor pelo painel** via CFTools GameLabs (heal / teleport / mensagem in-game).
-- Gerenciar a loja Sparda pelo painel.
+## 🆕 O que chegou na v2.1.0
 
-> Sugestões de features? Fala com a gente — o roadmap é guiado por quem usa.
+### 💳 Cartão de crédito TRANSPARENTE (dentro do site) — **destaque**
+- O jogador paga com cartão **sem sair do site** (igual ao PIX). O cartão é tokenizado **no navegador** pelo SDK do Mercado Pago (CardForm/Secure Fields) — o número do cartão **nunca passa pelo nosso servidor** (PCI SAQ-A). A gente só recebe o token de uso único.
+- **Campos nativos** (o autofill do navegador funciona), documento **fixo em CPF**, recusa com mensagem amigável.
+- **Parcelamento configurável**: Admin → Configurações define o valor mínimo pra liberar parcelas (padrão **R$30**); abaixo trava em **1x à vista**. Quem define juros é a conta MP do cliente.
+- Cupom **compartilhado** entre PIX e Cartão. A aba "Cartão" liga sozinha quando a **Public Key do MP** está no config (sem ela, só o PIX aparece — nada quebra).
+
+### 🎁 Caixas — upgrades
+- **Ordem na vitrine** configurável (qual caixa aparece primeiro); caixa nova vai pro fim automaticamente.
+- **Raridade define a chance**: escolher a raridade preenche o peso sozinho (comum cai muito, lendário raríssimo) + preview de **% ao vivo** no admin. Acabou o lendário com a mesma chance da comum.
+- **Cooldown opcional** (0 = sem espera) na diária; **caixa nova nasce ativa**.
+- **Countdown ao vivo** (HH:MM:SS) da diária no site — ao zerar, **libera o botão na hora, sem recarregar**.
+- Recompensa pode ser **item OU moedas**; upload de imagem (capa + itens).
+
+### 📦 Inventário do jogador + Log anti-golpista
+- **"Histórico de Caixas"** no painel do jogador (Minhas Compras): tudo que abriu, com status **✓ Entregue / ⏳ Pendente** e horário.
+- **Admin → Caixas → 📜 Logs**: log de aberturas **pesquisável por SteamID** com o **horário exato do drop** — prova na mão pra resolver disputa quando o jogador reclamar.
+
+### 🔍 SEO completo
+- **Títulos e descrições únicos** por página (home, loja, ranking, depoimentos, galeria, regras, páginas dinâmicas).
+- **hreflang** (pt-BR / en-US / x-default) + **sitemap** corrigido (`/caixas` incluído, `/server-status` removido, duplicata `/rules` resolvida).
+- **Schema** Product/Offer na loja (preço dos pacotes no Google) + **FAQPage** no `/faq` (accordion direto no Google).
+- Checkbox de aceite de termos **NÃO vem mais pré-marcado** (conformidade CDC/LGPD — consentimento ativo).
+
+### 🛡 Hardening de segurança
+- **Rate-limit anti-bruteforce** nos endpoints `/api/*` — conta **só falhas de auth** por IP, então o mod/agent legítimo (token válido) **nunca** é limitado.
+- Abertura de caixa **serializada** (`GET_LOCK`) — fecha a race de duplo-clique na diária.
+- **Anti session-fixation** no login Steam; guard **anti open-redirect** no retorno; **health-check** parou de vazar métricas de negócio; hardening de XSS nos dados estruturados (JSON-LD).
+- Customizador de cores agora **faz backup** antes de resetar (a paleta não se perde mais) + registra o **antes→depois** no audit log.
+
+### 🐛 Correções
+- **Playtime** ("tempo online") no perfil passou a contabilizar (vinha de `omega.playtime` do CFTools, não de `game.dayz`).
+- Faixas de **status + próximo restart** na home **empilhadas em flex** — não se sobrepõem mais.
+- **Faixa de anúncio** virou card centralizado com ícone por tipo (◆/✓/⚠/⚡), sombra e blur.
+- **Português** das Regras e páginas legais **100% acentuado**.
+- Webhook MP **não rebaixa** mais compra já entregue (PIX expirado tardio não vira "cancelada").
 
 ---
 
-## ⚠️ Importante ao atualizar
+## ⚠️ Ao atualizar pra v2.1.0
+- **Sem migration nova.** Só suba os arquivos novos (respeitando a Regra de Ouro do README).
+- Pra **ativar o cartão transparente**: adicione `'public_key' => 'APP_USR-...'` no bloco `mercado_pago` do `config/config.php` (a Public Key fica no **mesmo painel MP** do access_token). Sem ela, só o PIX aparece.
+- Opcional: Admin → Configurações → **"Parcelamento no cartão — valor mínimo (R$)"**.
 - **NUNCA** use o `install.php` pra atualizar, e **NUNCA** apague o `config/config.php`.
-- Atualizar = subir os arquivos novos (respeitando a "Regra de Ouro" do **[README](README.md#-atualizar-garantido-sem-perder-seus-dados)**) + rodar `php cli/migrate.php`.
-- **Crons opcionais** (Painel → Cron Jobs) pras automações novas:
-  - Entregas pendentes de caixa (a cada 2 min): `curl -s "https://SEUSITE/api/deliver-boxes.php?token=SEU_AGENT_TOKEN"`
-  - Premiação automática (de hora em hora): `curl -s "https://SEUSITE/api/award-rewards.php?token=SEU_AGENT_TOKEN"`
-- Em caso de dúvida, o **[ATUALIZAR.md](ATUALIZAR.md)** tem o passo a passo completo.
 
 ---
+
+## 📜 Histórico — v2.0.0
+- **🎁 Caixas / Lootboxes** com carrossel estilo CS:GO, drop real via CFTools, sorteio por peso, blindagem de restart.
+- **🗓 Eventos & Sorteios** (`/eventos` + teaser na home).
+- **🏆 Recompensas do leaderboard** com agendamento (semanal/mensal, auto-creditar, idempotente).
+- **💳 Checkout PIX transparente** (QR no site, sem ir pro MP).
+- **🔌 Entrega in-game nativa** via mod Sparda (`getcoins`/`postcoins`), sem Agent pago.
+- **🟢 Status do servidor + próximo restart** em tempo real (CFTools).
+- **🖼 Foto + nick da Steam** no perfil; **últimas transações** + stats de combate.
 
 ## 📜 Histórico — v1.6.0 (desde a 1.2.0)
-- **Recuperação de senha** (link por e-mail + `cli/reset-password.php`).
-- **Personalização visual pelo painel** (logo, favicon, backgrounds, cores) — à prova de update.
-- **Leaderboard + perfil de jogador** via CFTools (ranking de gameplay, perfil público, foto Steam).
-- **Painel de Recompensas** (prêmios por colocação no ranking).
-- **Loja in-game** (catálogo de itens gastáveis) e **Cupons completos** (% ou fixo, limite, validade, por pacote).
-- **Hardening**: XSS, headers de segurança, rate-limit, anti-SSRF, timeout de sessão, retry no MP, `cli/migrate.php` + `install.php` anti-destruição, i18n completo.
+- **Recuperação de senha** (e-mail + `cli/reset-password.php`); **personalização visual** pelo painel (à prova de update); **leaderboard + perfil** via CFTools; **cupons completos**; **hardening** (XSS, headers, rate-limit, anti-SSRF, sessão, retry MP, `migrate.php`/`install.php` anti-destruição, i18n completo).
 
 — Tecplay · https://tecplay.inf.br

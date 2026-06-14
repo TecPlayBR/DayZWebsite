@@ -104,6 +104,24 @@ curl -s "https://seusite.com/api/award-rewards.php?token=SEU_AGENT_TOKEN"
 
 ---
 
+## ✨ Novidades da v2.1.0 — o que ligar (opcional)
+
+Esta versão **não tem migration** (não precisa rodar nada no banco) — só subir os arquivos. Pra aproveitar o que chegou:
+
+- **💳 Cartão de crédito dentro do site:** adicione sua **Public Key** do Mercado Pago no `config/config.php`, no bloco `mercado_pago`:
+  ```php
+  'mercado_pago' => [
+      'access_token' => 'APP_USR-...',   // (você já tinha)
+      'public_key'   => 'APP_USR-...',   // ← ADICIONE (mesma conta MP, em "Credenciais de produção")
+      // ...
+  ],
+  ```
+  Sem a Public Key, só o **PIX** aparece — nada quebra. Com ela, a aba **Cartão** liga sozinha.
+- **Parcelamento:** em **Admin → Configurações → "Parcelamento no cartão — valor mínimo (R$)"** (padrão R$ 30). Quem define os juros é a sua conta do Mercado Pago (Custos/Parcelamento).
+- O resto (histórico de caixas, logs anti-golpista, SEO, segurança) **já vem ligado automaticamente**.
+
+---
+
 ## 🆘 Se algo parecer estranho
 
 | O que você vê | O que é | Como resolver |

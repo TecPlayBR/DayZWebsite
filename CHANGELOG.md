@@ -5,6 +5,49 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.1.0] — 2026-06-14
+
+> Features + hardening. **Sem migration** — só subir os arquivos. Pra ligar o cartão: adicionar `mercado_pago.public_key` no `config.php`.
+
+### 💳 Cartão de crédito transparente (in-site)
+- Pagamento com cartão **dentro do site** (sem redirect pro MP). Tokenização client-side via SDK do MP (CardForm/Secure Fields) — PAN **não toca o servidor** (PCI SAQ-A).
+- `MercadoPago::createCardPayment()` + `cardRejectMessage()`; rota `POST /shop/card-pay/{id}` (anti-IDOR via `$_SESSION['checkout_pids']`, CSRF, rate-limit); entrega pelo webhook (claim atômico).
+- Campos nativos (autofill ok), documento fixo em CPF, parcelamento com mínimo configurável (`card_installments_min`, default R$30), cupom compartilhado PIX+Cartão. Gated em `mercado_pago.public_key` (vazio = só PIX).
+
+### 🎁 Caixas / 📦 Inventário
+- **Ordem na vitrine** configurável (auto max+1 em caixa nova); **cooldown opcional** (0 = sem espera); caixa nova nasce ativa.
+- **Raridade dirige o peso/chance** (auto-fill no admin + % ao vivo).
+- **Countdown ao vivo** da diária (libera o botão ao zerar, sem reload).
+- **Histórico de Caixas** no painel do jogador (`/my-purchases`) + **log admin** de aberturas pesquisável por SteamID com horário do drop (`/admin/caixas/logs`).
+
+### 🔍 SEO
+- Títulos/descrições **únicos por página**; **hreflang** pt-BR/en-US/x-default; **sitemap** corrigido (`/caixas` in, `/server-status` out, dedup `/rules`).
+- **Schema** Product/Offer no `/shop` + **FAQPage** no `/faq`; JSON-LD com `JSON_HEX_TAG`.
+- Checkbox de termos **não pré-marcado** (CDC/LGPD).
+
+### 🛡 Segurança
+- **Rate-limit** anti-bruteforce em `public/api/*` (só falhas de auth — não afeta o mod, que vem de 1 IP).
+- `GET_LOCK` serializa `Boxes::open()` (race da diária); `session_regenerate_id` no login Steam; guard anti open-redirect; `health.php` sem métricas de negócio; customizador de tema com backup `.bak` + audit antes→depois.
+
+### 🐛 Correções
+- Playtime do perfil (CFTools `omega.playtime`); faixas status+restart empilhadas (flex); faixa de anúncio como card com ícone; **PT 100% acentuado** nas Regras + páginas legais; webhook MP não rebaixa compra entregue.
+
+---
+
+## [2.0.0] — 2026-06-13
+
+> Consolida 1.6.0 → 2.0.3. Migrations idempotentes: `v1.6.0_player_stats`, `v1.8.0_caixas`, `v1.9.0_reward_payouts`, `v2.0.0_eventos`, `v2.0.1_player_origin_reward`, `v2.0.2_package_image`, `v2.0.3_box_item_coins`.
+
+- **🎁 Caixas / Lootboxes**: carrossel estilo CS:GO, drop real via CFTools, sorteio por peso, blindagem de restart, recompensa item ou moedas, imagens.
+- **🗓 Eventos & Sorteios** (`/eventos` + teaser na home).
+- **🏆 Recompensas do leaderboard** agendadas (semanal/mensal, auto-creditar, idempotente, histórico).
+- **💳 Checkout PIX transparente** (QR no site).
+- **🔌 Entrega in-game nativa** via mod Sparda (`getcoins`/`postcoins`).
+- **🟢 Status + próximo restart** em tempo real (CFTools); **🖼 foto/nick Steam** no perfil; **imagens nos pacotes**.
+- **🛡 Hardening**: XSS (caixas), IDOR (status/pagamento), débito atômico, webhook MP HMAC + reconsulta, fuso BR, i18n PT/EN.
+
+---
+
 ## [1.5.0] — 2026-06-10
 
 ### 💸 Cobrança Pix de valor livre (helpdesk + pagamentos)
