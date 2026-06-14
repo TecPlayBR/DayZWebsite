@@ -461,6 +461,120 @@ case 'create_pix':
         'expires_at'     => $pay['date_of_expiration'] ?? $expires,
     ]));
 
+case 'create_invoice':
+    // /cobrar do Discord: cobrança Pix de VALOR LIVRE com dados do cliente
+    // (helpdesk + pagamentos). Cobra no MP do site; mp-webhook.php marca 'paid'
+    // (external_reference "inv-<ref>" distingue de purchases). Idempotente por invoice_ref.
+    if ($method !== 'POST') {
+        _bail(405, 'method_not_allowed', 'create_invoice');
+    }
+    $body = json_decode(file_get_contents('php://input') ?: '', true) ?: [];
+    $invName   = trim((string) ($body['name'] ?? ''));
+    $invDesc   = trim((string) ($body['description'] ?? ''));
+    $invRef    = substr(trim((string) ($body['invoice_ref'] ?? '')), 0, 80);
+    $invAmount = round((float) ($body['amount_brl'] ?? 0), 2);
+    $invCpf    = preg_replace('/\D/', '', (string) ($body['cpf'] ?? ''));     // só dígitos
+    $invCpf    = $invCpf !== '' ? $invCpf : null;
+    $invEmail  = trim((string) ($body['email'] ?? '')) ?: null;
+    $invPhone  = preg_replace('/\D/', '', (string) ($body['phone'] ?? ''));
+    $invPhone  = $invPhone !== '' ? $invPhone : null;
+    $invBy     = substr(trim((string) ($body['created_by'] ?? '')), 0, 40) ?: null;
+    $invGuild  = substr(trim((string) ($body['guild_id'] ?? '')), 0, 32) ?: null;
+
+    if ($invName === '' || $invDesc === '')                 _bail(400, 'missing_fields', 'create_invoice');
+    if ($invRef === '')                                     _bail(400, 'missing_invoice_ref', 'create_invoice');
+    if ($invAmount < 0.01)                                  _bail(400, 'invalid_amount', 'create_invoice');
+    if ($invCpf !== null && strlen($invCpf) !== 11)         _bail(400, 'invalid_cpf', 'create_invoice');
+    if ($invEmail !== null && !filter_var($invEmail, FILTER_VALIDATE_EMAIL)) _bail(400, 'invalid_email', 'create_invoice');
+
+    // Idempotência: invoice_ref já existe? NÃO cria/cobra de novo — devolve o estado atual.
+    $prevInv = \App\Database::fetchOne(
+        "SELECT id, status, amount_brl, qr_code, expires_at FROM invoices WHERE invoice_ref = ? LIMIT 1",
+        [$invRef]
+    );
+    if ($prevInv) {
+        _mark_last_ok();
+        _log_call('create_invoice', 200);
+        die(json_encode([
+            'ok'          => true,
+            'idempotent'  => true,
+            'invoice_id'  => (int) $prevInv['id'],
+            'invoice_ref' => $invRef,
+            'status'      => $prevInv['status'],
+            'qr_code'     => $prevInv['qr_code'],
+            'amount_brl'  => (float) $prevInv['amount_brl'],
+            'expires_at'  => $prevInv['expires_at'],
+        ]));
+    }
+
+    $mp = new \App\MercadoPago(
+        $config['mercado_pago']['access_token'] ?? '',
+        $config['mercado_pago']['webhook_secret'] ?? null
+    );
+    if (!$mp->isConfigured()) {
+        _bail(503, 'payments_not_configured', 'create_invoice');
+    }
+    $siteUrl = rtrim($config['site_url'] ?? '', '/');
+    $expires = gmdate("Y-m-d\\TH:i:s.000P", time() + 1800); // QR válido ~30 min
+
+    \App\Database::query(
+        "INSERT INTO invoices (invoice_ref, name, cpf, email, phone, description, amount_brl, created_by, guild_id, expires_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        [$invRef, substr($invName, 0, 120), $invCpf, $invEmail, $invPhone,
+         substr($invDesc, 0, 255), $invAmount, $invBy, $invGuild, gmdate("Y-m-d H:i:s", time() + 1800)]
+    );
+    $invoiceId = (int) \App\Database::pdo()->lastInsertId();
+
+    $pay = $mp->createPixPayment([
+        'transaction_amount' => $invAmount,
+        'description'        => substr($invDesc, 0, 600),
+        'external_reference' => 'inv-' . $invRef,
+        'notification_url'   => $siteUrl . '/api/mp-webhook.php',
+        'date_of_expiration' => $expires,
+        'payer'              => ['email' => $invEmail ?: ('cobranca+' . $invRef . '@pix.tecplay.inf.br')],
+    ]);
+    $tx = $pay['point_of_interaction']['transaction_data'] ?? null;
+    if (!$pay || !$tx || empty($tx['qr_code'])) {
+        _bail(502, 'pix_failed', 'create_invoice');
+    }
+    \App\Database::query(
+        "UPDATE invoices SET mp_payment_id = ?, qr_code = ? WHERE id = ?",
+        [(string) $pay['id'], (string) $tx['qr_code'], $invoiceId]
+    );
+
+    _mark_last_ok();
+    _log_call('create_invoice', 201);
+    http_response_code(201);
+    die(json_encode([
+        'ok'             => true,
+        'invoice_id'     => $invoiceId,
+        'invoice_ref'    => $invRef,
+        'qr_code'        => $tx['qr_code'],
+        'qr_code_base64' => $tx['qr_code_base64'] ?? null,
+        'ticket_url'     => $tx['ticket_url'] ?? null,
+        'amount_brl'     => $invAmount,
+        'expires_at'     => $pay['date_of_expiration'] ?? $expires,
+    ]));
+
+case 'invoice_status':
+    // Bot faz polling do status da cobrança (pending|paid|expired|cancelled).
+    $ref = substr(trim((string) ($_GET['invoice_ref'] ?? '')), 0, 80);
+    if ($ref === '') _bail(400, 'missing_invoice_ref', 'invoice_status');
+    $inv = \App\Database::fetchOne(
+        "SELECT status, amount_brl, paid_at, expires_at FROM invoices WHERE invoice_ref = ? LIMIT 1",
+        [$ref]
+    );
+    if (!$inv) _bail(404, 'invoice_not_found', 'invoice_status');
+    _mark_last_ok();
+    _log_call('invoice_status', 200);
+    die(json_encode([
+        'ok'         => true,
+        'status'     => $inv['status'],
+        'amount_brl' => (float) $inv['amount_brl'],
+        'paid_at'    => $inv['paid_at'],
+        'expires_at' => $inv['expires_at'],
+    ]));
+
 case 'shop_items':
     // Catálogo de itens GASTÁVEIS (moeda → item in-game). O bot lista no /loja.
     $rows = \App\Database::fetchAll(

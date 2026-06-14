@@ -5,6 +5,30 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [1.5.0] — 2026-06-10
+
+### 💸 Cobrança Pix de valor livre (helpdesk + pagamentos)
+
+O admin gera, pelo bot Discord (`/cobrar`), uma cobrança Pix de **valor arbitrário**
+com dados do cliente (nome, CPF, email, telefone, descrição) e manda o QR. Serve pra
+cobrar **serviços/atendimento**, não só loja de coins. Cobra no **MP do site**.
+
+- **Nova tabela `invoices`** — cobranças avulsas: `invoice_ref` UNIQUE (idempotência),
+  dados do cliente, `amount_brl`, `status` (pending/paid/expired/cancelled), `qr_code`
+  (copia-e-cola guardado pro retry idempotente), audit (`created_by`, `guild_id`).
+- **`/api/bot-integration.php`** ganhou duas actions:
+  - **`POST ?action=create_invoice`** `{name, cpf?, email?, phone?, description, amount_brl, invoice_ref, created_by?, guild_id?}`
+    → cria o Pix (MP do site) e devolve `{qr_code, qr_code_base64, ticket_url, invoice_id, expires_at}`.
+    Idempotente por `invoice_ref` (não cobra 2x — devolve o QR guardado).
+  - **`GET ?action=invoice_status&invoice_ref=X`** → `{status, amount_brl, paid_at, expires_at}` (bot faz polling).
+- **`mp-webhook.php`** roteia `external_reference` com prefixo `inv-` → marca a `invoice`
+  como `paid` (idempotente, `paid_at` via COALESCE). NÃO toca o fluxo de purchases.
+- ⚠️ MVP **sem emissão de NF** (decisão do Financeiro — ME/Simples Nacional). CPF fica só no site (LGPD).
+
+**Migration:** `migrations/v1.5.0_invoices.sql` (idempotente). **AÇÃO por cliente:** rodar no DB do cliente.
+
+---
+
 ## [1.4.0] — 2026-06-10
 
 ### 🛒 Loja in-game — catálogo gastável + entrega (Fase 2)

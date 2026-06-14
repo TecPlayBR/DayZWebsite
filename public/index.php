@@ -1829,8 +1829,9 @@ $collectDashboardData = function() {
         trim((string)($_POST['description'] ?? '')) ?: null,
         $isDaily ? 0 : max(0, (int)($_POST['cost_coins'] ?? 0)),
         $isDaily,
-        max(1, (int)($_POST['cooldown_hours'] ?? 24)),
-        !empty($_POST['enabled']) ? 1 : 0,
+        max(0, (int)($_POST['cooldown_hours'] ?? 24)),
+        // Caixa NOVA nasce sempre ativa; na edição respeita o checkbox.
+        $id > 0 ? (!empty($_POST['enabled']) ? 1 : 0) : 1,
         (int)($_POST['sort_order'] ?? 0),
     ];
     if ($id > 0) {

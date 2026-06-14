@@ -80,13 +80,16 @@ class Boxes {
         $items = self::items($boxId);
         if (!$items) return ['ok' => false, 'error' => 'Esta caixa não tem itens configurados.'];
 
-        // Diária: checa cooldown. Paga: checa saldo.
+        // Diária: grátis, com cooldown OPCIONAL. Paga: sem cooldown, checa saldo.
         if ((int)$box['is_daily'] === 1) {
-            $last = self::lastOpening($boxId, $steamId);
-            $cd = max(1, (int)$box['cooldown_hours']) * 3600;
-            if ($last !== null && (time() - $last) < $cd) {
-                $wait = $cd - (time() - $last);
-                return ['ok' => false, 'error' => 'Caixa diária no cooldown. Volte em ' . self::humanWait($wait) . '.'];
+            // cooldown_hours = 0 => sem espera (pode abrir em sequência).
+            $cd = (int)$box['cooldown_hours'] * 3600;
+            if ($cd > 0) {
+                $last = self::lastOpening($boxId, $steamId);
+                if ($last !== null && (time() - $last) < $cd) {
+                    $wait = $cd - (time() - $last);
+                    return ['ok' => false, 'error' => 'Caixa diária no cooldown. Volte em ' . self::humanWait($wait) . '.'];
+                }
             }
             $cost = 0;
         } else {
