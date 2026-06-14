@@ -51,7 +51,12 @@ $rarityColor = [
                     <?php if (!$steam_user): ?>
                         <a href="/auth/steam" class="btn caixa-open"><?= e(__('caixas.login_to_open')) ?></a>
                     <?php elseif ($daily && $wait > 0): ?>
-                        <button class="btn caixa-open" disabled><?= e(__('caixas.back_in', ['t' => $wait >= 3600 ? floor($wait/3600).'h' : ceil($wait/60).'min'])) ?></button>
+                        <button class="btn caixa-open caixa-cd" disabled
+                                data-wait="<?= (int)$wait ?>"
+                                data-slug="<?= e($b['slug']) ?>" data-name="<?= e($b['name']) ?>" data-cost="0"
+                                data-ready="<?= e(__('caixas.open_box')) ?>">
+                            ⏳ <span class="cd-time">--:--</span>
+                        </button>
                     <?php else: ?>
                         <button class="btn caixa-open" data-slug="<?= e($b['slug']) ?>" data-name="<?= e($b['name']) ?>" data-cost="<?= $daily?0:(int)$b['cost_coins'] ?>"><?= e(__('caixas.open_box')) ?></button>
                     <?php endif; ?>
@@ -223,6 +228,29 @@ $rarityColor = [
 
     document.querySelectorAll('.caixa-open[data-slug]').forEach(b=>b.addEventListener('click',()=>openBox(b)));
     closeBtn.addEventListener('click',()=>{ overlay.hidden=true; window.location.reload(); });
+
+    // Countdown ao vivo da diária: quando zera, libera o botão na hora (sem recarregar).
+    function fmtCd(s){ s=Math.max(0,s); var h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60;
+        var p=function(n){return (n<10?'0':'')+n;}; return (h>0? h+':' : '') + p(m)+':'+p(sec); }
+    document.querySelectorAll('.caixa-cd[data-wait]').forEach(function(btn){
+        var left = parseInt(btn.getAttribute('data-wait'),10)||0;
+        var timeEl = btn.querySelector('.cd-time');
+        var readyLabel = btn.getAttribute('data-ready') || 'Abrir';
+        var iv;
+        function tick(){
+            if (left <= 0){
+                clearInterval(iv);
+                btn.disabled = false;
+                btn.classList.remove('caixa-cd');
+                btn.textContent = readyLabel; // o handler de clique já está ligado (tem data-slug)
+                return;
+            }
+            if (timeEl) timeEl.textContent = fmtCd(left);
+            left--;
+        }
+        tick();
+        iv = setInterval(tick, 1000);
+    });
 })();
 </script>
 

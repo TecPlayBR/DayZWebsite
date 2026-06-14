@@ -56,19 +56,19 @@
             <label>Nome exibido<input type="text" name="name" placeholder="Fuzil AKM"></label>
             <label>Imagem (capa)<input type="file" name="image_file" accept="image/png,image/webp,image/jpeg"></label>
         </div>
-        <div style="display:grid;grid-template-columns:0.7fr 0.7fr 1.1fr auto;gap:0.5rem;margin-top:0.5rem;align-items:end;">
+        <div style="display:grid;grid-template-columns:0.6fr 1fr 0.9fr auto;gap:0.5rem;margin-top:0.5rem;align-items:end;">
             <label id="bi-qty-l">Qtd<input type="number" name="quantity" value="1" min="1"></label>
-            <label>Peso<input type="number" name="weight" value="10" min="1"></label>
             <label>Raridade
-                <select name="rarity">
+                <select name="rarity" id="bi-rarity">
                     <option value="common">Comum</option><option value="uncommon">Incomum</option>
                     <option value="rare">Raro</option><option value="epic">Épico</option><option value="legendary">Lendário</option>
                 </select>
             </label>
+            <label>Peso <span style="color:var(--dim);font-weight:400;">(auto)</span><input type="number" name="weight" id="bi-weight" value="100" min="1"></label>
             <input type="hidden" name="enabled" value="1">
             <button type="submit" class="btn">+ Add</button>
         </div>
-        <p style="font-size:0.78rem;color:var(--dim);margin-top:0.5rem;" id="bi-hint">Chance = peso ÷ soma dos pesos. Imagem opcional (PNG transparente fica melhor).</p>
+        <p style="font-size:0.78rem;color:var(--dim);margin-top:0.5rem;" id="bi-hint">A <strong>raridade</strong> define a chance — lendário cai bem menos que comum. O <strong>peso</strong> já preenche sozinho pela raridade; só mexa pra ajuste fino. <span id="bi-chance" style="color:var(--hazard);"></span></p>
     </form>
 </div>
 <style>
@@ -87,6 +87,16 @@
         hint.textContent = coins ? 'Moedas: o Classname é ignorado; a Qtd vira a quantidade de moedas creditadas no saldo.' : 'Chance = peso ÷ soma dos pesos. Imagem opcional (PNG transparente fica melhor).';
     }
     t.addEventListener('change',upd); upd();
+})();
+(function(){
+    // Raridade DEFINE o peso (= a chance). Lendário entra com peso baixo automaticamente.
+    var RARITY_W = { common:100, uncommon:40, rare:15, epic:5, legendary:2 };
+    var rar = document.getElementById('bi-rarity'), w = document.getElementById('bi-weight'), ch = document.getElementById('bi-chance');
+    var TOTAL = <?= (int)$total_weight ?>; // soma dos pesos já no pool
+    function chance(){ if(!w||!ch) return; var ww=Math.max(1,parseInt(w.value,10)||0); ch.textContent = '≈ '+(ww/(TOTAL+ww)*100).toFixed(1).replace('.',',')+'% de chance neste pool.'; }
+    if (rar) rar.addEventListener('change', function(){ if(w) w.value = RARITY_W[rar.value]||10; chance(); });
+    if (w) w.addEventListener('input', chance);
+    chance();
 })();
 </script>
 
