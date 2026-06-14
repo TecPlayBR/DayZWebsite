@@ -66,6 +66,7 @@ require $ROOT . '/src/BalanceLog.php';
 require $ROOT . '/src/Achievements.php';
 require $ROOT . '/src/Servers.php';
 require $ROOT . '/src/Boxes.php';
+require $ROOT . '/src/Rewards.php';
 require $ROOT . '/src/Html.php';
 require $ROOT . '/src/helpers.php';
 
@@ -1908,13 +1909,26 @@ $REWARD_CATEGORIES = [
     \App\View::display('admin.rewards', [
         'config' => $config, 'categories' => $REWARD_CATEGORIES, 'rewards' => $rewards,
         'cftools_on' => \App\CFTools::isConfigured(),
+        'last_awarded' => \App\Rewards::lastAwarded(),
+        'period_label' => \App\Rewards::periodLabel(),
+        'awarded_period' => \App\Rewards::awardedThisPeriod(),
+        'history' => \App\Rewards::history(20),
     ]);
 });
 
 \App\Router::post('/admin/rewards', function() use ($REWARD_CATEGORIES) {
     \App\Auth::requireCan('settings');
     if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
-    $out = ['enabled' => !empty($_POST['master_enabled']) ? 1 : 0, 'cats' => []];
+    // Preserva last_awarded já gravado.
+    $prevRaw = \App\Settings::get('leaderboard_rewards', '');
+    $prev = $prevRaw ? (json_decode($prevRaw, true) ?: []) : [];
+    $out = [
+        'enabled' => !empty($_POST['master_enabled']) ? 1 : 0,
+        'cadence' => in_array($_POST['cadence'] ?? 'manual', ['manual','weekly','monthly'], true) ? $_POST['cadence'] : 'manual',
+        'auto'    => !empty($_POST['auto']) ? 1 : 0,
+        'last_awarded' => (int)($prev['last_awarded'] ?? 0),
+        'cats' => [],
+    ];
     foreach (array_keys($REWARD_CATEGORIES) as $key) {
         $out['cats'][$key] = [
             'enabled' => !empty($_POST['cat_' . $key . '_enabled']) ? 1 : 0,
@@ -1929,6 +1943,27 @@ $REWARD_CATEGORIES = [
     \App\AuditLog::record('rewards.save', 'rewards', null);
     header('Location: /admin/rewards?ok=1');
     exit;
+});
+
+// Premiar agora (manual) — credita o top do período atual. Idempotente por período.
+\App\Router::post('/admin/rewards/award-now', function() use ($config) {
+    \App\Auth::requireCan('settings');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
+    $res = \App\Rewards::award();
+    \App\AuditLog::record('rewards.award_now', 'rewards', null, ['paid' => count($res['paid'] ?? [])]);
+    if (!$res['ok']) { header('Location: /admin/rewards?err=' . urlencode($res['error'] ?? 'erro')); exit; }
+    $n = count($res['paid']);
+    header('Location: /admin/rewards?ok=award&n=' . $n);
+    exit;
+});
+
+// Cron de premiação automática. Token = agent_token. Chamar a cada hora no host.
+\App\Router::get('/api/award-rewards.php', function() use ($config) {
+    header('Content-Type: application/json; charset=utf-8');
+    if (!hash_equals((string)($config['agent_token'] ?? ''), (string)($_GET['token'] ?? ''))) { http_response_code(401); echo json_encode(['error' => 'unauthorized']); return; }
+    if (!\App\Rewards::shouldAutoAward()) { echo json_encode(['ok' => true, 'skipped' => true, 'reason' => 'fora de cadencia ou ja premiado']); return; }
+    $res = \App\Rewards::award();
+    echo json_encode(['ok' => (bool)($res['ok'] ?? false), 'label' => $res['label'] ?? null, 'paid' => count($res['paid'] ?? [])]);
 });
 
 \App\Router::get('/admin/pages', function() use ($config) {
