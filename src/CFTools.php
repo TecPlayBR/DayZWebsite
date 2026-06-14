@@ -154,6 +154,8 @@ class CFTools {
         $resp = self::player($cid);
         $dayz = $resp[$cid]['game']['dayz'] ?? null;
         if (!is_array($dayz)) return null;
+        // Playtime/sessões NÃO ficam em game.dayz — ficam em omega (validado live).
+        $omega = is_array($resp[$cid]['omega'] ?? null) ? $resp[$cid]['omega'] : [];
 
         $k     = is_array($dayz['kills'] ?? null) ? $dayz['kills'] : [];
         $sh    = is_array($dayz['shots'] ?? null) ? $dayz['shots'] : [];
@@ -164,7 +166,7 @@ class CFTools {
             'kills'            => (int)($k['players'] ?? 0),
             'deaths'           => (int)($dayz['deaths'] ?? 0),
             'kdratio'          => (float)($dayz['kdratio'] ?? 0),
-            'playtime_seconds' => (int)($dayz['playtime'] ?? 0),
+            'playtime_seconds' => (int)($omega['playtime'] ?? 0),
             'longest_kill_m'   => (int)($dayz['longest_kill'] ?? 0),
             'longest_shot_m'   => (int)($dayz['longest_shot'] ?? 0),
             'suicides'         => (int)($dayz['suicides'] ?? 0),
@@ -175,6 +177,7 @@ class CFTools {
                 'hits'          => $hit,
                 'accuracy_pct'  => $fired > 0 ? round($hit / $fired * 100, 1) : 0,
                 'distance_km'   => round((float)($dayz['distance_traveled'] ?? 0) / 1000, 1),
+                'sessions'      => (int)($omega['sessions'] ?? 0),
             ],
         ];
     }
