@@ -86,7 +86,8 @@
             <div style="display:grid; grid-template-columns: 2fr 1fr; gap:1rem;">
                 <div>
                     <label style="display:block; font-size:0.85rem; color:var(--bone); margin-bottom:0.3rem;">Horários de restart (BR)</label>
-                    <input type="text" name="restart_times" value="<?= e($settings['restart_times'] ?? '') ?>" placeholder="00:00, 04:00, 08:00, 12:00, 16:00, 20:00" style="width:100%; padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:var(--font-mono);">
+                    <input type="text" name="restart_times" id="restart_times" value="<?= e($settings['restart_times'] ?? '') ?: '00:00, 04:00, 08:00, 12:00, 16:00, 20:00' ?>" placeholder="00:00, 04:00, 08:00, 12:00, 16:00, 20:00" style="width:100%; padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:var(--font-mono);">
+                    <p id="restart-hint" style="display:none; margin-top:0.35rem; font-size:0.78rem; color:var(--hazard);">💡 Coloque os horários separados por vírgula (ex: <code>00:00, 06:00, 12:00, 18:00</code>). Deixe vazio só se NÃO quiser mostrar o próximo restart no site.</p>
                 </div>
                 <div>
                     <label style="display:block; font-size:0.85rem; color:var(--bone); margin-bottom:0.3rem;">Aviso (min antes)</label>
@@ -247,5 +248,14 @@
         </button>
     </form>
 </div>
+
+<script>
+(function(){
+    var inp = document.getElementById('restart_times'), hint = document.getElementById('restart-hint');
+    if (!inp || !hint) return;
+    function upd(){ hint.style.display = inp.value.trim() === '' ? 'block' : 'none'; }
+    inp.addEventListener('input', upd); upd();
+})();
+</script>
 
 <?php \App\View::endSection(); ?>

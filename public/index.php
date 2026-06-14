@@ -2263,6 +2263,10 @@ $REWARD_CATEGORIES = [
     if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     $caption = trim($_POST['caption'] ?? '');
     $sort    = (int)($_POST['sort_order'] ?? 0);
+    // Ordem auto-incremento: se não informada (ou 0), vai pro fim (maior + 10).
+    if ($sort <= 0) {
+        $sort = ((int)\App\Database::fetchColumn("SELECT COALESCE(MAX(sort_order), 0) FROM gallery")) + 10;
+    }
 
     if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
         header('Location: /admin/gallery?err=upload'); exit;

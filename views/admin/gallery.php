@@ -2,6 +2,11 @@
 <?php $title = 'Galeria'; ?>
 <?php \App\View::extend('admin.layout'); ?>
 <?php \App\View::section('content'); ?>
+<?php
+// Ordem auto-incremento: próxima = maior existente + 10 (não precisa adivinhar).
+$existingOrders = array_map(static fn($i) => (int)$i['sort_order'], $items);
+$nextSort = ($existingOrders ? max($existingOrders) : 0) + 10;
+?>
 
 <div class="admin-page-head">
     <div>
@@ -38,9 +43,10 @@
         <label>Legenda (opcional)
             <input type="text" name="caption" maxlength="200" placeholder="Ex: Nascer do sol em Chernarus">
         </label>
-        <label>Ordem (menor = primeiro)
-            <input type="number" name="sort_order" value="0">
+        <label>Ordem (menor = primeiro) <small style="color:var(--dim);">— já vem na próxima livre</small>
+            <input type="number" id="g-sort" name="sort_order" value="<?= (int)$nextSort ?>" data-orders="<?= e(implode(',', $existingOrders)) ?>">
         </label>
+        <p id="g-sort-warn" style="display:none; color:var(--hazard); font-size:0.78rem; margin:0.2rem 0 0;">⚠ Já existe uma imagem com essa ordem — elas vão empatar (ordena por id como desempate). Use um número livre se quiser posição garantida.</p>
         <button type="submit" class="btn-mini">↑ Enviar</button>
     </form>
 </div>
@@ -126,5 +132,15 @@
 }
 .btn-mini.danger { background: var(--rust-2); border-color: var(--rust-2); }
 </style>
+
+<script>
+(function(){
+    var inp = document.getElementById('g-sort'), warn = document.getElementById('g-sort-warn');
+    if (!inp || !warn) return;
+    var taken = (inp.dataset.orders || '').split(',').filter(Boolean).map(Number);
+    function upd(){ warn.style.display = taken.indexOf(parseInt(inp.value, 10)) >= 0 ? 'block' : 'none'; }
+    inp.addEventListener('input', upd); upd();
+})();
+</script>
 
 <?php \App\View::endSection(); ?>
