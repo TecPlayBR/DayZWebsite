@@ -103,7 +103,10 @@
                 <div class="cf-row"><label>E-mail (recibo)</label><input type="email" id="cf-email" class="cf-input" autocomplete="email" placeholder="voce@email.com"></div>
                 <!-- Banco emissor é detectado automaticamente pelo MP (pelo nº do cartão); escondido pra não confundir -->
                 <div style="display:none;"><select id="cf-issuer"></select></div>
-                <div class="cf-row"><label>Parcelas</label><select id="cf-installments" class="cf-input"></select></div>
+                <div class="cf-row"><label>Parcelas</label>
+                    <select id="cf-installments" class="cf-input"><option value="1">1x</option></select>
+                    <small style="display:block;color:var(--dim);font-size:0.72rem;margin-top:0.3rem;">As opções de parcelamento aparecem depois de preencher o número do cartão.</small>
+                </div>
                 <div class="cf-amount">Total: <strong>R$ <?= number_format($price_brl, 2, ',', '.') ?></strong></div>
                 <button type="submit" id="cf-submit" class="btn" style="width:100%;" disabled>💳 Pagar com cartão</button>
                 <div class="cf-status" id="cf-status"></div>
