@@ -2505,19 +2505,40 @@ $REWARD_CATEGORIES = [
     if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
 
     $overrideFile = $ROOT . '/public/assets/css/theme.override.css';
+    $vars  = ['--bg-0','--bg-1','--bg-2','--bg-3','--rust','--rust-2','--bone','--moss','--hazard','--dim'];
+
+    // Lê as cores ATUAIS do override (pra registrar o "antes" no audit — recuperável).
+    $readColors = function($file) use ($vars) {
+        $out = [];
+        if (is_file($file)) {
+            $css = (string)file_get_contents($file);
+            foreach ($vars as $v) {
+                if (preg_match('/' . preg_quote($v, '/') . '\s*:\s*(#[0-9a-fA-F]{3,8})\b/', $css, $m)) {
+                    $out[$v] = strtolower($m[1]);
+                }
+            }
+        }
+        return $out;
+    };
+    $before = $readColors($overrideFile);
 
     if (isset($_POST['reset_theme'])) {
-        if (is_file($overrideFile)) @unlink($overrideFile);
-        \App\AuditLog::record('customize.theme_reset', 'theme', null);
+        // Backup antes de apagar: a paleta atual fica em theme.override.css.bak +
+        // vai pro audit log. Reset NUNCA mais é perda irreversível.
+        if (is_file($overrideFile)) { @copy($overrideFile, $overrideFile . '.bak'); @unlink($overrideFile); }
+        \App\AuditLog::record('customize.theme_reset', 'theme', null,
+            $before ? ['paleta_removida' => $before, 'backup' => 'theme.override.css.bak'] : []);
         header('Location: /admin/customize?ok=theme_reset'); exit;
     }
 
-    $vars  = ['--bg-0','--bg-1','--bg-2','--bg-3','--rust','--rust-2','--bone','--moss','--hazard','--dim'];
     $lines = [];
+    $after = [];
     foreach ($vars as $v) {
         $val = $_POST['c_' . ltrim($v, '-')] ?? '';
         if (!preg_match('/^#[0-9a-fA-F]{6}$/', $val)) continue; // ignora inválido (defesa)
-        $lines[] = '    ' . $v . ': ' . strtolower($val) . ';';
+        $val = strtolower($val);
+        $lines[] = '    ' . $v . ': ' . $val . ';';
+        $after[$v] = $val;
     }
     if (!$lines) { header('Location: /admin/customize?err=theme'); exit; }
 
@@ -2528,7 +2549,17 @@ $REWARD_CATEGORIES = [
     if (file_put_contents($overrideFile, $css) === false) {
         header('Location: /admin/customize?err=theme_write'); exit;
     }
-    \App\AuditLog::record('customize.theme', 'theme', null);
+    // Audit com ANTES -> DEPOIS por cor (diff só do que mudou) — rastreável/recuperável.
+    $diff = [];
+    foreach ($after as $v => $nv) {
+        $ov = $before[$v] ?? '(padrão)';
+        if ($ov !== $nv) $diff[$v] = $ov . ' -> ' . $nv;
+    }
+    \App\AuditLog::record('customize.theme', 'theme', null, [
+        'antes'  => $before ?: '(sem override — usava o padrão do template)',
+        'depois' => $after,
+        'mudou'  => $diff ?: '(sem mudança de valor)',
+    ]);
     header('Location: /admin/customize?ok=theme'); exit;
 });
 
