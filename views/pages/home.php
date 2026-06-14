@@ -140,14 +140,16 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
         })();
         </script>
         <style>
-        .hero-restart { position:absolute; bottom:5.4rem; right:2rem; z-index:2; background:rgba(13,16,20,0.85);
-            border:1px solid var(--border); border-left:3px solid var(--moss); padding:0.6rem 1.1rem;
-            font-family:var(--font-mono); font-size:0.88rem; color:var(--bone); display:inline-flex; align-items:center; gap:0.5rem; white-space:nowrap; }
+        /* Restart alinhado com o "Online": mesma largura (min-width), padding e fonte. */
+        .hero-status, .hero-restart { min-width:340px; box-sizing:border-box; }
+        .hero-restart { position:absolute; bottom:5.6rem; right:2rem; z-index:2; background:rgba(13,16,20,0.85);
+            border:1px solid var(--border); border-left:3px solid var(--moss); padding:0.8rem 1.2rem;
+            font-family:var(--font-mono); font-size:0.92rem; color:var(--bone); display:inline-flex; align-items:center; gap:0.5rem; white-space:nowrap; }
         .hero-restart .dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
         .hero-restart-ok { border-left-color:var(--moss); } .hero-restart-ok .dot { background:var(--moss); box-shadow:0 0 8px var(--moss); }
         .hero-restart-amber { border-left-color:#f0a500; } .hero-restart-amber .dot { background:#f0a500; box-shadow:0 0 8px #f0a500; animation:pulse 1.5s infinite; }
         .hero-restart-red { border-left-color:var(--rust-2); } .hero-restart-red .dot { background:var(--rust-2); box-shadow:0 0 8px var(--rust-2); animation:pulse .8s infinite; }
-        @media (max-width:768px){ .hero-restart { position:static; margin:1rem auto 0; max-width:360px; width:100%; box-sizing:border-box; justify-content:center; } }
+        @media (max-width:768px){ .hero-status, .hero-restart { min-width:0; } .hero-restart { position:static; margin:1rem auto 0; max-width:360px; width:100%; box-sizing:border-box; justify-content:center; } }
         </style>
     <?php endif; ?>
 
