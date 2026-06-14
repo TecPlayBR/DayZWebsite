@@ -387,15 +387,24 @@ body:has(.site-header.scrolled) .announcements-strip {
 .announcement {
     display: flex; align-items: center; justify-content: space-between;
     gap: 1rem; flex-wrap: wrap;
-    padding: 0.7rem 1.5rem;
-    border-bottom: 1px solid var(--border);
+    max-width: 1080px; margin: 0 auto 0.6rem;
+    padding: 0.8rem 1.4rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
     font-size: 0.9rem;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+    backdrop-filter: blur(4px);
 }
 .announcement-info    { background: rgba(59,130,246,0.12); border-left: 3px solid #3b82f6; }
 .announcement-success { background: rgba(90,108,78,0.15);  border-left: 3px solid var(--moss); }
 .announcement-warning { background: rgba(212,160,23,0.12); border-left: 3px solid var(--hazard); }
 .announcement-danger  { background: rgba(231,76,60,0.12);  border-left: 3px solid var(--rust-2); }
-.announcement-content { display: flex; gap: 0.6rem; align-items: baseline; flex-wrap: wrap; }
+.announcement-content { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; }
+.announcement-icon { font-size: 1.15rem; line-height: 1; flex-shrink: 0; }
+.announcement-info    .announcement-icon { color: #3b82f6; }
+.announcement-success .announcement-icon { color: var(--moss); }
+.announcement-warning .announcement-icon { color: var(--hazard); }
+.announcement-danger  .announcement-icon { color: var(--rust-2); }
 .announcement-title { color: var(--bone); font-family: var(--font-display); letter-spacing: 0.03em; }
 .announcement-body  { color: var(--bone); opacity: 0.85; }
 .announcement-cta {

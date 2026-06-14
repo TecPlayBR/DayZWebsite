@@ -18,11 +18,12 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
 <?php \App\View::section('content'); ?>
 
 <!-- ============ ANÚNCIOS ============ -->
-<?php if (!empty($announcements)): ?>
+<?php if (!empty($announcements)): $annIcons = ['info' => '◆', 'success' => '✓', 'warning' => '⚠', 'danger' => '⚡']; ?>
     <div class="announcements-strip" data-announcements>
         <?php foreach ($announcements as $a): ?>
             <div class="announcement announcement-<?= e($a['kind']) ?>" data-announcement-id="<?= (int)$a['id'] ?>">
                 <div class="announcement-content">
+                    <span class="announcement-icon" aria-hidden="true"><?= $annIcons[$a['kind']] ?? '◆' ?></span>
                     <strong class="announcement-title"><?= e($a['title']) ?></strong>
                     <?php if (!empty($a['body'])): ?>
                         <span class="announcement-body"><?= e($a['body']) ?></span>
@@ -114,7 +115,7 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
                     <a href="<?= e($discordUrl) ?>" target="_blank" rel="noopener" style="color: var(--moss); font-weight: 600;"><?= e(__('hero.status_avise_discord')) ?></a>
                 <?php endif; ?>
             <?php endif; ?>
-            <a href="/server-status" style="margin-left: 0.6rem; color: var(--dim); font-size: 0.75rem;"><?= e(__('hero.status_detalhes')) ?></a>
+            <a href="/server-status" class="hs-detalhes"><?= e(__('hero.status_detalhes')) ?></a>
         </div>
     <?php endif; ?>
 
@@ -147,8 +148,10 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
        Antes eram 2 absolutos com offsets fixos (bottom:2rem e 5.6rem) e se sobrepunham
        quando o conteúdo crescia. Agora o flex cuida do empilhamento — nunca colidem. */
     .hero-chips { position:absolute; bottom:2rem; right:2rem; z-index:2; display:flex; flex-direction:column; gap:0.7rem; align-items:stretch; }
-    .hero-chips .hero-status { position:static; bottom:auto; right:auto; }
-    .hero-status, .hero-restart { min-width:360px; box-sizing:border-box; }
+    .hero-chips .hero-status { position:static; bottom:auto; right:auto; flex-wrap:wrap; }
+    .hero-status, .hero-restart { min-width:360px; box-sizing:border-box; border-radius:5px; box-shadow:0 8px 24px rgba(0,0,0,0.5); }
+    .hero-status .hs-detalhes { margin-left:auto; padding-left:0.6rem; color:var(--dim); font-size:0.75rem; text-decoration:none; opacity:0.8; transition:opacity .2s, color .2s; }
+    .hero-status .hs-detalhes:hover { opacity:1; color:var(--hazard); }
     .hero-restart { background:rgba(13,16,20,0.85); border:1px solid var(--border); border-left:3px solid var(--moss);
         padding:0.8rem 1.2rem; font-family:var(--font-mono); font-size:0.92rem; color:var(--bone);
         display:inline-flex; align-items:center; gap:0.5rem; white-space:nowrap; }
