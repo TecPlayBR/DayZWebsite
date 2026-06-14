@@ -205,7 +205,7 @@ return array (
     'soon' => 'Em breve',
     'buy' => 'Comprar',
     'coupon_auto' => 'O cupom é aplicado automaticamente quando você clicar em "COMPRAR" em qualquer pacote.',
-    'terms_note' => 'Marcado por padrão pra facilitar. Você precisa ler antes — ao comprar, fica registrado que aceitou.',
+    'terms_note' => 'Marque a caixa pra confirmar que leu e aceita. Ao comprar, fica registrado que você aceitou os Termos e a Política de Reembolso.',
     'auto_delivery' => '. Entrega automática em até 15 segundos após confirmação.',
     'steamid_warning' => '⚠ Confira o seu SteamID antes de pagar — créditos vão pro SteamID informado e não podem ser transferidos depois.',
   ),

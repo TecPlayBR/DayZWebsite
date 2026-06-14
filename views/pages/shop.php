@@ -19,6 +19,40 @@ $siteName = $config['settings']['site_name'] ?? $config['site_name'] ?? 'DayZ';
 );
 // Hero usa background3 — sinaliza pro layout preloadar o certo (LCP fix)
 \App\View::with('hero_image', 'img/background3.png');
+
+// SEO: Schema.org ItemList de Product/Offer pros pacotes — rich snippet de preço no Google.
+$shopUrl = rtrim($config['site_url'] ?? (($_SERVER['REQUEST_SCHEME'] ?? 'https') . '://' . ($_SERVER['HTTP_HOST'] ?? '')), '/');
+$bonusOn = \App\Settings::getInt('bonus_enabled');
+$prodItems = [];
+foreach ($packages as $i => $pkg) {
+    $coinsTotal = (int)$pkg['coins'] + ($bonusOn ? (int)($pkg['bonus_coins'] ?? 0) : 0);
+    $prodItems[] = [
+        '@type'    => 'ListItem',
+        'position' => $i + 1,
+        'item'     => [
+            '@type'       => 'Product',
+            'name'        => $pkg['name'] . ' — ' . $coinsTotal . ' moedas',
+            'description' => 'Pacote de ' . $coinsTotal . ' moedas para o servidor ' . $siteName . ' (DayZ). Entrega automática após o pagamento.',
+            'category'    => 'Virtual Game Currency',
+            'brand'       => ['@type' => 'Brand', 'name' => $siteName],
+            'offers'      => [
+                '@type'         => 'Offer',
+                'price'         => number_format((float)$pkg['price_brl'], 2, '.', ''),
+                'priceCurrency' => 'BRL',
+                'availability'  => 'https://schema.org/InStock',
+                'url'           => $shopUrl . '/shop',
+            ],
+        ],
+    ];
+}
+if ($prodItems) {
+    \App\View::with('jsonld', [
+        '@context'        => 'https://schema.org',
+        '@type'           => 'ItemList',
+        'name'            => 'Pacotes de moedas — ' . $siteName,
+        'itemListElement' => $prodItems,
+    ]);
+}
 ?>
 
 <?php \App\View::section('content'); ?>
@@ -144,7 +178,7 @@ $siteName = $config['settings']['site_name'] ?? $config['site_name'] ?? 'DayZ';
                     <?= \App\Csrf::field() ?>
                     <input type="hidden" name="package_id" value="<?= e($pkg['id']) ?>">
                     <input type="hidden" name="server_id" value="<?= (int)$selected_server_id ?>" data-server-input>
-                    <input type="hidden" name="terms_accepted" value="1" data-terms-flag>
+                    <input type="hidden" name="terms_accepted" value="" data-terms-flag>
                     <input type="hidden" name="coupon_code" value="" data-coupon-flag>
                     <?php if ($prefillSteam): ?>
                         <input type="hidden" name="steam_id" value="<?= e($prefillSteam) ?>">
@@ -174,7 +208,7 @@ $siteName = $config['settings']['site_name'] ?? $config['site_name'] ?? 'DayZ';
 
         <div class="shop-terms">
             <label>
-                <input type="checkbox" id="global-terms" checked>
+                <input type="checkbox" id="global-terms">
                 <span>Li e aceito os <a href="/page/terms" target="_blank" rel="noopener">Termos de Uso</a> e a <a href="/page/refund" target="_blank" rel="noopener">Política de Reembolso</a>.</span>
             </label>
             <p class="shop-terms-note">

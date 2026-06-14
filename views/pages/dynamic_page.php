@@ -9,6 +9,24 @@ $body   = ($lang === 'en-us' && !empty($page['body_enus'])) ? $page['body_enus']
 $_pgSite = $config['settings']['site_name'] ?? $config['site_name'] ?? 'Servidor';
 \App\View::with('title', $title . ' — ' . $_pgSite);
 \App\View::with('description', mb_substr(trim(preg_replace('/\s+/', ' ', strip_tags($body))), 0, 155));
+
+// SEO: FAQPage schema (rich snippet de accordion no Google) — só pra página de FAQ,
+// que usa <details><summary class="faq-q">Pergunta</summary>Resposta</details>.
+if (($page['slug'] ?? '') === 'faq'
+    && preg_match_all('/<details[^>]*>\s*<summary[^>]*>(.*?)<\/summary>(.*?)<\/details>/is', $body, $faqM, PREG_SET_ORDER)) {
+    $faqItems = [];
+    foreach ($faqM as $m) {
+        $q = trim(html_entity_decode(strip_tags($m[1]), ENT_QUOTES));
+        $a = trim(preg_replace('/\s+/', ' ', html_entity_decode(strip_tags($m[2]), ENT_QUOTES)));
+        if ($q !== '' && $a !== '') {
+            $faqItems[] = ['@type' => 'Question', 'name' => $q,
+                'acceptedAnswer' => ['@type' => 'Answer', 'text' => mb_substr($a, 0, 900)]];
+        }
+    }
+    if ($faqItems) {
+        \App\View::with('jsonld', ['@context' => 'https://schema.org', '@type' => 'FAQPage', 'mainEntity' => $faqItems]);
+    }
+}
 ?>
 <?php \App\View::extend('layouts.main'); ?>
 <?php \App\View::with('hero_image', 'img/background5.png'); // LCP preload sync ?>
