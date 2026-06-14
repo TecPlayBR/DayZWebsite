@@ -96,6 +96,9 @@ $activeTab = ((($active_tab ?? 'pix') === 'card') && $cardAvailable) ? 'card' : 
         <?php if ($cardAvailable): ?>
         <div id="tab-card" class="pay-panel" <?= $activeTab==='card'?'':'hidden' ?>>
             <form id="card-form" class="card-form">
+                <?php if (empty($coupon_code)): ?>
+                <div class="cf-coupon-warn">💡 Tem cupom? <strong>Aplique o cupom ali em cima antes</strong> de preencher o cartão — ao aplicar, a página recarrega e limpa os campos.</div>
+                <?php endif; ?>
                 <div class="cf-row">
                     <label>Número do cartão</label>
                     <input type="text" id="cf-number" class="cf-input" inputmode="numeric" autocomplete="cc-number" placeholder="0000 0000 0000 0000" maxlength="23">
@@ -198,6 +201,8 @@ $activeTab = ((($active_tab ?? 'pix') === 'card') && $cardAvailable) ? 'card' : 
 .cf-status.err { color:var(--rust-2); }
 .cf-status.ok { color:var(--moss); font-weight:700; }
 .cf-secure { font-size:0.72rem; color:var(--dim); margin-top:0.7rem; }
+.cf-coupon-warn { background:rgba(212,160,23,0.10); border:1px solid var(--hazard); border-radius:5px;
+    padding:0.55rem 0.7rem; font-size:0.78rem; color:var(--hazard); margin-bottom:1rem; }
 </style>
 
 <script>
