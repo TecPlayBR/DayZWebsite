@@ -278,6 +278,16 @@ class CFTools {
         if (isset($p['quantity'])) $p['quantity']['valueInt']    = max(1, $qty);
         if (isset($p['stacked']))  $p['stacked']['valueBoolean'] = $stacked ? 1 : 0;
         if (isset($p['debug']))    $p['debug']['valueBoolean']   = 0;
+        // CRÍTICO: o schema veio do cache (round-trip JSON), então 'options: {}' do
+        // CFTools virou 'options: []' (array) no PHP. O mod GameLabs pode ignorar o
+        // parâmetro quando 'options' não é objeto -> quantity = 0 -> 204 SEM drop.
+        // Força objeto vazio pra bater com o payload que funcionou no teste manual.
+        foreach ($p as $k => $param) {
+            if (isset($param['options']) && is_array($param['options']) && empty($param['options'])) {
+                $param['options'] = new \stdClass();
+                $p[$k] = $param;
+            }
+        }
         $r = self::authPost('/v1/server/' . self::$serverApiId . '/GameLabs/action', [
             'actionCode'    => 'CFCloud_SpawnPlayerItem',
             'actionContext' => 'player',
