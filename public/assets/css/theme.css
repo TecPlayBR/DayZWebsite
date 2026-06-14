@@ -774,31 +774,35 @@ body:has(.site-header.scrolled) .announcements-strip {
 .social-icon.social-whatsapp:hover { color: #25D366; border-color: #25D366; }
 
 /* ============ Payment logos no rodapé ============ */
+/* Maiores e bem visíveis — boa prática de transparência ao consumidor (CDC/Procon):
+   formas de pagamento aceitas devem estar claras ao olho. */
 .payment-logos {
-    display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap;
+    display: flex; gap: 0.7rem; align-items: center; flex-wrap: wrap;
     margin-top: 0.6rem;
 }
 .pay-logo {
-    background: rgba(255,255,255,0.95);
-    padding: 0.4rem 0.6rem;
-    border-radius: 3px;
-    height: 32px;
+    background: #fff;
+    padding: 0.55rem 0.8rem;
+    border-radius: 5px;
+    height: 52px;
     width: auto;
     object-fit: contain;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.35);
 }
-.pay-logo.pay-mp  { height: 28px; }
-.pay-logo.pay-pix { height: 26px; }
+.pay-logo.pay-mp  { height: 46px; }
+.pay-logo.pay-pix { height: 44px; }
 
 .security-badges {
-    display: flex; gap: 0.6rem; margin-top: 0.8rem; align-items: center;
+    display: flex; gap: 0.6rem; margin-top: 1rem; align-items: center;
 }
 .security-badge {
-    height: 38px;
+    height: 54px;
     width: auto;
-    opacity: 0.85;
-    transition: opacity .2s;
+    opacity: 1;
+    transition: opacity .2s, transform .15s;
 }
-.security-badge:hover { opacity: 1; }
+.security-badge:hover { transform: translateY(-2px); }
+.pay-note { color: var(--dim); font-size: 0.78rem; margin-top: 0.6rem; }
 
 .footer-bottom {
     border-top: 1px solid var(--border);

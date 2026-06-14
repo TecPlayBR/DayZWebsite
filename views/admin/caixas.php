@@ -45,11 +45,12 @@
 <?php else: ?>
     <table style="width:100%;border-collapse:collapse;font-size:0.9rem;">
         <thead><tr style="text-align:left;color:var(--dim);border-bottom:1px solid var(--border);">
-            <th style="padding:0.6rem 0.4rem;">Caixa</th><th>Tipo</th><th>Itens</th><th>Status</th><th></th>
+            <th style="padding:0.6rem 0.4rem;">#</th><th>Caixa</th><th>Tipo</th><th>Itens</th><th>Status</th><th></th>
         </tr></thead>
         <tbody>
         <?php foreach ($boxes as $b): ?>
             <tr style="border-bottom:1px solid var(--border);">
+                <td style="padding:0.6rem 0.4rem;color:var(--dim);font-family:var(--font-mono);"><?= (int)($b['sort_order'] ?? 0) ?></td>
                 <td style="padding:0.6rem 0.4rem;">
                     <?php if (!empty($b['image'])): ?><img src="<?= e($b['image']) ?>" style="width:32px;height:32px;object-fit:cover;border-radius:4px;vertical-align:middle;margin-right:0.5rem;"><?php endif; ?>
                     <strong style="color:var(--bone);"><?= e($b['name']) ?></strong>

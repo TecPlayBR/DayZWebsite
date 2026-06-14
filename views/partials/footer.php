@@ -67,6 +67,7 @@ $hasSocial = array_filter($socials, fn($s) => !empty($s['url']));
                     <img src="<?= asset('img/badges/mercadopago.svg') ?>" alt="Mercado Pago" class="pay-logo pay-mp" loading="lazy">
                     <img src="<?= asset('img/badges/pix.png') ?>" alt="PIX" class="pay-logo pay-pix" loading="lazy">
                 </div>
+                <p class="pay-note">🔒 Pix &amp; Cartão · pagamento 100% seguro</p>
                 <div class="security-badges">
                     <img src="<?= asset('img/badges/ssl-seguro.png') ?>" alt="Site SSL Seguro" class="security-badge" loading="lazy">
                 </div>

@@ -1886,6 +1886,12 @@ $collectDashboardData = function() {
     $image = trim((string)($_POST['image'] ?? '')) ?: null;
     $up = upload_image($_FILES['image_file'] ?? [], $ROOT . '/public/assets/img/caixas', 'cx', '/assets/img/caixas');
     if ($up) $image = $up;
+    // Ordem: na edição usa o campo; caixa NOVA sem ordem vai pro fim (max+1).
+    if (isset($_POST['sort_order']) && $_POST['sort_order'] !== '') {
+        $sortOrder = max(0, (int)$_POST['sort_order']);
+    } else {
+        $sortOrder = $id > 0 ? 0 : (1 + (int)(\App\Database::fetchOne("SELECT COALESCE(MAX(sort_order),0) m FROM boxes")['m'] ?? 0));
+    }
     $fields = [
         $name, $slug,
         $image,
@@ -1895,7 +1901,7 @@ $collectDashboardData = function() {
         max(0, (int)($_POST['cooldown_hours'] ?? 24)),
         // Caixa NOVA nasce sempre ativa; na edição respeita o checkbox.
         $id > 0 ? (!empty($_POST['enabled']) ? 1 : 0) : 1,
-        (int)($_POST['sort_order'] ?? 0),
+        $sortOrder,
     ];
     if ($id > 0) {
         \App\Database::query(
