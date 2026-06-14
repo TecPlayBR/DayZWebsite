@@ -346,6 +346,8 @@ return array (
     'next' => 'Próximo restart',
     'in' => '(em :t)',
     'warn' => 'Restart próximo — saia de combate',
+    'soon' => 'Restart em :m min',
+    'restarting' => 'Reiniciando…',
   ),
   'server' =>
   array (

@@ -346,6 +346,8 @@ return array (
     'next' => 'Next restart',
     'in' => '(in :t)',
     'warn' => 'Restart soon — get out of combat',
+    'soon' => 'Restart in :m min',
+    'restarting' => 'Restarting…',
   ),
   'server' =>
   array (

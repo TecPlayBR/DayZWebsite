@@ -117,6 +117,30 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
         </div>
     <?php endif; ?>
 
+    <?php $rs = $config['restart'] ?? null; if ($rs): ?>
+        <?php $rcls = $rs['minutes'] <= 1 ? 'red' : ($rs['warn'] ? 'amber' : 'ok'); ?>
+        <div class="hero-restart hero-restart-<?= $rcls ?>" aria-live="polite">
+            <span class="dot"></span>
+            <?php if ($rs['minutes'] <= 1): ?>
+                🔄 <?= e(__('restart.restarting')) ?>
+            <?php elseif ($rs['warn']): ?>
+                🔄 <?= e(__('restart.soon', ['m' => (int)$rs['minutes']])) ?>
+            <?php else: ?>
+                🔄 <?= e(__('restart.next')) ?>: <strong><?= e($rs['at']) ?></strong> <span style="opacity:.7;"><?= e(__('restart.in', ['t' => $rs['relative']])) ?></span>
+            <?php endif; ?>
+        </div>
+    <?php endif; ?>
+    <style>
+    .hero-restart { display:inline-flex; align-items:center; gap:0.5rem; margin-top:0.6rem; padding:0.35rem 0.8rem; border-radius:20px; font-size:0.82rem; font-family:var(--font-mono); border:1px solid; }
+    .hero-restart .dot { width:8px; height:8px; border-radius:50%; }
+    .hero-restart-ok    { color:var(--moss); border-color:rgba(74,157,91,.4); background:rgba(74,157,91,.08); }
+    .hero-restart-ok .dot    { background:var(--moss); box-shadow:0 0 8px var(--moss); }
+    .hero-restart-amber { color:#f0a500; border-color:rgba(240,165,0,.45); background:rgba(240,165,0,.10); }
+    .hero-restart-amber .dot { background:#f0a500; box-shadow:0 0 8px #f0a500; animation:pulse 1.5s infinite; }
+    .hero-restart-red   { color:var(--rust-2); border-color:rgba(231,57,70,.5); background:rgba(231,57,70,.12); }
+    .hero-restart-red .dot   { background:var(--rust-2); box-shadow:0 0 8px var(--rust-2); animation:pulse 0.8s infinite; }
+    </style>
+
     <!-- Social proof: stats agregados (jogadores cadastrados, compras semana, online agora).
          Esconde sozinho se controller não passou home_stats. -->
     <?php
