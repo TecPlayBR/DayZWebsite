@@ -489,7 +489,7 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
 
 <!-- ============ TEASER DE EVENTO (destaque) ============ -->
 <?php if (!empty($featured_event)): $fe = $featured_event; ?>
-<section class="section section-bg-2" style="padding-top:2.5rem;padding-bottom:0;">
+<section class="section section-bg-2" style="padding-top:3rem;padding-bottom:3rem;">
     <div class="container">
         <a href="/eventos" class="home-event <?= $fe['status']==='active' ? 'home-event-live' : '' ?>">
             <?php if (!empty($fe['image'])): ?>
