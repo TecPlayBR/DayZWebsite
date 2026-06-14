@@ -104,6 +104,21 @@ curl -s "https://seusite.com/api/award-rewards.php?token=SEU_AGENT_TOKEN"
 
 ---
 
+## ✨ Novidades da v2.2.0 — páginas legais de exemplo (IMPORTANTE)
+
+**Corrige um problema antigo:** sites instalados em versões anteriores nasciam com as **páginas legais vazias** (Termos, Privacidade/LGPD, Reembolso, Regras, FAQ, Como Conectar). Resultado: quem abria `/page/terms` via página em branco.
+
+**Como resolver no seu site (já em produção):** é só rodar o **Passo 4** (`php cli/migrate.php`). A migration `v2.2.0_seed_legal_pages.sql` preenche essas páginas com um **texto de exemplo pronto** (em PT e EN).
+
+> 🛡️ **Não apaga nada do que você já escreveu.** A regra é **"só preenche se estiver vazia"**:
+> - Página que **você já editou** → **fica intacta** (não sobrescreve).
+> - Página **vazia ou que nunca existiu** → recebe o texto de exemplo.
+> - Rodar de novo não duplica nada (idempotente).
+
+**Depois de rodar**, vá em **Admin → Páginas** e ajuste o exemplo pra sua realidade: **nome do servidor, CNPJ/empresa, link do Discord e IP:porta** aparecem como `[NOME DO SERVIDOR]`, `[SEU CNPJ]`, `discord.gg/SEU-CONVITE`, `[IP:PORTA do seu servidor]` — troque por seus dados. (Instalações **novas** já nascem com essas páginas; isso vale só pra quem está atualizando.)
+
+---
+
 ## ✨ Novidades da v2.1.0 — o que ligar (opcional)
 
 Esta versão **não tem migration** (não precisa rodar nada no banco) — só subir os arquivos. Pra aproveitar o que chegou:

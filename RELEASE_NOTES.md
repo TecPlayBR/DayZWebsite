@@ -1,6 +1,19 @@
-# 🏴 DayZ Website Template — Notas da versão (v2.1.0)
+# 🏴 DayZ Website Template — Notas da versão (v2.2.0)
 
-> Features + hardening. **Atualizar é seguro e não apaga nada.** **NÃO tem migration nova** nesta versão — é só subir os arquivos. Passo a passo no **[ATUALIZAR.md](ATUALIZAR.md)**.
+> **Atualizar é seguro e não apaga nada.** Esta versão **TEM migration** — depois de subir os arquivos, rode `php cli/migrate.php`. Passo a passo no **[ATUALIZAR.md](ATUALIZAR.md)**.
+
+---
+
+## 🆕 O que chegou na v2.2.0
+
+### 🐛 Páginas legais de exemplo (correção importante)
+Sites instalados antes nasciam com as **páginas legais em branco** — Termos, Privacidade (LGPD), Reembolso, Regras, FAQ e Como Conectar. Quem abria `/page/terms` via página vazia.
+
+- **Sites novos** já nascem com as 6 páginas preenchidas (exemplo pronto em PT e EN).
+- **Sites já em produção:** rode `php cli/migrate.php` — a migration `v2.2.0_seed_legal_pages.sql` preenche **só o que está vazio**. Página que você **já editou fica intacta** (não sobrescreve), e rodar de novo não duplica.
+- Depois, em **Admin → Páginas**, troque os placeholders (`[NOME DO SERVIDOR]`, `[SEU CNPJ]`, `discord.gg/SEU-CONVITE`, `[IP:PORTA do seu servidor]`) pelos seus dados.
+
+> ✅ Testado em banco: instalação nova = 6 páginas; cliente que editou = preservado; página vazia = preenchida; rodar 2x = sem duplicar.
 
 ---
 

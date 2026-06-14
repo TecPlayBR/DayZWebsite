@@ -5,6 +5,18 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.2.0] — 2026-06-14
+
+> **Tem migration:** `v2.2.0_seed_legal_pages.sql`. Rode `php cli/migrate.php` depois de subir os arquivos.
+
+### 🐛 Correção crítica — páginas legais nasciam vazias
+- Instalações nunca semeavam a tabela `pages`, então **Termos, Privacidade (LGPD), Reembolso, Regras, FAQ e Como Conectar vinham em branco** em sites novos (`/page/terms` etc. vazios). Reportado em produção.
+- **`schema.sql`**: instalações **novas** agora já nascem com as 6 páginas legais preenchidas (conteúdo de exemplo PT+EN, genericizado).
+- **`migrations/v2.2.0_seed_legal_pages.sql`**: para sites **já em produção** — `INSERT … ON DUPLICATE KEY UPDATE` com `IF(vazio)`, ou seja **só preenche o que está vazio/ausente e NUNCA sobrescreve página já editada**; idempotente. Validado em banco (fresh=6 páginas; preserva editado; refila vazio; re-run não duplica).
+- Conteúdo de exemplo com placeholders (`[NOME DO SERVIDOR]`, `[SEU CNPJ]`, `discord.gg/SEU-CONVITE`, `[IP:PORTA do seu servidor]`) — sem dados de nenhum cliente. Passo de upgrade documentado em **ATUALIZAR.md**.
+
+---
+
 ## [2.1.0] — 2026-06-14
 
 > Features + hardening. **Sem migration** — só subir os arquivos. Pra ligar o cartão: adicionar `mercado_pago.public_key` no `config.php`.
