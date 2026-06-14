@@ -848,6 +848,10 @@ $config['restart'] = \App\Restart::summary();
         );
         $purchaseId = (int)\App\Database::pdo()->lastInsertId();
     }
+    // Marca a compra como "desta sessão" — só quem criou pode consultar status / pagar
+    // com cartão depois (anti-IDOR: impede enumerar SteamID de compras alheias).
+    if (!isset($_SESSION['checkout_pids']) || !is_array($_SESSION['checkout_pids'])) $_SESSION['checkout_pids'] = [];
+    $_SESSION['checkout_pids'][$purchaseId] = true;
 
     // Cria preference no MP
     $mp = new \App\MercadoPago($config['mercado_pago']['access_token'] ?? '', $config['mercado_pago']['webhook_secret'] ?? null);
@@ -910,22 +914,33 @@ $config['restart'] = \App\Restart::summary();
 // Polling do checkout transparente: o JS pergunta aqui se o Pix já caiu. JSON.
 \App\Router::get('/shop/status/{id}', function($id) use ($config) {
     header('Content-Type: application/json; charset=utf-8');
+    $pid = (int)$id;
+    // Anti-IDOR: só libera status de compra criada NESTA sessão (senão dava pra
+    // enumerar IDs e mapear SteamID de qualquer comprador). Rate-limit por IP também.
+    $rl = \App\RateLimit::check('shop-status:' . \App\RateLimit::clientIp(), 120, 60);
+    if (empty($rl['allowed'])) { http_response_code(429); echo json_encode(['error' => 'rate']); return; }
+    if (empty($_SESSION['checkout_pids'][$pid])) { http_response_code(403); echo json_encode(['error' => 'forbidden']); return; }
     $p = \App\Database::fetchOne(
-        "SELECT steam_id, mp_status, delivered_at FROM purchases WHERE id = ? LIMIT 1",
-        [(int)$id]
+        "SELECT steam_id, mp_status, delivered_at FROM purchases WHERE id = ? LIMIT 1", [$pid]
     );
     if (!$p) { http_response_code(404); echo json_encode(['error' => 'not_found']); return; }
     $paid = !empty($p['delivered_at']) || $p['mp_status'] === 'approved';
     echo json_encode([
         'status'   => $p['mp_status'],
         'paid'     => $paid,
-        'redirect' => $paid ? ('/player/' . $p['steam_id']) : null,
+        'redirect' => $paid ? ('/player/' . $p['steam_id']) : null, // dono da sessão, ok
     ]);
 });
 
 // Fallback cartão/boleto: cria preference pra uma purchase pendente e manda pro MP.
 \App\Router::get('/shop/card/{id}', function($id) use ($config) {
-    $p = \App\Database::fetchOne("SELECT * FROM purchases WHERE id = ? LIMIT 1", [(int)$id]);
+    $pid = (int)$id;
+    // Anti-IDOR + anti-abuso: só o dono da sessão (quem criou no checkout) dispara
+    // a criação de pagamento dessa compra; rate-limit por IP.
+    $rl = \App\RateLimit::check('shop-card:' . \App\RateLimit::clientIp(), 15, 300);
+    if (empty($rl['allowed'])) { http_response_code(429); \App\View::display('pages.checkout_error', ['config' => $config, 'msg' => 'Muitas tentativas. Aguarde um pouco.']); return; }
+    if (empty($_SESSION['checkout_pids'][$pid])) { http_response_code(403); \App\View::display('pages.checkout_error', ['config' => $config, 'msg' => 'Compra não encontrada nesta sessão.']); return; }
+    $p = \App\Database::fetchOne("SELECT * FROM purchases WHERE id = ? LIMIT 1", [$pid]);
     if (!$p) { http_response_code(404); \App\View::display('pages.checkout_error', ['config' => $config, 'msg' => 'Compra não encontrada.']); return; }
     if (!empty($p['delivered_at'])) { header('Location: /player/' . $p['steam_id']); exit; }
     $mp = new \App\MercadoPago($config['mercado_pago']['access_token'] ?? '', $config['mercado_pago']['webhook_secret'] ?? null);

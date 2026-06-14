@@ -47,7 +47,7 @@ if (!preg_match('/^\d{17}$/', $steamid)) {
     http_response_code(400);
     die(json_encode(['error' => 'invalid_steamid']));
 }
-if (!is_numeric($coins) || (int) $coins < 0) {
+if (!is_numeric($coins) || (int) $coins < 0 || (int) $coins > 1000000000) {
     http_response_code(400);
     die(json_encode(['error' => 'invalid_coins']));
 }

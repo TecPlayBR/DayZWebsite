@@ -131,12 +131,21 @@ $rarityColor = [
     const closeBtn = document.getElementById('box-close');
     let busy = false;
 
+    // SEGURO contra XSS: nome/imagem do item vêm do banco (admin-editável). NUNCA via
+    // innerHTML/concatenação — usa createElement + textContent + .src por propriedade.
+    function safeImg(url){
+        const im = document.createElement('img');
+        if (typeof url === 'string' && /^https?:\/\//i.test(url)) im.src = url; // só http(s)
+        im.alt = '';
+        return im;
+    }
     function cell(item){
         const c = document.createElement('div');
         c.className = 'box-cell';
         c.style.borderBottom = '3px solid ' + (RC[item.rarity]||RC.common);
-        c.innerHTML = (item.image ? '<img src="'+item.image+'" alt="">' : '<div class="box-cell-ph">🎁</div>')
-                    + '<div class="box-cell-name">'+ (item.name||'?') +'</div>';
+        if (item.image){ c.appendChild(safeImg(item.image)); }
+        else { const ph=document.createElement('div'); ph.className='box-cell-ph'; ph.textContent='🎁'; c.appendChild(ph); }
+        const nm=document.createElement('div'); nm.className='box-cell-name'; nm.textContent=item.name||'?'; c.appendChild(nm);
         return c;
     }
     function pick(pool){ return pool[Math.floor(Math.random()*pool.length)]; }
@@ -156,8 +165,9 @@ $rarityColor = [
 
         if (!data.ok){
             if (data.error === 'login'){ window.location.href = data.login_url; return; }
-            title.textContent = 'Ops'; result.hidden=false;
-            result.innerHTML = '<p style="color:var(--rust-2)">'+ (data.error||'Erro') +'</p>';
+            title.textContent = 'Ops'; result.textContent='';
+            const p=document.createElement('p'); p.style.color='var(--rust-2)'; p.textContent=data.error||'Erro';
+            result.appendChild(p); result.hidden=false;
             closeBtn.hidden=false; busy=false; return;
         }
 
@@ -178,15 +188,22 @@ $rarityColor = [
         });
         setTimeout(()=>{
             title.textContent = 'VOCÊ GANHOU!';
-            const col = RC[data.won.rarity]||RC.common;
-            const statusTxt = data.status === 'delivered'
+            const col = RC[data.won.rarity]||RC.common; // RC é mapa fixo -> sempre hex seguro
+            // Montagem segura (sem innerHTML de dado do banco)
+            result.textContent='';
+            const card=document.createElement('div'); card.className='box-result-card'; card.style.borderColor=col;
+            if (data.won.image){ const im=safeImg(data.won.image); im.style.maxHeight='90px'; card.appendChild(im); }
+            else { const d=document.createElement('div'); d.style.fontSize='3rem'; d.textContent='🎁'; card.appendChild(d); }
+            const won=document.createElement('div'); won.className='box-result-won';
+            won.textContent=data.won.name + (data.won.quantity>1?(' x'+data.won.quantity):''); card.appendChild(won);
+            const rar=document.createElement('div'); rar.style.cssText='font-size:0.8rem;text-transform:uppercase;letter-spacing:0.1em'; rar.style.color=col;
+            rar.textContent=String(data.won.rarity||''); card.appendChild(rar);
+            result.appendChild(card);
+            const st=document.createElement('div'); st.className='box-result-status';
+            st.innerHTML = data.status === 'delivered'   // texto estático (sem dado de usuário)
                 ? '<span style="color:var(--moss)">✓ Entregue no seu personagem in-game!</span>'
                 : '<span style="color:var(--hazard)">⏳ Vai cair quando você estiver online (longe do restart).</span>';
-            result.innerHTML = '<div class="box-result-card" style="border-color:'+col+'">'
-                + (data.won.image?'<img src="'+data.won.image+'" style="max-height:90px">':'<div style="font-size:3rem">🎁</div>')
-                + '<div class="box-result-won">'+ data.won.name + (data.won.quantity>1?(' x'+data.won.quantity):'') +'</div>'
-                + '<div style="color:'+col+';font-size:0.8rem;text-transform:uppercase;letter-spacing:0.1em">'+data.won.rarity+'</div>'
-                + '</div><div class="box-result-status">'+statusTxt+'</div>';
+            result.appendChild(st);
             result.hidden=false; closeBtn.hidden=false;
             if (typeof data.coins==='number'){ const cb=document.getElementById('coins-balance'); if(cb) cb.textContent = data.coins.toLocaleString('pt-BR'); }
             busy=false;
