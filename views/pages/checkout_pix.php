@@ -89,18 +89,18 @@
             <form id="card-form" class="card-form">
                 <div class="cf-row">
                     <label>Número do cartão</label>
-                    <div id="cf-number" class="cf-field"></div>
+                    <input type="text" id="cf-number" class="cf-input" inputmode="numeric" autocomplete="cc-number" placeholder="0000 0000 0000 0000" maxlength="23">
                 </div>
                 <div class="cf-grid2">
-                    <div><label>Validade</label><div id="cf-exp" class="cf-field"></div></div>
-                    <div><label>Cód. de segurança</label><div id="cf-cvv" class="cf-field"></div></div>
+                    <div><label>Validade</label><input type="text" id="cf-exp" class="cf-input" inputmode="numeric" autocomplete="cc-exp" placeholder="MM/AA" maxlength="7"></div>
+                    <div><label>Cód. de segurança</label><input type="text" id="cf-cvv" class="cf-input" inputmode="numeric" autocomplete="cc-csc" placeholder="CVV" maxlength="4"></div>
                 </div>
-                <div class="cf-row"><label>Nome impresso no cartão</label><input type="text" id="cf-name" class="cf-input" placeholder="Como está no cartão"></div>
+                <div class="cf-row"><label>Nome impresso no cartão</label><input type="text" id="cf-name" class="cf-input" autocomplete="cc-name" placeholder="Como está no cartão"></div>
                 <div class="cf-grid2">
                     <div><label>Documento</label><select id="cf-doctype" class="cf-input"></select></div>
                     <div><label>Número do documento</label><input type="text" id="cf-docnumber" class="cf-input" placeholder="CPF"></div>
                 </div>
-                <div class="cf-row"><label>E-mail (recibo)</label><input type="email" id="cf-email" class="cf-input" placeholder="voce@email.com"></div>
+                <div class="cf-row"><label>E-mail (recibo)</label><input type="email" id="cf-email" class="cf-input" autocomplete="email" placeholder="voce@email.com"></div>
                 <div class="cf-grid2">
                     <div><label>Banco emissor</label><select id="cf-issuer" class="cf-input"></select></div>
                     <div><label>Parcelas</label><select id="cf-installments" class="cf-input"></select></div>
@@ -269,7 +269,7 @@
     var mp = new MercadoPago(PUBKEY, { locale: 'pt-BR' });
     var cardForm = mp.cardForm({
         amount: AMOUNT,
-        iframe: true,
+        iframe: false, // campos nativos -> autofill do navegador funciona; o cartão ainda é tokenizado no browser e vai direto pro MP (PAN não toca o servidor)
         form: {
             id: 'card-form',
             cardNumber:           { id: 'cf-number', placeholder: '0000 0000 0000 0000' },
