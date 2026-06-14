@@ -288,6 +288,28 @@ Isso faz o site receber notificação quando o pagamento confirma, e creditar as
 
 ---
 
+## 🎮 Passo 7B — Entrega in-game NATIVA pelo mod Sparda (grátis, sem o Agent)
+
+Se o seu servidor usa o **mod Sparda** (com WebsiteAPI), dá pra entregar as moedas **direto pelo mod** — sem precisar do `tecplay-agent.exe` pago nem do Bot. O site vende e credita o saldo; o mod **lê e grava** esse saldo direto na API do site.
+
+### Como ligar (2 minutos)
+
+1. **Abra** no painel: **Admin → 🎮 Integração Sparda**.
+2. A página já mostra **2 URLs prontas** — com o seu `agent_token` **já embutido** e terminando em `&steamid=`:
+   - **Api_Get** — o mod **lê** o saldo do jogador.
+   - **Api_Post** — o mod **grava** o saldo depois que o jogador gasta in-game.
+   > Você **não copia o token separado** — ele já vem dentro das URLs. **Não remova o final `&steamid=`** (o mod cola o SteamID do jogador ali sozinho).
+3. **Copie** as duas URLs e **cole** na config do mod Sparda, nos campos correspondentes. Garanta `EnableWebsiteAPI = 1` (o nome exato do campo varia com a versão do mod — o que importa é ligar a integração web e apontar GET/POST pras URLs).
+4. **Pronto.** Compre uma moeda no site e veja o saldo aparecer in-game. A própria página mostra as **"Últimas movimentações via Sparda"** pra você confirmar que está conversando.
+
+> ⚠️ Se a página avisar que o `agent_token` ainda está no **valor padrão**, troque por um token forte no `config/config.php` (os endpoints devolvem **401** até lá). Numa instalação normal o wizard já gerou um token forte — então geralmente já está pronto.
+
+### "Já tenho o site rodando e vou atualizar — perco meu token / minha config?"
+
+**Não.** O `agent_token` mora no `config/config.php`, e **atualizar nunca encosta nesse arquivo**: o `php cli/migrate.php` só mexe no **banco**, de forma aditiva (*"NUNCA apaga nem altera dados existentes"*). Depois de atualizar, é só abrir **Admin → 🎮 Integração Sparda** e copiar as URLs — elas já saem com o **seu token de sempre**. Nada é resetado, nem suas moedas, jogadores, páginas ou cores.
+
+---
+
 ## 🔐 Passo 8 — HTTPS e segurança final
 
 ### Habilitar HTTPS
