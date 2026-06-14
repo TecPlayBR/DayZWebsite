@@ -9,28 +9,28 @@
     <div class="hero-bg" style="background-image: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.96) 100%), url('<?= asset('img/background5.png') ?>');"></div>
     <div class="container hero-content" style="max-width: 760px;">
 
-        <span class="hero-kicker" style="border-left-color: var(--moss); color: var(--moss); background: rgba(90,108,78,0.08);">// PAGAMENTO PIX</span>
-        <h1 class="hero-title" style="font-size: 2rem;">Escaneie e pague — <span class="accent" style="color:var(--moss);">sem sair daqui</span></h1>
+        <span class="hero-kicker" style="border-left-color: var(--moss); color: var(--moss); background: rgba(90,108,78,0.08);">// <?= e(__('pix.kicker')) ?></span>
+        <h1 class="hero-title" style="font-size: 2rem;"><?= e(__('pix.title_1')) ?> <span class="accent" style="color:var(--moss);"><?= e(__('pix.title_2')) ?></span></h1>
 
         <div class="pix-box">
             <div class="pix-left">
                 <?php if ($qr_base64): ?>
-                    <img class="pix-qr" src="data:image/png;base64,<?= e($qr_base64) ?>" alt="QR Code PIX" width="240" height="240">
+                    <img class="pix-qr" src="data:image/png;base64,<?= e($qr_base64) ?>" alt="<?= e(__('pix.qr_alt')) ?>" width="240" height="240">
                 <?php else: ?>
-                    <div class="pix-qr pix-qr-empty">QR indisponível — use o código copia-e-cola →</div>
+                    <div class="pix-qr pix-qr-empty"><?= e(__('pix.qr_unavailable')) ?></div>
                 <?php endif; ?>
-                <div class="pix-timer" id="pix-timer">expira em <span id="pix-countdown">30:00</span></div>
+                <div class="pix-timer" id="pix-timer"><?= e(__('pix.expires_in')) ?> <span id="pix-countdown">30:00</span></div>
             </div>
 
             <div class="pix-right">
                 <div class="pix-summary">
                     <div class="pix-pkg"><?= e($pkg['icon'] ?? '🪙') ?> <?= e($pkg['name']) ?></div>
-                    <div class="pix-coins"><strong><?= (int)$coins_total ?></strong> moedas</div>
+                    <div class="pix-coins"><strong><?= (int)$coins_total ?></strong> <?= e(__('pix.coins_word')) ?></div>
                     <?php if ($discount > 0): ?>
-                        <div class="pix-discount">🎟 desconto de R$ <?= number_format($discount, 2, ',', '.') ?> aplicado</div>
+                        <div class="pix-discount">🎟 <?= e(__('pix.discount_applied', ['v' => number_format($discount, 2, ',', '.')])) ?></div>
                     <?php endif; ?>
                     <div class="pix-amount">R$ <?= number_format($price_brl, 2, ',', '.') ?></div>
-                    <div class="pix-steam">SteamID: <code><?= e($steam_id) ?></code></div>
+                    <div class="pix-steam"><?= e(__('pix.steamid_label')) ?> <code><?= e($steam_id) ?></code></div>
                 </div>
 
                 <!-- Cupom no momento de finalizar: aplicar regenera o QR com desconto -->
@@ -42,38 +42,38 @@
                     <input type="hidden" name="terms_accepted" value="1">
                     <?php if (!empty($coupon_code)): ?>
                         <div class="pix-coupon-applied">
-                            🎟 Cupom <strong><?= e($coupon_code) ?></strong> aplicado
+                            🎟 <?= e(__('pix.coupon_label')) ?> <strong><?= e($coupon_code) ?></strong> <?= e(__('pix.coupon_applied_suffix')) ?>
                             <input type="hidden" name="coupon_code" value="">
-                            <button type="submit" class="pix-coupon-clear">remover</button>
+                            <button type="submit" class="pix-coupon-clear"><?= e(__('pix.coupon_remove')) ?></button>
                         </div>
                     <?php else: ?>
                         <div class="pix-coupon-row">
-                            <input type="text" name="coupon_code" placeholder="🎟 Cupom de desconto" maxlength="40"
+                            <input type="text" name="coupon_code" placeholder="<?= e(__('pix.coupon_ph')) ?>" maxlength="40"
                                    oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9_-]/g,'')">
-                            <button type="submit">Aplicar</button>
+                            <button type="submit"><?= e(__('pix.coupon_apply')) ?></button>
                         </div>
                     <?php endif; ?>
                 </form>
 
-                <label class="pix-cc-label">PIX copia-e-cola</label>
+                <label class="pix-cc-label"><?= e(__('pix.cc_label')) ?></label>
                 <textarea id="pix-code" class="pix-cc" readonly rows="3"><?= e($qr_code) ?></textarea>
-                <button type="button" id="pix-copy" class="btn" style="width:100%;">📋 Copiar código PIX</button>
+                <button type="button" id="pix-copy" class="btn" style="width:100%;">📋 <?= e(__('pix.copy_btn')) ?></button>
 
                 <div class="pix-status" id="pix-status">
-                    <span class="pix-spinner"></span> Aguardando pagamento…
+                    <span class="pix-spinner"></span> <?= e(__('pix.awaiting')) ?>
                 </div>
             </div>
         </div>
 
         <ol class="pix-steps">
-            <li>Abra o app do seu banco e escolha <strong>PIX → Pagar com QR Code</strong> (ou Copia e Cola).</li>
-            <li>Confirme o valor de <strong>R$ <?= number_format($price_brl, 2, ',', '.') ?></strong>.</li>
-            <li>Assim que aprovar, <strong>esta página leva você direto pro seu perfil</strong> com o saldo novo — não precisa fazer nada.</li>
+            <li><?= __('pix.step1') ?></li>
+            <li><?= __('pix.step2', ['v' => 'R$ ' . number_format($price_brl, 2, ',', '.')]) ?></li>
+            <li><?= __('pix.step3') ?></li>
         </ol>
 
         <div class="hero-actions" style="justify-content:center; gap:1rem;">
-            <a href="/shop/card/<?= (int)$purchase_id ?>" class="btn btn-outline">💳 Pagar com cartão ou boleto</a>
-            <a href="/shop" class="btn btn-outline">← Voltar pra loja</a>
+            <a href="/shop/card/<?= (int)$purchase_id ?>" class="btn btn-outline">💳 <?= e(__('pix.pay_card')) ?></a>
+            <a href="/shop" class="btn btn-outline">← <?= e(__('pix.back_shop')) ?></a>
         </div>
     </div>
 </section>
@@ -121,6 +121,13 @@
 (function(){
     var PURCHASE = <?= (int)$purchase_id ?>;
     var EXPIRES  = <?= json_encode($expires_at) ?>;
+    var T = {
+        copyDone:  <?= json_encode('✓ ' . __('pix.copy_done')) ?>,
+        copyBtn:   <?= json_encode('📋 ' . __('pix.copy_btn')) ?>,
+        expired:   <?= json_encode(__('pix.expired')) ?>,
+        genNew:    <?= json_encode(__('pix.generate_new')) ?>,
+        confirmed: <?= json_encode(__('pix.confirmed')) ?>
+    };
 
     // Copia-e-cola
     var code = document.getElementById('pix-code');
@@ -128,8 +135,8 @@
     copyBtn.addEventListener('click', function(){
         code.select(); code.setSelectionRange(0, 99999);
         navigator.clipboard.writeText(code.value).then(function(){
-            copyBtn.textContent = '✓ Código copiado!';
-            setTimeout(function(){ copyBtn.textContent = '📋 Copiar código PIX'; }, 1800);
+            copyBtn.textContent = T.copyDone;
+            setTimeout(function(){ copyBtn.textContent = T.copyBtn; }, 1800);
         }).catch(function(){ document.execCommand('copy'); });
     });
 
@@ -148,7 +155,9 @@
         if (left <= 0){
             expired = true;
             statusBox.className = 'pix-status expired';
-            statusBox.innerHTML = '⏱ PIX expirado. <a href="/shop" style="color:var(--hazard)">Gerar novo</a>';
+            statusBox.textContent = '⏱ ' + T.expired + ' ';
+            var a = document.createElement('a'); a.href = '/shop'; a.style.color = 'var(--hazard)'; a.textContent = T.genNew;
+            statusBox.appendChild(a);
         }
     }
     tick(); var tInt = setInterval(tick, 1000);
@@ -163,7 +172,7 @@
                 if (d && d.paid && d.redirect){
                     done = true; clearInterval(tInt); clearInterval(pInt);
                     statusBox.className = 'pix-status paid';
-                    statusBox.innerHTML = '✓ Pagamento confirmado! Indo pro seu perfil…';
+                    statusBox.textContent = '✓ ' + T.confirmed;
                     setTimeout(function(){ window.location.href = d.redirect; }, 1200);
                 }
             })

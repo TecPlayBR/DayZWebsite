@@ -37,7 +37,7 @@ $ex = is_array($stats['extra'] ?? null) ? $stats['extra'] : [];
         <div class="pp-head">
             <div class="pp-avatar-wrap">
                 <?php if (!empty($avatar)): ?>
-                    <img class="pp-avatar" src="<?= e($avatar) ?>" alt="<?= e('Avatar de ' . $display_name) ?>"
+                    <img class="pp-avatar" src="<?= e($avatar) ?>" alt="<?= e(__('profile.pub_avatar_alt', ['name' => $display_name])) ?>"
                          referrerpolicy="no-referrer"
                          onerror="this.outerHTML='<div class=\'pp-avatar pp-avatar-fb\'>&#9881;</div>'">
                 <?php else: ?>
@@ -45,10 +45,10 @@ $ex = is_array($stats['extra'] ?? null) ? $stats['extra'] : [];
                 <?php endif; ?>
             </div>
             <div>
-                <span class="hero-kicker">// PERFIL DE SOBREVIVENTE</span>
+                <span class="hero-kicker">// <?= e(__('profile.pub_kicker')) ?></span>
                 <h1 class="hero-title" style="font-size: clamp(1.6rem, 4vw, 2.4rem); margin:.2rem 0;"><?= e($display_name) ?></h1>
-                <div class="pp-steamid" title="SteamID64 (clique pra copiar)">🎮 <span style="user-select:all;"><?= e($player['steam_id']) ?></span></div>
-                <a class="pp-steam-link" href="https://steamcommunity.com/profiles/<?= e($player['steam_id']) ?>" target="_blank" rel="noopener">ver no Steam →</a>
+                <div class="pp-steamid" title="<?= e(__('profile.pub_steamid_title')) ?>">🎮 <span style="user-select:all;"><?= e($player['steam_id']) ?></span></div>
+                <a class="pp-steam-link" href="https://steamcommunity.com/profiles/<?= e($player['steam_id']) ?>" target="_blank" rel="noopener"><?= e(__('profile.pub_view_steam')) ?> →</a>
             </div>
         </div>
     </div>
@@ -61,35 +61,35 @@ $ex = is_array($stats['extra'] ?? null) ? $stats['extra'] : [];
         <div class="pp-grid">
             <div class="pp-card">
                 <div class="pp-ic" style="color:var(--hazard)"><?= $icon('coins') ?></div>
-                <div class="pp-label">Saldo de moedas</div>
+                <div class="pp-label"><?= e(__('profile.pub_coin_balance')) ?></div>
                 <div class="pp-value"><?= number_format((int)($player['coins'] ?? 0), 0, ',', '.') ?></div>
             </div>
             <div class="pp-card">
                 <div class="pp-ic" style="color:var(--moss)"><?= $icon('money') ?></div>
-                <div class="pp-label">Total investido</div>
+                <div class="pp-label"><?= e(__('profile.invested')) ?></div>
                 <div class="pp-value">R$ <?= number_format((float)($player['total_spent_brl'] ?? 0), 2, ',', '.') ?></div>
             </div>
             <div class="pp-card">
                 <div class="pp-ic" style="color:var(--rust-2)"><?= $icon('cart') ?></div>
-                <div class="pp-label">Compras aprovadas</div>
+                <div class="pp-label"><?= e(__('profile.pub_approved_purchases')) ?></div>
                 <div class="pp-value"><?= (int)$purchase_count ?></div>
             </div>
             <div class="pp-card">
                 <div class="pp-ic" style="color:var(--bone)"><?= $icon('clock') ?></div>
-                <div class="pp-label">Última atividade</div>
+                <div class="pp-label"><?= e(__('profile.last_seen')) ?></div>
                 <div class="pp-value" style="font-size:1rem;"><?= e(time_ago($player['last_seen_at'] ?? null, 'nunca')) ?></div>
             </div>
         </div>
 
         <!-- Últimas transações (aparece após a compra) -->
         <?php if (!empty($recent_tx)): ?>
-            <h2 class="pp-section-title"><?= $icon('cart') ?> Últimas transações</h2>
+            <h2 class="pp-section-title"><?= $icon('cart') ?> <?= e(__('profile.pub_recent_tx')) ?></h2>
             <div class="pp-tx">
                 <?php foreach ($recent_tx as $tx): ?>
                     <div class="pp-tx-row">
                         <span class="pp-tx-icon"><?= e($tx['package_icon'] ?? '🪙') ?></span>
-                        <span class="pp-tx-name"><?= e($tx['package_name'] ?? 'Moedas') ?></span>
-                        <span class="pp-tx-coins">+<?= number_format((int)$tx['coins_total'], 0, ',', '.') ?> moedas</span>
+                        <span class="pp-tx-name"><?= e($tx['package_name'] ?? __('profile.pub_coins_default')) ?></span>
+                        <span class="pp-tx-coins">+<?= number_format((int)$tx['coins_total'], 0, ',', '.') ?> <?= e(__('profile.coins')) ?></span>
                         <span class="pp-tx-price">R$ <?= number_format((float)$tx['price_brl'], 2, ',', '.') ?></span>
                         <span class="pp-tx-date"><?= e(date('d/m/Y H:i', strtotime((string)$tx['created_at']))) ?></span>
                     </div>
@@ -98,48 +98,48 @@ $ex = is_array($stats['extra'] ?? null) ? $stats['extra'] : [];
         <?php endif; ?>
 
         <!-- Estatísticas de gameplay -->
-        <h2 class="pp-section-title"><?= $icon('kills') ?> Estatísticas de combate</h2>
+        <h2 class="pp-section-title"><?= $icon('kills') ?> <?= e(__('profile.pub_combat_stats')) ?></h2>
 
         <?php if ($stats): ?>
             <div class="pp-grid">
-                <div class="pp-card"><div class="pp-ic" style="color:var(--hazard)"><?= $icon('kd') ?></div><div class="pp-label">K/D</div><div class="pp-value"><?= number_format((float)$stats['kdratio'], 2, ',', '.') ?></div></div>
-                <div class="pp-card"><div class="pp-ic" style="color:var(--rust-2)"><?= $icon('kills') ?></div><div class="pp-label">Kills (players)</div><div class="pp-value"><?= (int)$stats['kills'] ?></div></div>
-                <div class="pp-card"><div class="pp-ic" style="color:var(--bone)"><?= $icon('skull') ?></div><div class="pp-label">Mortes</div><div class="pp-value"><?= (int)$stats['deaths'] ?></div></div>
-                <div class="pp-card"><div class="pp-ic" style="color:var(--moss)"><?= $icon('clock') ?></div><div class="pp-label">Tempo online</div><div class="pp-value" style="font-size:1.05rem;"><?= e($fmtTime($stats['playtime_seconds'])) ?></div></div>
-                <div class="pp-card"><div class="pp-ic"><?= $icon('kills') ?></div><div class="pp-label">Kills (zumbis)</div><div class="pp-value"><?= (int)$stats['kills_infected'] ?></div></div>
-                <div class="pp-card"><div class="pp-ic"><?= $icon('distance') ?></div><div class="pp-label">Kill mais longa</div><div class="pp-value"><?= (int)$stats['longest_kill_m'] ?> m</div></div>
+                <div class="pp-card"><div class="pp-ic" style="color:var(--hazard)"><?= $icon('kd') ?></div><div class="pp-label"><?= e(__('profile.pub_kd')) ?></div><div class="pp-value"><?= number_format((float)$stats['kdratio'], 2, ',', '.') ?></div></div>
+                <div class="pp-card"><div class="pp-ic" style="color:var(--rust-2)"><?= $icon('kills') ?></div><div class="pp-label"><?= e(__('profile.pub_kills_players')) ?></div><div class="pp-value"><?= (int)$stats['kills'] ?></div></div>
+                <div class="pp-card"><div class="pp-ic" style="color:var(--bone)"><?= $icon('skull') ?></div><div class="pp-label"><?= e(__('profile.pub_deaths')) ?></div><div class="pp-value"><?= (int)$stats['deaths'] ?></div></div>
+                <div class="pp-card"><div class="pp-ic" style="color:var(--moss)"><?= $icon('clock') ?></div><div class="pp-label"><?= e(__('profile.pub_playtime')) ?></div><div class="pp-value" style="font-size:1.05rem;"><?= e($fmtTime($stats['playtime_seconds'])) ?></div></div>
+                <div class="pp-card"><div class="pp-ic"><?= $icon('kills') ?></div><div class="pp-label"><?= e(__('profile.pub_kills_infected')) ?></div><div class="pp-value"><?= (int)$stats['kills_infected'] ?></div></div>
+                <div class="pp-card"><div class="pp-ic"><?= $icon('distance') ?></div><div class="pp-label"><?= e(__('profile.pub_longest_kill')) ?></div><div class="pp-value"><?= (int)$stats['longest_kill_m'] ?> m</div></div>
                 <?php if (isset($ex['accuracy_pct'])): ?>
-                    <div class="pp-card"><div class="pp-ic" style="color:var(--hazard)"><?= $icon('accuracy') ?></div><div class="pp-label">Precisão</div><div class="pp-value"><?= number_format((float)$ex['accuracy_pct'], 1, ',', '.') ?>%</div></div>
+                    <div class="pp-card"><div class="pp-ic" style="color:var(--hazard)"><?= $icon('accuracy') ?></div><div class="pp-label"><?= e(__('profile.pub_accuracy')) ?></div><div class="pp-value"><?= number_format((float)$ex['accuracy_pct'], 1, ',', '.') ?>%</div></div>
                 <?php endif; ?>
                 <?php if (isset($ex['distance_km'])): ?>
-                    <div class="pp-card"><div class="pp-ic"><?= $icon('distance') ?></div><div class="pp-label">Distância</div><div class="pp-value"><?= number_format((float)$ex['distance_km'], 1, ',', '.') ?> km</div></div>
+                    <div class="pp-card"><div class="pp-ic"><?= $icon('distance') ?></div><div class="pp-label"><?= e(__('profile.pub_distance')) ?></div><div class="pp-value"><?= number_format((float)$ex['distance_km'], 1, ',', '.') ?> km</div></div>
                 <?php endif; ?>
             </div>
 
             <?php if (!empty($ex['top_weapons']) && is_array($ex['top_weapons'])): ?>
-                <h2 class="pp-section-title"><?= $icon('weapon') ?> Top armas</h2>
+                <h2 class="pp-section-title"><?= $icon('weapon') ?> <?= e(__('profile.pub_top_weapons')) ?></h2>
                 <div class="pp-weapons">
                     <?php foreach (array_slice($ex['top_weapons'], 0, 5) as $i => $w): ?>
                         <div class="pp-weapon">
                             <span class="pp-weapon-rank">#<?= $i + 1 ?></span>
                             <span class="pp-weapon-name"><?= e($w['name'] ?? $w['classname'] ?? '—') ?></span>
-                            <span class="pp-weapon-meta">Kills: <strong><?= (int)($w['kills'] ?? 0) ?></strong><?php if (isset($w['damage'])): ?> · Dano: <strong><?= (int)$w['damage'] ?></strong><?php endif; ?></span>
+                            <span class="pp-weapon-meta"><?= e(__('profile.pub_weapon_kills')) ?> <strong><?= (int)($w['kills'] ?? 0) ?></strong><?php if (isset($w['damage'])): ?> · <?= e(__('profile.pub_weapon_damage')) ?> <strong><?= (int)$w['damage'] ?></strong><?php endif; ?></span>
                         </div>
                     <?php endforeach; ?>
                 </div>
             <?php endif; ?>
 
-            <p class="pp-updated">Atualizado <?= e(time_ago($stats['updated_at'] ?? null)) ?> · dados do servidor via CFTools</p>
+            <p class="pp-updated"><?= e(__('profile.pub_updated', ['t' => time_ago($stats['updated_at'] ?? null)])) ?></p>
         <?php else: ?>
             <div class="pp-soon">
                 <div class="pp-ic" style="color:var(--dim); margin-bottom:.6rem;"><?= $icon('kd') ?></div>
-                <p>As estatísticas de combate deste jogador ainda não foram sincronizadas.</p>
-                <p style="color:var(--dim); font-size:.85rem; margin-top:.4rem;">Elas aparecem aqui automaticamente assim que o servidor sincroniza (kills, K/D, tempo online, armas e mais).</p>
+                <p><?= e(__('profile.pub_no_stats')) ?></p>
+                <p style="color:var(--dim); font-size:.85rem; margin-top:.4rem;"><?= e(__('profile.pub_no_stats_hint')) ?></p>
             </div>
         <?php endif; ?>
 
         <p style="text-align:center; margin-top:2.5rem;">
-            <a href="/ranking" class="btn btn-outline">← Ver ranking completo</a>
+            <a href="/ranking" class="btn btn-outline">← <?= e(__('profile.pub_view_ranking')) ?></a>
         </p>
     </div>
 </section>

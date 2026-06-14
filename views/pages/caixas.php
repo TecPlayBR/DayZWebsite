@@ -15,13 +15,13 @@ $rarityColor = [
 <section class="hero" style="min-height:34vh;padding-bottom:1.5rem;">
     <div class="hero-bg" style="background-image:linear-gradient(180deg,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.95) 100%),url('<?= asset('img/background3.png') ?>');"></div>
     <div class="container hero-content">
-        <span class="hero-kicker">// CAIXAS</span>
-        <h1 class="hero-title">Abra. Torça. <span class="accent">Leve pro jogo.</span></h1>
+        <span class="hero-kicker">// <?= e(__('caixas.kicker')) ?></span>
+        <h1 class="hero-title"><?= e(__('caixas.title_1')) ?> <span class="accent"><?= e(__('caixas.title_2')) ?></span></h1>
         <?php if ($steam_user): ?>
-            <p style="color:var(--dim);">Logado como <strong style="color:var(--bone);"><?= e($steam_user['display_name'] ?? 'Sobrevivente') ?></strong> · saldo: <strong style="color:var(--hazard);" id="coins-balance"><?= number_format($coins,0,',','.') ?></strong> moedas</p>
+            <p style="color:var(--dim);"><?= e(__('caixas.logged_as')) ?> <strong style="color:var(--bone);"><?= e($steam_user['display_name'] ?? __('profile.fallback_name')) ?></strong> · <?= e(__('caixas.balance_label')) ?> <strong style="color:var(--hazard);" id="coins-balance"><?= number_format($coins,0,',','.') ?></strong> <?= e(__('caixas.coins_word')) ?></p>
         <?php else: ?>
-            <p style="color:var(--dim);">Entre com Steam pra abrir caixas — o item cai direto no seu personagem.</p>
-            <a href="/auth/steam" class="btn btn-steam">Entrar com Steam</a>
+            <p style="color:var(--dim);"><?= e(__('caixas.login_prompt')) ?></p>
+            <a href="/auth/steam" class="btn btn-steam"><?= e(__('caixas.login_steam')) ?></a>
         <?php endif; ?>
     </div>
 </section>
@@ -29,7 +29,7 @@ $rarityColor = [
 <section class="section section-bg-2">
     <div class="container">
         <?php if (empty($boxes)): ?>
-            <p style="text-align:center;color:var(--dim);padding:3rem 0;">Nenhuma caixa disponível no momento.</p>
+            <p style="text-align:center;color:var(--dim);padding:3rem 0;"><?= e(__('caixas.none_available')) ?></p>
         <?php else: ?>
         <div class="caixas-grid">
             <?php foreach ($boxes as $b):
@@ -37,7 +37,7 @@ $rarityColor = [
                 $wait = (int)($b['daily_wait'] ?? 0);
             ?>
                 <div class="caixa-card">
-                    <?php if ($daily): ?><div class="caixa-tag caixa-tag-free">DIÁRIA</div><?php endif; ?>
+                    <?php if ($daily): ?><div class="caixa-tag caixa-tag-free"><?= e(__('caixas.tag_daily')) ?></div><?php endif; ?>
                     <div class="caixa-img">
                         <?php if (!empty($b['image'])): ?>
                             <img src="<?= e($b['image']) ?>" alt="<?= e($b['name']) ?>" loading="lazy">
@@ -47,13 +47,13 @@ $rarityColor = [
                     </div>
                     <h3 class="caixa-name"><?= e($b['name']) ?></h3>
                     <?php if (!empty($b['description'])): ?><p class="caixa-desc"><?= e($b['description']) ?></p><?php endif; ?>
-                    <div class="caixa-cost"><?= $daily ? '🆓 Grátis' : ('🪙 ' . (int)$b['cost_coins'] . ' moedas') ?></div>
+                    <div class="caixa-cost"><?= $daily ? '🆓 ' . e(__('caixas.free')) : ('🪙 ' . (int)$b['cost_coins'] . ' ' . e(__('caixas.coins_word'))) ?></div>
                     <?php if (!$steam_user): ?>
-                        <a href="/auth/steam" class="btn caixa-open">Entrar pra abrir</a>
+                        <a href="/auth/steam" class="btn caixa-open"><?= e(__('caixas.login_to_open')) ?></a>
                     <?php elseif ($daily && $wait > 0): ?>
-                        <button class="btn caixa-open" disabled>Volta em <?= $wait >= 3600 ? floor($wait/3600).'h' : ceil($wait/60).'min' ?></button>
+                        <button class="btn caixa-open" disabled><?= e(__('caixas.back_in', ['t' => $wait >= 3600 ? floor($wait/3600).'h' : ceil($wait/60).'min'])) ?></button>
                     <?php else: ?>
-                        <button class="btn caixa-open" data-slug="<?= e($b['slug']) ?>" data-name="<?= e($b['name']) ?>" data-cost="<?= $daily?0:(int)$b['cost_coins'] ?>">Abrir caixa</button>
+                        <button class="btn caixa-open" data-slug="<?= e($b['slug']) ?>" data-name="<?= e($b['name']) ?>" data-cost="<?= $daily?0:(int)$b['cost_coins'] ?>"><?= e(__('caixas.open_box')) ?></button>
                     <?php endif; ?>
                 </div>
             <?php endforeach; ?>
@@ -65,13 +65,13 @@ $rarityColor = [
 <!-- Overlay de abertura -->
 <div id="box-overlay" class="box-overlay" hidden>
     <div class="box-modal">
-        <div class="box-modal-title" id="box-modal-title">Abrindo…</div>
+        <div class="box-modal-title" id="box-modal-title"><?= e(__('caixas.modal_opening')) ?></div>
         <div class="box-reel-wrap">
             <div class="box-reel-marker"></div>
             <div class="box-reel" id="box-reel"></div>
         </div>
         <div class="box-result" id="box-result" hidden></div>
-        <button class="btn" id="box-close" hidden>Fechar</button>
+        <button class="btn" id="box-close" hidden><?= e(__('caixas.btn_close')) ?></button>
     </div>
 </div>
 
@@ -124,6 +124,15 @@ $rarityColor = [
 (function(){
     const RC = <?= json_encode($rarityColor) ?>;
     const CSRF = <?= json_encode(\App\Csrf::token()) ?>;
+    const T = {
+        drawing:  <?= json_encode(__('caixas.modal_drawing')) ?>,
+        won:      <?= json_encode(__('caixas.modal_won')) ?>,
+        oops:     <?= json_encode(__('caixas.modal_oops')) ?>,
+        genericErr: <?= json_encode(__('caixas.err_generic')) ?>,
+        connErr:  <?= json_encode(__('caixas.err_connection')) ?>,
+        delivered: <?= json_encode('✓ ' . __('caixas.delivered')) ?>,
+        pending:   <?= json_encode('⏳ ' . __('caixas.pending_delivery')) ?>
+    };
     const overlay = document.getElementById('box-overlay');
     const reel = document.getElementById('box-reel');
     const title = document.getElementById('box-modal-title');
@@ -154,19 +163,19 @@ $rarityColor = [
         if (busy) return; busy = true;
         const slug = btn.dataset.slug;
         overlay.hidden = false; result.hidden = true; closeBtn.hidden = true;
-        title.textContent = 'SORTEANDO PRÊMIO…'; reel.innerHTML = ''; reel.style.transition='none'; reel.style.transform='translateX(0)';
+        title.textContent = T.drawing; reel.innerHTML = ''; reel.style.transition='none'; reel.style.transform='translateX(0)';
 
         let data;
         try {
             const fd = new FormData(); fd.append('_csrf', CSRF);
             const r = await fetch('/caixas/'+slug+'/open', {method:'POST', body:fd});
             data = await r.json();
-        } catch(e){ data = {ok:false, error:'Erro de conexão.'}; }
+        } catch(e){ data = {ok:false, error:T.connErr}; }
 
         if (!data.ok){
             if (data.error === 'login'){ window.location.href = data.login_url; return; }
-            title.textContent = 'Ops'; result.textContent='';
-            const p=document.createElement('p'); p.style.color='var(--rust-2)'; p.textContent=data.error||'Erro';
+            title.textContent = T.oops; result.textContent='';
+            const p=document.createElement('p'); p.style.color='var(--rust-2)'; p.textContent=data.error||T.genericErr;
             result.appendChild(p); result.hidden=false;
             closeBtn.hidden=false; busy=false; return;
         }
@@ -187,7 +196,7 @@ $rarityColor = [
             reel.style.transform = 'translateX(-'+target+'px)';
         });
         setTimeout(()=>{
-            title.textContent = 'VOCÊ GANHOU!';
+            title.textContent = T.won;
             const col = RC[data.won.rarity]||RC.common; // RC é mapa fixo -> sempre hex seguro
             // Montagem segura (sem innerHTML de dado do banco)
             result.textContent='';
@@ -200,9 +209,10 @@ $rarityColor = [
             rar.textContent=String(data.won.rarity||''); card.appendChild(rar);
             result.appendChild(card);
             const st=document.createElement('div'); st.className='box-result-status';
-            st.innerHTML = data.status === 'delivered'   // texto estático (sem dado de usuário)
-                ? '<span style="color:var(--moss)">✓ Entregue no seu personagem in-game!</span>'
-                : '<span style="color:var(--hazard)">⏳ Vai cair quando você estiver online (longe do restart).</span>';
+            const stSpan=document.createElement('span'); // texto controlado (i18n), montado sem innerHTML
+            if (data.status === 'delivered'){ stSpan.style.color='var(--moss)'; stSpan.textContent=T.delivered; }
+            else { stSpan.style.color='var(--hazard)'; stSpan.textContent=T.pending; }
+            st.appendChild(stSpan);
             result.appendChild(st);
             result.hidden=false; closeBtn.hidden=false;
             if (typeof data.coins==='number'){ const cb=document.getElementById('coins-balance'); if(cb) cb.textContent = data.coins.toLocaleString('pt-BR'); }

@@ -6,8 +6,8 @@
 <section class="hero" style="min-height: 40vh; padding-bottom: 2rem;">
     <div class="hero-bg" style="background-image: linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.95) 100%), url('<?= asset('img/background2.png') ?>');"></div>
     <div class="container hero-content">
-        <span class="hero-kicker">// LIVE STATUS</span>
-        <h1 class="hero-title">Servidor<br><span class="accent">Ao Vivo.</span></h1>
+        <span class="hero-kicker">// <?= e(__('server.kicker')) ?></span>
+        <h1 class="hero-title"><?= e(__('server.title_1')) ?><br><span class="accent"><?= e(__('server.title_2')) ?></span></h1>
     </div>
 </section>
 
@@ -16,46 +16,46 @@
 
         <?php if (empty($status['configured'])): ?>
             <div style="text-align: center; padding: 4rem 1rem; color: var(--dim);">
-                <p>Status do servidor não configurado. Admin precisa cadastrar o ID do BattleMetrics em Configurações.</p>
+                <p><?= e(__('server.not_configured')) ?></p>
             </div>
         <?php else: ?>
 
             <!-- Cards principais -->
             <div class="server-grid">
                 <div class="server-card">
-                    <div class="server-card-label">Status</div>
+                    <div class="server-card-label"><?= e(__('server.label_status')) ?></div>
                     <div class="server-card-value">
                         <span class="server-dot server-dot-<?= $status['online'] ? 'online' : 'offline' ?>"></span>
-                        <?= $status['online'] ? 'ONLINE' : 'OFFLINE' ?>
+                        <?= $status['online'] ? e(__('server.online')) : e(__('server.offline')) ?>
                     </div>
                 </div>
                 <div class="server-card">
-                    <div class="server-card-label">Jogadores</div>
+                    <div class="server-card-label"><?= e(__('server.label_players')) ?></div>
                     <div class="server-card-value server-card-big">
                         <?= (int)$status['players'] ?><span style="color: var(--dim); font-size: 0.6em;">/<?= (int)$status['max'] ?: 60 ?></span>
                     </div>
                 </div>
                 <?php if (!empty($status['rank'])): ?>
                 <div class="server-card">
-                    <div class="server-card-label">Rank BattleMetrics</div>
+                    <div class="server-card-label"><?= e(__('server.label_rank')) ?></div>
                     <div class="server-card-value server-card-big" style="color: var(--hazard);">#<?= (int)$status['rank'] ?></div>
                 </div>
                 <?php endif; ?>
                 <?php if (!empty($status['map'])): ?>
                 <div class="server-card">
-                    <div class="server-card-label">Mapa</div>
+                    <div class="server-card-label"><?= e(__('server.label_map')) ?></div>
                     <div class="server-card-value"><?= e($status['map']) ?></div>
                 </div>
                 <?php endif; ?>
                 <?php $rs = $config['restart'] ?? null; if ($rs): ?>
                 <div class="server-card <?= $rs['warn'] ? 'server-card-warn' : '' ?>">
-                    <div class="server-card-label">Próximo restart</div>
+                    <div class="server-card-label"><?= e(__('restart.next')) ?></div>
                     <div class="server-card-value" style="font-size:1.3rem;">
                         🔄 <?= e($rs['at']) ?>
-                        <span style="color:var(--dim);font-size:0.7em;">(em <?= e($rs['relative']) ?>)</span>
+                        <span style="color:var(--dim);font-size:0.7em;"><?= e(__('restart.in', ['t' => $rs['relative']])) ?></span>
                     </div>
                     <?php if ($rs['warn']): ?>
-                        <div style="color:var(--rust-2);font-size:0.75rem;margin-top:0.3rem;">⚠ Restart próximo — saia de combate</div>
+                        <div style="color:var(--rust-2);font-size:0.75rem;margin-top:0.3rem;">⚠ <?= e(__('restart.warn')) ?></div>
                     <?php endif; ?>
                 </div>
                 <?php endif; ?>
@@ -65,11 +65,11 @@
             <?php if (!empty($status['ip']) && !empty($status['port'])): ?>
                 <div class="connect-block">
                     <div>
-                        <div style="font-size: 0.75rem; color: var(--dim); text-transform: uppercase; letter-spacing: 0.1em;">Endereço</div>
+                        <div style="font-size: 0.75rem; color: var(--dim); text-transform: uppercase; letter-spacing: 0.1em;"><?= e(__('server.address')) ?></div>
                         <div class="connect-ip"><?= e($status['ip']) ?>:<?= (int)$status['port'] ?></div>
                     </div>
                     <a href="steam://connect/<?= e($status['ip']) ?>:<?= (int)$status['port'] ?>" class="btn">
-                        🎮 Conectar via Steam
+                        🎮 <?= e(__('server.connect_steam')) ?>
                     </a>
                 </div>
             <?php endif; ?>
@@ -77,7 +77,7 @@
             <!-- Players online -->
             <?php if ($status['online'] && !empty($players)): ?>
                 <h2 style="font-family: var(--font-display); color: var(--bone); font-size: 1.4rem; margin: 3rem 0 1.5rem; letter-spacing: 0.04em;">
-                    Jogadores Online <span style="color: var(--dim); font-family: var(--font-mono); font-size: 1rem;">(<?= count($players) ?>)</span>
+                    <?= e(__('server.players_online')) ?> <span style="color: var(--dim); font-family: var(--font-mono); font-size: 1rem;">(<?= count($players) ?>)</span>
                 </h2>
                 <div class="players-grid">
                     <?php foreach ($players as $p): ?>
@@ -98,17 +98,17 @@
                 </div>
             <?php elseif ($status['online']): ?>
                 <p style="text-align: center; color: var(--dim); margin-top: 3rem;">
-                    Servidor online, ninguém conectado ainda. <strong style="color: var(--hazard);">Seja o primeiro!</strong>
+                    <?= e(__('server.empty_online')) ?> <strong style="color: var(--hazard);"><?= e(__('server.be_first')) ?></strong>
                 </p>
             <?php endif; ?>
 
             <p class="status-meta">
                 <?php if (($status['source'] ?? '') === 'cftools'): ?>
-                    Jogadores online em tempo real via CFTools.
+                    <?= e(__('server.source_cftools')) ?>
                 <?php else: ?>
-                    Dados atualizados a cada 60s via BattleMetrics.
+                    <?= e(__('server.source_bm')) ?>
                 <?php endif; ?>
-                Última atualização: <?= e(time_ago($status['fetched_at'] ?? time())) ?>
+                <?= e(__('server.last_update')) ?> <?= e(time_ago($status['fetched_at'] ?? time())) ?>
             </p>
 
         <?php endif; ?>
