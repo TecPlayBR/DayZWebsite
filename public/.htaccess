@@ -51,6 +51,20 @@
     </FilesMatch>
 </IfModule>
 
+# Seguranca: headers de protecao (defesa em profundidade).
+# OBS: Content-Security-Policy NAO entra aqui ainda — o site usa scripts/estilos inline
+# + SDK do Mercado Pago + Steam; CSP precisa ser testado com Content-Security-Policy-Report-Only
+# antes, senao quebra o checkout. Deixado como follow-up consciente.
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    # HSTS: o navegador so honra sobre HTTPS (em HTTP e ignorado, entao e seguro).
+    # Sem includeSubDomains/preload pra nao afetar subdominio HTTP-only do cliente.
+    Header always set Strict-Transport-Security "max-age=31536000"
+</IfModule>
+
 # Bloqueia indexacao de diretorios
 Options -Indexes
 

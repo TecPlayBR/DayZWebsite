@@ -99,6 +99,23 @@ if ($prodItems) {
             </div>
         <?php endif; ?>
 
+        <?php $topReview = \App\Database::fetchOne("SELECT body, rating, display_name FROM reviews WHERE approved = 1 AND body <> '' ORDER BY rating DESC, created_at DESC LIMIT 1"); ?>
+        <?php if ($topReview): ?>
+        <div class="shop-social-proof">
+            <span class="ssp-stars" aria-label="<?= (int)$topReview['rating'] ?> de 5 estrelas"><?= str_repeat('★', (int)$topReview['rating']) ?></span>
+            <span class="ssp-quote">“<?= e(mb_strimwidth($topReview['body'], 0, 130, '…')) ?>”</span>
+            <span class="ssp-author">— <?= e($topReview['display_name'] ?: 'Sobrevivente') ?> · <a href="/depoimentos">ver todos →</a></span>
+        </div>
+        <style>
+        .shop-social-proof { max-width:760px; margin:0 auto 1.5rem; background:rgba(212,160,23,0.08); border:1px solid var(--border);
+            border-left:3px solid var(--hazard); border-radius:6px; padding:0.9rem 1.2rem; text-align:center; font-size:0.92rem; color:var(--bone); }
+        .shop-social-proof .ssp-stars { color:var(--hazard); margin-right:0.4rem; }
+        .shop-social-proof .ssp-author { color:var(--dim); font-size:0.82rem; display:block; margin-top:0.3rem; }
+        .shop-social-proof .ssp-author a { color:var(--rust-2); }
+        .pack-percoin { font-size:0.72rem; color:var(--dim); margin-top:0.2rem; }
+        </style>
+        <?php endif; ?>
+
         <div class="packs-grid">
             <?php foreach ($packages as $pkg):
                 $coinsBase  = (int)$pkg['coins'];
@@ -127,7 +144,7 @@ if ($prodItems) {
 
                 <div class="pack-icon">
                     <?php if (!empty($pkg['image'])): ?>
-                        <img class="pack-img" src="<?= preg_match('#^https?://#i', $pkg['image']) ? e($pkg['image']) : asset('img/packages/' . $pkg['image']) ?>" alt="<?= e($pkg['name']) ?>" loading="lazy">
+                        <img class="pack-img" src="<?= preg_match('#^https?://#i', $pkg['image']) ? e($pkg['image']) : asset('img/packages/' . $pkg['image']) ?>" alt="<?= e($pkg['name']) ?> — pacote de moedas DayZ" width="200" height="200" loading="lazy" decoding="async">
                     <?php else: ?>
                         <?= e($pkg['icon'] ?? '🪙') ?>
                     <?php endif; ?>
@@ -173,6 +190,9 @@ if ($prodItems) {
                         R$ <?= number_format($originalPrice, 2, ',', '.') ?>
                     <?php endif; ?>
                 </div>
+                <?php if ($coinsTotal > 0): ?>
+                    <div class="pack-percoin">R$ <?= number_format($finalPrice / $coinsTotal, 2, ',', '.') ?> / moeda</div>
+                <?php endif; ?>
 
                 <form method="POST" action="/shop/checkout" class="pack-form" data-shop-form>
                     <?= \App\Csrf::field() ?>
@@ -189,7 +209,7 @@ if ($prodItems) {
                     <?php else: ?>
                         <input type="text" name="steam_id" placeholder="SteamID64 (17 dígitos)" pattern="7656119[0-9]{10}" required maxlength="17" class="pack-input">
                     <?php endif; ?>
-                    <button type="submit" class="btn pack-buy"><?= e(__('shop.buy')) ?></button>
+                    <button type="submit" class="btn pack-buy" aria-label="<?= e(__('shop.buy')) ?> <?= e($pkg['name']) ?> — <?= $coinsTotal ?> moedas por R$ <?= number_format($finalPrice, 2, ',', '.') ?>"><?= e(__('shop.buy')) ?></button>
                 </form>
             </div>
             <?php endforeach; ?>

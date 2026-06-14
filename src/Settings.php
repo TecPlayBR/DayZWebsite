@@ -88,9 +88,12 @@ class Settings {
     public static function deliveryActive(): bool {
         $agent = (int) self::get('agent_last_sync', 0);
         if ($agent > 0 && (time() - $agent) < 1800) return true;
-        // Entrega nativa Sparda (mod lê/grava via getcoins/postcoins)
+        // Entrega nativa Sparda (mod lê/grava via getcoins/postcoins). É EVENT-DRIVEN:
+        // o mod só fala com o site quando alguém abre a loja in-game — então a janela é
+        // larga (7 dias). Com 30 min, servidor parado de madrugada já dispararia o
+        // "entrega não detectada" mesmo com o Sparda configurado e funcionando.
         $sparda = (int) self::get('sparda_last_sync', 0);
-        if ($sparda > 0 && (time() - $sparda) < 1800) return true;
+        if ($sparda > 0 && (time() - $sparda) < 604800) return true;
         $token = (string) self::get('discord_integration_token', '');
         $botOk = (string) self::get('discord_integration_last_ok', '0');
         if ($token !== '' && $botOk !== '' && $botOk !== '0') return true;

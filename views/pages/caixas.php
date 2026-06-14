@@ -40,7 +40,7 @@ $rarityColor = [
                     <?php if ($daily): ?><div class="caixa-tag caixa-tag-free"><?= e(__('caixas.tag_daily')) ?></div><?php endif; ?>
                     <div class="caixa-img">
                         <?php if (!empty($b['image'])): ?>
-                            <img src="<?= e($b['image']) ?>" alt="<?= e($b['name']) ?>" loading="lazy">
+                            <img src="<?= e($b['image']) ?>" alt="Caixa <?= e($b['name']) ?> — loot DayZ" width="280" height="280" loading="lazy" decoding="async">
                         <?php else: ?>
                             <div class="caixa-img-ph">🎁</div>
                         <?php endif; ?>
@@ -58,7 +58,7 @@ $rarityColor = [
                             ⏳ <span class="cd-time">--:--</span>
                         </button>
                     <?php else: ?>
-                        <button class="btn caixa-open" data-slug="<?= e($b['slug']) ?>" data-name="<?= e($b['name']) ?>" data-cost="<?= $daily?0:(int)$b['cost_coins'] ?>"><?= e(__('caixas.open_box')) ?></button>
+                        <button class="btn caixa-open" data-slug="<?= e($b['slug']) ?>" data-name="<?= e($b['name']) ?>" data-cost="<?= $daily?0:(int)$b['cost_coins'] ?>" aria-label="<?= e(__('caixas.open_box')) ?> <?= e($b['name']) ?><?= $daily ? '' : ' — ' . (int)$b['cost_coins'] . ' moedas' ?>"><?= e(__('caixas.open_box')) ?></button>
                     <?php endif; ?>
                 </div>
             <?php endforeach; ?>
