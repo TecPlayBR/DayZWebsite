@@ -522,7 +522,13 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
                         <div class="home-pack-badge"><?= e($pkg['badge']) ?></div>
                     <?php endif; ?>
 
-                    <div class="home-pack-icon"><?= e($pkg['icon'] ?? '🪙') ?></div>
+                    <div class="home-pack-icon">
+                        <?php if (!empty($pkg['image'])): ?>
+                            <img class="home-pack-img" src="<?= preg_match('#^https?://#i', $pkg['image']) ? e($pkg['image']) : asset('img/packages/' . $pkg['image']) ?>" alt="<?= e($pkg['name']) ?>" loading="lazy">
+                        <?php else: ?>
+                            <?= e($pkg['icon'] ?? '🪙') ?>
+                        <?php endif; ?>
+                    </div>
                     <h3><?= e($pkg['name']) ?></h3>
 
                     <div class="home-pack-coins-total"><?= $coinsTotal ?></div>
@@ -580,7 +586,9 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
             font-size: 0.65rem;
             letter-spacing: 0.05em;
         }
-        .home-pack-icon { font-size: 2.2rem; margin: 0.5rem 0; }
+        .home-pack-icon { font-size: 2.2rem; margin: 0.5rem 0; min-height: 50px; display:flex; align-items:center; justify-content:center; }
+        .home-pack-img { width: 100px; height: 100px; object-fit: contain; filter: drop-shadow(0 6px 14px rgba(0,0,0,0.5)); transition: transform .25s; }
+        .home-pack:hover .home-pack-img { transform: scale(1.06); }
         .home-pack-coins-total {
             font-family: var(--font-display);
             font-size: 2.4rem;

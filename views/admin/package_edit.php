@@ -16,11 +16,11 @@
 
 <?php if (!empty($_GET['err'])): ?>
     <div style="background:var(--danger-overlay);border-left:3px solid var(--rust-2);padding:0.7rem 1rem;margin-bottom:1.5rem;color:var(--text-danger);font-size:0.9rem;">
-        Verifique: nome obrigatório, moedas > 0, preço > 0.
+        <?= ($_GET['err'] === 'img') ? 'Imagem inválida: use PNG/WEBP/JPG até 5MB.' : 'Verifique: nome obrigatório, moedas > 0, preço > 0.' ?>
     </div>
 <?php endif; ?>
 
-<form method="POST" action="/admin/packages/<?= e($pkg['id']) ?>/save" style="max-width: 800px;">
+<form method="POST" action="/admin/packages/<?= e($pkg['id']) ?>/save" enctype="multipart/form-data" style="max-width: 800px;">
     <?= \App\Csrf::field() ?>
 
     <div class="stat-card" style="margin-bottom: 1rem;">
@@ -33,6 +33,24 @@
             <div>
                 <label style="display:block; font-size:0.85rem; margin-bottom:0.3rem;">Ícone</label>
                 <input type="text" name="icon" value="<?= e($pkg['icon']) ?>" maxlength="6" style="width:100%; padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); text-align:center; font-size:1.2rem;">
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card" style="margin-bottom: 1rem;">
+        <div class="label">Imagem do pacote (capa)</div>
+        <p style="margin-top:0.4rem; font-size:0.82rem; color:var(--dim);">PNG transparente, ~512×512. Aparece em destaque no shop e na home no lugar do ícone. Vazio = usa o emoji.</p>
+        <div style="display:flex; align-items:center; gap:1rem; margin-top:0.8rem;">
+            <?php if (!empty($pkg['image'])): ?>
+                <img src="<?= preg_match('#^https?://#i', $pkg['image']) ? e($pkg['image']) : asset('img/packages/' . $pkg['image']) ?>" alt="" style="width:84px; height:84px; object-fit:contain; background:var(--bg-0); border:1px solid var(--border); border-radius:6px; padding:4px;">
+            <?php endif; ?>
+            <div style="flex:1;">
+                <input type="file" name="image" accept="image/png,image/webp,image/jpeg" style="color:var(--bone); font-size:0.85rem;">
+                <?php if (!empty($pkg['image'])): ?>
+                    <label style="display:inline-flex; align-items:center; gap:0.3rem; margin-top:0.6rem; font-size:0.8rem; color:var(--dim); cursor:pointer;">
+                        <input type="checkbox" name="remove_image" value="1"> Remover imagem atual (voltar ao emoji)
+                    </label>
+                <?php endif; ?>
             </div>
         </div>
     </div>

@@ -91,7 +91,13 @@ $siteName = $config['settings']['site_name'] ?? $config['site_name'] ?? 'DayZ';
                     <div class="pack-badge"><?= e($pkg['badge']) ?></div>
                 <?php endif; ?>
 
-                <div class="pack-icon"><?= e($pkg['icon'] ?? '🪙') ?></div>
+                <div class="pack-icon">
+                    <?php if (!empty($pkg['image'])): ?>
+                        <img class="pack-img" src="<?= preg_match('#^https?://#i', $pkg['image']) ? e($pkg['image']) : asset('img/packages/' . $pkg['image']) ?>" alt="<?= e($pkg['name']) ?>" loading="lazy">
+                    <?php else: ?>
+                        <?= e($pkg['icon'] ?? '🪙') ?>
+                    <?php endif; ?>
+                </div>
                 <h3 class="pack-name"><?= e($pkg['name']) ?></h3>
 
                 <div class="pack-coins">
@@ -252,7 +258,11 @@ $siteName = $config['settings']['site_name'] ?? $config['site_name'] ?? 'DayZ';
 }
 .pack-wish:hover { transform: scale(1.1); color: var(--rust-2); border-color: var(--rust-2); }
 .pack-wish.wished { color: var(--rust-2); border-color: var(--rust-2); background: var(--danger-overlay); }
-.pack-icon { font-size: 2.5rem; margin: 0.5rem 0 1rem; filter: drop-shadow(0 0 8px var(--hazard-border)); }
+.pack-icon { font-size: 2.5rem; margin: 0.5rem 0 1rem; filter: drop-shadow(0 0 8px var(--hazard-border)); min-height: 56px; display:flex; align-items:center; justify-content:center; }
+.pack-img { width: 120px; height: 120px; object-fit: contain; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.55)); transition: transform .25s; animation: pack-float 3.6s ease-in-out infinite; }
+.pack-card:hover .pack-img { transform: scale(1.07); }
+@keyframes pack-float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+@media (prefers-reduced-motion: reduce){ .pack-img{ animation:none; } }
 .pack-name { font-family: var(--font-display); color: var(--bone); font-size: 1rem; letter-spacing: 0.06em; margin-bottom: 0.8rem; }
 
 .pack-coins {

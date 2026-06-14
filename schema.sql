@@ -58,6 +58,7 @@ CREATE TABLE packages (
     id              VARCHAR(40)  NOT NULL PRIMARY KEY,
     name            VARCHAR(100) NOT NULL,
     icon            VARCHAR(10)  NULL,
+    image           VARCHAR(255) NULL,
     coins           INT          NOT NULL,
     bonus_coins     INT          NOT NULL DEFAULT 0,
     price_brl       DECIMAL(8,2) NOT NULL,

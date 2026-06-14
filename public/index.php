@@ -1530,10 +1530,10 @@ $collectDashboardData = function() {
     \App\View::display('admin.package_edit', ['config' => $config, 'pkg' => $pkg]);
 });
 
-\App\Router::post('/admin/packages/{id}/save', function($id) use ($config) {
+\App\Router::post('/admin/packages/{id}/save', function($id) use ($config, $ROOT) {
     \App\Auth::requireCan('packages');
     if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
-    $existing = \App\Database::fetchOne("SELECT id FROM packages WHERE id = ? LIMIT 1", [$id]);
+    $existing = \App\Database::fetchOne("SELECT id, image FROM packages WHERE id = ? LIMIT 1", [$id]);
     if (!$existing) { http_response_code(404); exit; }
 
     $name        = trim($_POST['name'] ?? '');
@@ -1554,13 +1554,37 @@ $collectDashboardData = function() {
         exit;
     }
 
+    // Imagem (capa): upload opcional pra assets/img/packages/. Mantém a atual se não subir nova.
+    $image = $existing['image'] ?? null;
+    $pkgDir = $ROOT . '/public/assets/img/packages';
+    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+        $f = $_FILES['image'];
+        $allowed = ['image/png' => 'png', 'image/webp' => 'webp', 'image/jpeg' => 'jpg'];
+        $finfo = finfo_open(FILEINFO_MIME_TYPE); $mime = finfo_file($finfo, $f['tmp_name']); finfo_close($finfo);
+        if ($f['size'] <= 5 * 1024 * 1024 && isset($allowed[$mime])) {
+            if (!is_dir($pkgDir)) @mkdir($pkgDir, 0755, true);
+            $fname = 'p_' . bin2hex(random_bytes(8)) . '.' . $allowed[$mime];
+            if (move_uploaded_file($f['tmp_name'], $pkgDir . '/' . $fname)) {
+                if ($image && !preg_match('#^https?://#i', $image)) @unlink($pkgDir . '/' . basename($image));
+                $image = $fname;
+            }
+        } else {
+            header('Location: /admin/packages/' . urlencode($id) . '/edit?err=img'); exit;
+        }
+    }
+    // Remover imagem (checkbox)
+    if (!empty($_POST['remove_image']) && $image) {
+        if (!preg_match('#^https?://#i', $image)) @unlink($pkgDir . '/' . basename($image));
+        $image = null;
+    }
+
     \App\Database::query(
-        "UPDATE packages SET name = ?, icon = ?, coins = ?, bonus_coins = ?, price_brl = ?,
+        "UPDATE packages SET name = ?, icon = ?, image = ?, coins = ?, bonus_coins = ?, price_brl = ?,
                             bonus_badge = ?, ribbon = ?, featured = ?, sort_order = ?,
                             perks_json = ?, bonus_perks_json = ?
          WHERE id = ?",
         [
-            $name, $icon, $coins, $bonus, $price,
+            $name, $icon, $image, $coins, $bonus, $price,
             $bonusBadge, $ribbon, $featured, $sortOrder,
             json_encode($perks, JSON_UNESCAPED_UNICODE),
             json_encode($bonusPerks, JSON_UNESCAPED_UNICODE),
