@@ -118,28 +118,38 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
     <?php endif; ?>
 
     <?php $rs = $config['restart'] ?? null; if ($rs): ?>
-        <?php $rcls = $rs['minutes'] <= 1 ? 'red' : ($rs['warn'] ? 'amber' : 'ok'); ?>
-        <div class="hero-restart hero-restart-<?= $rcls ?>" aria-live="polite">
-            <span class="dot"></span>
-            <?php if ($rs['minutes'] <= 1): ?>
-                🔄 <?= e(__('restart.restarting')) ?>
-            <?php elseif ($rs['warn']): ?>
-                🔄 <?= e(__('restart.soon', ['m' => (int)$rs['minutes']])) ?>
-            <?php else: ?>
-                🔄 <?= e(__('restart.next')) ?>: <strong><?= e($rs['at']) ?></strong> <span style="opacity:.7;"><?= e(__('restart.in', ['t' => $rs['relative']])) ?></span>
-            <?php endif; ?>
+        <div class="hero-restart hero-restart-ok" id="hero-restart" aria-live="polite"
+             data-next="<?= (int)$rs['next_ts'] ?>" data-warn="<?= (int)($rs['warn_min'] ?? 5) ?>" data-at="<?= e($rs['at']) ?>">
+            <span class="dot"></span><span class="hr-text">🔄 <?= e(__('restart.next')) ?>: <strong><?= e($rs['at']) ?></strong></span>
         </div>
+        <script>
+        (function(){
+            var el = document.getElementById('hero-restart'); if (!el) return;
+            var next = +el.dataset.next, warn = +el.dataset.warn || 5, at = el.dataset.at, reloaded = false;
+            var T = { next: <?= json_encode(__('restart.next')) ?>, inTpl: <?= json_encode(__('restart.in', ['t' => '%T'])) ?>, soonTpl: <?= json_encode(__('restart.soon', ['m' => '%M'])) ?>, restarting: <?= json_encode(__('restart.restarting')) ?> };
+            var txt = el.querySelector('.hr-text');
+            function rel(m){ var h = Math.floor(m/60), mm = m%60; return h > 0 ? (h+'h '+mm+'min') : (mm+'min'); }
+            function tick(){
+                var rem = Math.floor((next*1000 - Date.now())/1000), mins = Math.max(0, Math.ceil(rem/60)), cls, html;
+                if (rem <= 0) { cls='red'; html='🔄 '+T.restarting; if (!reloaded && rem <= -20){ reloaded=true; setTimeout(function(){ location.reload(); }, 2500); } }
+                else if (mins <= warn) { cls='amber'; html='🔄 '+T.soonTpl.replace('%M', mins); }
+                else { cls='ok'; html='🔄 '+T.next+': <strong>'+at+'</strong> <span style="opacity:.6">'+T.inTpl.replace('%T', rel(mins))+'</span>'; }
+                el.className = 'hero-restart hero-restart-'+cls; txt.innerHTML = html;
+            }
+            tick(); setInterval(tick, 1000);
+        })();
+        </script>
+        <style>
+        .hero-restart { position:absolute; bottom:5.4rem; right:2rem; z-index:2; background:rgba(13,16,20,0.85);
+            border:1px solid var(--border); border-left:3px solid var(--moss); padding:0.6rem 1.1rem;
+            font-family:var(--font-mono); font-size:0.88rem; color:var(--bone); display:inline-flex; align-items:center; gap:0.5rem; white-space:nowrap; }
+        .hero-restart .dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+        .hero-restart-ok { border-left-color:var(--moss); } .hero-restart-ok .dot { background:var(--moss); box-shadow:0 0 8px var(--moss); }
+        .hero-restart-amber { border-left-color:#f0a500; } .hero-restart-amber .dot { background:#f0a500; box-shadow:0 0 8px #f0a500; animation:pulse 1.5s infinite; }
+        .hero-restart-red { border-left-color:var(--rust-2); } .hero-restart-red .dot { background:var(--rust-2); box-shadow:0 0 8px var(--rust-2); animation:pulse .8s infinite; }
+        @media (max-width:768px){ .hero-restart { position:static; margin:1rem auto 0; max-width:360px; width:100%; box-sizing:border-box; justify-content:center; } }
+        </style>
     <?php endif; ?>
-    <style>
-    .hero-restart { display:inline-flex; align-items:center; gap:0.5rem; margin-top:0.6rem; padding:0.35rem 0.8rem; border-radius:20px; font-size:0.82rem; font-family:var(--font-mono); border:1px solid; }
-    .hero-restart .dot { width:8px; height:8px; border-radius:50%; }
-    .hero-restart-ok    { color:var(--moss); border-color:rgba(74,157,91,.4); background:rgba(74,157,91,.08); }
-    .hero-restart-ok .dot    { background:var(--moss); box-shadow:0 0 8px var(--moss); }
-    .hero-restart-amber { color:#f0a500; border-color:rgba(240,165,0,.45); background:rgba(240,165,0,.10); }
-    .hero-restart-amber .dot { background:#f0a500; box-shadow:0 0 8px #f0a500; animation:pulse 1.5s infinite; }
-    .hero-restart-red   { color:var(--rust-2); border-color:rgba(231,57,70,.5); background:rgba(231,57,70,.12); }
-    .hero-restart-red .dot   { background:var(--rust-2); box-shadow:0 0 8px var(--rust-2); animation:pulse 0.8s infinite; }
-    </style>
 
     <!-- Social proof: stats agregados (jogadores cadastrados, compras semana, online agora).
          Esconde sozinho se controller não passou home_stats. -->

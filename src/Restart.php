@@ -88,6 +88,7 @@ class Restart {
             'at'       => date('H:i', $next),
             'relative' => $rel,
             'warn'     => $mins <= self::warnMinutes(),
+            'warn_min' => self::warnMinutes(),
         ];
     }
 }
