@@ -964,6 +964,68 @@ $config['restart'] = \App\Restart::summary();
     exit;
 });
 
+// ===== CARTÃO TRANSPARENTE (in-site): cria o pagamento SEM sair do site. =====
+// O cartão é tokenizado NO NAVEGADOR pelo SDK do MP (public_key) -> aqui só chega o
+// `token` de uso único + parcelas/CPF. O PAN nunca toca o servidor (PCI SAQ-A).
+// A ENTREGA das moedas é feita pelo webhook (caminho único, claim atômico); aqui só
+// criamos o pagamento e o front faz polling em /shop/status até cair.
+\App\Router::post('/shop/card-pay/{id}', function($id) use ($config) {
+    header('Content-Type: application/json; charset=utf-8');
+    $pid = (int)$id;
+    $rl = \App\RateLimit::check('shop-cardpay:' . \App\RateLimit::clientIp(), 15, 300);
+    if (empty($rl['allowed'])) { http_response_code(429); echo json_encode(['ok' => false, 'error' => 'Muitas tentativas. Aguarde um pouco e tente de novo.']); return; }
+    if (!\App\Csrf::check()) { http_response_code(419); echo json_encode(['ok' => false, 'error' => 'Sessão expirada. Recarregue a página.']); return; }
+    // Anti-IDOR: só o dono da sessão (quem criou no checkout) paga essa compra.
+    if (empty($_SESSION['checkout_pids'][$pid])) { http_response_code(403); echo json_encode(['ok' => false, 'error' => 'Compra não encontrada nesta sessão.']); return; }
+    $p = \App\Database::fetchOne("SELECT * FROM purchases WHERE id = ? LIMIT 1", [$pid]);
+    if (!$p) { http_response_code(404); echo json_encode(['ok' => false, 'error' => 'Compra não encontrada.']); return; }
+    if (!empty($p['delivered_at']) || $p['mp_status'] === 'approved') {
+        echo json_encode(['ok' => true, 'status' => 'approved', 'redirect' => '/player/' . $p['steam_id']]); return;
+    }
+
+    $token        = trim((string)($_POST['token'] ?? ''));
+    $pmId         = trim((string)($_POST['payment_method_id'] ?? ''));
+    $installments = max(1, (int)($_POST['installments'] ?? 1));
+    $issuerId     = trim((string)($_POST['issuer_id'] ?? ''));
+    $docType      = trim((string)($_POST['doc_type'] ?? 'CPF')) ?: 'CPF';
+    $docNumber    = preg_replace('/\D+/', '', (string)($_POST['doc_number'] ?? ''));
+    $email        = filter_var(trim((string)($_POST['email'] ?? '')), FILTER_VALIDATE_EMAIL) ?: ($p['steam_id'] . '@pix.tecplay.inf.br');
+    if ($token === '' || $pmId === '') { http_response_code(422); echo json_encode(['ok' => false, 'error' => 'Dados do cartão incompletos. Revise e tente de novo.']); return; }
+
+    $mp = new \App\MercadoPago($config['mercado_pago']['access_token'] ?? '', $config['mercado_pago']['webhook_secret'] ?? null);
+    if (!$mp->isConfigured()) { http_response_code(503); echo json_encode(['ok' => false, 'error' => 'Pagamento indisponível no momento.']); return; }
+    $siteUrl = rtrim($config['site_url'] ?? ('https://' . $_SERVER['HTTP_HOST']), '/');
+
+    $payload = [
+        'transaction_amount' => round((float)$p['price_brl'], 2),
+        'token'              => $token,
+        'description'        => 'Compra #' . $p['id'] . ' — ' . (int)$p['coins_total'] . ' moedas',
+        'installments'       => $installments,
+        'payment_method_id'  => $pmId,
+        'external_reference' => (string)$p['id'],
+        'notification_url'   => $siteUrl . '/api/mp-webhook.php',
+        'payer'              => ['email' => $email],
+    ];
+    if ($issuerId !== '')  $payload['issuer_id'] = $issuerId;
+    if ($docNumber !== '') $payload['payer']['identification'] = ['type' => $docType, 'number' => $docNumber];
+
+    $pay = $mp->createCardPayment($payload);
+    if (!$pay || empty($pay['status'])) { http_response_code(502); echo json_encode(['ok' => false, 'error' => 'Não foi possível processar o cartão. Tente outro cartão ou use o Pix.']); return; }
+
+    // Guarda o payment_id pro webhook casar (sem rebaixar uma compra já entregue).
+    \App\Database::query("UPDATE purchases SET mp_payment_id = ? WHERE id = ? AND delivered_at IS NULL", [(string)$pay['id'], $pid]);
+
+    $status = $pay['status']; // approved | in_process | pending | rejected
+    if ($status === 'approved') {
+        echo json_encode(['ok' => true, 'status' => 'approved', 'redirect' => '/player/' . $p['steam_id']]); return;
+    }
+    if ($status === 'in_process' || $status === 'pending') {
+        echo json_encode(['ok' => true, 'status' => $status, 'msg' => 'Pagamento em análise. Assim que aprovar, suas moedas entram automaticamente.']); return;
+    }
+    // rejected
+    echo json_encode(['ok' => false, 'status' => 'rejected', 'error' => \App\MercadoPago::cardRejectMessage($pay['status_detail'] ?? '')]);
+});
+
 \App\Router::get('/shop/return', function() use ($config) {
     $status = $_GET['status'] ?? 'pending';
     \App\View::display('pages.checkout_return', ['config' => $config, 'status' => $status]);

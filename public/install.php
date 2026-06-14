@@ -61,6 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$structureMissing) {
     $admin_email    = trim($_POST['admin_email'] ?? '');
     $agent_token    = trim($_POST['agent_token'] ?? '');
     $mp_token       = trim($_POST['mp_token'] ?? '');
+    $mp_public      = trim($_POST['mp_public'] ?? '');
     $mp_webhook_sec = trim($_POST['mp_webhook_sec'] ?? '');
 
     // Validacoes basicas
@@ -139,6 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$structureMissing) {
             $configContent .= "    'agent_token' => " . var_export($agent_token, true) . ",\n\n";
             $configContent .= "    'mercado_pago' => [\n";
             $configContent .= "        'access_token'      => " . var_export($mp_token, true) . ",\n";
+            $configContent .= "        'public_key'        => " . var_export($mp_public ?? '', true) . ",\n";
             $configContent .= "        'webhook_secret'    => " . var_export($mp_webhook_sec, true) . ",\n";
             $configContent .= "        'currency'          => 'BRL',\n";
             $configContent .= "        'min_purchase_brl'  => 5,\n";
@@ -361,6 +363,10 @@ header p { color: var(--dim); margin-top: 0.5rem; font-size: 0.95rem; }
             <div class="row">
                 <label>Access Token <small>(TEST-... ou APP_USR-...)</small></label>
                 <input type="text" name="mp_token" value="<?= htmlspecialchars($_POST['mp_token'] ?? '') ?>">
+            </div>
+            <div class="row">
+                <label>Public Key <small>(APP_USR-... — habilita cartão no site; opcional)</small></label>
+                <input type="text" name="mp_public" value="<?= htmlspecialchars($_POST['mp_public'] ?? '') ?>">
             </div>
             <div class="row">
                 <label>Webhook Secret <small>(opcional)</small></label>

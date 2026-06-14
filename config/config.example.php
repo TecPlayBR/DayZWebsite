@@ -80,6 +80,7 @@ return [
     // simula sem cobrar — ate voce configurar, ninguem consegue pagar.
     'mercado_pago' => [
         'access_token'      => 'ALTERE_AQUI_ACCESS_TOKEN_MP',   // TEST-... pra testes, APP_USR-... pra producao
+        'public_key'        => '',                              // APP_USR-... (mesma conta do access_token) — habilita o CARTAO transparente no site. Vazio = só Pix.
         'webhook_secret'    => '',                              // opcional — recomendado em producao
         'currency'          => 'BRL',
         'min_purchase_brl'  => 5,

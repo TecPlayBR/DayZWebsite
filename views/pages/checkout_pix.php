@@ -4,6 +4,7 @@
 <?php \App\View::with('title', 'Pagamento PIX — ' . ($config['settings']['site_name'] ?? $config['site_name'] ?? 'Loja')); ?>
 <?php \App\View::extend('layouts.main'); ?>
 <?php \App\View::section('content'); ?>
+<?php $pubKey = trim($config['mercado_pago']['public_key'] ?? ''); ?>
 
 <section class="hero" style="min-height: 60vh; padding-top: 90px;">
     <div class="hero-bg" style="background-image: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.96) 100%), url('<?= asset('img/background5.png') ?>');"></div>
@@ -12,6 +13,14 @@
         <span class="hero-kicker" style="border-left-color: var(--moss); color: var(--moss); background: rgba(90,108,78,0.08);">// <?= e(__('pix.kicker')) ?></span>
         <h1 class="hero-title" style="font-size: 2rem;"><?= e(__('pix.title_1')) ?> <span class="accent" style="color:var(--moss);"><?= e(__('pix.title_2')) ?></span></h1>
 
+        <?php if ($pubKey !== ''): ?>
+        <div class="pay-tabs">
+            <button type="button" class="pay-tab-btn active" data-tab="pix">⚡ Pix</button>
+            <button type="button" class="pay-tab-btn" data-tab="card">💳 Cartão</button>
+        </div>
+        <?php endif; ?>
+
+        <div id="tab-pix" class="pay-panel">
         <div class="pix-box">
             <div class="pix-left">
                 <?php if ($qr_base64): ?>
@@ -73,6 +82,36 @@
             <li><?= __('pix.step2', ['v' => 'R$ ' . number_format($price_brl, 2, ',', '.')]) ?></li>
             <li><?= __('pix.step3') ?></li>
         </ol>
+        </div><!-- /tab-pix -->
+
+        <?php if ($pubKey !== ''): ?>
+        <div id="tab-card" class="pay-panel" hidden>
+            <form id="card-form" class="card-form">
+                <div class="cf-row">
+                    <label>Número do cartão</label>
+                    <div id="cf-number" class="cf-field"></div>
+                </div>
+                <div class="cf-grid2">
+                    <div><label>Validade</label><div id="cf-exp" class="cf-field"></div></div>
+                    <div><label>Cód. de segurança</label><div id="cf-cvv" class="cf-field"></div></div>
+                </div>
+                <div class="cf-row"><label>Nome impresso no cartão</label><input type="text" id="cf-name" class="cf-input" placeholder="Como está no cartão"></div>
+                <div class="cf-grid2">
+                    <div><label>Documento</label><select id="cf-doctype" class="cf-input"></select></div>
+                    <div><label>Número do documento</label><input type="text" id="cf-docnumber" class="cf-input" placeholder="CPF"></div>
+                </div>
+                <div class="cf-row"><label>E-mail (recibo)</label><input type="email" id="cf-email" class="cf-input" placeholder="voce@email.com"></div>
+                <div class="cf-grid2">
+                    <div><label>Banco emissor</label><select id="cf-issuer" class="cf-input"></select></div>
+                    <div><label>Parcelas</label><select id="cf-installments" class="cf-input"></select></div>
+                </div>
+                <div class="cf-amount">Total: <strong>R$ <?= number_format($price_brl, 2, ',', '.') ?></strong></div>
+                <button type="submit" id="cf-submit" class="btn" style="width:100%;" disabled>💳 Pagar com cartão</button>
+                <div class="cf-status" id="cf-status"></div>
+                <p class="cf-secure">🔒 Os dados do cartão são processados direto pelo Mercado Pago — não passam pelo nosso servidor.</p>
+            </form>
+        </div>
+        <?php endif; ?>
 
         <div class="hero-actions" style="justify-content:center; gap:1rem;">
             <a href="/shop" class="btn btn-outline">← <?= e(__('pix.back_shop')) ?></a>
@@ -119,6 +158,25 @@
 @keyframes pix-spin { to { transform:rotate(360deg); } }
 .pix-steps { max-width:620px; margin:1rem auto; color:var(--bone); font-size:0.9rem; line-height:1.7; padding-left:1.4rem; }
 .pix-steps strong { color:var(--hazard); }
+/* Abas Pix/Cartão + formulário de cartão transparente */
+.pay-tabs { display:flex; gap:0.5rem; max-width:720px; margin:1.2rem auto 0; }
+.pay-tab-btn { flex:1; background:var(--bg-1); border:1px solid var(--border); color:var(--dim);
+    padding:0.65rem; cursor:pointer; font-family:var(--font-display); letter-spacing:0.05em; font-size:0.9rem; }
+.pay-tab-btn.active { color:var(--moss); border-color:var(--moss); border-bottom:3px solid var(--moss); background:var(--bg-0); }
+.card-form { background:var(--bg-1); border:1px solid var(--border); border-left:3px solid var(--moss);
+    padding:1.4rem; max-width:720px; margin:1.5rem auto; text-align:left; }
+.card-form label { display:block; font-size:0.7rem; color:var(--dim); text-transform:uppercase; letter-spacing:0.07em; margin-bottom:0.25rem; }
+.cf-row { margin-bottom:0.8rem; }
+.cf-grid2 { display:grid; grid-template-columns:1fr 1fr; gap:0.8rem; margin-bottom:0.8rem; }
+.cf-field { height:42px; background:var(--bg-0); border:1px solid var(--border); padding:0 0.6rem; display:flex; align-items:center; }
+.cf-input { width:100%; height:42px; background:var(--bg-0); border:1px solid var(--border); color:var(--bone);
+    padding:0 0.6rem; font-family:var(--font-mono); font-size:0.85rem; }
+.cf-input:focus { outline:none; border-color:var(--moss); }
+.cf-amount { font-family:var(--font-display); font-size:1.15rem; color:var(--moss); margin:0.7rem 0; }
+.cf-status { font-size:0.85rem; margin-top:0.6rem; min-height:1.2em; color:var(--dim); }
+.cf-status.err { color:var(--rust-2); }
+.cf-status.ok { color:var(--moss); font-weight:700; }
+.cf-secure { font-size:0.72rem; color:var(--dim); margin-top:0.7rem; }
 </style>
 
 <script>
@@ -186,5 +244,87 @@
     poll();
 })();
 </script>
+
+<?php if ($pubKey !== ''): ?>
+<script src="https://sdk.mercadopago.com/js/v2"></script>
+<script>
+(function(){
+    // Troca de abas Pix <-> Cartão
+    var btns = document.querySelectorAll('.pay-tab-btn');
+    var panels = { pix: document.getElementById('tab-pix'), card: document.getElementById('tab-card') };
+    btns.forEach(function(b){ b.addEventListener('click', function(){
+        btns.forEach(function(x){ x.classList.remove('active'); }); b.classList.add('active');
+        Object.keys(panels).forEach(function(k){ if (panels[k]) panels[k].hidden = (k !== b.dataset.tab); });
+    }); });
+
+    var PUBKEY   = <?= json_encode($pubKey) ?>;
+    var AMOUNT   = <?= json_encode(number_format($price_brl, 2, '.', '')) ?>;
+    var PURCHASE = <?= (int)$purchase_id ?>;
+    var CSRF     = <?= json_encode(\App\Csrf::token()) ?>;
+    var REDIRECT = <?= json_encode('/player/' . $steam_id) ?>;
+    var statusEl = document.getElementById('cf-status');
+    var submitBtn = document.getElementById('cf-submit');
+    if (!window.MercadoPago) { if (statusEl) statusEl.textContent = 'Não foi possível carregar o pagamento por cartão. Use o Pix.'; return; }
+
+    var mp = new MercadoPago(PUBKEY, { locale: 'pt-BR' });
+    var cardForm = mp.cardForm({
+        amount: AMOUNT,
+        iframe: true,
+        form: {
+            id: 'card-form',
+            cardNumber:           { id: 'cf-number', placeholder: '0000 0000 0000 0000' },
+            expirationDate:       { id: 'cf-exp',    placeholder: 'MM/AA' },
+            securityCode:         { id: 'cf-cvv',    placeholder: 'CVV' },
+            cardholderName:       { id: 'cf-name',   placeholder: 'Nome no cartão' },
+            issuer:               { id: 'cf-issuer' },
+            installments:         { id: 'cf-installments' },
+            identificationType:   { id: 'cf-doctype' },
+            identificationNumber: { id: 'cf-docnumber', placeholder: 'CPF' },
+            cardholderEmail:      { id: 'cf-email',  placeholder: 'voce@email.com' }
+        },
+        callbacks: {
+            onFormMounted: function(error){
+                if (error) { statusEl.className='cf-status err'; statusEl.textContent='Erro ao montar o formulário. Recarregue a página.'; return; }
+                submitBtn.disabled = false;
+            },
+            onSubmit: function(event){
+                event.preventDefault();
+                submitBtn.disabled = true; statusEl.className = 'cf-status'; statusEl.textContent = 'Processando…';
+                var d = cardForm.getCardFormData();
+                if (!d || !d.token) { statusEl.className='cf-status err'; statusEl.textContent='Revise os dados do cartão.'; submitBtn.disabled=false; return; }
+                var body = new URLSearchParams({
+                    token: d.token, payment_method_id: d.paymentMethodId, issuer_id: d.issuerId || '',
+                    installments: d.installments || '1', doc_type: d.identificationType || 'CPF',
+                    doc_number: d.identificationNumber || '', email: (document.getElementById('cf-email').value || ''), _csrf: CSRF
+                });
+                fetch('/shop/card-pay/' + PURCHASE, {
+                    method:'POST', headers: { 'X-CSRF-TOKEN': CSRF, 'Content-Type': 'application/x-www-form-urlencoded' }, body: body.toString()
+                })
+                .then(function(r){ return r.json(); })
+                .then(function(res){
+                    if (res.ok && res.status === 'approved') {
+                        statusEl.className='cf-status ok'; statusEl.textContent='✓ Aprovado! Creditando suas moedas…';
+                        // Confirma a entrega (webhook credita) antes de redirecionar.
+                        var tries = 0;
+                        var ci = setInterval(function(){
+                            tries++;
+                            fetch('/shop/status/' + PURCHASE, {cache:'no-store'}).then(function(r){return r.json();}).then(function(s){
+                                if (s && s.paid) { clearInterval(ci); window.location.href = (res.redirect || REDIRECT); }
+                            }).catch(function(){});
+                            if (tries >= 8) { clearInterval(ci); window.location.href = (res.redirect || REDIRECT); }
+                        }, 2000);
+                    } else if (res.ok && (res.status === 'in_process' || res.status === 'pending')) {
+                        statusEl.className='cf-status'; statusEl.textContent = res.msg || 'Pagamento em análise. Assim que aprovar, suas moedas entram automaticamente.';
+                    } else {
+                        statusEl.className='cf-status err'; statusEl.textContent = res.error || 'Não foi possível processar o cartão.'; submitBtn.disabled=false;
+                    }
+                })
+                .catch(function(){ statusEl.className='cf-status err'; statusEl.textContent='Erro de conexão. Tente de novo.'; submitBtn.disabled=false; });
+            }
+        }
+    });
+})();
+</script>
+<?php endif; ?>
 
 <?php \App\View::endSection(); ?>

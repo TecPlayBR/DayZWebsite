@@ -50,6 +50,44 @@ class MercadoPago {
     }
 
     /**
+     * Cria um pagamento de CARTÃO transparente (Checkout API / Secure Fields).
+     * O cartão é tokenizado NO NAVEGADOR pelo SDK do MP (a public_key) -> aqui só
+     * chega o `token` (uso único) + dados não-sensíveis. O PAN nunca toca o servidor
+     * (PCI SAQ-A). Retorna o payment do MP (status approved/in_process/rejected) ou null.
+     * $payload deve conter: token, transaction_amount, description, installments,
+     * payment_method_id, issuer_id (opcional), external_reference, payer.email,
+     * payer.identification (type/number), notification_url.
+     */
+    public function createCardPayment(array $payload): ?array {
+        $idem = 'card-' . ($payload['external_reference'] ?? '') . '-' . bin2hex(random_bytes(6));
+        $resp = $this->request('POST', '/v1/payments', $payload, ['X-Idempotency-Key: ' . $idem]);
+        if (!$resp || empty($resp['id'])) return null;
+        return $resp;
+    }
+
+    /**
+     * Traduz o status_detail de um cartão RECUSADO pra uma mensagem amigável em PT.
+     * Refs: https://www.mercadopago.com.br/developers/pt/docs/checkout-api/response-handling/collection-results
+     */
+    public static function cardRejectMessage(string $detail): string {
+        $map = [
+            'cc_rejected_insufficient_amount'      => 'Saldo/limite insuficiente no cartão.',
+            'cc_rejected_bad_filled_card_number'   => 'Número do cartão incorreto. Confira e tente de novo.',
+            'cc_rejected_bad_filled_date'          => 'Data de validade incorreta.',
+            'cc_rejected_bad_filled_security_code' => 'Código de segurança (CVV) incorreto.',
+            'cc_rejected_bad_filled_other'         => 'Algum dado do cartão está incorreto. Revise e tente de novo.',
+            'cc_rejected_call_for_authorize'       => 'Você precisa autorizar este valor com o banco emissor do cartão.',
+            'cc_rejected_card_disabled'            => 'Cartão desabilitado. Ligue para o banco para ativá-lo.',
+            'cc_rejected_duplicated_payment'       => 'Pagamento duplicado. Você já pagou essa compra.',
+            'cc_rejected_high_risk'                => 'Pagamento recusado por segurança. Tente outro cartão ou use o Pix.',
+            'cc_rejected_max_attempts'             => 'Muitas tentativas. Aguarde um pouco ou use outro cartão.',
+            'cc_rejected_invalid_installments'     => 'Esse cartão não aceita esse número de parcelas.',
+            'cc_rejected_card_type_not_allowed'    => 'Tipo de cartão não aceito. Tente outro ou use o Pix.',
+        ];
+        return $map[$detail] ?? 'Cartão recusado. Tente outro cartão ou use o Pix.';
+    }
+
+    /**
      * Busca um payment pelo ID (apos receber webhook).
      */
     public function getPayment(string $paymentId): ?array {
