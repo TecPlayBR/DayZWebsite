@@ -38,11 +38,12 @@
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 0.8rem;">
-            <input type="text" name="cta_label" placeholder="Texto botão (opcional)"
+            <input type="text" name="cta_label" placeholder='Texto do botão (opcional — padrão "Saiba mais")'
                    style="padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone);">
             <input type="text" name="cta_url" placeholder="URL do botão (ex: /shop, https://discord.gg/...)"
                    style="padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone);">
         </div>
+        <p style="font-size:0.78rem; color:var(--dim); margin:-0.3rem 0 0;">💡 Basta preencher a <strong>URL</strong> pra o botão aparecer no banner. O texto é opcional (se vazio, vira "Saiba mais").</p>
 
         <label style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--bone); font-size: 0.9rem;">
             <input type="checkbox" name="published" checked style="width:18px; height:18px;">

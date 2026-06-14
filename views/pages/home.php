@@ -28,8 +28,8 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
                         <span class="announcement-body"><?= e($a['body']) ?></span>
                     <?php endif; ?>
                 </div>
-                <?php if (!empty($a['cta_url']) && !empty($a['cta_label'])): ?>
-                    <a href="<?= e($a['cta_url']) ?>" class="announcement-cta"><?= e($a['cta_label']) ?> →</a>
+                <?php if (!empty($a['cta_url'])): ?>
+                    <a href="<?= e($a['cta_url']) ?>" class="announcement-cta"><?= e($a['cta_label'] ?: 'Saiba mais') ?> →</a>
                 <?php endif; ?>
                 <button type="button" class="announcement-close" aria-label="Fechar este aviso" title="Fechar até o próximo login">×</button>
             </div>
@@ -95,6 +95,7 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
     $discordUrl   = $config['settings']['social_discord'] ?? '';
     $showRank     = !empty($ss['rank']) && (int)$ss['rank'] > 0 && (int)$ss['rank'] <= $bmRankMax;
     ?>
+    <div class="hero-chips">
     <?php if (!empty($ss['configured'])): ?>
         <div class="hero-status hero-status-<?= $ss['online'] ? 'online' : 'offline' ?>" aria-live="polite">
             <span class="dot"></span>
@@ -139,19 +140,24 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
             tick(); setInterval(tick, 1000);
         })();
         </script>
-        <style>
-        /* Restart alinhado com o "Online": mesma largura (min-width), padding e fonte. */
-        .hero-status, .hero-restart { min-width:360px; box-sizing:border-box; }
-        .hero-restart { position:absolute; bottom:5.6rem; right:2rem; z-index:2; background:rgba(13,16,20,0.85);
-            border:1px solid var(--border); border-left:3px solid var(--moss); padding:0.8rem 1.2rem;
-            font-family:var(--font-mono); font-size:0.92rem; color:var(--bone); display:inline-flex; align-items:center; gap:0.5rem; white-space:nowrap; }
-        .hero-restart .dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
-        .hero-restart-ok { border-left-color:var(--moss); } .hero-restart-ok .dot { background:var(--moss); box-shadow:0 0 8px var(--moss); }
-        .hero-restart-amber { border-left-color:#f0a500; } .hero-restart-amber .dot { background:#f0a500; box-shadow:0 0 8px #f0a500; animation:pulse 1.5s infinite; }
-        .hero-restart-red { border-left-color:var(--rust-2); } .hero-restart-red .dot { background:var(--rust-2); box-shadow:0 0 8px var(--rust-2); animation:pulse .8s infinite; }
-        @media (max-width:768px){ .hero-status, .hero-restart { min-width:0; } .hero-restart { position:static; margin:1rem auto 0; max-width:360px; width:100%; box-sizing:border-box; justify-content:center; } }
-        </style>
     <?php endif; ?>
+    </div><!-- /hero-chips -->
+    <style>
+    /* Status do servidor + Próximo restart EMPILHADOS num container flex no canto.
+       Antes eram 2 absolutos com offsets fixos (bottom:2rem e 5.6rem) e se sobrepunham
+       quando o conteúdo crescia. Agora o flex cuida do empilhamento — nunca colidem. */
+    .hero-chips { position:absolute; bottom:2rem; right:2rem; z-index:2; display:flex; flex-direction:column; gap:0.7rem; align-items:stretch; }
+    .hero-chips .hero-status { position:static; bottom:auto; right:auto; }
+    .hero-status, .hero-restart { min-width:360px; box-sizing:border-box; }
+    .hero-restart { background:rgba(13,16,20,0.85); border:1px solid var(--border); border-left:3px solid var(--moss);
+        padding:0.8rem 1.2rem; font-family:var(--font-mono); font-size:0.92rem; color:var(--bone);
+        display:inline-flex; align-items:center; gap:0.5rem; white-space:nowrap; }
+    .hero-restart .dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+    .hero-restart-ok { border-left-color:var(--moss); } .hero-restart-ok .dot { background:var(--moss); box-shadow:0 0 8px var(--moss); }
+    .hero-restart-amber { border-left-color:#f0a500; } .hero-restart-amber .dot { background:#f0a500; box-shadow:0 0 8px #f0a500; animation:pulse 1.5s infinite; }
+    .hero-restart-red { border-left-color:var(--rust-2); } .hero-restart-red .dot { background:var(--rust-2); box-shadow:0 0 8px var(--rust-2); animation:pulse .8s infinite; }
+    @media (max-width:768px){ .hero-chips { position:static; bottom:auto; right:auto; margin:1rem auto 0; max-width:360px; } .hero-status, .hero-restart { min-width:0; width:100%; justify-content:center; } }
+    </style>
 
     <!-- Social proof: stats agregados (jogadores cadastrados, compras semana, online agora).
          Esconde sozinho se controller não passou home_stats. -->
