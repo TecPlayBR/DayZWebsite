@@ -99,7 +99,7 @@ class Lang {
             . '/' . self::$currentLocale . '.php" e no fallback "' . self::$defaultLocale
             . '.php" e nenhum existe. Quase sempre = a pasta lang/ nao foi enviada pro '
             . 'servidor (ela deve ficar ao lado de src/ e views/). Usando textos embutidos. '
-            . 'Rode /verificar.php pra checar a estrutura do deploy.'
+            . 'Reenvie a pasta lang/ pra corrigir.'
         );
         self::$translations = self::fallback();
     }

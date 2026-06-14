@@ -79,20 +79,28 @@ php /home/SEU_USUARIO/public_html/cli/migrate.php
 
 ---
 
-## Passo 5 — Confira se subiu tudo certo
+## Passo 5 — Teste rápido (confere se subiu tudo)
 
-Abra no navegador: **`https://seusite.com/verificar.php`**
+- Abra a **home**, a **loja** e faça **login no `/admin`**.
+- Veja se seus pacotes, páginas e configurações estão lá (vão estar — estão no banco).
+- Se o menu aparecer como `NAV.RULES`/`SHOP.TITLE`, a pasta `lang/` não subiu — reenvie ela.
 
-Ele mostra um checklist verde/vermelho do que subiu (não expõe nenhuma senha). Se tiver algo **vermelho**, é só reenviar aquela pasta. **Depois de conferir, apague o `verificar.php`.**
+Acabou. 🎉
 
 ---
 
-## Passo 6 — Teste rápido
+## Passo 6 (opcional) — Automações novas (caixas e recompensas)
 
-- Abra a home, a loja e faça login no `/admin`.
-- Veja se seus pacotes, páginas e configurações estão lá (vão estar — estão no banco).
+Só se você usa as **🎁 Caixas** ou as **🏆 Recompensas** do ranking. **Não é obrigatório** — sem cron, a entrega pendente de caixa cai sozinha quando alguém abre `/caixas`, e a premiação você roda no botão **"Premiar agora"**. Pra automatizar, **Painel → Cron Jobs**:
 
-Acabou. 🎉
+```
+# entrega pendências de caixa (a cada 2 min)
+curl -s "https://seusite.com/api/deliver-boxes.php?token=SEU_AGENT_TOKEN"
+
+# premiação automática do ranking (de hora em hora)
+curl -s "https://seusite.com/api/award-rewards.php?token=SEU_AGENT_TOKEN"
+```
+> `SEU_AGENT_TOKEN` é o que está no seu `config/config.php` (e aparece em **Admin → 🎮 Entrega Sparda**).
 
 ---
 

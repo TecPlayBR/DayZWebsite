@@ -9,7 +9,7 @@ Tema apocalipse · Painel admin completo · Mercado Pago · Login Steam · Multi
 [![MySQL](https://img.shields.io/badge/MySQL-5.7+-4479A1?style=flat-square&logo=mysql&logoColor=white)](https://www.mysql.com)
 [![License](https://img.shields.io/badge/License-Tecplay--NC-a855f7?style=flat-square)](LICENSE.txt)
 [![Status](https://img.shields.io/badge/Status-Produção-16a34a?style=flat-square)]()
-[![Versão](https://img.shields.io/badge/Versão-1.6.0-facc15?style=flat-square)](RELEASE_NOTES.md)
+[![Versão](https://img.shields.io/badge/Versão-2.0.0-facc15?style=flat-square)](RELEASE_NOTES.md)
 
 *Sobreviva. Construa. Domine. Agora também na web.*
 
@@ -53,7 +53,9 @@ O **site é grátis** e faz a loja, o painel, a carteira de moedas e o leaderboa
 
 - **Landing page apocalipse** com hero animado, contador de wipe e status do servidor ao vivo (BattleMetrics)
 - **Loja** com 6 pacotes seedados (R$ 9,99 a R$ 149,90), bônus, combos e cupons
-- **Checkout Mercado Pago** (PIX, boleto, cartão) com **webhook auto-credit** de moedas
+- **Checkout PIX transparente** (QR + copia-e-cola no próprio site, sem sair pro Mercado Pago) → redireciona pro perfil com o saldo novo; cartão/boleto como fallback. **Webhook auto-credit** de moedas
+- **🎁 Caixas / Lootboxes** (`/caixas`): abre com moedas ou diária grátis, **carrossel "sorteando prêmio"**, sorteio por peso, e o item **cai no jogo via CFTools** (fila pendente + blindagem de restart)
+- **🗓 Eventos & Sorteios** (`/eventos`): ativos / em breve / encerrados + teaser na home
 - **Login Steam OpenID 2.0** com pré-fill automático no checkout
 - **Multi-idioma** PT-BR + EN-US (dropdown elegante no header)
 - **Multi-server**: 1 site atendendo N servidores DayZ
@@ -72,6 +74,10 @@ O **site é grátis** e faz a loja, o painel, a carteira de moedas e o leaderboa
 - **Dashboard** com gráfico de vendas 30 dias (Chart.js)
 - **CRUD completo** de Jogadores, Pacotes, Combos, Cupons, Páginas, Anúncios, Reviews, Servidores, Galeria
 - **Loja in-game** (🛒) — cadastre itens que o jogador compra com moeda no Discord (`/loja`): SKU, custo e o que é entregue in-game (classnames). O bot debita e o servidor dropa o item
+- **🎁 Caixas** — cria caixas (custo/diária + imagem) e o pool de itens com **peso/chance** (% calculado automático). Drop in-game via CFTools GameLabs
+- **🗓 Eventos** — cria eventos/sorteios (datas, prêmio, vencedor); status calculado pelas datas
+- **🏆 Recompensas com agendamento** — premia o top do ranking em moedas: cadência Manual/Semanal/Mensal, **auto-creditar** (cron) ou botão **"Premiar agora"** (idempotente) + histórico
+- **🎮 Entrega Sparda nativa** — gera as URLs pro mod entregar moeda in-game sem o Agent pago
 - **Audit log** de toda ação administrativa
 - **Histórico granular de saldo** por jogador
 - **Console de logs PHP** integrado ao painel
@@ -172,8 +178,7 @@ Ao subir os arquivos novos, **pule / não sobrescreva**:
    php cli/migrate.php
    ```
    Roda só as migrations que faltam, é **idempotente** e **nunca apaga dados** (só adiciona tabela/coluna que falta). Sem SSH? Use **Cron Jobs** do painel: agende um cron "uma vez" com `php /home/SEU_USER/public_html/cli/migrate.php`, rode e remova.
-4. **Confira o deploy:** abra `https://seusite.com/verificar.php` — checklist verde/vermelho do que subiu (não expõe segredo). Algo vermelho? Reenvie só aquela pasta. **Apague o `verificar.php` depois.**
-5. Acesse o `/admin` e confira home, loja e login.
+4. **Confira o deploy:** abra a **home**, a **loja** e faça **login no `/admin`**. Se o menu aparecer como `NAV.RULES`/`SHOP.TITLE`, a pasta `lang/` não subiu — reenvie ela. O resto está no banco e segue intacto.
 
 > 🚨 **NUNCA use o `install.php` pra atualizar, e NUNCA apague o `config.php` pra "reinstalar".** O `install.php` é **só pra instalação do ZERO**. Num site já instalado ele se recusa a rodar (`Já instalado`) — mas se você apagar o `config.php` pra forçar, ele roda do zero e **pode apagar tudo o que você tem** (páginas, pacotes, jogadores, configs). Pra atualizar é **sempre**: subir arquivos (respeitando a Regra de Ouro) **+ `php cli/migrate.php`**. Nunca o install.
 
@@ -209,7 +214,7 @@ Textos do site (nome, tagline, links sociais, regras, termos, anúncios) ficam e
 
 | Sintoma | Causa provável | Solução |
 |---|---|---|
-| Menu/textos aparecem como **`NAV.RULES`**, `SHOP.TITLE` etc. | A pasta `lang/` não subiu (ou subiu incompleta) | Reenvie a pasta `lang/` (fica ao lado de `src/`). Rode `/verificar.php` pra confirmar. |
+| Menu/textos aparecem como **`NAV.RULES`**, `SHOP.TITLE` etc. | A pasta `lang/` não subiu (ou subiu incompleta) | Reenvie a pasta `lang/` (fica ao lado de `src/`). |
 | **Internal Server Error / 500** em tudo | PHP abaixo de 8.0, ou `mod_rewrite`/`AllowOverride` desligado | Confirme PHP 8.0+ no painel e que o `.htaccess` está ativo. Veja `storage/logs/php-errors.log`. |
 | **"Banco indisponível"** | Credenciais erradas em `config/config.php` ou banco fora do ar | Confira host/usuário/senha do banco no `config/config.php`. |
 | **500 só em `/loja` ou `/perfil`** | Faltou rodar as migrations (tabela nova ausente) | Rode `php cli/migrate.php` (veja a seção Atualizar). |
@@ -217,8 +222,6 @@ Textos do site (nome, tagline, links sociais, regras, termos, anúncios) ficam e
 | **Logo/cores sumiram após atualizar** | Sobrescreveu os arquivos do cliente no upload | Reenvie `public/assets/img/custom/` e `theme.override.css` do seu backup. Veja a "Regra de ouro" em Atualizar. |
 | **Travei fora do admin** | Perdeu a senha e não tem outro admin | `php cli/reset-password.php <usuario> <nova_senha>` (via SSH ou Cron Jobs). |
 | Compra fica **"pendente" pra sempre** | Webhook do Mercado Pago não chegou (token/URL errados) | Confira o webhook no painel do Mercado Pago e o `access_token` no `config/config.php`. |
-
-> Ferramenta de diagnóstico: suba `public/verificar.php`, abra `https://seusite.com/verificar.php` — ele mostra um checklist do que está certo/errado no deploy (não expõe senha). **Apague depois de usar.**
 
 ---
 
@@ -251,6 +254,26 @@ Quer mostrar **kills, K/D, tempo online e armas** do seu servidor no `/ranking` 
 6. Pronto. O site cacheia as respostas (respeita os limites do CFTools) e as stats aparecem sozinhas no ranking e nos perfis. **Sem isso preenchido, o site funciona normal — só não mostra stats de gameplay.**
 
 > 🔒 O `secret` é seu e fica só no seu `config/config.php` (que é gitignored e nunca vai pro repositório).
+
+---
+
+## 🎁 Ativar Caixas + Recompensas automáticas (opcional)
+
+As **Caixas** dropam o item no jogo usando a **API GameLabs do CFTools** — então precisa do **mod GameLabs** instalado no seu servidor (Workshop `2464526692`) + o CFTools configurado (acima). Sem GameLabs, a caixa registra a abertura como **pendente** (não dropa). Player precisa estar **online** pra receber; se estiver offline ou perto do restart, fica pendente e cai depois.
+
+- **Caixas:** Admin → **🎁 Caixas** → cria a caixa + adiciona itens (classname DayZ, quantidade, peso). Ative quando estiver pronta.
+- **Restart (blindagem do drop):** Admin → **Configurações** → ligue e informe os horários de restart (ex: `00:00, 04:00, ...`). Perto do restart o drop vira pendente pra não cair no limbo.
+
+### ⏱ Crons opcionais (Painel → Cron Jobs)
+Pra automatizar entregas pendentes e premiação do ranking:
+```
+# entrega pendências de caixa (a cada 2 min)
+curl -s "https://SEUSITE/api/deliver-boxes.php?token=SEU_AGENT_TOKEN"
+
+# premiação automática do leaderboard (de hora em hora)
+curl -s "https://SEUSITE/api/award-rewards.php?token=SEU_AGENT_TOKEN"
+```
+> `SEU_AGENT_TOKEN` = o `agent_token` do `config.php` (o mesmo que aparece em Admin → 🎮 Entrega Sparda). Sem cron, use o botão **"Premiar agora"** e a entrega pendente cai sozinha quando alguém abre `/caixas`.
 
 ---
 
