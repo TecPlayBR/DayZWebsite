@@ -10,6 +10,8 @@ $cardMinBrl = 1.00;                                  // mínimo do MP pra aceita
 $cardAvailable = ($pubKey !== '' && $price_brl >= $cardMinBrl);
 $instMinBrl = max(0, \App\Settings::getInt('card_installments_min', 30)); // abaixo disso, só 1x
 $allowInstallments = ($price_brl >= $instMinBrl);
+// Aba ativa: ao aplicar cupom a página recarrega; volta na aba que o usuário estava.
+$activeTab = ((($active_tab ?? 'pix') === 'card') && $cardAvailable) ? 'card' : 'pix';
 ?>
 
 <section class="hero" style="min-height: 60vh; padding-top: 90px;">
@@ -28,6 +30,7 @@ $allowInstallments = ($price_brl >= $instMinBrl);
                 <input type="hidden" name="steam_id" value="<?= e($steam_id) ?>">
                 <input type="hidden" name="server_id" value="<?= (int)$server_id ?>">
                 <input type="hidden" name="terms_accepted" value="1">
+                <input type="hidden" name="pay_tab" id="coupon-pay-tab" value="<?= e($activeTab) ?>">
                 <?php if (!empty($coupon_code)): ?>
                     <div class="pix-coupon-applied">
                         <?= e(__('pix.coupon_label')) ?> <strong><?= e($coupon_code) ?></strong> <?= e(__('pix.coupon_applied_suffix')) ?>
@@ -46,12 +49,12 @@ $allowInstallments = ($price_brl >= $instMinBrl);
 
         <?php if ($cardAvailable): ?>
         <div class="pay-tabs">
-            <button type="button" class="pay-tab-btn active" data-tab="pix">⚡ Pix</button>
-            <button type="button" class="pay-tab-btn" data-tab="card">💳 Cartão</button>
+            <button type="button" class="pay-tab-btn <?= $activeTab==='pix'?'active':'' ?>" data-tab="pix">⚡ Pix</button>
+            <button type="button" class="pay-tab-btn <?= $activeTab==='card'?'active':'' ?>" data-tab="card">💳 Cartão</button>
         </div>
         <?php endif; ?>
 
-        <div id="tab-pix" class="pay-panel">
+        <div id="tab-pix" class="pay-panel" <?= $activeTab==='card'?'hidden':'' ?>>
         <div class="pix-box">
             <div class="pix-left">
                 <?php if ($qr_base64): ?>
@@ -91,7 +94,7 @@ $allowInstallments = ($price_brl >= $instMinBrl);
         </div><!-- /tab-pix -->
 
         <?php if ($cardAvailable): ?>
-        <div id="tab-card" class="pay-panel" hidden>
+        <div id="tab-card" class="pay-panel" <?= $activeTab==='card'?'':'hidden' ?>>
             <form id="card-form" class="card-form">
                 <div class="cf-row">
                     <label>Número do cartão</label>
@@ -103,9 +106,11 @@ $allowInstallments = ($price_brl >= $instMinBrl);
                 </div>
                 <div class="cf-row"><label>Nome impresso no cartão</label><input type="text" id="cf-name" class="cf-input" autocomplete="cc-name" placeholder="Como está no cartão"></div>
                 <div class="cf-grid2">
-                    <div><label>Documento</label><select id="cf-doctype" class="cf-input"></select></div>
-                    <div><label>Número do documento</label><input type="text" id="cf-docnumber" class="cf-input" placeholder="CPF"></div>
+                    <div><label>Documento</label><input type="text" class="cf-input" value="CPF" readonly style="opacity:0.7;cursor:default;"></div>
+                    <div><label>CPF do titular</label><input type="text" id="cf-docnumber" class="cf-input" inputmode="numeric" placeholder="000.000.000-00" maxlength="14"></div>
                 </div>
+                <!-- Tipo de documento fixo em CPF (pessoa física) — não mapeado no cardForm pra o MP não trocar -->
+                <select id="cf-doctype" style="display:none;"><option value="CPF" selected>CPF</option></select>
                 <div class="cf-row"><label>E-mail (recibo)</label><input type="email" id="cf-email" class="cf-input" autocomplete="email" placeholder="voce@email.com"></div>
                 <!-- Banco emissor é detectado automaticamente pelo MP (pelo nº do cartão); escondido pra não confundir -->
                 <div style="display:none;"><select id="cf-issuer"></select></div>
@@ -268,9 +273,11 @@ $allowInstallments = ($price_brl >= $instMinBrl);
     // Troca de abas Pix <-> Cartão
     var btns = document.querySelectorAll('.pay-tab-btn');
     var panels = { pix: document.getElementById('tab-pix'), card: document.getElementById('tab-card') };
+    var couponTab = document.getElementById('coupon-pay-tab');
     btns.forEach(function(b){ b.addEventListener('click', function(){
         btns.forEach(function(x){ x.classList.remove('active'); }); b.classList.add('active');
         Object.keys(panels).forEach(function(k){ if (panels[k]) panels[k].hidden = (k !== b.dataset.tab); });
+        if (couponTab) couponTab.value = b.dataset.tab; // ao aplicar cupom, volta nesta aba
     }); });
 
     var PUBKEY   = <?= json_encode($pubKey) ?>;
@@ -294,7 +301,6 @@ $allowInstallments = ($price_brl >= $instMinBrl);
             cardholderName:       { id: 'cf-name',   placeholder: 'Nome no cartão' },
             issuer:               { id: 'cf-issuer' },
             <?php if ($allowInstallments): ?>installments: { id: 'cf-installments' },<?php endif; ?>
-            identificationType:   { id: 'cf-doctype' },
             identificationNumber: { id: 'cf-docnumber', placeholder: 'CPF' },
             cardholderEmail:      { id: 'cf-email',  placeholder: 'voce@email.com' }
         },
@@ -310,8 +316,9 @@ $allowInstallments = ($price_brl >= $instMinBrl);
                 if (!d || !d.token) { statusEl.className='cf-status err'; statusEl.textContent='Revise os dados do cartão.'; submitBtn.disabled=false; return; }
                 var body = new URLSearchParams({
                     token: d.token, payment_method_id: d.paymentMethodId, issuer_id: d.issuerId || '',
-                    installments: d.installments || '1', doc_type: d.identificationType || 'CPF',
-                    doc_number: d.identificationNumber || '', email: (document.getElementById('cf-email').value || ''), _csrf: CSRF
+                    installments: d.installments || '1', doc_type: 'CPF',
+                    doc_number: (d.identificationNumber || document.getElementById('cf-docnumber').value || ''),
+                    email: (document.getElementById('cf-email').value || ''), _csrf: CSRF
                 });
                 fetch('/shop/card-pay/' + PURCHASE, {
                     method:'POST', headers: { 'X-CSRF-TOKEN': CSRF, 'Content-Type': 'application/x-www-form-urlencoded' }, body: body.toString()

@@ -898,6 +898,7 @@ $config['restart'] = \App\Restart::summary();
         'qr_base64'   => $tx['qr_code_base64'] ?? '',
         'ticket_url'  => $tx['ticket_url'] ?? '',
         'expires_at'  => $pay['date_of_expiration'] ?? $expires,
+        'active_tab'  => (($_POST['pay_tab'] ?? '') === 'card') ? 'card' : 'pix',
     ]);
 });
 
