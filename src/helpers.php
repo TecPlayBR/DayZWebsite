@@ -134,3 +134,24 @@ if (!function_exists('partial')) {
         View::partial($view, $data);
     }
 }
+
+if (!function_exists('upload_image')) {
+    /**
+     * Salva uma imagem enviada (PNG/WEBP/JPG/GIF, máx 5MB) em $destDir e retorna o
+     * caminho web completo (ex: /assets/img/caixas/cx_abc.png), ou null se inválida.
+     * Centraliza o upload de imagem do admin (caixas + itens de caixa).
+     */
+    function upload_image(array $file, string $destDir, string $prefix, string $webPrefix): ?string {
+        if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) return null;
+        if (($file['size'] ?? 0) > 5 * 1024 * 1024) return null;
+        $allowed = ['image/png' => 'png', 'image/webp' => 'webp', 'image/jpeg' => 'jpg', 'image/gif' => 'gif'];
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mime  = finfo_file($finfo, $file['tmp_name']);
+        finfo_close($finfo);
+        if (!isset($allowed[$mime])) return null;
+        if (!is_dir($destDir)) @mkdir($destDir, 0755, true);
+        $fname = $prefix . '_' . bin2hex(random_bytes(8)) . '.' . $allowed[$mime];
+        if (!move_uploaded_file($file['tmp_name'], $destDir . '/' . $fname)) return null;
+        return rtrim($webPrefix, '/') . '/' . $fname;
+    }
+}

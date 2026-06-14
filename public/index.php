@@ -1809,7 +1809,7 @@ $collectDashboardData = function() {
     \App\View::display('admin.caixas', ['config' => $config, 'boxes' => $boxes, 'pending' => $pending]);
 });
 
-\App\Router::post('/admin/caixas/save', function() use ($config) {
+\App\Router::post('/admin/caixas/save', function() use ($config, $ROOT) {
     \App\Auth::requireCan('packages');
     if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     $id    = (int)($_POST['id'] ?? 0);
@@ -1818,9 +1818,14 @@ $collectDashboardData = function() {
     $slug  = preg_replace('/[^a-z0-9-]/', '', strtolower(str_replace(' ', '-', $_POST['slug'] ?: $name)));
     if ($slug === '') $slug = 'caixa-' . substr(md5($name), 0, 6);
     $isDaily = !empty($_POST['is_daily']) ? 1 : 0;
+    // Capa: upload novo vence; senão usa o campo URL (que vem pré-preenchido com a atual,
+    // então salvar sem mexer mantém; limpar o campo remove). Vazio + sem upload = sem capa.
+    $image = trim((string)($_POST['image'] ?? '')) ?: null;
+    $up = upload_image($_FILES['image_file'] ?? [], $ROOT . '/public/assets/img/caixas', 'cx', '/assets/img/caixas');
+    if ($up) $image = $up;
     $fields = [
         $name, $slug,
-        trim((string)($_POST['image'] ?? '')) ?: null,
+        $image,
         trim((string)($_POST['description'] ?? '')) ?: null,
         $isDaily ? 0 : max(0, (int)($_POST['cost_coins'] ?? 0)),
         $isDaily,
@@ -1864,18 +1869,32 @@ $collectDashboardData = function() {
     exit;
 });
 
-\App\Router::post('/admin/caixas/{id}/items/save', function($id) use ($config) {
+\App\Router::post('/admin/caixas/{id}/items/save', function($id) use ($config, $ROOT) {
     \App\Auth::requireCan('packages');
     if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     $boxId = (int)$id;
     $itemId = (int)($_POST['item_id'] ?? 0);
+    $type = in_array($_POST['type'] ?? 'item', ['item','coins'], true) ? $_POST['type'] : 'item';
     $classname = trim((string)($_POST['classname'] ?? ''));
-    $name = trim((string)($_POST['name'] ?? '')) ?: $classname;
-    if ($classname === '') { header('Location: /admin/caixas/' . $boxId . '?err=classname'); exit; }
+    $qty  = max(1, (int)($_POST['quantity'] ?? 1));
+    $name = trim((string)($_POST['name'] ?? ''));
+    if ($type === 'coins') {
+        // Recompensa em moedas: classname é irrelevante; quantity = qtd de moedas.
+        if ($classname === '') $classname = 'coins';
+        if ($name === '') $name = $qty . ' moedas';
+    } else {
+        if ($classname === '') { header('Location: /admin/caixas/' . $boxId . '?err=classname'); exit; }
+        if ($name === '') $name = $classname;
+    }
+    // Imagem do item: upload novo > URL digitada > imagem atual (na edição).
+    $image = trim((string)($_POST['image'] ?? '')) ?: null;
+    if ($itemId > 0 && $image === null) {
+        $image = \App\Database::fetchColumn("SELECT image FROM box_items WHERE id = ? AND box_id = ?", [$itemId, $boxId]) ?: null;
+    }
+    $up = upload_image($_FILES['image_file'] ?? [], $ROOT . '/public/assets/img/caixas', 'ci', '/assets/img/caixas');
+    if ($up) $image = $up;
     $f = [
-        $classname, $name,
-        trim((string)($_POST['image'] ?? '')) ?: null,
-        max(1, (int)($_POST['quantity'] ?? 1)),
+        $type, $classname, $name, $image, $qty,
         max(0, (int)($_POST['weight'] ?? 1)),
         in_array($_POST['rarity'] ?? 'common', ['common','uncommon','rare','epic','legendary'], true) ? $_POST['rarity'] : 'common',
         !empty($_POST['enabled']) ? 1 : 0,
@@ -1883,12 +1902,12 @@ $collectDashboardData = function() {
     ];
     if ($itemId > 0) {
         \App\Database::query(
-            "UPDATE box_items SET classname=?, name=?, image=?, quantity=?, weight=?, rarity=?, enabled=?, sort_order=? WHERE id=? AND box_id=?",
+            "UPDATE box_items SET type=?, classname=?, name=?, image=?, quantity=?, weight=?, rarity=?, enabled=?, sort_order=? WHERE id=? AND box_id=?",
             array_merge($f, [$itemId, $boxId])
         );
     } else {
         \App\Database::query(
-            "INSERT INTO box_items (classname, name, image, quantity, weight, rarity, enabled, sort_order, box_id) VALUES (?,?,?,?,?,?,?,?,?)",
+            "INSERT INTO box_items (type, classname, name, image, quantity, weight, rarity, enabled, sort_order, box_id) VALUES (?,?,?,?,?,?,?,?,?,?)",
             array_merge($f, [$boxId])
         );
     }
@@ -2263,9 +2282,9 @@ $REWARD_CATEGORIES = [
     if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     $caption = trim($_POST['caption'] ?? '');
     $sort    = (int)($_POST['sort_order'] ?? 0);
-    // Ordem auto-incremento: se não informada (ou 0), vai pro fim (maior + 10).
+    // Ordem auto-incremento sequencial: se não informada (ou 0), vai pro fim (maior + 1).
     if ($sort <= 0) {
-        $sort = ((int)\App\Database::fetchColumn("SELECT COALESCE(MAX(sort_order), 0) FROM gallery")) + 10;
+        $sort = ((int)\App\Database::fetchColumn("SELECT COALESCE(MAX(sort_order), 0) FROM gallery")) + 1;
     }
 
     if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {

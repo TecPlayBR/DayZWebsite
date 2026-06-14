@@ -126,8 +126,26 @@ class Boxes {
         );
         $openingId = (int)Database::pdo()->lastInsertId();
 
-        // Entrega: dropa agora se online E longe do restart; senão fica pendente.
-        $status = self::deliver($openingId, $steamId, $won['classname'], (int)$won['quantity']);
+        // Entrega.
+        if (($won['type'] ?? 'item') === 'coins') {
+            // Recompensa em MOEDAS: credita no saldo na hora (quantity = qtd de moedas).
+            $amount = max(1, (int)$won['quantity']);
+            $p = Database::fetchOne("SELECT id, coins FROM players WHERE steam_id = ? LIMIT 1", [$steamId]);
+            if ($p) {
+                $old = (int)$p['coins'];
+                Database::query("UPDATE players SET coins = coins + ? WHERE id = ?", [$amount, (int)$p['id']]);
+                $pid2 = (int)$p['id'];
+            } else {
+                Database::query("INSERT INTO players (steam_id, coins, origin, last_seen_at) VALUES (?, ?, 'box', NOW())", [$steamId, $amount]);
+                $pid2 = (int)Database::pdo()->lastInsertId(); $old = 0;
+            }
+            try { BalanceLog::record($pid2, $steamId, $old, $old + $amount, 'box', 'box', $boxId, 'Caixa: ' . $box['name'] . ' (moedas)'); } catch (\Throwable $e) {}
+            Database::query("UPDATE box_openings SET status = 'delivered', delivered_at = NOW() WHERE id = ?", [$openingId]);
+            $status = 'delivered';
+        } else {
+            // Item in-game: dropa agora se online E longe do restart; senão fica pendente.
+            $status = self::deliver($openingId, $steamId, $won['classname'], (int)$won['quantity']);
+        }
 
         return ['ok' => true, 'won' => $won, 'status' => $status, 'opening_id' => $openingId];
     }

@@ -144,7 +144,8 @@ $rarityColor = [
     // innerHTML/concatenação — usa createElement + textContent + .src por propriedade.
     function safeImg(url){
         const im = document.createElement('img');
-        if (typeof url === 'string' && /^https?:\/\//i.test(url)) im.src = url; // só http(s)
+        // aceita http(s) OU caminho relativo do próprio site (/assets/...) — nada de javascript:
+        if (typeof url === 'string' && (/^https?:\/\//i.test(url) || /^\/[\w./-]+$/.test(url))) im.src = url;
         im.alt = '';
         return im;
     }

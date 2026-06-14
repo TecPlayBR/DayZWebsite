@@ -5,7 +5,7 @@
 <?php
 // Ordem auto-incremento: próxima = maior existente + 10 (não precisa adivinhar).
 $existingOrders = array_map(static fn($i) => (int)$i['sort_order'], $items);
-$nextSort = ($existingOrders ? max($existingOrders) : 0) + 10;
+$nextSort = ($existingOrders ? max($existingOrders) : 0) + 1;
 ?>
 
 <div class="admin-page-head">

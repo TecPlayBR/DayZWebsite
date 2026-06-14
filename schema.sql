@@ -436,6 +436,7 @@ DROP TABLE IF EXISTS box_items;
 CREATE TABLE box_items (
     id          INT AUTO_INCREMENT PRIMARY KEY,
     box_id      INT          NOT NULL,
+    type        ENUM('item','coins') NOT NULL DEFAULT 'item',
     classname   VARCHAR(120) NOT NULL,
     name        VARCHAR(120) NOT NULL,
     image       VARCHAR(255) DEFAULT NULL,
