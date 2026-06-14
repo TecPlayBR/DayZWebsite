@@ -4,7 +4,13 @@
 <?php \App\View::with('title', 'Pagamento PIX — ' . ($config['settings']['site_name'] ?? $config['site_name'] ?? 'Loja')); ?>
 <?php \App\View::extend('layouts.main'); ?>
 <?php \App\View::section('content'); ?>
-<?php $pubKey = trim($config['mercado_pago']['public_key'] ?? ''); ?>
+<?php
+$pubKey = trim($config['mercado_pago']['public_key'] ?? '');
+$cardMinBrl = 1.00;                                  // mínimo do MP pra aceitar cartão
+$cardAvailable = ($pubKey !== '' && $price_brl >= $cardMinBrl);
+$instMinBrl = max(0, \App\Settings::getInt('card_installments_min', 30)); // abaixo disso, só 1x
+$allowInstallments = ($price_brl >= $instMinBrl);
+?>
 
 <section class="hero" style="min-height: 60vh; padding-top: 90px;">
     <div class="hero-bg" style="background-image: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.96) 100%), url('<?= asset('img/background5.png') ?>');"></div>
@@ -38,7 +44,7 @@
             </form>
         </div>
 
-        <?php if ($pubKey !== ''): ?>
+        <?php if ($cardAvailable): ?>
         <div class="pay-tabs">
             <button type="button" class="pay-tab-btn active" data-tab="pix">⚡ Pix</button>
             <button type="button" class="pay-tab-btn" data-tab="card">💳 Cartão</button>
@@ -84,7 +90,7 @@
         </ol>
         </div><!-- /tab-pix -->
 
-        <?php if ($pubKey !== ''): ?>
+        <?php if ($cardAvailable): ?>
         <div id="tab-card" class="pay-panel" hidden>
             <form id="card-form" class="card-form">
                 <div class="cf-row">
@@ -104,8 +110,13 @@
                 <!-- Banco emissor é detectado automaticamente pelo MP (pelo nº do cartão); escondido pra não confundir -->
                 <div style="display:none;"><select id="cf-issuer"></select></div>
                 <div class="cf-row"><label>Parcelas</label>
-                    <select id="cf-installments" class="cf-input"><option value="1">1x</option></select>
-                    <small style="display:block;color:var(--dim);font-size:0.72rem;margin-top:0.3rem;">As opções de parcelamento aparecem depois de preencher o número do cartão.</small>
+                    <?php if ($allowInstallments): ?>
+                        <select id="cf-installments" class="cf-input"><option value="1">1x</option></select>
+                        <small style="display:block;color:var(--dim);font-size:0.72rem;margin-top:0.3rem;">As opções de parcelamento aparecem depois de preencher o número do cartão.</small>
+                    <?php else: ?>
+                        <select id="cf-installments" class="cf-input" disabled style="opacity:0.55;cursor:not-allowed;"><option value="1">1x (à vista)</option></select>
+                        <small style="display:block;color:var(--dim);font-size:0.72rem;margin-top:0.3rem;">Parcelamento disponível a partir de R$ <?= number_format($instMinBrl, 2, ',', '.') ?>.</small>
+                    <?php endif; ?>
                 </div>
                 <div class="cf-amount">Total: <strong>R$ <?= number_format($price_brl, 2, ',', '.') ?></strong></div>
                 <button type="submit" id="cf-submit" class="btn" style="width:100%;" disabled>💳 Pagar com cartão</button>
@@ -250,7 +261,7 @@
 })();
 </script>
 
-<?php if ($pubKey !== ''): ?>
+<?php if ($cardAvailable): ?>
 <script src="https://sdk.mercadopago.com/js/v2"></script>
 <script>
 (function(){
@@ -282,7 +293,7 @@
             securityCode:         { id: 'cf-cvv',    placeholder: 'CVV' },
             cardholderName:       { id: 'cf-name',   placeholder: 'Nome no cartão' },
             issuer:               { id: 'cf-issuer' },
-            installments:         { id: 'cf-installments' },
+            <?php if ($allowInstallments): ?>installments: { id: 'cf-installments' },<?php endif; ?>
             identificationType:   { id: 'cf-doctype' },
             identificationNumber: { id: 'cf-docnumber', placeholder: 'CPF' },
             cardholderEmail:      { id: 'cf-email',  placeholder: 'voce@email.com' }

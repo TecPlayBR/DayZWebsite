@@ -50,6 +50,8 @@ class Settings {
         'restart_enabled'          => 'bool',
         'restart_times'            => 'string',  // "00:00, 04:00, 08:00, ..."
         'restart_warn_minutes'     => 'int',     // janela de aviso vermelho (default 5)
+        // Cartão: valor mínimo (R$) pra LIBERAR parcelamento. Abaixo disso, só 1x (à vista).
+        'card_installments_min'    => 'int',     // default 30 (lido com getInt default)
     ];
 
     private static array $cache = [];

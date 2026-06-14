@@ -98,6 +98,14 @@
                 Horários separados por vírgula. O site mostra o próximo discretamente e <strong>blinda o drop de itens</strong> perto do restart (segura como pendente pra não cair no limbo).
             </p>
         </div>
+
+        <div style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.2rem;">
+            <label style="display:block; font-size:0.85rem; color:var(--bone); margin-bottom:0.3rem;">💳 Parcelamento no cartão — valor mínimo (R$)</label>
+            <input type="number" name="card_installments_min" value="<?= e($settings['card_installments_min'] ?? '30') ?>" min="0" step="1" style="width:200px; padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:var(--font-mono);">
+            <p style="margin-top: 0.4rem; font-size: 0.8rem; color: var(--dim); max-width:640px;">
+                Abaixo desse valor, o checkout trava o cartão em <strong>1x (à vista)</strong> e o campo de parcelas fica cinza. Acima, libera as parcelas que sua conta Mercado Pago oferece. <strong>0</strong> = sempre liberar parcelamento.
+            </p>
+        </div>
     </div>
 
     <div class="stat-card" style="margin-bottom: 1rem; border-left-color: var(--hazard);">
