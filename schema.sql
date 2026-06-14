@@ -39,7 +39,7 @@ CREATE TABLE players (
     coins           INT          NOT NULL DEFAULT 0,
     total_spent_brl DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     last_seen_at    DATETIME NULL,
-    origin          ENUM('agent','panel','payment','manual','bot') NOT NULL DEFAULT 'agent',
+    origin          ENUM('agent','panel','payment','manual','bot','reward','box') NOT NULL DEFAULT 'agent',
     notes           TEXT NULL,
     created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -410,6 +410,100 @@ CREATE TABLE player_stats (
     INDEX idx_kd       (kdratio DESC),
     INDEX idx_playtime (playtime_seconds DESC),
     INDEX idx_longest  (longest_kill_m DESC)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ============================================================
+-- Caixas / Lootboxes (v1.8.0)
+-- ============================================================
+DROP TABLE IF EXISTS boxes;
+CREATE TABLE boxes (
+    id              INT AUTO_INCREMENT PRIMARY KEY,
+    name            VARCHAR(80)  NOT NULL,
+    slug            VARCHAR(80)  NOT NULL,
+    image           VARCHAR(255) DEFAULT NULL,
+    description     TEXT         DEFAULT NULL,
+    cost_coins      INT          NOT NULL DEFAULT 0,
+    is_daily        TINYINT(1)   NOT NULL DEFAULT 0,
+    cooldown_hours  INT          NOT NULL DEFAULT 24,
+    enabled         TINYINT(1)   NOT NULL DEFAULT 1,
+    sort_order      INT          NOT NULL DEFAULT 0,
+    created_at      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uniq_slug (slug)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+DROP TABLE IF EXISTS box_items;
+CREATE TABLE box_items (
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    box_id      INT          NOT NULL,
+    classname   VARCHAR(120) NOT NULL,
+    name        VARCHAR(120) NOT NULL,
+    image       VARCHAR(255) DEFAULT NULL,
+    quantity    INT          NOT NULL DEFAULT 1,
+    weight      INT          NOT NULL DEFAULT 1,
+    rarity      VARCHAR(20)  NOT NULL DEFAULT 'common',
+    enabled     TINYINT(1)   NOT NULL DEFAULT 1,
+    sort_order  INT          NOT NULL DEFAULT 0,
+    KEY idx_box (box_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+DROP TABLE IF EXISTS box_openings;
+CREATE TABLE box_openings (
+    id           INT AUTO_INCREMENT PRIMARY KEY,
+    box_id       INT          NOT NULL,
+    steam_id     VARCHAR(20)  NOT NULL,
+    item_id      INT          DEFAULT NULL,
+    classname    VARCHAR(120) NOT NULL,
+    item_name    VARCHAR(120) NOT NULL,
+    quantity     INT          NOT NULL DEFAULT 1,
+    rarity       VARCHAR(20)  NOT NULL DEFAULT 'common',
+    cost_paid    INT          NOT NULL DEFAULT 0,
+    status       ENUM('pending','delivered','failed') NOT NULL DEFAULT 'pending',
+    created_at   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    delivered_at TIMESTAMP    NULL DEFAULT NULL,
+    KEY idx_steam (steam_id),
+    KEY idx_status (status),
+    KEY idx_box (box_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ============================================================
+-- Premiações do leaderboard (v1.9.0)
+-- ============================================================
+DROP TABLE IF EXISTS reward_payouts;
+CREATE TABLE reward_payouts (
+    id           INT AUTO_INCREMENT PRIMARY KEY,
+    period_label VARCHAR(20)  NOT NULL,
+    category     VARCHAR(30)  NOT NULL,
+    place        TINYINT      NOT NULL,
+    steam_id     VARCHAR(20)  NOT NULL,
+    player_name  VARCHAR(120) DEFAULT NULL,
+    coins        INT          NOT NULL,
+    created_at   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uniq_period_cat_place (period_label, category, place),
+    KEY idx_steam (steam_id),
+    KEY idx_period (period_label)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ============================================================
+-- Eventos & Sorteios (v2.0.0)
+-- ============================================================
+DROP TABLE IF EXISTS events;
+CREATE TABLE events (
+    id              INT AUTO_INCREMENT PRIMARY KEY,
+    title           VARCHAR(120) NOT NULL,
+    slug            VARCHAR(120) NOT NULL,
+    type            ENUM('event','raffle') NOT NULL DEFAULT 'event',
+    image           VARCHAR(255) DEFAULT NULL,
+    description     TEXT         DEFAULT NULL,
+    prize           VARCHAR(200) DEFAULT NULL,
+    starts_at       DATETIME     DEFAULT NULL,
+    ends_at         DATETIME     DEFAULT NULL,
+    winner_steam_id VARCHAR(20)  DEFAULT NULL,
+    winner_name     VARCHAR(120) DEFAULT NULL,
+    enabled         TINYINT(1)   NOT NULL DEFAULT 1,
+    sort_order      INT          NOT NULL DEFAULT 0,
+    created_at      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uniq_slug (slug),
+    KEY idx_enabled (enabled)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Settings padrao

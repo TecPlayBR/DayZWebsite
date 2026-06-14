@@ -90,8 +90,12 @@ class Rewards {
                 if (!preg_match('/^\d{17}$/', $steamId)) continue;   // sem steam_id válido, pula
                 $name = (string)($row['latest_name'] ?? ($row['name'] ?? ''));
 
-                if (self::creditOnce($label, $key, $place, $steamId, $name, $coins)) {
-                    $paid[] = ['category' => $key, 'cat_label' => $catLabel, 'place' => $place, 'steam_id' => $steamId, 'name' => $name, 'coins' => $coins];
+                try {
+                    if (self::creditOnce($label, $key, $place, $steamId, $name, $coins)) {
+                        $paid[] = ['category' => $key, 'cat_label' => $catLabel, 'place' => $place, 'steam_id' => $steamId, 'name' => $name, 'coins' => $coins];
+                    }
+                } catch (\Throwable $e) {
+                    error_log('[Rewards] creditOnce ' . $key . '#' . $place . ': ' . $e->getMessage());
                 }
             }
         }
