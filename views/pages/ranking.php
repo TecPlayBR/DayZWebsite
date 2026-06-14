@@ -202,7 +202,8 @@ $online         = $online ?? [];
 .online-player { display:flex; align-items:center; gap:.4rem; background:var(--bg-2); border:1px solid var(--border); border-radius:3px; padding:.3rem .6rem; color:var(--bone); text-decoration:none; font-size:.82rem; }
 .online-player:hover { border-color:var(--moss); }
 .online-player img { width:22px; height:22px; border-radius:2px; }
-.rank-tabs { display:flex; flex-wrap:wrap; gap:.5rem; margin-bottom:2rem; justify-content:center; }
+.rank-tabs { display:flex; flex-wrap:wrap; gap:.5rem; margin-bottom:3rem; justify-content:center; }
+#rank-results { margin-top:1rem; }
 .rank-tab {
     padding:.5rem 1rem; border:1px solid var(--border); border-radius:3px;
     color:var(--dim); text-decoration:none; font-size:.85rem; letter-spacing:.03em;
