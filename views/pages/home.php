@@ -141,7 +141,7 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
         </script>
         <style>
         /* Restart alinhado com o "Online": mesma largura (min-width), padding e fonte. */
-        .hero-status, .hero-restart { min-width:340px; box-sizing:border-box; }
+        .hero-status, .hero-restart { min-width:360px; box-sizing:border-box; }
         .hero-restart { position:absolute; bottom:5.6rem; right:2rem; z-index:2; background:rgba(13,16,20,0.85);
             border:1px solid var(--border); border-left:3px solid var(--moss); padding:0.8rem 1.2rem;
             font-family:var(--font-mono); font-size:0.92rem; color:var(--bone); display:inline-flex; align-items:center; gap:0.5rem; white-space:nowrap; }
