@@ -273,7 +273,30 @@ curl -s "https://SEUSITE/api/deliver-boxes.php?token=SEU_AGENT_TOKEN"
 # premiação automática do leaderboard (de hora em hora)
 curl -s "https://SEUSITE/api/award-rewards.php?token=SEU_AGENT_TOKEN"
 ```
-> `SEU_AGENT_TOKEN` = o `agent_token` do `config.php` (o mesmo que aparece em Admin → 🎮 Entrega Sparda). Sem cron, use o botão **"Premiar agora"** e a entrega pendente cai sozinha quando alguém abre `/caixas`.
+> `SEU_AGENT_TOKEN` = o `agent_token` do `config.php` (o mesmo que aparece em Admin → 🎮 Integração Sparda). Sem cron, use o botão **"Premiar agora"** e a entrega pendente cai sozinha quando alguém abre `/caixas`.
+
+---
+
+## 🛒 Loja in-game — o `/loja` do Discord (Bot Pro)
+
+A seção **Admin → 🛒 Loja in-game** é o **catálogo do comando `/loja` do Bot Tecplay (Pro)** — não é do site/Sparda. A divisão é:
+
+- **Site** = fonte da verdade: guarda o catálogo de itens e o **saldo de moedas** do jogador.
+- **Bot Pro** = o rosto no Discord: mostra o `/loja`, processa a compra (chama o site via `bot-integration.php?action=spend` pra debitar) e manda o servidor **entregar o item in-game**.
+
+**Pré-requisito:** o **Bot Pro** rodando e integrado (Admin → 🤖 Integração Discord). Sem o bot, os itens daqui não fazem nada — pra dropar item **pelo site sem bot**, use as **🎁 Caixas**.
+
+**Como cadastrar um item:** Admin → 🛒 Loja in-game → Novo item. Preencha nome, SKU (id único), custo em moedas, e monte a **entrega** no formulário (o JSON é gerado sozinho):
+
+| Campo | O que é |
+|---|---|
+| **Classname** | o item DayZ que será dado (ex: `M4A1`, `BarrelLong`) |
+| **Qtd** | quantas unidades |
+| **Anexos** | peças da arma, separadas por vírgula (ex: `M4_Suppressor, M4_RISHndgrd`) |
+| **Cargo (avançado)** | itens DENTRO do item — **só roupa/mochila** (arma com cargo dá erro no jogo) |
+| **Vida** | 0 a 1 (1 = novo) |
+
+Um item ("kit") pode entregar vários classnames — é só adicionar mais linhas.
 
 ---
 

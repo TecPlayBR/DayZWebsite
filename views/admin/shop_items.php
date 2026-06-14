@@ -6,8 +6,8 @@
 
 <div class="admin-page-head">
     <div>
-        <h1>Loja in-game</h1>
-        <p>Itens que o jogador compra com moeda no Discord (<code>/loja</code>). O bot debita o saldo e o servidor entrega o item in-game.</p>
+        <h1>Loja in-game <span style="font-size:0.6em;color:#66c0f4;vertical-align:middle;">🤖 Discord / Bot Pro</span></h1>
+        <p>Catálogo do comando <code>/loja</code> do <strong>Bot Tecplay</strong>: o site guarda os itens + o saldo; o Bot mostra/processa a compra e o servidor entrega in-game. <strong>Precisa do Bot Pro integrado.</strong> Pra dropar item pelo site sem o bot, use as <a href="/admin/caixas" style="color:#66c0f4;">🎁 Caixas</a>.</p>
     </div>
     <div>
         <a href="/admin/shop/new" class="btn-mini">+ Novo item</a>
