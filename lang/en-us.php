@@ -384,9 +384,27 @@ return array (
     'back_shop' => 'Back to shop',
     'home' => 'Home',
   ),
-  'lang_select' => 
+  'lang_select' =>
   array (
     'pt-br' => 'Português',
     'en-us' => 'English',
+  ),
+  'eventos' =>
+  array (
+    'kicker' => 'EVENTS & RAFFLES',
+    'title_1' => 'Take part and',
+    'title_2' => 'win prizes.',
+    'subtitle' => 'Server competitions and raffles. Follow the schedule and secure your spot.',
+    'empty' => 'No active events right now. Stay tuned — good stuff is coming.',
+    'live' => 'LIVE',
+    'soon' => 'SOON',
+    'ended_badge' => 'ENDED',
+    'sec_active' => 'Available now',
+    'sec_upcoming' => 'Coming up',
+    'sec_ended' => 'Past',
+    'winner' => 'Winner:',
+    'home_kicker' => 'NEXT EVENT',
+    'home_live' => 'HAPPENING NOW',
+    'home_cta' => 'See all events',
   ),
 );

@@ -13,7 +13,7 @@ $card = function(array $ev) {
         <div class="ev-media">
             <?php if ($img): ?><img src="<?= e($img) ?>" alt="<?= e($ev['title']) ?>" loading="lazy"><?php else: ?><div class="ev-media-ph"><?= $ev['type']==='raffle'?'🎟':'🗓' ?></div><?php endif; ?>
             <span class="ev-badge ev-badge-<?= e($ev['status']) ?>">
-                <?= ['active'=>'AO VIVO','upcoming'=>'EM BREVE','ended'=>'ENCERRADO'][$ev['status']] ?>
+                <?= e(['active'=>__('eventos.live'),'upcoming'=>__('eventos.soon'),'ended'=>__('eventos.ended_badge')][$ev['status']]) ?>
             </span>
         </div>
         <div class="ev-body">
@@ -24,7 +24,7 @@ $card = function(array $ev) {
                 <div class="ev-when">🕒 <?= e(date('d/m/Y H:i', strtotime((string)$ev['starts_at']))) ?><?= !empty($ev['ends_at']) ? ' → ' . e(date('d/m H:i', strtotime((string)$ev['ends_at']))) : '' ?></div>
             <?php endif; ?>
             <?php if ($ev['status'] === 'ended' && !empty($ev['winner_name'])): ?>
-                <div class="ev-winner">🥇 Vencedor: <a href="/player/<?= e($ev['winner_steam_id'] ?? '') ?>"><?= e($ev['winner_name']) ?></a></div>
+                <div class="ev-winner">🥇 <?= e(__('eventos.winner')) ?> <a href="/player/<?= e($ev['winner_steam_id'] ?? '') ?>"><?= e($ev['winner_name']) ?></a></div>
             <?php endif; ?>
         </div>
     </div>
@@ -36,9 +36,9 @@ $hasAny = $groups['active'] || $groups['upcoming'] || $groups['ended'];
 <section class="hero" style="min-height:32vh;padding-bottom:1.5rem;">
     <div class="hero-bg" style="background-image:linear-gradient(180deg,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.95) 100%),url('<?= asset('img/background2.png') ?>');"></div>
     <div class="container hero-content">
-        <span class="hero-kicker">// EVENTOS &amp; SORTEIOS</span>
-        <h1 class="hero-title" style="font-size:clamp(1.8rem,4vw,2.6rem);">Participe e <span class="accent">concorra a prêmios.</span></h1>
-        <p style="color:var(--dim);max-width:600px;">Competições e sorteios do servidor. Acompanhe o cronograma e garanta a sua.</p>
+        <span class="hero-kicker">// <?= e(__('eventos.kicker')) ?></span>
+        <h1 class="hero-title" style="font-size:clamp(1.8rem,4vw,2.6rem);"><?= e(__('eventos.title_1')) ?> <span class="accent"><?= e(__('eventos.title_2')) ?></span></h1>
+        <p style="color:var(--dim);max-width:600px;"><?= e(__('eventos.subtitle')) ?></p>
     </div>
 </section>
 
@@ -47,10 +47,10 @@ $hasAny = $groups['active'] || $groups['upcoming'] || $groups['ended'];
         <?php if (!$hasAny): ?>
             <div style="text-align:center;padding:4rem 1rem;color:var(--dim);">
                 <div style="font-size:3rem;opacity:0.4;">🗓</div>
-                <p>Nenhum evento ativo no momento. Fica de olho — vem coisa boa por aí.</p>
+                <p><?= e(__('eventos.empty')) ?></p>
             </div>
         <?php else: ?>
-            <?php foreach ([['active','🟢 Disponíveis agora'],['upcoming','🔵 Em breve'],['ended','⚫ Encerrados']] as [$k,$label]): ?>
+            <?php foreach ([['active','🟢 ' . __('eventos.sec_active')],['upcoming','🔵 ' . __('eventos.sec_upcoming')],['ended','⚫ ' . __('eventos.sec_ended')]] as [$k,$label]): ?>
                 <?php if (!empty($groups[$k])): ?>
                     <h2 class="ev-section"><?= $label ?> <span>(<?= count($groups[$k]) ?>)</span></h2>
                     <div class="ev-grid">

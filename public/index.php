@@ -327,6 +327,7 @@ $config['restart'] = \App\Restart::summary();
         'server_status' => $serverStatus, 'announcements' => $announcements,
         'promo_coupon' => $promoCoupon, 'home_stats' => $homeStats,
         'home_reviews' => $homeReviews,
+        'featured_event' => \App\Events::featured(),
     ]);
 });
 

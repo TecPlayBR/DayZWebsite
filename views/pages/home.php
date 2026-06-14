@@ -453,6 +453,38 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
     </div>
 </section>
 
+<!-- ============ TEASER DE EVENTO (destaque) ============ -->
+<?php if (!empty($featured_event)): $fe = $featured_event; ?>
+<section class="section section-bg-2" style="padding-top:2.5rem;padding-bottom:0;">
+    <div class="container">
+        <a href="/eventos" class="home-event <?= $fe['status']==='active' ? 'home-event-live' : '' ?>">
+            <?php if (!empty($fe['image'])): ?>
+                <div class="home-event-img" style="background-image:linear-gradient(90deg,rgba(0,0,0,0.6),rgba(0,0,0,0.2)),url('<?= e($fe['image']) ?>');"></div>
+            <?php endif; ?>
+            <div class="home-event-body">
+                <span class="home-event-kicker"><?= $fe['status']==='active' ? '🟢 ' . e(__('eventos.home_live')) : e(__('eventos.home_kicker')) ?></span>
+                <h3 class="home-event-title"><?= e($fe['title']) ?></h3>
+                <?php if (!empty($fe['prize'])): ?><div class="home-event-prize">🏆 <?= e($fe['prize']) ?></div><?php endif; ?>
+                <span class="home-event-cta"><?= e(__('eventos.home_cta')) ?> →</span>
+            </div>
+        </a>
+    </div>
+</section>
+<style>
+.home-event { display:flex; align-items:stretch; gap:0; background:linear-gradient(180deg,var(--bg-2),var(--bg-1)); border:1px solid var(--border); border-left:3px solid var(--hazard); border-radius:8px; overflow:hidden; text-decoration:none; transition:transform .2s,box-shadow .2s,border-color .2s; }
+.home-event:hover { transform:translateY(-3px); box-shadow:0 12px 30px rgba(0,0,0,0.5); border-color:var(--hazard); }
+.home-event-live { border-left-color:var(--moss); }
+.home-event-img { flex:0 0 220px; background-size:cover; background-position:center; min-height:130px; }
+.home-event-body { padding:1.2rem 1.4rem; display:flex; flex-direction:column; justify-content:center; gap:0.35rem; }
+.home-event-kicker { font-family:var(--font-mono); font-size:0.72rem; letter-spacing:0.12em; color:var(--hazard); }
+.home-event-live .home-event-kicker { color:var(--moss); }
+.home-event-title { font-family:var(--font-display); color:var(--bone); font-size:1.3rem; letter-spacing:0.03em; }
+.home-event-prize { color:var(--hazard); font-weight:600; font-size:0.92rem; }
+.home-event-cta { color:var(--bone); font-size:0.85rem; margin-top:0.3rem; opacity:0.85; }
+@media (max-width:560px){ .home-event{flex-direction:column;} .home-event-img{flex-basis:140px;width:100%;} }
+</style>
+<?php endif; ?>
+
 <!-- ============ SHOP TEASER (3 pacotes destaque) ============ -->
 <section class="section section-bg-3" id="shop">
     <div class="container">

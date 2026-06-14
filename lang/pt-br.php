@@ -384,9 +384,27 @@ return array (
     'back_shop' => 'Voltar pra loja',
     'home' => 'Página inicial',
   ),
-  'lang_select' => 
+  'lang_select' =>
   array (
     'pt-br' => 'Português',
     'en-us' => 'English',
+  ),
+  'eventos' =>
+  array (
+    'kicker' => 'EVENTOS & SORTEIOS',
+    'title_1' => 'Participe e',
+    'title_2' => 'concorra a prêmios.',
+    'subtitle' => 'Competições e sorteios do servidor. Acompanhe o cronograma e garanta a sua.',
+    'empty' => 'Nenhum evento ativo no momento. Fica de olho — vem coisa boa por aí.',
+    'live' => 'AO VIVO',
+    'soon' => 'EM BREVE',
+    'ended_badge' => 'ENCERRADO',
+    'sec_active' => 'Disponíveis agora',
+    'sec_upcoming' => 'Em breve',
+    'sec_ended' => 'Encerrados',
+    'winner' => 'Vencedor:',
+    'home_kicker' => 'PRÓXIMO EVENTO',
+    'home_live' => 'ACONTECENDO AGORA',
+    'home_cta' => 'Ver todos os eventos',
   ),
 );
