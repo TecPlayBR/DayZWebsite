@@ -9,6 +9,9 @@ return array (
   array (
     'home' => 'Início',
     'shop' => 'Loja',
+    'boxes' => 'Caixas',
+    'events' => 'Eventos',
+    'more' => 'Mais',
     'rules' => 'Regras',
     'gallery' => 'Galeria',
     'features' => 'Recursos',

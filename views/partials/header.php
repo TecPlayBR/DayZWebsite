@@ -8,19 +8,27 @@
             <span class="brand-name"><?= e($siteName) ?></span>
         </a>
 
+        <?php $discord = $config['settings']['discord_invite'] ?? ''; ?>
         <nav>
             <ul class="nav-main">
                 <li><a href="/"><?= e(__('nav.home')) ?></a></li>
                 <li><a href="/shop"><?= e(__('nav.shop')) ?></a></li>
-                <li><a href="/caixas">Caixas</a></li>
-                <li><a href="/eventos">Eventos</a></li>
-                <?php if (\App\Servers::isMulti()): ?>
-                    <li><a href="/servidores"><?= e(__('nav.servers') ?: 'Servidores') ?></a></li>
-                <?php endif; ?>
-                <li><a href="/galeria"><?= e(__('nav.gallery') ?: 'Galeria') ?></a></li>
-                <li><a href="/ranking"><?= e(__('nav.ranking') ?: 'Ranking') ?></a></li>
-                <li><a href="/rules"><?= e(__('nav.rules')) ?></a></li>
-                <?php $discord = $config['settings']['discord_invite'] ?? ''; ?>
+                <li><a href="/caixas"><?= e(__('nav.boxes')) ?></a></li>
+                <li><a href="/ranking"><?= e(__('nav.ranking')) ?></a></li>
+                <li class="nav-drop">
+                    <button type="button" class="nav-drop-btn" aria-haspopup="true" aria-expanded="false">
+                        <?= e(__('nav.more')) ?>
+                        <svg width="9" height="9" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M6 9 L1 4 h10 z"/></svg>
+                    </button>
+                    <ul class="nav-drop-menu">
+                        <li><a href="/eventos"><?= e(__('nav.events')) ?></a></li>
+                        <li><a href="/galeria"><?= e(__('nav.gallery')) ?></a></li>
+                        <li><a href="/rules"><?= e(__('nav.rules')) ?></a></li>
+                        <?php if (\App\Servers::isMulti()): ?>
+                            <li><a href="/servidores"><?= e(__('nav.servers')) ?></a></li>
+                        <?php endif; ?>
+                    </ul>
+                </li>
                 <?php if ($discord): ?>
                     <li><a href="<?= e($discord) ?>" target="_blank" rel="noopener"><?= e(__('nav.discord')) ?></a></li>
                 <?php endif; ?>
@@ -93,8 +101,8 @@
     <ul>
         <li><a href="/" data-close><?= e(__('nav.home')) ?></a></li>
         <li><a href="/shop" data-close><?= e(__('nav.shop')) ?></a></li>
-        <li><a href="/caixas" data-close>Caixas</a></li>
-        <li><a href="/eventos" data-close>Eventos</a></li>
+        <li><a href="/caixas" data-close><?= e(__('nav.boxes')) ?></a></li>
+        <li><a href="/eventos" data-close><?= e(__('nav.events')) ?></a></li>
         <?php if (\App\Servers::isMulti()): ?>
             <li><a href="/servidores" data-close><?= e(__('nav.servers') ?: 'Servidores') ?></a></li>
         <?php endif; ?>
@@ -126,3 +134,36 @@
         </div>
     </div>
 </aside>
+
+<style>
+/* Dropdown "Mais" do nav desktop (mobile usa o drawer; .nav-main some no breakpoint). */
+.nav-drop { position: relative; }
+.nav-drop-btn {
+    background: none; border: none; cursor: pointer; font-family: inherit;
+    color: var(--bone); font-weight: 600; font-size: 0.9rem;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    display: inline-flex; align-items: center; gap: 0.3rem; padding: 0;
+}
+.nav-drop-btn:hover { color: var(--hazard); }
+.nav-drop-btn svg { opacity: 0.8; transition: transform 0.2s; }
+.nav-drop:hover .nav-drop-btn svg, .nav-drop:focus-within .nav-drop-btn svg { transform: rotate(180deg); }
+.nav-drop-menu {
+    position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+    margin-top: 0.9rem; min-width: 185px; list-style: none; padding: 0.4rem;
+    background: var(--bg-2); border: 1px solid var(--border);
+    border-radius: 8px; box-shadow: 0 12px 30px rgba(0,0,0,0.55);
+    display: none; flex-direction: column; gap: 0.1rem; z-index: 200;
+}
+.nav-drop:hover .nav-drop-menu, .nav-drop:focus-within .nav-drop-menu { display: flex; }
+/* ponte invisível pra o hover não cair no gap entre o botão e o menu */
+.nav-drop-menu::before { content: ''; position: absolute; top: -0.9rem; left: 0; right: 0; height: 0.9rem; }
+.nav-drop-menu li { width: 100%; }
+.nav-drop-menu a {
+    display: block; padding: 0.55rem 0.8rem; border-radius: 5px; white-space: nowrap;
+    color: var(--bone); font-weight: 600; font-size: 0.82rem;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    transition: background 0.15s, color 0.15s;
+}
+.nav-drop-menu a::after { display: none; } /* mata o underline herdado de .nav-main a */
+.nav-drop-menu a:hover { background: var(--bg-1); color: var(--hazard); }
+</style>
