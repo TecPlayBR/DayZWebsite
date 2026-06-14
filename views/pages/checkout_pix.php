@@ -13,6 +13,31 @@
         <span class="hero-kicker" style="border-left-color: var(--moss); color: var(--moss); background: rgba(90,108,78,0.08);">// <?= e(__('pix.kicker')) ?></span>
         <h1 class="hero-title" style="font-size: 2rem;"><?= e(__('pix.title_1')) ?> <span class="accent" style="color:var(--moss);"><?= e(__('pix.title_2')) ?></span></h1>
 
+        <!-- Cupom COMPARTILHADO (vale pro Pix E pro Cartão): aplicar regenera o checkout com desconto, sem sair do site -->
+        <div class="checkout-coupon">
+            <span class="pix-coupon-title">🎟 <?= e(__('pix.coupon_title')) ?></span>
+            <form method="POST" action="/shop/checkout" class="pix-coupon-form">
+                <?= \App\Csrf::field() ?>
+                <input type="hidden" name="package_id" value="<?= e($pkg['id']) ?>">
+                <input type="hidden" name="steam_id" value="<?= e($steam_id) ?>">
+                <input type="hidden" name="server_id" value="<?= (int)$server_id ?>">
+                <input type="hidden" name="terms_accepted" value="1">
+                <?php if (!empty($coupon_code)): ?>
+                    <div class="pix-coupon-applied">
+                        <?= e(__('pix.coupon_label')) ?> <strong><?= e($coupon_code) ?></strong> <?= e(__('pix.coupon_applied_suffix')) ?>
+                        <input type="hidden" name="coupon_code" value="">
+                        <button type="submit" class="pix-coupon-clear"><?= e(__('pix.coupon_remove')) ?></button>
+                    </div>
+                <?php else: ?>
+                    <div class="pix-coupon-row">
+                        <input type="text" name="coupon_code" placeholder="<?= e(__('pix.coupon_ph')) ?>" maxlength="40"
+                               oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9_-]/g,'')">
+                        <button type="submit"><?= e(__('pix.coupon_apply')) ?></button>
+                    </div>
+                <?php endif; ?>
+            </form>
+        </div>
+
         <?php if ($pubKey !== ''): ?>
         <div class="pay-tabs">
             <button type="button" class="pay-tab-btn active" data-tab="pix">⚡ Pix</button>
@@ -40,31 +65,6 @@
                     <?php endif; ?>
                     <div class="pix-amount">R$ <?= number_format($price_brl, 2, ',', '.') ?></div>
                     <div class="pix-steam"><?= e(__('pix.steamid_label')) ?> <code><?= e($steam_id) ?></code></div>
-                </div>
-
-                <!-- Cupom destacado: aplicar regenera o QR com desconto, sem sair do site -->
-                <div class="pix-coupon-box">
-                    <span class="pix-coupon-title">🎟 <?= e(__('pix.coupon_title')) ?></span>
-                    <form method="POST" action="/shop/checkout" class="pix-coupon-form">
-                        <?= \App\Csrf::field() ?>
-                        <input type="hidden" name="package_id" value="<?= e($pkg['id']) ?>">
-                        <input type="hidden" name="steam_id" value="<?= e($steam_id) ?>">
-                        <input type="hidden" name="server_id" value="<?= (int)$server_id ?>">
-                        <input type="hidden" name="terms_accepted" value="1">
-                        <?php if (!empty($coupon_code)): ?>
-                            <div class="pix-coupon-applied">
-                                <?= e(__('pix.coupon_label')) ?> <strong><?= e($coupon_code) ?></strong> <?= e(__('pix.coupon_applied_suffix')) ?>
-                                <input type="hidden" name="coupon_code" value="">
-                                <button type="submit" class="pix-coupon-clear"><?= e(__('pix.coupon_remove')) ?></button>
-                            </div>
-                        <?php else: ?>
-                            <div class="pix-coupon-row">
-                                <input type="text" name="coupon_code" placeholder="<?= e(__('pix.coupon_ph')) ?>" maxlength="40"
-                                       oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9_-]/g,'')">
-                                <button type="submit"><?= e(__('pix.coupon_apply')) ?></button>
-                            </div>
-                        <?php endif; ?>
-                    </form>
                 </div>
 
                 <label class="pix-cc-label"><?= e(__('pix.cc_label')) ?></label>
@@ -101,10 +101,9 @@
                     <div><label>Número do documento</label><input type="text" id="cf-docnumber" class="cf-input" placeholder="CPF"></div>
                 </div>
                 <div class="cf-row"><label>E-mail (recibo)</label><input type="email" id="cf-email" class="cf-input" autocomplete="email" placeholder="voce@email.com"></div>
-                <div class="cf-grid2">
-                    <div><label>Banco emissor</label><select id="cf-issuer" class="cf-input"></select></div>
-                    <div><label>Parcelas</label><select id="cf-installments" class="cf-input"></select></div>
-                </div>
+                <!-- Banco emissor é detectado automaticamente pelo MP (pelo nº do cartão); escondido pra não confundir -->
+                <div style="display:none;"><select id="cf-issuer"></select></div>
+                <div class="cf-row"><label>Parcelas</label><select id="cf-installments" class="cf-input"></select></div>
                 <div class="cf-amount">Total: <strong>R$ <?= number_format($price_brl, 2, ',', '.') ?></strong></div>
                 <button type="submit" id="cf-submit" class="btn" style="width:100%;" disabled>💳 Pagar com cartão</button>
                 <div class="cf-status" id="cf-status"></div>
@@ -158,6 +157,9 @@
 @keyframes pix-spin { to { transform:rotate(360deg); } }
 .pix-steps { max-width:620px; margin:1rem auto; color:var(--bone); font-size:0.9rem; line-height:1.7; padding-left:1.4rem; }
 .pix-steps strong { color:var(--hazard); }
+/* Cupom compartilhado acima das abas */
+.checkout-coupon { max-width:720px; margin:1.2rem auto 0; background:rgba(212,160,23,0.10); border:1px solid var(--hazard);
+    border-radius:6px; padding:0.7rem 0.85rem; text-align:left; }
 /* Abas Pix/Cartão + formulário de cartão transparente */
 .pay-tabs { display:flex; gap:0.5rem; max-width:720px; margin:1.2rem auto 0; }
 .pay-tab-btn { flex:1; background:var(--bg-1); border:1px solid var(--border); color:var(--dim);
