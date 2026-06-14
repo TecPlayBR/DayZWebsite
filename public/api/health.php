@@ -70,17 +70,17 @@ $ok = $dbOk;
 
 if (!$ok) http_response_code(503);
 
+// Payload público enxuto: só saúde do sistema. Métricas de NEGÓCIO (nº de jogadores,
+// pedidos pendentes, última compra) NÃO vão pra resposta pública — vazavam volume de
+// vendas do cliente a qualquer um. Ficam só no error_log/uso interno.
 $response = [
-    'ok'             => $ok,
-    'status'         => $ok ? 'healthy' : 'degraded',
-    'db'             => $dbOk ? 'up' : 'down',
-    'agent'          => $agentActive ? 'active' : 'idle',
-    'players'        => $playersCount,
-    'pending_orders' => $pendingCount,
-    'last_purchase'  => $lastPurchase,
-    'version'        => '1.0',
-    'now'            => gmdate('Y-m-d\TH:i:s\Z'),
-    'response_ms'    => round((microtime(true) - $start) * 1000, 1),
+    'ok'          => $ok,
+    'status'      => $ok ? 'healthy' : 'degraded',
+    'db'          => $dbOk ? 'up' : 'down',
+    'agent'       => $agentActive ? 'active' : 'idle',
+    'version'     => '1.0',
+    'now'         => gmdate('Y-m-d\TH:i:s\Z'),
+    'response_ms' => round((microtime(true) - $start) * 1000, 1),
 ];
 if ($dbError) $response['error'] = $dbError;
 

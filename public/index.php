@@ -1076,9 +1076,13 @@ $config['restart'] = \App\Restart::summary();
         }
     } catch (Throwable $e) { /* sem DB? ignora — login funciona via sessao */ }
 
-    // Redireciona pra de onde veio (se setou na sessao antes do login) ou /shop
+    // Redireciona pra de onde veio (se setou na sessao antes do login) ou /shop.
+    // Guard anti open-redirect: só aceita path interno (começa com / e não //).
     $back = $_SESSION['steam_login_return'] ?? '/shop';
     unset($_SESSION['steam_login_return']);
+    if (!is_string($back) || !preg_match('#^/[A-Za-z0-9/_?&=.\-]*$#', $back) || str_starts_with($back, '//')) {
+        $back = '/shop';
+    }
     header('Location: ' . $back);
     exit;
 });

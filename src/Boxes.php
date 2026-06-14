@@ -77,6 +77,13 @@ class Boxes {
      */
     public static function open(array $box, string $steamId): array {
         $boxId = (int)$box['id'];
+        // Lock por (caixa, jogador): serializa aberturas concorrentes (duplo-clique /
+        // requisições paralelas) — fecha a race do cooldown da diária e double-open.
+        // Auto-libera no fim da requisição (conexão PDO não-persistente).
+        $lock = 'boxopen_' . $boxId . '_' . substr(md5($steamId), 0, 16);
+        if (!Database::fetchColumn("SELECT GET_LOCK(?, 5)", [$lock])) {
+            return ['ok' => false, 'error' => 'Tente de novo em instantes (abertura em andamento).'];
+        }
         $items = self::items($boxId);
         if (!$items) return ['ok' => false, 'error' => 'Esta caixa não tem itens configurados.'];
 

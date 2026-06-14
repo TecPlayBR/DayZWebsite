@@ -22,6 +22,8 @@ $configFile = $ROOT . '/config/config.php';
 if (!is_file($configFile)) { http_response_code(503); die(json_encode(['error' => 'not_installed'])); }
 $config = require $configFile;
 \App\Database::init($config['db']);
+require $ROOT . '/src/RateLimit.php';
+\App\RateLimit::init($ROOT . '/storage/cache');
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -33,6 +35,10 @@ $token    = $_GET['token'] ?? $_SERVER['HTTP_X_SPARDA_TOKEN'] ?? '';
 if ($token === '' && !empty($_SERVER['PATH_INFO'])) { $token = ltrim((string) $_SERVER['PATH_INFO'], '/'); }
 $expected = (string) ($config['agent_token'] ?? '');
 if ($expected === '' || !hash_equals($expected, (string) $token)) {
+    // Brute-force guard: conta SÓ falhas de auth por IP. Tráfego legítimo do mod
+    // (token válido) NUNCA é limitado.
+    $rl = \App\RateLimit::check('apifail:' . \App\RateLimit::clientIp(), 15, 300);
+    if (empty($rl['allowed'])) { http_response_code(429); die(json_encode(['error' => 'rate_limited'])); }
     http_response_code(401);
     die(json_encode(['error' => 'unauthorized']));
 }

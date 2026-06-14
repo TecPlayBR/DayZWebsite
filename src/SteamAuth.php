@@ -80,6 +80,11 @@ class SteamAuth {
 
     /** Salva SteamID na sessao */
     public static function login(string $steamId, ?string $displayName = null, ?string $avatar = null): void {
+        // Anti session-fixation: novo ID de sessao ao autenticar (impede reuso de um
+        // session id fixado antes do login). Preserva os dados da sessao atual.
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_regenerate_id(true);
+        }
         $_SESSION[self::SESSION_KEY] = [
             'steam_id'     => $steamId,
             'display_name' => $displayName,

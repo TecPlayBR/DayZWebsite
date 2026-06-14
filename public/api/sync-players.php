@@ -60,6 +60,11 @@ if ($globalToken !== '' && hash_equals($globalToken, $received)) {
 }
 
 if (!$authServer) {
+    // Brute-force guard: conta só falhas de auth por IP (agent legítimo nunca falha).
+    require_once $ROOT . '/src/RateLimit.php';
+    \App\RateLimit::init($ROOT . '/storage/cache');
+    $rl = \App\RateLimit::check('apifail:' . \App\RateLimit::clientIp(), 15, 300);
+    if (empty($rl['allowed'])) { http_response_code(429); die(json_encode(['ok' => false, 'error' => 'rate_limited'])); }
     http_response_code(401);
     die(json_encode(['ok' => false, 'error' => 'invalid_agent_token']));
 }

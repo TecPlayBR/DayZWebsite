@@ -72,7 +72,7 @@
                 'inLanguage' => 'pt-BR',
             ],
         ],
-    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?></script>
+    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) ?></script>
 
     <link rel="canonical" href="<?= e($pageUrl) ?>">
     <!-- hreflang: o Google sabe qual versão de idioma servir (pt-br é o padrão / x-default) -->
@@ -107,9 +107,9 @@
         'description' => $pageDesc,
         'inLanguage'  => locale(),
         'image'       => $ogImage,
-    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?></script>
+    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) ?></script>
     <?php if (!empty($jsonld)): // página filha pode adicionar JSON-LD próprio (ex: Product no shop) ?>
-        <script type="application/ld+json"><?= json_encode($jsonld, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?></script>
+        <script type="application/ld+json"><?= json_encode($jsonld, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) ?></script>
     <?php endif; ?>
 
     <?php
@@ -138,7 +138,7 @@
             'bestRating'  => 5,
             'worstRating' => 1,
         ],
-    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?></script>
+    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) ?></script>
     <?php
             endif;
         }

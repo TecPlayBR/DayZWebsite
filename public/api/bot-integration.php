@@ -72,6 +72,8 @@ try {
     http_response_code(503);
     die(json_encode(['error' => 'db_unavailable']));
 }
+require $ROOT . '/src/RateLimit.php';
+\App\RateLimit::init($ROOT . '/storage/cache');
 
 // ============ HELPER: log da chamada ============
 
@@ -102,6 +104,15 @@ function _log_call(string $action, int $status): void {
 }
 
 function _bail(int $code, string $error, string $action = ''): never {
+    // Brute-force guard: falha de auth conta por IP (token válido nunca chega aqui).
+    if ($code === 401 && $action === 'auth') {
+        $rl = \App\RateLimit::check('apifail:' . \App\RateLimit::clientIp(), 15, 300);
+        if (empty($rl['allowed'])) {
+            http_response_code(429);
+            _log_call('auth', 429);
+            die(json_encode(['error' => 'rate_limited']));
+        }
+    }
     http_response_code($code);
     _log_call($action ?: 'unknown', $code);
     die(json_encode(['error' => $error]));
