@@ -1,6 +1,9 @@
 <?php /** @var array $config; @var array $items */ ?>
 <?php $title = 'Galeria'; ?>
 <?php \App\View::extend('layouts.main'); ?>
+<?php $gSite = $config['settings']['site_name'] ?? $config['site_name'] ?? 'Servidor'; ?>
+<?php \App\View::with('title', 'Galeria — ' . $gSite . ' DayZ BR'); ?>
+<?php \App\View::with('description', 'Bases, raids e momentos da comunidade do ' . $gSite . '. Galeria do servidor DayZ brasileiro.'); ?>
 <?php \App\View::section('content'); ?>
 
 <style>

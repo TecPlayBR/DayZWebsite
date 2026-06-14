@@ -1,5 +1,8 @@
 <?php /** @var array $config, $reviews; @var float $avg_rating; @var int $total_reviews; @var ?array $steam_user */ ?>
 <?php \App\View::extend('layouts.main'); ?>
+<?php $depSite = $config['settings']['site_name'] ?? $config['site_name'] ?? 'Servidor'; ?>
+<?php \App\View::with('title', 'Depoimentos & Avaliações — ' . $depSite . ' DayZ BR'); ?>
+<?php \App\View::with('description', 'Avaliações reais de quem joga e compra no ' . $depSite . '. Veja o que a comunidade fala do nosso servidor DayZ brasileiro.'); ?>
 <?php \App\View::with('hero_image', 'img/background3.png'); // LCP preload sync ?>
 <?php \App\View::section('content'); ?>
 

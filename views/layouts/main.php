@@ -75,6 +75,10 @@
     ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?></script>
 
     <link rel="canonical" href="<?= e($pageUrl) ?>">
+    <!-- hreflang: o Google sabe qual versão de idioma servir (pt-br é o padrão / x-default) -->
+    <link rel="alternate" hreflang="pt-BR"     href="<?= e($pageUrl) ?>?lang=pt-br">
+    <link rel="alternate" hreflang="en-US"     href="<?= e($pageUrl) ?>?lang=en-us">
+    <link rel="alternate" hreflang="x-default" href="<?= e($pageUrl) ?>">
 
     <!-- Open Graph (Facebook, Discord, WhatsApp, LinkedIn) -->
     <meta property="og:site_name" content="<?= e($siteName) ?>">

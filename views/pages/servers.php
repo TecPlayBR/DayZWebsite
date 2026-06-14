@@ -1,6 +1,9 @@
 <?php /** @var array $config; @var array $servers */ ?>
 <?php $title = 'Servidores'; ?>
 <?php \App\View::extend('layouts.main'); ?>
+<?php $sSite = $config['settings']['site_name'] ?? $config['site_name'] ?? 'Servidor'; ?>
+<?php \App\View::with('title', 'Servidores — ' . $sSite . ' DayZ BR'); ?>
+<?php \App\View::with('description', 'Conheça os servidores DayZ do ' . $sSite . '. Status, conexão e detalhes de cada servidor.'); ?>
 <?php \App\View::section('content'); ?>
 
 <section class="page-section">

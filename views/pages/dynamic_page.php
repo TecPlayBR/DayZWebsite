@@ -4,6 +4,11 @@
 $lang   = locale();
 $title  = ($lang === 'en-us' && !empty($page['title_enus'])) ? $page['title_enus'] : $page['title_ptbr'];
 $body   = ($lang === 'en-us' && !empty($page['body_enus'])) ? $page['body_enus'] : $page['body_ptbr'];
+// SEO: <title> próprio (nome + servidor) e description tirada do corpo. O $title
+// local continua servindo o H1; o View::with é o que vai pro <title> do layout.
+$_pgSite = $config['settings']['site_name'] ?? $config['site_name'] ?? 'Servidor';
+\App\View::with('title', $title . ' — ' . $_pgSite);
+\App\View::with('description', mb_substr(trim(preg_replace('/\s+/', ' ', strip_tags($body))), 0, 155));
 ?>
 <?php \App\View::extend('layouts.main'); ?>
 <?php \App\View::with('hero_image', 'img/background5.png'); // LCP preload sync ?>

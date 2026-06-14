@@ -255,17 +255,19 @@ $config['restart'] = \App\Restart::summary();
     $urls = [
         ['/',             '1.0', 'daily'],
         ['/shop',         '0.9', 'daily'],
+        ['/caixas',       '0.7', 'weekly'],
         ['/galeria',      '0.7', 'weekly'],
         ['/depoimentos',  '0.6', 'weekly'],
         ['/ranking',      '0.6', 'daily'],
-        ['/server-status','0.5', 'hourly'],
         ['/rules',        '0.5', 'monthly'],
     ];
     if (\App\Servers::isMulti()) {
         $urls[] = ['/servidores', '0.7', 'weekly'];
     }
-    // Páginas dinâmicas publicadas
+    // Páginas dinâmicas publicadas. Pula 'rules' (já listado acima como /rules) pra
+    // não duplicar conteúdo (/rules vs /page/rules) — o Google penaliza duplicata.
     foreach (\App\Database::fetchAll("SELECT slug, updated_at FROM pages WHERE published = 1") as $p) {
+        if ($p['slug'] === 'rules') continue;
         $urls[] = ['/page/' . $p['slug'], '0.5', 'monthly', $p['updated_at']];
     }
 

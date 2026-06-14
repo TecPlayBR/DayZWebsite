@@ -8,6 +8,15 @@ $cftools_on     = $cftools_on ?? false;
 $stat           = $stat ?? 'invest';
 $rewards        = $rewards ?? [];
 $online         = $online ?? [];
+// SEO: título/descrição únicos por aba (investimento vs gameplay).
+$rkSite = $config['settings']['site_name'] ?? $config['site_name'] ?? 'Servidor';
+if ($mode === 'gameplay') {
+    \App\View::with('title', 'Ranking ' . ($gameplay_stats[$stat] ?? 'Gameplay') . ' — ' . $rkSite . ' DayZ BR');
+    \App\View::with('description', 'Os melhores do ' . $rkSite . ' em ' . ($gameplay_stats[$stat] ?? 'combate') . ' — ranking ao vivo, direto do servidor DayZ brasileiro.');
+} else {
+    \App\View::with('title', 'Ranking de Investimento — ' . $rkSite . ' DayZ BR');
+    \App\View::with('description', 'Top dos jogadores que mais apoiam o ' . $rkSite . '. Ranking do servidor DayZ BR, atualizado direto da loja.');
+}
 ?>
 <?php \App\View::extend('layouts.main'); ?>
 <?php \App\View::with('hero_image', 'img/background5.png'); // LCP preload sync ?>
