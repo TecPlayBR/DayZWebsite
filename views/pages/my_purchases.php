@@ -211,6 +211,54 @@ if (!empty($_GET['err'])) {
             </script>
         <?php endif; ?>
 
+        <?php
+        // ===== Histórico de Caixas (inventário) =====
+        $rarPt = ['common'=>'Comum','uncommon'=>'Incomum','rare'=>'Raro','epic'=>'Épico','legendary'=>'Lendário'];
+        $rarColor = ['common'=>'var(--dim)','uncommon'=>'var(--moss)','rare'=>'#4a90d9','epic'=>'#a855f7','legendary'=>'var(--hazard)'];
+        if (!empty($box_openings)):
+        ?>
+        <h2 style="font-family: var(--font-display); color: var(--bone); font-size: 1.4rem; margin: 3rem 0 1.5rem; letter-spacing: 0.04em;">
+            🎁 Histórico de Caixas
+        </h2>
+        <table class="purchases-table">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Item</th>
+                    <th class="hide-mobile">Raridade</th>
+                    <th>Qtd</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($box_openings as $o):
+                    $delivered = (($o['status'] ?? '') === 'delivered') || !empty($o['delivered_at']);
+                    $rk = strtolower($o['rarity'] ?? 'common');
+                ?>
+                    <tr>
+                        <td class="dim"><?= e(fmt_dt($o['created_at'])) ?></td>
+                        <td>
+                            <strong><?= e($o['item_name'] ?: ($o['classname'] ?: '—')) ?></strong>
+                            <?php if (!empty($o['classname'])): ?><code class="dim" style="font-size:0.72rem; display:block;"><?= e($o['classname']) ?></code><?php endif; ?>
+                        </td>
+                        <td class="hide-mobile"><span style="color:<?= $rarColor[$rk] ?? 'var(--dim)' ?>; font-weight:600; font-size:0.8rem;"><?= e($rarPt[$rk] ?? $rk) ?></span></td>
+                        <td class="mono"><?= (int)$o['quantity'] ?>x</td>
+                        <td>
+                            <?php if ($delivered): ?>
+                                <span class="purchase-badge badge-success">✓ Entregue</span>
+                            <?php else: ?>
+                                <span class="purchase-badge badge-warning">⏳ Pendente</span>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+        <p style="color: var(--dim); font-size: 0.8rem; margin-top: 0.6rem;">
+            ⏳ <strong>Pendente</strong> = entra automaticamente assim que você estiver <strong>online no servidor</strong> (itens só caem com o personagem conectado).
+        </p>
+        <?php endif; ?>
+
         <p style="margin-top: 2rem; color: var(--dim); font-size: 0.85rem;">
             <?= e(__('profile.support_question')) ?>
         </p>

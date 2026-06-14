@@ -10,6 +10,7 @@
         <h1>🎁 Caixas / Lootboxes</h1>
         <p>Caixas que o player abre (gastando moedas ou diária grátis). Cada caixa tem um pool de itens com chance. O item sorteado cai no jogo via CFTools.</p>
     </div>
+    <div><a href="/admin/caixas/logs" class="btn btn-sm">📜 Logs de aberturas</a></div>
 </div>
 
 <?php if (!empty($_GET['ok'])): ?><div class="alert-toast">Salvo!</div><?php endif; ?>

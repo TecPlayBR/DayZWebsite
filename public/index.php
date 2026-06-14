@@ -1271,11 +1271,16 @@ $config['restart'] = \App\Restart::summary();
     }
     $achievementsAll = \App\Achievements::all();
     $unlocked = \App\Achievements::unlocked($steamId);
+    // Histórico de caixas abertas (recebidas + pendentes) — o "inventário" do player.
+    $boxOpenings = \App\Database::fetchAll(
+        "SELECT * FROM box_openings WHERE steam_id = ? ORDER BY id DESC LIMIT 50", [$steamId]
+    );
     \App\View::display('pages.my_purchases', [
         'config' => $config, 'player' => $player, 'purchases' => $purchases,
         'steam_user' => \App\SteamAuth::user(),
         'reviewed_ids' => $reviewedIds,
         'achievements' => $achievementsAll, 'unlocked' => $unlocked,
+        'box_openings' => $boxOpenings,
     ]);
 });
 
@@ -1870,6 +1875,19 @@ $collectDashboardData = function() {
     unset($b);
     $pending = (int)\App\Database::fetchColumn("SELECT COUNT(*) FROM box_openings WHERE status = 'pending'");
     \App\View::display('admin.caixas', ['config' => $config, 'boxes' => $boxes, 'pending' => $pending]);
+});
+
+// Log de aberturas de caixa (anti-golpista): admin confere item + HORÁRIO do drop por SteamID.
+// Registrado ANTES de /admin/caixas/{id} pra "logs" não cair na rota dinâmica.
+\App\Router::get('/admin/caixas/logs', function() use ($config) {
+    \App\Auth::requireCan('packages');
+    $q = preg_replace('/[^0-9]/', '', (string)($_GET['steam'] ?? ''));
+    $sql = "SELECT bo.*, b.name AS box_name FROM box_openings bo LEFT JOIN boxes b ON b.id = bo.box_id";
+    $params = [];
+    if ($q !== '') { $sql .= " WHERE bo.steam_id = ?"; $params[] = $q; }
+    $sql .= " ORDER BY bo.id DESC LIMIT 200";
+    $logs = \App\Database::fetchAll($sql, $params);
+    \App\View::display('admin.caixa_logs', ['config' => $config, 'logs' => $logs, 'q' => $q]);
 });
 
 \App\Router::post('/admin/caixas/save', function() use ($config, $ROOT) {
