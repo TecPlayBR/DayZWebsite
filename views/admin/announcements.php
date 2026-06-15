@@ -12,45 +12,52 @@
 
 <?php if (!empty($_GET['ok'])): ?><div class="alert-toast">Salvo.</div><?php endif; ?>
 
-<!-- Form de novo/edit (inline) -->
-<form method="POST" action="/admin/announcements/save" class="stat-card" style="margin-bottom: 2rem; padding: 1.5rem;">
+<?php
+$editing = $editing ?? null;
+$ed   = fn($k) => e((string)($editing[$k] ?? ''));
+$dtL  = fn($v) => $v ? e(date('Y-m-d\TH:i', strtotime((string)$v))) : '';
+?>
+<!-- Form de novo/editar (inline) -->
+<form method="POST" action="/admin/announcements/save" class="stat-card" id="ann-form" style="margin-bottom: 2rem; padding: 1.5rem;">
     <?= \App\Csrf::field() ?>
-    <input type="hidden" name="id" value="">
-    <div class="label" style="margin-bottom: 1rem;">Novo anúncio</div>
+    <input type="hidden" name="id" value="<?= (int)($editing['id'] ?? 0) ?>">
+    <div class="label" style="margin-bottom: 1rem;"><?= $editing ? '✎ Editar anúncio' : 'Novo anúncio' ?></div>
 
     <div style="display: grid; gap: 0.8rem;">
-        <input type="text" name="title" placeholder="Título (ex: Wipe Sexta 22h)" required
+        <input type="text" name="title" placeholder="Título (ex: Wipe Sexta 22h)" required value="<?= $ed('title') ?>"
                style="padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:inherit;">
         <textarea name="body" rows="2" placeholder="Texto opcional"
-                  style="padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:inherit; resize:vertical;"></textarea>
+                  style="padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:inherit; resize:vertical;"><?= $ed('body') ?></textarea>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.8rem;">
             <select name="kind" style="padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone);">
-                <option value="info">◆ Info (azul)</option>
-                <option value="success">✓ Sucesso (verde)</option>
-                <option value="warning">⚠ Atenção (amarelo)</option>
-                <option value="danger">⚡ Urgente (vermelho)</option>
+                <?php foreach (['info'=>'◆ Info (azul)','success'=>'✓ Sucesso (verde)','warning'=>'⚠ Atenção (amarelo)','danger'=>'⚡ Urgente (vermelho)'] as $kv => $kl): ?>
+                    <option value="<?= $kv ?>" <?= ($editing['kind'] ?? '') === $kv ? 'selected' : '' ?>><?= $kl ?></option>
+                <?php endforeach; ?>
             </select>
-            <input type="datetime-local" name="starts_at" placeholder="Início"
+            <input type="datetime-local" name="starts_at" value="<?= $dtL($editing['starts_at'] ?? '') ?>"
                    style="padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone);">
-            <input type="datetime-local" name="ends_at" placeholder="Fim"
+            <input type="datetime-local" name="ends_at" value="<?= $dtL($editing['ends_at'] ?? '') ?>"
                    style="padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone);">
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 0.8rem;">
-            <input type="text" name="cta_label" placeholder='Texto do botão (opcional — padrão "Saiba mais")'
+            <input type="text" name="cta_label" placeholder='Texto do botão (opcional — padrão "Saiba mais")' value="<?= $ed('cta_label') ?>"
                    style="padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone);">
-            <input type="text" name="cta_url" placeholder="URL do botão (ex: /shop, https://discord.gg/...)"
+            <input type="text" name="cta_url" placeholder="URL do botão (ex: /shop, https://discord.gg/...)" value="<?= $ed('cta_url') ?>"
                    style="padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone);">
         </div>
         <p style="font-size:0.78rem; color:var(--dim); margin:-0.3rem 0 0;">💡 Basta preencher a <strong>URL</strong> pra o botão aparecer no banner. O texto é opcional (se vazio, vira "Saiba mais").</p>
 
         <label style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--bone); font-size: 0.9rem;">
-            <input type="checkbox" name="published" checked style="width:18px; height:18px;">
+            <input type="checkbox" name="published" <?= (!$editing || (int)($editing['published'] ?? 0)) ? 'checked' : '' ?> style="width:18px; height:18px;">
             Publicar agora
         </label>
 
-        <button type="submit" class="btn-mini" style="padding: 0.6rem 1.5rem; align-self: flex-start;">+ Criar anúncio</button>
+        <div style="display:flex; gap:1rem; align-items:center;">
+            <button type="submit" class="btn-mini" style="padding: 0.6rem 1.5rem;"><?= $editing ? 'Salvar alterações' : '+ Criar anúncio' ?></button>
+            <?php if ($editing): ?><a href="/admin/announcements" style="color:var(--dim); font-size:0.85rem;">cancelar edição</a><?php endif; ?>
+        </div>
     </div>
 </form>
 
@@ -91,7 +98,8 @@
                         <span class="badge info">rascunho</span>
                     <?php endif; ?>
                 </td>
-                <td>
+                <td style="white-space:nowrap;">
+                    <a href="/admin/announcements?edit=<?= (int)$a['id'] ?>#ann-form" class="btn-mini outline" style="text-decoration:none;">✎ Editar</a>
                     <form method="POST" action="/admin/announcements/<?= (int)$a['id'] ?>/delete" style="display:inline;" onsubmit="return confirm('Apagar este anúncio?');">
                         <?= \App\Csrf::field() ?>
                         <button type="submit" class="btn-mini outline" style="border-color: var(--danger-border); color: var(--text-danger);">✕</button>
@@ -101,9 +109,5 @@
         <?php endforeach; endif; ?>
     </tbody>
 </table>
-
-<p style="margin-top: 1.5rem; color: var(--dim); font-size: 0.85rem;">
-    Edit completo via SQL ou interface dedicada chegará em update futuro. Por enquanto, pra editar — apaga e cria de novo.
-</p>
 
 <?php \App\View::endSection(); ?>

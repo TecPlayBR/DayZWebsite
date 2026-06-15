@@ -5,6 +5,20 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.3.7] — 2026-06-15
+
+> Sem migration — só subir os arquivos. Fim do pente-fino do admin.
+
+### ✏️ Anúncios — editar de verdade
+- O backend já fazia UPDATE, mas a UI só tinha "apagar e criar de novo" (com um texto "em breve"). Agora cada anúncio tem botão **✎ Editar** → abre o form **pré-preenchido** (título, texto, tipo, datas, botão, publicado), e o submit vira "Salvar alterações". Removido o texto de "chegará em update futuro".
+
+### 🧹 Limpeza
+- **players:** a mensagem de "nenhum jogador encontrado com esses filtros / limpar busca" era inalcançável (o empty-state genérico capturava antes). Agora a busca filtrada sem resultado mostra a mensagem certa.
+- **gallery / servers:** removidos inputs `csrf_token` mortos (o CSRF real é o `_csrf` do `Csrf::field()`, que continua presente) — eram markup confuso sem efeito.
+- Auditoria confirmou: **todas as rotas `/admin/*` têm guard de permissão**; CSRF em todos os POSTs.
+
+---
+
 ## [2.3.6] — 2026-06-15
 
 > Sem migration — só subir os arquivos. Pente-fino do admin + logo responsiva.

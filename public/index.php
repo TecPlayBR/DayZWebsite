@@ -2798,7 +2798,10 @@ $BRAND_SLOTS = [
     $list = \App\Database::fetchAll(
         "SELECT * FROM announcements ORDER BY published DESC, created_at DESC"
     );
-    \App\View::display('admin.announcements', ['config' => $config, 'announcements' => $list]);
+    // ?edit=ID carrega o anúncio no form (o handler /save já faz UPDATE quando id>0).
+    $editId = (int)($_GET['edit'] ?? 0);
+    $editing = $editId > 0 ? \App\Database::fetchOne("SELECT * FROM announcements WHERE id = ? LIMIT 1", [$editId]) : null;
+    \App\View::display('admin.announcements', ['config' => $config, 'announcements' => $list, 'editing' => $editing]);
 });
 
 \App\Router::post('/admin/announcements/save', function() use ($config) {

@@ -30,7 +30,6 @@
     <summary>Adicionar novo servidor</summary>
     <form method="POST" action="/admin/servers/create" class="admin-form" style="margin-top:1rem;">
         <?= \App\Csrf::field() ?>
-        <input type="hidden" name="csrf_token" value="<?= e(\App\Csrf::token()) ?>">
         <div class="form-grid">
             <label>Nome <input type="text" name="name" required maxlength="80" placeholder="Ex: Hardcore Wipe Semanal"></label>
             <label>Slug (URL) <input type="text" name="slug" required maxlength="40" placeholder="ex: hardcore" pattern="[a-z0-9-]+"></label>
@@ -50,7 +49,6 @@
     <div class="admin-card server-card">
         <form method="POST" action="/admin/servers/update" class="admin-form">
         <?= \App\Csrf::field() ?>
-            <input type="hidden" name="csrf_token" value="<?= e(\App\Csrf::token()) ?>">
             <input type="hidden" name="id" value="<?= (int)$s['id'] ?>">
 
             <div class="server-card-head">

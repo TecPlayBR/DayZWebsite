@@ -66,11 +66,11 @@
         </tr>
     </thead>
     <tbody>
-        <?php if (empty($players)): ?>
+        <?php if (empty($players) && !$q && !$origin): ?>
             <tr><td colspan="7" style="text-align: center; color: var(--dim); padding: 2rem;">
                 Nenhum jogador ainda. Eles aparecem aqui quando o agent rodar pela primeira vez ou alguém comprar.
             </td></tr>
-        <?php elseif (empty($players) && ($q || $origin)): ?>
+        <?php elseif (empty($players)): ?>
             <tr><td colspan="7" style="text-align: center; color: var(--dim); padding: 2rem;">
                 Nenhum jogador encontrado com esses filtros. <a href="/admin/players" style="color: var(--rust-2);">Limpar busca</a>
             </td></tr>
