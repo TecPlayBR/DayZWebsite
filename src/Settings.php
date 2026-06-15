@@ -58,6 +58,9 @@ class Settings {
         'cftools_app_id'           => 'string',
         'cftools_secret'           => 'string',
         'cftools_server_api_id'    => 'string',
+        // Programa de afiliado/streamer ("Apoie seu Streamer").
+        'affiliate_enabled'        => 'bool',
+        'affiliate_allow_switch'   => 'bool',
     ];
 
     private static array $cache = [];

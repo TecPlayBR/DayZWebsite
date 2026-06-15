@@ -50,7 +50,12 @@ class Coupon {
      * Retorna [discount_brl, final_price] (ambos floats).
      */
     public static function applyDiscount(array $coupon, float $price): array {
-        if ($coupon['discount_type'] === 'percent') {
+        $type = $coupon['discount_type'] ?? 'percent';
+        if ($type === 'coins') {
+            // Benefício é moeda bônus (creditada à parte), NÃO desconto no preço.
+            return [0.0, round($price, 2)];
+        }
+        if ($type === 'percent') {
             $discount = round($price * ((float)$coupon['discount_value'] / 100), 2);
         } else {
             $discount = (float)$coupon['discount_value'];
@@ -59,6 +64,21 @@ class Coupon {
         $discount = max($discount, 0);        // nunca negativo
         $final = round($price - $discount, 2);
         return [$discount, $final];
+    }
+
+    /** Moedas bônus que o cupom concede (tipo 'coins'); 0 nos demais tipos. */
+    public static function bonusCoins(array $coupon): int {
+        return ($coupon['discount_type'] ?? '') === 'coins'
+            ? max(0, (int) round((float) $coupon['discount_value']))
+            : 0;
+    }
+
+    /** O cupom faz parte do programa de afiliado/streamer? (tem nome OU alguma comissão > 0) */
+    public static function isAffiliate(array $coupon): bool {
+        return trim((string) ($coupon['affiliate_name'] ?? '')) !== ''
+            || (float) ($coupon['commission_pct_1'] ?? 0) > 0
+            || (float) ($coupon['commission_pct_2'] ?? 0) > 0
+            || (float) ($coupon['commission_pct_3plus'] ?? 0) > 0;
     }
 
     /**

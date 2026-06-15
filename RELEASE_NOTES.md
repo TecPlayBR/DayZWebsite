@@ -1,6 +1,16 @@
-# 🏴 DayZ Website Template — Notas da versão (v2.3.9)
+# 🏴 DayZ Website Template — Notas da versão (v2.4.0)
 
-> **Atualizar é seguro e não apaga nada.** Da v2.2.0 pra cá (linha **2.3.x**) **não tem migration** — basta subir os arquivos (respeitando a Regra de Ouro). O log detalhado de cada versão fica no **[CHANGELOG.md](CHANGELOG.md)**; aqui vão os destaques.
+> **Atualizar é seguro e não apaga nada.** A **v2.4.0 TEM migration** — suba os arquivos e rode `php cli/migrate.php`. A linha 2.3.x não tinha. O log completo fica no **[CHANGELOG.md](CHANGELOG.md)**; aqui vão os destaques.
+
+---
+
+## 🆕 v2.4.0 — Programa de afiliado / streamer
+
+- **🎮 "Apoie seu Streamer":** transforme cupons em códigos de streamer que pagam **cachê por venda**. O cliente se atrela a um streamer (1 por vez), e o streamer ganha um **% escalonado** pela recorrência do cliente (1ª/2ª/3ª+ compra), sobre o **valor cheio**, só em compra paga.
+- **Sem sangrar margem:** o desconto pro cliente vale 1x; a atribuição segue pelo vínculo do perfil, não pelo reuso do cupom.
+- **Tela admin "Streamers":** faturamento gerado e **cachê a pagar** por streamer (total + por mês) + as vendas individuais.
+- **Novo benefício de cupom:** 🪙 **moedas bônus** (além de % e R$).
+- **Liga/desliga** + "permitir troca de streamer" em Configurações. **Tem migration** (`v2.4.0_streamer_affiliate.sql`).
 
 ---
 

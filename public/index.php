@@ -61,6 +61,7 @@ require $ROOT . '/src/ServerStatus.php';
 require $ROOT . '/src/Restart.php';
 require $ROOT . '/src/Mailer.php';
 require $ROOT . '/src/Coupon.php';
+require $ROOT . '/src/Affiliate.php';
 require $ROOT . '/src/AuditLog.php';
 require $ROOT . '/src/BalanceLog.php';
 require $ROOT . '/src/Achievements.php';
@@ -705,6 +706,11 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     $couponCode = strtoupper(trim($_POST['coupon_code'] ?? ''));
     $discount   = 0.0;
     $appliedCouponCode = null;
+    $priceFinal = $priceOriginal;
+    $couponBonusCoins = 0;
+    // Atribuição de afiliado/streamer: vínculo ATUAL do cliente (carimbado na compra,
+    // mesmo sem cupom agora — assim a recorrência dele conta pro streamer).
+    $affiliateStamp = \App\Affiliate::binding($steamId);
     if ($couponCode !== '') {
         [$coupon, $err] = \App\Coupon::lookup($couponCode, $packageId, $priceOriginal);
         if ($err) {
@@ -714,12 +720,37 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
             ]);
             return;
         }
-        [$discount, $priceFinal] = \App\Coupon::applyDiscount($coupon, $priceOriginal);
-        $appliedCouponCode = $coupon['code'];
-    } else {
-        $priceFinal = $priceOriginal;
+        if (\App\Coupon::isAffiliate($coupon) && \App\Affiliate::enabled()) {
+            // Cupom de afiliado + programa ligado: atrela o cliente ao streamer (1 por vez).
+            \App\Affiliate::bind($steamId, $coupon['code']);
+            $affiliateStamp = \App\Affiliate::binding($steamId);
+            // Benefício pro cliente vale 1x: só na PRIMEIRA compra PAGA com este cupom.
+            // Re-gerar o PIX da mesma 1ª compra mantém o benefício; depois de pagar 1 vez,
+            // não repete (é o que protege a margem na recorrência — a atribuição segue pelo vínculo).
+            $usedPaid = (int) \App\Database::fetchColumn(
+                "SELECT COUNT(*) FROM purchases
+                  WHERE steam_id = ? AND UPPER(coupon_code) = UPPER(?)
+                    AND (mp_status = 'approved' OR delivered_at IS NOT NULL)",
+                [$steamId, $coupon['code']]
+            );
+            if ($usedPaid === 0) {
+                [$discount, $priceFinal] = \App\Coupon::applyDiscount($coupon, $priceOriginal);
+                $couponBonusCoins = \App\Coupon::bonusCoins($coupon);
+                $appliedCouponCode = $coupon['code'];
+            }
+        } else {
+            // Cupom comum (ou afiliado com o programa desligado = trata como desconto normal).
+            [$discount, $priceFinal] = \App\Coupon::applyDiscount($coupon, $priceOriginal);
+            $couponBonusCoins = \App\Coupon::bonusCoins($coupon);
+            $appliedCouponCode = $coupon['code'];
+        }
     }
     $priceBrl = $priceFinal;
+    // Moedas bônus do cupom (tipo 'coins') entram no total a entregar.
+    if ($couponBonusCoins > 0) {
+        $coinsBonus += $couponBonusCoins;
+        $coinsTotal  = $coinsBase + $coinsBonus;
+    }
 
     // Reaproveita pendência RECENTE igual (mesmo steam+pacote+servidor, não paga, <30min):
     // se o jogador clicou "Comprar" de novo / gerou outro PIX, NÃO cria linha duplicada.
@@ -736,20 +767,21 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
         \App\Database::query(
             "UPDATE purchases
                 SET coins_base = ?, coins_bonus = ?, coins_total = ?, price_brl = ?,
-                    coupon_code = ?, discount_brl = ?, terms_accepted_at = NOW(), terms_version = ?
+                    coupon_code = ?, discount_brl = ?, affiliate_coupon_code = ?,
+                    terms_accepted_at = NOW(), terms_version = ?
               WHERE id = ?",
-            [$coinsBase, $coinsBonus, $coinsTotal, $priceBrl, $appliedCouponCode, $discount, '2026-05-27', $purchaseId]
+            [$coinsBase, $coinsBonus, $coinsTotal, $priceBrl, $appliedCouponCode, $discount, $affiliateStamp, '2026-05-27', $purchaseId]
         );
     } else {
         // Cria purchase pending com registro de aceite de termos + cupom (se aplicado)
         \App\Database::query(
             "INSERT INTO purchases
                 (steam_id, package_id, server_id, coins_base, coins_bonus, coins_total,
-                 price_brl, coupon_code, discount_brl,
+                 price_brl, coupon_code, discount_brl, affiliate_coupon_code,
                  mp_status, terms_accepted_at, terms_version)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW(), ?)",
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW(), ?)",
             [$steamId, $packageId, $serverId, $coinsBase, $coinsBonus, $coinsTotal,
-             $priceBrl, $appliedCouponCode, $discount,
+             $priceBrl, $appliedCouponCode, $discount, $affiliateStamp,
              '2026-05-27']
         );
         $purchaseId = (int)\App\Database::pdo()->lastInsertId();
@@ -1224,6 +1256,15 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
             [$steamId]
         );
     } catch (\Throwable $e) { /* tabela ausente em install antigo — degrada limpo */ }
+    // Programa "Apoie seu Streamer": vínculo atual + nome do streamer (se houver).
+    $affiliateOn = \App\Affiliate::enabled();
+    $myStreamerCode = $affiliateOn ? \App\Affiliate::binding($steamId) : null;
+    $myStreamerName = null;
+    if ($myStreamerCode) {
+        $myStreamerName = \App\Database::fetchColumn(
+            "SELECT affiliate_name FROM coupons WHERE UPPER(code) = UPPER(?) LIMIT 1", [$myStreamerCode]
+        ) ?: $myStreamerCode;
+    }
     \App\View::display('pages.my_purchases', [
         'config' => $config, 'player' => $player, 'purchases' => $purchases,
         'steam_user' => \App\SteamAuth::user(),
@@ -1231,7 +1272,29 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
         'achievements' => $achievementsAll, 'unlocked' => $unlocked,
         'box_openings' => $boxOpenings,
         'shop_spends' => $shopSpends,
+        'affiliate_on' => $affiliateOn,
+        'affiliate_allow_switch' => \App\Affiliate::allowSwitch(),
+        'my_streamer_code' => $myStreamerCode,
+        'my_streamer_name' => $myStreamerName,
     ]);
+});
+
+// "Apoie seu Streamer": cliente atrela o perfil a um streamer digitando o código dele.
+// Não dá desconto aqui (o benefício é no checkout, 1x); isto é só a atribuição.
+\App\Router::post('/apoiar-streamer', function() use ($config) {
+    if (!\App\SteamAuth::check()) { header('Location: /auth/steam'); exit; }
+    if (!\App\Csrf::check()) { header('Location: /my-purchases?err=csrf'); exit; }
+    if (!\App\Affiliate::enabled()) { header('Location: /my-purchases'); exit; }
+    $steamId = \App\SteamAuth::steamId();
+    $code = strtoupper(trim($_POST['affiliate_code'] ?? ''));
+    [$coupon, $err] = \App\Coupon::lookup($code);
+    if ($err || !\App\Coupon::isAffiliate($coupon)) {
+        header('Location: /my-purchases?aff=invalid'); exit;
+    }
+    $res = \App\Affiliate::bind($steamId, $coupon['code']);
+    $map = ['bound' => 'ok', 'switched' => 'switched', 'already' => 'already', 'blocked' => 'blocked', 'disabled' => 'invalid'];
+    header('Location: /my-purchases?aff=' . ($map[$res] ?? 'invalid'));
+    exit;
 });
 
 // ============ ADMIN ============
@@ -1812,7 +1875,7 @@ $collectDashboardData = function() {
                'cftools_app_id','cftools_server_api_id'];
     // Toggles (checkbox): se não veio no POST, vira 0
     $toggles = ['maintenance_enabled', 'live_purchases_enabled', 'live_purchases_anonymize', 'live_purchases_show_price',
-                'restart_enabled'];
+                'restart_enabled', 'affiliate_enabled', 'affiliate_allow_switch'];
 
     // Escrita via Settings::set(): valida contra o whitelist (SCHEMA), normaliza
     // por tipo e atualiza o cache em memória. Chave fora do SCHEMA é rejeitada.
@@ -2775,12 +2838,19 @@ $BRAND_SLOTS = [
     \App\Auth::requireCan('coupons');
     if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     $code  = strtoupper(preg_replace('/[^A-Z0-9_-]/', '', strtoupper(trim($_POST['code'] ?? ''))));
-    $type  = in_array($_POST['discount_type'] ?? '', ['percent','fixed'], true) ? $_POST['discount_type'] : 'percent';
+    $type  = in_array($_POST['discount_type'] ?? '', ['percent','fixed','coins'], true) ? $_POST['discount_type'] : 'percent';
     $value = max(0.01, (float)str_replace(',', '.', $_POST['discount_value'] ?? '0'));
     $maxUses = (int)($_POST['max_uses'] ?? 0) ?: null;
     $validFrom  = trim($_POST['valid_from']  ?? '') ?: null;
     $validUntil = trim($_POST['valid_until'] ?? '') ?: null;
     $notes = trim($_POST['notes'] ?? '') ?: null;
+    // Programa de afiliado/streamer (opcional): nome do streamer + comissão escalonada.
+    $affiliateName = trim($_POST['affiliate_name'] ?? '');
+    $affiliateName = $affiliateName !== '' ? mb_substr($affiliateName, 0, 120) : null;
+    $clampPct = fn($k) => max(0.0, min(100.0, (float) str_replace(',', '.', $_POST[$k] ?? '0')));
+    $pct1 = $clampPct('commission_pct_1');
+    $pct2 = $clampPct('commission_pct_2');
+    $pct3 = $clampPct('commission_pct_3plus');
     // Restrição por pacote (opcional): nenhum marcado = vale pra TODOS (null).
     // Só aceita ids que existem de verdade (defesa).
     $packageIds = null;
@@ -2798,9 +2868,9 @@ $BRAND_SLOTS = [
 
     try {
         \App\Database::query(
-            "INSERT INTO coupons (code, discount_type, discount_value, max_uses, valid_from, valid_until, notes, package_ids, active)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)",
-            [$code, $type, $value, $maxUses, $validFrom, $validUntil, $notes, $packageIds]
+            "INSERT INTO coupons (code, discount_type, discount_value, max_uses, valid_from, valid_until, notes, package_ids, active, affiliate_name, commission_pct_1, commission_pct_2, commission_pct_3plus)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?)",
+            [$code, $type, $value, $maxUses, $validFrom, $validUntil, $notes, $packageIds, $affiliateName, $pct1, $pct2, $pct3]
         );
         \App\AuditLog::record('coupon.created', 'coupon', $code, [
             'type' => $type, 'value' => $value, 'max_uses' => $maxUses,
@@ -2832,6 +2902,17 @@ $BRAND_SLOTS = [
     \App\AuditLog::record('coupon.deleted', 'coupon', $code);
     header('Location: /admin/coupons?ok=deleted');
     exit;
+});
+
+// Relatório de cachê por streamer/afiliado (programa "Apoie seu Streamer").
+\App\Router::get('/admin/streamers', function() use ($config) {
+    \App\Auth::requireCan('coupons');
+    \App\View::display('admin.streamers', [
+        'config'        => $config,
+        'streamers'     => \App\Affiliate::report(),
+        'affiliate_on'  => \App\Affiliate::enabled(),
+        'allow_switch'  => \App\Affiliate::allowSwitch(),
+    ]);
 });
 
 \App\Router::get('/admin/announcements', function() use ($config) {

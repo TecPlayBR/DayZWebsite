@@ -46,6 +46,7 @@ $pkgMap = array_column($packages ?? [], 'name', 'id');
             <select name="discount_type" style="width:100%; padding:0.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone);">
                 <option value="percent">% Percentual</option>
                 <option value="fixed">R$ Fixo</option>
+                <option value="coins">🪙 Moedas bônus</option>
             </select>
         </div>
         <div>
@@ -71,6 +72,38 @@ $pkgMap = array_column($packages ?? [], 'name', 'id');
         </div>
     </div>
     <?php endif; ?>
+    <p style="font-size:0.74rem; color:var(--dim); margin:-0.2rem 0 0.8rem;">💡 No tipo <strong>🪙 Moedas bônus</strong>, o campo <strong>Valor</strong> é a quantidade de moedas que o cliente ganha (sem desconto no preço).</p>
+
+    <details style="margin-bottom: 0.8rem; border:1px solid var(--border); border-radius:4px; padding:0.6rem 0.9rem;">
+        <summary style="cursor:pointer; font-size:0.85rem; color:var(--bone);">🎮 Programa de afiliado / streamer <span style="color:var(--dim);">(opcional — paga cachê por venda)</span></summary>
+        <p style="font-size:0.78rem; color:var(--dim); margin:0.6rem 0;">
+            O cliente se atrela a este streamer ao usar o cupom (1 streamer por vez). O cachê é calculado
+            sobre o <strong>valor cheio</strong>, só em compra <strong>paga</strong>, escalonado pela recorrência do cliente.
+            Ative o programa e o relatório em <a href="/admin/settings" style="color:var(--hazard);">Configurações</a> e <a href="/admin/streamers" style="color:var(--hazard);">Streamers</a>.
+        </p>
+        <div style="display:grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap:0.8rem;">
+            <div>
+                <label style="display:block; font-size:0.75rem; color:var(--dim); margin-bottom:0.3rem; text-transform:uppercase;">Streamer</label>
+                <input type="text" name="affiliate_name" maxlength="120" placeholder="ex: Flainho Bacon"
+                       style="width:100%; padding:0.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone);">
+            </div>
+            <div>
+                <label style="display:block; font-size:0.75rem; color:var(--dim); margin-bottom:0.3rem; text-transform:uppercase;">% 1ª compra</label>
+                <input type="number" name="commission_pct_1" min="0" max="100" step="0.5" placeholder="5"
+                       style="width:100%; padding:0.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:var(--font-mono);">
+            </div>
+            <div>
+                <label style="display:block; font-size:0.75rem; color:var(--dim); margin-bottom:0.3rem; text-transform:uppercase;">% 2ª compra</label>
+                <input type="number" name="commission_pct_2" min="0" max="100" step="0.5" placeholder="10"
+                       style="width:100%; padding:0.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:var(--font-mono);">
+            </div>
+            <div>
+                <label style="display:block; font-size:0.75rem; color:var(--dim); margin-bottom:0.3rem; text-transform:uppercase;">% 3ª+ compra</label>
+                <input type="number" name="commission_pct_3plus" min="0" max="100" step="0.5" placeholder="0"
+                       style="width:100%; padding:0.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:var(--font-mono);">
+            </div>
+        </div>
+    </details>
 
     <div style="display: grid; grid-template-columns: 1fr 1fr 2fr auto; gap: 0.8rem; align-items: end;">
         <div>
@@ -115,10 +148,16 @@ $pkgMap = array_column($packages ?? [], 'name', 'id');
                     <?php if ($cpids): ?>
                         <div class="dim" style="font-size:0.72rem;">só: <?= e(implode(', ', array_map(fn($id) => $pkgMap[$id] ?? $id, $cpids))) ?></div>
                     <?php endif; ?>
+                    <?php if (\App\Coupon::isAffiliate($c)):
+                        $fp = fn($v) => rtrim(rtrim(number_format((float)$v, 2, ',', ''), '0'), ','); ?>
+                        <div style="font-size:0.72rem; color:var(--moss);">🎮 <?= e($c['affiliate_name'] ?: 'afiliado') ?> · cachê <?= $fp($c['commission_pct_1']) ?>/<?= $fp($c['commission_pct_2']) ?>/<?= $fp($c['commission_pct_3plus']) ?>%</div>
+                    <?php endif; ?>
                 </td>
                 <td>
                     <?php if ($c['discount_type'] === 'percent'): ?>
                         <span style="color: var(--rust-2); font-family: var(--font-display); font-size: 1.1rem;"><?= rtrim(rtrim(number_format((float)$c['discount_value'], 2, ',', ''), '0'), ',') ?>%</span>
+                    <?php elseif ($c['discount_type'] === 'coins'): ?>
+                        <span style="color: var(--moss); font-family: var(--font-display); font-size: 1.1rem;">🪙 <?= number_format((int)$c['discount_value'], 0, ',', '.') ?></span>
                     <?php else: ?>
                         <span style="color: var(--rust-2); font-family: var(--font-display); font-size: 1.1rem;">R$ <?= number_format((float)$c['discount_value'], 2, ',', '.') ?></span>
                     <?php endif; ?>

@@ -109,6 +109,23 @@
         </div>
 
         <div style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.2rem;">
+            <label style="display:block; font-size:0.9rem; color:var(--bone); margin-bottom:0.5rem;">
+                🎮 Programa de afiliado / streamer <small style="color: var(--dim); font-weight: 400;">— paga cachê pros streamers por venda feita com o cupom deles (o cliente se atrela ao streamer)</small>
+            </label>
+            <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.9rem; color:var(--bone); margin-bottom:0.6rem;">
+                <input type="checkbox" name="affiliate_enabled" value="1" <?= !empty($settings['affiliate_enabled']) ? 'checked' : '' ?> style="width:18px;height:18px;">
+                Ativar o programa de afiliado
+            </label>
+            <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.9rem; color:var(--bone);">
+                <input type="checkbox" name="affiliate_allow_switch" value="1" <?= !empty($settings['affiliate_allow_switch']) ? 'checked' : '' ?> style="width:18px;height:18px;">
+                Permitir o cliente <strong>trocar</strong> de streamer (se desligado, fica travado no primeiro pra sempre)
+            </label>
+            <p style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--dim);">
+                Configure o nome do streamer e o % de cachê (1ª/2ª/3ª+ compra) em cada cupom, na tela <a href="/admin/coupons" style="color: var(--hazard);">Cupons</a>. Veja o quanto deve pra cada um em <a href="/admin/streamers" style="color: var(--hazard);">Streamers</a>. O cachê é sobre o valor cheio, só em compra paga.
+            </p>
+        </div>
+
+        <div style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.2rem;">
             <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.9rem; color:var(--bone); margin-bottom:0.6rem;">
                 <input type="checkbox" name="restart_enabled" value="1" <?= !empty($settings['restart_enabled']) ? 'checked' : '' ?> style="width:18px;height:18px;">
                 🔄 Mostrar próximo restart do servidor

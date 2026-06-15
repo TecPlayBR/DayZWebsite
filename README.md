@@ -9,7 +9,7 @@ Tema apocalipse · Painel admin completo · Mercado Pago · Login Steam · Multi
 [![MySQL](https://img.shields.io/badge/MySQL-5.7+-4479A1?style=flat-square&logo=mysql&logoColor=white)](https://www.mysql.com)
 [![License](https://img.shields.io/badge/License-Tecplay--NC-a855f7?style=flat-square)](LICENSE.txt)
 [![Status](https://img.shields.io/badge/Status-Produção-16a34a?style=flat-square)]()
-[![Versão](https://img.shields.io/badge/Versão-2.3.10-facc15?style=flat-square)](RELEASE_NOTES.md)
+[![Versão](https://img.shields.io/badge/Versão-2.4.0-facc15?style=flat-square)](RELEASE_NOTES.md)
 
 *Sobreviva. Construa. Domine. Agora também na web.*
 
@@ -259,6 +259,16 @@ Quer mostrar **kills, K/D, tempo online e armas** do seu servidor no `/ranking` 
      ],
      ```
 6. Pronto. O site cacheia as respostas (respeita os limites do CFTools) e as stats aparecem sozinhas no ranking e nos perfis. **O CFTools também é o que faz os itens das CAIXAS caírem no jogo** — sem ele preenchido, as caixas abrem mas ficam pendentes. **Sem CFTools, o site funciona normal — só não mostra stats de gameplay nem entrega caixas in-game.**
+
+## 🎮 Programa de afiliado / streamer ("Apoie seu Streamer") — opcional
+
+Contratou um streamer pra divulgar o servidor? Dá pra **pagar cachê por venda** que veio dele, automaticamente rastreado.
+
+1. Ative em **Admin → Configurações → 🎮 Programa de afiliado**. (Lá também: "permitir o cliente trocar de streamer".)
+2. Em **Admin → Cupons**, crie o cupom do streamer e abra a seção **"Programa de afiliado"**: preencha o **nome do streamer** e o **% de cachê** por recorrência do cliente — **1ª compra / 2ª compra / 3ª+ compra** (ex: `5 / 10 / 0` = ganha 5% na 1ª, 10% na 2ª e nada da 3ª em diante, quando o cliente "já consolidou").
+3. O streamer divulga o código. O cliente digita uma vez (no checkout ou no painel **"Apoie seu Streamer"**) e fica **atrelado a ele** — 1 streamer por vez.
+4. O **cachê** é calculado **sobre o valor cheio** (antes do desconto), só em **compra paga**. O **benefício pro cliente** (definido no cupom: % off, R$ off ou **🪙 moedas bônus**) vale **1x** — não repete na recorrência, então não corrói sua margem.
+5. Veja quanto deve pra cada um em **Admin → Streamers**: faturamento gerado e **cachê a pagar** (total e por mês), além das vendas individuais. O site só mostra o valor — você paga o streamer por fora.
 
 > 🔒 O `secret` é seu e fica só no seu `config/config.php` (que é gitignored e nunca vai pro repositório).
 

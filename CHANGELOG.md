@@ -5,6 +5,23 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.4.0] — 2026-06-15
+
+> **TEM migration** — depois de subir os arquivos, rode `php cli/migrate.php` (aplica `v2.4.0_streamer_affiliate.sql`). Só adiciona campos; dados intactos.
+
+### 🎮 Programa de afiliado / streamer ("Apoie seu Streamer")
+- Qualquer cupom pode virar de um streamer: na tela **Cupons**, defina o **nome do streamer** e o **% de cachê escalonado** pela recorrência do cliente — **1ª compra**, **2ª compra**, **3ª+ compra** (ex: 5% / 10% / 0%, o modelo "cliente já consolidou").
+- O cliente se **atrela a um streamer** digitando o código (no checkout ou no painel **"Apoie seu Streamer"**) — **1 streamer por vez**, travado pra sempre; toggle no painel pra **permitir troca** (last-wins).
+- O **cachê é calculado sobre o valor cheio** (antes do desconto), só em **compra paga**, e a atribuição é pelo **vínculo do perfil** (não pelo reuso do cupom). O benefício pro cliente vale **1x** (1ª compra paga) — não repete, então não sangra a margem na recorrência.
+- Cada compra **carimba** o streamer atribuído no momento → histórico estável mesmo se o cliente trocar de streamer depois.
+- Novo tipo de benefício de cupom: **🪙 moedas bônus** (além de % e R$ de desconto).
+- Nova tela admin **Streamers** (`/admin/streamers`): por streamer, mostra faturamento gerado, **cachê a pagar** (total + por mês) e as vendas individuais. O site só mostra o valor — o pagamento ao streamer é por fora. Liga/desliga geral + "permitir troca" em **Configurações**.
+
+### 🗄️ Migration
+- `v2.4.0_streamer_affiliate.sql`: `coupons` ganha `affiliate_name` + `commission_pct_1/2/3plus` e o tipo `coins` no `discount_type`; `players` ganha `affiliate_coupon_code` + `affiliate_bound_at`; `purchases` ganha `affiliate_coupon_code` (carimbo); seeds `affiliate_enabled` + `affiliate_allow_switch`. Idempotente via `migrate.php`.
+
+---
+
 ## [2.3.10] — 2026-06-15
 
 > Sem migration — só subir os arquivos. Acabamento do v2.3.9 + documentação atualizada.

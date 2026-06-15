@@ -212,6 +212,46 @@ if (!empty($_GET['err'])) {
         <?php endif; ?>
 
         <?php
+        // ===== Apoie seu Streamer (programa de afiliado) =====
+        if (!empty($affiliate_on)):
+            $affFlash = $_GET['aff'] ?? '';
+            $affMsg = [
+                'ok'       => ['✓ Pronto! Agora você apoia esse streamer.', 'var(--moss)'],
+                'switched' => ['✓ Streamer trocado com sucesso.', 'var(--moss)'],
+                'already'  => ['Você já apoia esse streamer.', 'var(--dim)'],
+                'blocked'  => ['Você já apoia um streamer e a troca está desativada.', 'var(--hazard)'],
+                'invalid'  => ['Código de streamer inválido.', 'var(--rust-2)'],
+            ][$affFlash] ?? null;
+        ?>
+        <div class="stat-card" style="margin: 2rem 0 0; padding: 1.4rem; border-left: 3px solid var(--moss);">
+            <div style="font-family: var(--font-display); color: var(--bone); font-size: 1.1rem; margin-bottom: 0.5rem;">🎮 Apoie seu Streamer</div>
+            <?php if ($affMsg): ?>
+                <p style="color: <?= $affMsg[1] ?>; font-size: 0.85rem; margin: 0 0 0.8rem;"><?= e($affMsg[0]) ?></p>
+            <?php endif; ?>
+            <?php if (!empty($my_streamer_name)): ?>
+                <p style="color: var(--dim); font-size: 0.9rem; margin: 0 0 0.8rem;">
+                    Você apoia <strong style="color: var(--moss);">🎮 <?= e($my_streamer_name) ?></strong>. Suas compras ajudam ele.
+                    <?php if (empty($affiliate_allow_switch)): ?><br><span style="font-size: 0.8rem;">(vínculo fixo — fale com a staff pra trocar)</span><?php endif; ?>
+                </p>
+                <?php if (!empty($affiliate_allow_switch)): ?>
+                    <form method="POST" action="/apoiar-streamer" style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
+                        <?= \App\Csrf::field() ?>
+                        <input type="text" name="affiliate_code" placeholder="Trocar pra outro código" required style="flex:1; min-width:200px; padding:0.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); text-transform:uppercase; font-family:var(--font-mono);">
+                        <button type="submit" class="btn btn-sm">Trocar</button>
+                    </form>
+                <?php endif; ?>
+            <?php else: ?>
+                <p style="color: var(--dim); font-size: 0.9rem; margin: 0 0 0.8rem;">Tem um streamer favorito? Digite o código dele pra apoiar — suas compras ajudam ele direto. <strong>Escolha uma vez só.</strong></p>
+                <form method="POST" action="/apoiar-streamer" style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
+                    <?= \App\Csrf::field() ?>
+                    <input type="text" name="affiliate_code" placeholder="Código do streamer (ex: FLAINHO)" required style="flex:1; min-width:200px; padding:0.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); text-transform:uppercase; font-family:var(--font-mono);">
+                    <button type="submit" class="btn btn-sm">Apoiar</button>
+                </form>
+            <?php endif; ?>
+        </div>
+        <?php endif; ?>
+
+        <?php
         // ===== Histórico de Caixas (inventário) =====
         $rarPt = ['common'=>'Comum','uncommon'=>'Incomum','rare'=>'Raro','epic'=>'Épico','legendary'=>'Lendário'];
         $rarColor = ['common'=>'var(--dim)','uncommon'=>'var(--moss)','rare'=>'#4a90d9','epic'=>'#a855f7','legendary'=>'var(--hazard)'];

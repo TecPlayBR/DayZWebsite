@@ -41,6 +41,10 @@ CREATE TABLE players (
     last_seen_at    DATETIME NULL,
     origin          ENUM('agent','panel','payment','manual','bot','reward','box') NOT NULL DEFAULT 'agent',
     notes           TEXT NULL,
+    -- Afiliado/streamer ao qual o cliente esta atrelado (programa "Apoie seu Streamer").
+    -- Setado 1x quando ele usa um cupom de afiliado; so troca se o admin permitir.
+    affiliate_coupon_code VARCHAR(40) NULL,
+    affiliate_bound_at    DATETIME NULL,
     created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
@@ -92,6 +96,7 @@ CREATE TABLE purchases (
     mp_payment_id     VARCHAR(64)  NULL,
     coupon_code       VARCHAR(40)  NULL,    -- código do cupom usado (se houver)
     discount_brl      DECIMAL(8,2) NOT NULL DEFAULT 0, -- valor descontado do preço total
+    affiliate_coupon_code VARCHAR(40) NULL, -- streamer atribuido NO MOMENTO da compra (historico estavel)
     terms_accepted_at DATETIME     NULL,    -- timestamp de quando aceitou termos
     terms_version     VARCHAR(20)  NULL,    -- versao dos termos (ex: '2026-05-27')
     mp_status         VARCHAR(32)  NULL,    -- pending, approved, rejected, cancelled, refunded
@@ -177,7 +182,7 @@ DROP TABLE IF EXISTS coupons;
 CREATE TABLE coupons (
     id INT AUTO_INCREMENT PRIMARY KEY,
     code VARCHAR(40) NOT NULL UNIQUE,
-    discount_type ENUM('percent','fixed') NOT NULL DEFAULT 'percent',
+    discount_type ENUM('percent','fixed','coins') NOT NULL DEFAULT 'percent',
     discount_value DECIMAL(8,2) NOT NULL,
     max_uses INT NULL,
     used_count INT NOT NULL DEFAULT 0,
@@ -186,6 +191,12 @@ CREATE TABLE coupons (
     package_ids JSON NULL,
     active TINYINT(1) NOT NULL DEFAULT 1,
     notes VARCHAR(255) NULL,
+    -- Programa de afiliado/streamer: se affiliate_name preenchido, o cupom rende cachê.
+    -- Comissao escalonada pela recorrencia do cliente (1a/2a/3a+ compra), sobre o valor cheio.
+    affiliate_name VARCHAR(120) NULL,
+    commission_pct_1 DECIMAL(5,2) NOT NULL DEFAULT 0,
+    commission_pct_2 DECIMAL(5,2) NOT NULL DEFAULT 0,
+    commission_pct_3plus DECIMAL(5,2) NOT NULL DEFAULT 0,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_code_active (code, active)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -548,7 +559,9 @@ INSERT INTO settings (`key`, `value`) VALUES
 ('live_purchases_show_price', '0'),
 ('terms_version', '2026-05-27'),
 ('discord_integration_token', ''),
-('discord_integration_last_ok', '0');
+('discord_integration_last_ok', '0'),
+('affiliate_enabled', '0'),
+('affiliate_allow_switch', '0');
 
 -- ==== SEED: paginas legais (v2.2.0) ====
 -- Conteudo de EXEMPLO para os clientes nao nascerem com paginas legais vazias.
