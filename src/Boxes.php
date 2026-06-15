@@ -187,6 +187,9 @@ class Boxes {
      * Retorna quantas entregou.
      */
     public static function deliverPending(int $limit = 50): int {
+        // Modo "resgate manual": NÃO entrega sozinho — espera o player clicar "Receber"
+        // (no painel) ou resgatar in-game, pra ele escolher o momento/lugar seguro.
+        if (Settings::getBool('box_claim_enabled')) return 0;
         if (Restart::inDangerWindow() || !CFTools::isConfigured()) return 0;
         $online = CFTools::onlinePlayers();
         if (empty($online)) return 0;

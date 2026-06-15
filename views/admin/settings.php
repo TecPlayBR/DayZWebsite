@@ -126,6 +126,19 @@
         </div>
 
         <div style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.2rem;">
+            <label style="display:block; font-size:0.9rem; color:var(--bone); margin-bottom:0.5rem;">
+                📥 Entrega das caixas <small style="color: var(--dim); font-weight: 400;">— como o item sorteado chega no jogo</small>
+            </label>
+            <label style="display:flex; align-items:flex-start; gap:0.5rem; font-size:0.9rem; color:var(--bone);">
+                <input type="checkbox" name="box_claim_enabled" value="1" <?= !empty($settings['box_claim_enabled']) ? 'checked' : '' ?> style="width:18px;height:18px;margin-top:0.15rem;">
+                <span>Resgate <strong>manual</strong> — segura o item até o jogador clicar <strong>"Receber"</strong> (no painel) ou resgatar in-game, num momento/lugar seguro. <strong>Desligado</strong> = entrega automática (cai sozinho quando ele está online).</span>
+            </label>
+            <p style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--dim);">
+                💡 O resgate manual evita o item cair em hora ruim (inimigo perto, recém-logado). Requer CFTools configurado pra cair no jogo (igual a entrega automática).
+            </p>
+        </div>
+
+        <div style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.2rem;">
             <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.9rem; color:var(--bone); margin-bottom:0.6rem;">
                 <input type="checkbox" name="restart_enabled" value="1" <?= !empty($settings['restart_enabled']) ? 'checked' : '' ?> style="width:18px;height:18px;">
                 🔄 Mostrar próximo restart do servidor

@@ -257,9 +257,20 @@ if (!empty($_GET['err'])) {
         $rarColor = ['common'=>'var(--dim)','uncommon'=>'var(--moss)','rare'=>'#4a90d9','epic'=>'#a855f7','legendary'=>'var(--hazard)'];
         if (!empty($box_openings)):
         ?>
-        <h2 style="font-family: var(--font-display); color: var(--bone); font-size: 1.4rem; margin: 3rem 0 1.5rem; letter-spacing: 0.04em;">
+        <h2 id="caixas" style="font-family: var(--font-display); color: var(--bone); font-size: 1.4rem; margin: 3rem 0 1.5rem; letter-spacing: 0.04em;">
             🎁 Histórico de Caixas
         </h2>
+        <?php
+        $boxFlash = [
+            'ok'          => ['✓ Item liberado! Vai cair no chão perto de você no servidor em instantes.', 'var(--moss)'],
+            'wait'        => ['Pra receber agora você precisa estar online no servidor (e fora da janela de restart). Entre no jogo e clique Receber.', 'var(--hazard)'],
+            'already'     => ['Esse item já tinha sido entregue.', 'var(--dim)'],
+            'invalid'     => ['Item inválido.', 'var(--rust-2)'],
+            'ratelimited' => ['Calma — muitos resgates seguidos. Tenta de novo em instantes.', 'var(--rust-2)'],
+        ][$_GET['box'] ?? ''] ?? null;
+        if ($boxFlash): ?>
+            <p style="color: <?= $boxFlash[1] ?>; font-size: 0.88rem; margin: -0.5rem 0 1rem;"><?= e($boxFlash[0]) ?></p>
+        <?php endif; ?>
         <table class="purchases-table">
             <thead>
                 <tr>
@@ -288,6 +299,10 @@ if (!empty($_GET['err'])) {
                                 <span class="purchase-badge badge-success">✓ Entregue</span>
                             <?php else: ?>
                                 <span class="purchase-badge badge-warning">⏳ Pendente</span>
+                                <form method="POST" action="/claim-box/<?= (int)$o['id'] ?>" style="display:inline; margin-left:0.4rem;">
+                                    <?= \App\Csrf::field() ?>
+                                    <button type="submit" class="btn" style="padding:0.25rem 0.7rem; font-size:0.76rem;" title="Receber agora (você precisa estar online no servidor)">📥 Receber</button>
+                                </form>
                             <?php endif; ?>
                         </td>
                     </tr>
@@ -295,7 +310,11 @@ if (!empty($_GET['err'])) {
             </tbody>
         </table>
         <p style="color: var(--dim); font-size: 0.8rem; margin-top: 0.6rem;">
-            ⏳ <strong>Pendente</strong> = entra automaticamente assim que você estiver <strong>online no servidor</strong> (itens só caem com o personagem conectado).
+            <?php if (!empty($box_claim_enabled)): ?>
+                📥 <strong>Pendente</strong> = clique <strong>Receber</strong> quando estiver <strong>online no servidor</strong>, num lugar seguro. O item cai no chão perto de você (não some, espera você resgatar).
+            <?php else: ?>
+                ⏳ <strong>Pendente</strong> = entra automaticamente assim que você estiver <strong>online no servidor</strong> (ou clique <strong>Receber</strong> pra forçar). Itens só caem com o personagem conectado.
+            <?php endif; ?>
         </p>
         <?php endif; ?>
 

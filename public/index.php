@@ -1276,6 +1276,7 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
         'affiliate_allow_switch' => \App\Affiliate::allowSwitch(),
         'my_streamer_code' => $myStreamerCode,
         'my_streamer_name' => $myStreamerName,
+        'box_claim_enabled' => \App\Settings::getBool('box_claim_enabled'),
     ]);
 });
 
@@ -1294,6 +1295,28 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     $res = \App\Affiliate::bind($steamId, $coupon['code']);
     $map = ['bound' => 'ok', 'switched' => 'switched', 'already' => 'already', 'blocked' => 'blocked', 'disabled' => 'invalid'];
     header('Location: /my-purchases?aff=' . ($map[$res] ?? 'invalid'));
+    exit;
+});
+
+// Resgatar (claim) uma caixa pendente: o player decide QUANDO o item cai no jogo.
+// Server-authoritative: só resgata abertura que é DELE e está pendente (anti-burla).
+\App\Router::post('/claim-box/{id}', function($id) use ($config) {
+    if (!\App\SteamAuth::check()) { header('Location: /auth/steam'); exit; }
+    if (!\App\Csrf::check()) { header('Location: /my-purchases?err=csrf'); exit; }
+    $steamId = \App\SteamAuth::steamId();
+    $id = (int) $id;
+    $rl = \App\RateLimit::check('claimbox:' . $steamId, 20, 600);
+    if (!$rl['allowed']) { header('Location: /my-purchases?box=ratelimited'); exit; }
+    $op = \App\Database::fetchOne(
+        "SELECT id, steam_id, classname, quantity, status FROM box_openings WHERE id = ? LIMIT 1", [$id]
+    );
+    if (!$op || $op['steam_id'] !== $steamId) { header('Location: /my-purchases?box=invalid'); exit; }
+    if (($op['status'] ?? '') === 'delivered' || !empty($op['delivered_at'] ?? null)) {
+        header('Location: /my-purchases?box=already'); exit;
+    }
+    // deliver() já blinda online + janela de restart + CFTools; devolve 'delivered'|'pending'.
+    $res = \App\Boxes::deliver($id, $steamId, $op['classname'], (int)$op['quantity']);
+    header('Location: /my-purchases?box=' . ($res === 'delivered' ? 'ok' : 'wait') . '#caixas');
     exit;
 });
 
@@ -1875,7 +1898,7 @@ $collectDashboardData = function() {
                'cftools_app_id','cftools_server_api_id'];
     // Toggles (checkbox): se não veio no POST, vira 0
     $toggles = ['maintenance_enabled', 'live_purchases_enabled', 'live_purchases_anonymize', 'live_purchases_show_price',
-                'restart_enabled', 'affiliate_enabled', 'affiliate_allow_switch'];
+                'restart_enabled', 'affiliate_enabled', 'affiliate_allow_switch', 'box_claim_enabled'];
 
     // Escrita via Settings::set(): valida contra o whitelist (SCHEMA), normaliza
     // por tipo e atualiza o cache em memória. Chave fora do SCHEMA é rejeitada.

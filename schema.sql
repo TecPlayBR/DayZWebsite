@@ -561,7 +561,8 @@ INSERT INTO settings (`key`, `value`) VALUES
 ('discord_integration_token', ''),
 ('discord_integration_last_ok', '0'),
 ('affiliate_enabled', '0'),
-('affiliate_allow_switch', '0');
+('affiliate_allow_switch', '0'),
+('box_claim_enabled', '0');
 
 -- ==== SEED: paginas legais (v2.2.0) ====
 -- Conteudo de EXEMPLO para os clientes nao nascerem com paginas legais vazias.

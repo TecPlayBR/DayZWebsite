@@ -61,6 +61,9 @@ class Settings {
         // Programa de afiliado/streamer ("Apoie seu Streamer").
         'affiliate_enabled'        => 'bool',
         'affiliate_allow_switch'   => 'bool',
+        // Entrega das caixas: 0 = automática (cai quando online); 1 = resgate manual
+        // (segura até o player clicar "Receber" no painel ou resgatar in-game).
+        'box_claim_enabled'        => 'bool',
     ];
 
     private static array $cache = [];

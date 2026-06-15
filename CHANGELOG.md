@@ -5,6 +5,18 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.4.2] — 2026-06-15
+
+> Sem migration — só subir os arquivos. Resgate manual de itens das caixas.
+
+### 📥 Resgate manual das caixas ("Receber" no painel)
+- Novo modo de entrega (Configurações → **Entrega das caixas**): **resgate manual**. Em vez de o item cair sozinho assim que o jogador fica online, ele fica **pendente** e o jogador clica **"Receber"** no painel (`/my-purchases`) quando estiver num lugar/momento **seguro** — evita o item cair em hora ruim (inimigo perto, recém-logado).
+- Botão **"Receber"** nas caixas pendentes do painel → `POST /claim-box/{id}`, **server-authoritative** (só resgata abertura que é do próprio jogador e está pendente; valida online + janela de restart + rate-limit). Anti-burla: o cliente não força item que não é dele.
+- No modo manual, o poller automático (`Boxes::deliverPending`) **não entrega sozinho** — espera o resgate. Modo automático (padrão) inalterado, e mesmo nele o botão "Receber" permite forçar.
+- Base pro resgate in-game (menu tecla I, escolher item/todos) que o mod vai implementar — contrato e plano em `_handoff-claudes/PLANO_resgate_itens_claim.md`.
+
+---
+
 ## [2.4.1] — 2026-06-15
 
 > Sem migration — só subir os arquivos. Picuinhas de UX.
