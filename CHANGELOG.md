@@ -5,6 +5,23 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.3.10] — 2026-06-15
+
+> Sem migration — só subir os arquivos. Acabamento do v2.3.9 + documentação atualizada.
+
+### 🌐 i18n da nota de termos no checkout
+- A nota "Ao concluir o pagamento, você aceita os Termos…" (adicionada na v2.3.9) estava **hardcoded em PT**. Virou chave de idioma (`pix.terms_note` + `pix.terms_terms` + `pix.terms_refund`) com tradução PT/EN — paridade de idiomas mantida (292/292 chaves).
+
+### 🧹 Botão "Ver no admin" no checkout de modo-dev
+- A tela de checkout **modo dev** (só aparece quando o Mercado Pago **não** está configurado) tinha um botão "Ver no admin" visível pra qualquer visitante. Agora só aparece pra **admin logado** (atalho de teste) — visitante comum não vê. Em produção com MP configurado essa tela nunca aparece.
+
+### 📚 Documentação atualizada (estava defasada)
+- **INSTALACAO.md:** o passo a passo do `install.php` documentava 5 cards — agora cobre os **7** (incluindo **CFTools** e **Dados de exemplo**), com aviso de limpar o demo antes do go-live.
+- **README.md:** a seção CFTools agora mostra que dá pra configurar **pelo painel** (Admin → Configurações), não só pelo `config.php`, e deixa claro que o CFTools também faz as **caixas caírem no jogo**.
+- **RELEASE_NOTES.md:** estava parado na v2.2.0 — atualizado pra v2.3.9 com os destaques da linha 2.3.x (badge do README aponta pra ele).
+
+---
+
 ## [2.3.9] — 2026-06-15
 
 > Sem migration — só subir os arquivos. UX da loja + histórico in-game no painel + dados de exemplo no instalador.

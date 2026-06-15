@@ -9,7 +9,7 @@ Tema apocalipse · Painel admin completo · Mercado Pago · Login Steam · Multi
 [![MySQL](https://img.shields.io/badge/MySQL-5.7+-4479A1?style=flat-square&logo=mysql&logoColor=white)](https://www.mysql.com)
 [![License](https://img.shields.io/badge/License-Tecplay--NC-a855f7?style=flat-square)](LICENSE.txt)
 [![Status](https://img.shields.io/badge/Status-Produção-16a34a?style=flat-square)]()
-[![Versão](https://img.shields.io/badge/Versão-2.3.9-facc15?style=flat-square)](RELEASE_NOTES.md)
+[![Versão](https://img.shields.io/badge/Versão-2.3.10-facc15?style=flat-square)](RELEASE_NOTES.md)
 
 *Sobreviva. Construa. Domine. Agora também na web.*
 
@@ -248,15 +248,17 @@ Quer mostrar **kills, K/D, tempo online e armas** do seu servidor no `/ranking` 
 4. **Pegar o `server_api_id` (UUID do servidor):**
    - Vá no painel dos servidores: **https://app.cftools.cloud** → abra o seu servidor.
    - O **Server API ID** é o identificador (UUID, tipo `ad221e8f-8c63-...`) que fica em **Settings/Manage do servidor** (ou no endereço da página de gerenciamento dele). É esse valor que vai em `server_api_id`.
-5. Edite `config/config.php` e preencha o bloco:
-   ```php
-   'cftools' => [
-       'app_id'        => 'SEU_APPLICATION_ID',
-       'secret'        => 'SEU_SECRET',
-       'server_api_id' => 'SEU_SERVER_API_ID',
-   ],
-   ```
-6. Pronto. O site cacheia as respostas (respeita os limites do CFTools) e as stats aparecem sozinhas no ranking e nos perfis. **Sem isso preenchido, o site funciona normal — só não mostra stats de gameplay.**
+5. Preencha as 3 credenciais (`app_id`, `secret`, `server_api_id`). Tem **dois jeitos** (escolha um):
+   - **Pelo painel (mais fácil, recomendado):** entre em **Admin → Configurações → 🎮 Integração CFTools** e cole os 3 valores. Salvou, ativou. Sem mexer em arquivo.
+   - **Pelo `config/config.php`** (se preferir fixar no arquivo — tem prioridade sobre o painel):
+     ```php
+     'cftools' => [
+         'app_id'        => 'SEU_APPLICATION_ID',
+         'secret'        => 'SEU_SECRET',
+         'server_api_id' => 'SEU_SERVER_API_ID',
+     ],
+     ```
+6. Pronto. O site cacheia as respostas (respeita os limites do CFTools) e as stats aparecem sozinhas no ranking e nos perfis. **O CFTools também é o que faz os itens das CAIXAS caírem no jogo** — sem ele preenchido, as caixas abrem mas ficam pendentes. **Sem CFTools, o site funciona normal — só não mostra stats de gameplay nem entrega caixas in-game.**
 
 > 🔒 O `secret` é seu e fica só no seu `config/config.php` (que é gitignored e nunca vai pro repositório).
 

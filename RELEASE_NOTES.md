@@ -1,6 +1,19 @@
-# 🏴 DayZ Website Template — Notas da versão (v2.2.0)
+# 🏴 DayZ Website Template — Notas da versão (v2.3.9)
 
-> **Atualizar é seguro e não apaga nada.** Esta versão **TEM migration** — depois de subir os arquivos, rode `php cli/migrate.php`. Passo a passo no **[ATUALIZAR.md](ATUALIZAR.md)**.
+> **Atualizar é seguro e não apaga nada.** Da v2.2.0 pra cá (linha **2.3.x**) **não tem migration** — basta subir os arquivos (respeitando a Regra de Ouro). O log detalhado de cada versão fica no **[CHANGELOG.md](CHANGELOG.md)**; aqui vão os destaques.
+
+---
+
+## 🆕 Destaques da linha v2.3.x (até a v2.3.9)
+
+- **🎮 Integração CFTools pelo painel** — agora dá pra ativar o **ranking de gameplay** (kills, zumbis, K/D, tempo) **e a entrega das caixas no jogo** direto em **Admin → Configurações → 🎮 Integração CFTools** (ou no `install.php`), sem editar `config.php`. Aviso no `/admin/caixas` quando não está configurado.
+- **🛒 Aceite dos Termos no checkout** — saiu o checkbox obrigatório da vitrine `/shop` (fricção); o aceite virou um aviso por ação na tela de pagamento.
+- **🎮 Histórico da loja in-game (`/loja`)** no painel do jogador (Minhas compras).
+- **🌱 Dados de exemplo no `install.php`** — checkbox pra o site não nascer vazio (removível com `php cli/seed-demo.php --clean`).
+- **🔴 Removido o "R$ X / moeda"** dos cards da loja (era enganoso — gerava disputa de valor).
+- **🛡 Robustez de host** — fix do `finfo` em hospedagem sem `fileinfo`, logo responsivo (logo-com-nome), páginas legais de exemplo, e degradação limpa em instalações antigas.
+
+> Detalhe completo (todas as 2.3.0 → 2.3.9): **[CHANGELOG.md](CHANGELOG.md)**.
 
 ---
 

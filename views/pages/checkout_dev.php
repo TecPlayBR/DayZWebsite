@@ -26,7 +26,9 @@
 
         <div class="hero-actions">
             <a href="/shop" class="btn">Voltar pra loja</a>
-            <a href="/admin/purchases" class="btn btn-outline">Ver no admin</a>
+            <?php if (\App\Auth::check()): // só pro admin logado (atalho de teste) — visitante não vê ?>
+                <a href="/admin/purchases" class="btn btn-outline">Ver no admin</a>
+            <?php endif; ?>
         </div>
     </div>
 </section>

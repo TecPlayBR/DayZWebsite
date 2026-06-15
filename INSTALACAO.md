@@ -184,6 +184,12 @@ O wizard **já sugere um token aleatório forte**. Clique no campo amarelo pra c
 - **Access Token:** começa com `TEST-` (testes) ou `APP_USR-` (produção)
 - **Webhook Secret:** opcional, mas recomendado em produção
 
+### Card 6: CFTools (opcional)
+**Habilita o ranking de gameplay** (kills, zumbis, K/D, tempo online) **e a entrega das caixas/lootboxes dentro do jogo.** Pode deixar vazio agora e preencher depois em **Admin → Configurações → 🎮 Integração CFTools**. Se já tem: cole o **Application ID**, o **Secret** (de `developer.cftools.cloud`) e o **Server API ID** (do painel do servidor em `app.cftools.cloud`). Detalhes na seção "Ativar leaderboard" do `README.md`. **Sem CFTools:** o `/ranking` mostra só "Investimento" e as caixas abrem mas não caem no jogo (ficam pendentes).
+
+### Card 7: Dados de exemplo
+**Vem marcado por padrão.** Popula o site com **jogadores, compras, avaliações e anúncios fictícios** pra ele não nascer vazio (assim você vê como fica "vivo" e o cliente não estranha um site sem nada). Tudo marcado como demo. **Antes de abrir pro público de verdade, remova** com `php cli/seed-demo.php --clean` (ou apagando no painel). Desmarque o checkbox se quiser instalar já limpo.
+
 ### Clique em **INSTALAR**
 
 Se tudo deu certo, você vê uma tela verde dizendo:
@@ -199,11 +205,13 @@ E o `install.php` **se auto-renomeia** pra um arquivo com timestamp (segurança)
 1. Acesse `https://seudominio.com.br/` — você deve ver a landing apocalipse
 2. Acesse `https://seudominio.com.br/admin/login` — faça login com o usuário e senha do passo 3
 3. No painel admin você vê:
-   - Dashboard com stats zerados (esperado, ainda sem players)
+   - Dashboard com stats — **com dados de exemplo** se você deixou o Card 7 marcado (jogadores/compras fictícios), ou **zerados** se instalou limpo
    - Lista de pacotes (6 seedados)
    - Configurações
 
 🎉 **Se chegou aqui, o site está no ar!**
+
+> 🧹 **Instalou com dados de exemplo?** Antes de divulgar pro público, limpe os fictícios com `php cli/seed-demo.php --clean` (ou apague no painel). Eles existem só pra você ver o site preenchido durante a configuração.
 
 ---
 
