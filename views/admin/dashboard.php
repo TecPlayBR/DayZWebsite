@@ -1,4 +1,4 @@
-<?php /** @var array $config, $stats, $recent_purchases */ ?>
+<?php /** @var array $config, $stats, $recent_purchases, $pending_migrations */ ?>
 <?php $title = 'Dashboard'; ?>
 <?php \App\View::extend('admin.layout'); ?>
 
@@ -14,6 +14,19 @@
         <button id="refresh-toggle" type="button" class="btn-mini outline" title="Pausa/retoma auto-refresh (30s)">⏸ Pausar</button>
     </div>
 </div>
+
+<?php if (!empty($pending_migrations)): ?>
+    <div style="background:var(--danger-overlay,rgba(231,57,70,.12)); border-left:4px solid var(--hazard,#facc15); padding:1rem 1.2rem; margin-bottom:1.5rem; border-radius:3px;">
+        <strong style="color:var(--hazard,#facc15);">⚠ Banco de dados desatualizado</strong>
+        <p style="color:var(--bone); margin:.5rem 0 0; font-size:.9rem; line-height:1.6;">
+            Há <strong><?= count($pending_migrations) ?> atualização(ões) de banco pendente(s)</strong> — você subiu os arquivos novos mas ainda não rodou a migration.
+            Rode <strong>uma vez</strong>: <code style="background:var(--bg-2,#1c1230); padding:.1rem .4rem; border-radius:3px;">php cli/migrate.php</code>
+            (sem SSH? Painel da hospedagem → <strong>Cron Jobs</strong> → cron "uma vez" com esse comando, rode e remova).
+            Enquanto não rodar, recursos novos podem não funcionar.
+            <br><span style="color:var(--dim); font-size:.82rem;">Pendente: <?= e(implode(', ', $pending_migrations)) ?></span>
+        </p>
+    </div>
+<?php endif; ?>
 
 <?php if (empty($config['delivery_active'])): ?>
     <div style="background:var(--danger-overlay,rgba(231,57,70,.12)); border-left:4px solid var(--rust-2); padding:1rem 1.2rem; margin-bottom:1.5rem; border-radius:3px;">

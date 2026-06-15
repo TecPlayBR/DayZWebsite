@@ -1328,11 +1328,12 @@ $collectDashboardData = function() {
     ];
 };
 
-\App\Router::get('/admin', function() use ($config, $collectDashboardData) {
+\App\Router::get('/admin', function() use ($config, $collectDashboardData, $ROOT) {
     \App\Auth::requireCan('dashboard');
     $data = $collectDashboardData();
     \App\View::display('admin.dashboard', [
         'config' => $config, 'stats' => $data['stats'], 'recent_purchases' => $data['recent_purchases'],
+        'pending_migrations' => pending_migrations($ROOT),
     ]);
 });
 

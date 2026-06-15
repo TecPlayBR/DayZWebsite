@@ -19,6 +19,36 @@ if (!function_exists('e')) {
     }
 }
 
+if (!function_exists('pending_migrations')) {
+    /**
+     * Migrations em /migrations que ainda NÃO foram aplicadas (não estão na tabela
+     * schema_migrations). Usado pra avisar o admin que o banco está atrasado — o
+     * cliente subiu os arquivos novos mas esqueceu de rodar `php cli/migrate.php`.
+     *
+     * Só acusa quando schema_migrations EXISTE e tem lacuna. Instalação nova (via
+     * schema.sql, que já traz tudo) não cria essa tabela → retorna [] (sem alarme falso).
+     * Qualquer erro também retorna [] — nunca trava o painel.
+     */
+    function pending_migrations(string $root): array {
+        try {
+            $files = glob(rtrim($root, '/\\') . '/migrations/*.sql') ?: [];
+            if (!$files) return [];
+            $applied = \App\Database::fetchAll("SELECT filename FROM schema_migrations");
+            $done = [];
+            foreach ($applied as $a) { $done[$a['filename']] = true; }
+            $pending = [];
+            foreach ($files as $f) {
+                $name = basename($f);
+                if (empty($done[$name])) $pending[] = $name;
+            }
+            sort($pending);
+            return $pending;
+        } catch (\Throwable $e) {
+            return []; // schema_migrations ausente (install novo) ou erro → sem aviso
+        }
+    }
+}
+
 if (!function_exists('ensure_writable_dir')) {
     /**
      * Garante que um diretório existe E é gravável pelo PHP — inclusive em hosts que

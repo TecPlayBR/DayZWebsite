@@ -5,6 +5,16 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.2.3] — 2026-06-14
+
+> Sem migration — só subir os arquivos.
+
+### 🟢 Aviso no painel quando o banco está desatualizado
+- Fecha o item de "validação de versão de schema" da auditoria. Agora o **Dashboard do admin mostra um banner** quando há migration pendente (cliente subiu os arquivos novos mas esqueceu de rodar `php cli/migrate.php`), listando o que falta e o comando exato.
+- Detecção segura: só acusa quando `schema_migrations` **existe e tem lacuna**. Instalação nova (via `schema.sql`, que já traz tudo) **não dá alarme falso**. Qualquer erro na checagem não trava o painel. Testado nos 3 cenários (install novo = sem aviso; cliente atrasado = avisa e nomeia; em dia = sem aviso).
+
+---
+
 ## [2.2.2] — 2026-06-14
 
 > Sem migration — só subir os arquivos. Correções de uma auditoria de segurança/robustez.
