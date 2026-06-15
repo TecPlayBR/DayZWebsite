@@ -5,6 +5,17 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.3.5] — 2026-06-15
+
+> Sem migration — só subir os arquivos.
+
+### 🐛 Upload de imagem quebrava em host sem a extensão `fileinfo`
+- Em hospedagens que **não têm a extensão PHP `fileinfo`**, subir imagem (logo, galeria, pacote, caixas) dava fatal: **`Call to undefined function finfo_open()`**. Reportado por cliente em produção.
+- Novo helper `detect_image_mime()` resiliente: tenta `finfo`; se a extensão não existe, cai pra **`getimagesize()`** (parte do GD, quase sempre presente — e ainda confirma que é imagem REAL) e por fim `mime_content_type()`. Aplicado nos **4 pontos de upload** (imagem de pacote, galeria, marca/customize, e o `upload_image` de caixas/itens).
+- A validação por allowlist de MIME continua igual (arquivo não-imagem segue rejeitado). Testado: PNG real → `image/png`; texto → rejeitado; fallback sem finfo funciona.
+
+---
+
 ## [2.3.4] — 2026-06-15
 
 > Sem migration — só subir os arquivos.

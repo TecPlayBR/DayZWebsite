@@ -1552,7 +1552,7 @@ $collectDashboardData = function() {
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
         $f = $_FILES['image'];
         $allowed = ['image/png' => 'png', 'image/webp' => 'webp', 'image/jpeg' => 'jpg'];
-        $finfo = finfo_open(FILEINFO_MIME_TYPE); $mime = finfo_file($finfo, $f['tmp_name']); finfo_close($finfo);
+        $mime = detect_image_mime($f['tmp_name']);
         if ($f['size'] <= 5 * 1024 * 1024 && isset($allowed[$mime])) {
             ensure_writable_dir($pkgDir);
             $fname = 'p_' . bin2hex(random_bytes(8)) . '.' . $allowed[$mime];
@@ -2307,9 +2307,7 @@ $REWARD_CATEGORIES = [
     if ($file['size'] > 5 * 1024 * 1024) {
         header('Location: /admin/gallery?err=size'); exit;
     }
-    $finfo = finfo_open(FILEINFO_MIME_TYPE);
-    $mime  = finfo_file($finfo, $file['tmp_name']);
-    finfo_close($finfo);
+    $mime = detect_image_mime($file['tmp_name']);
     $allowed = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif'];
     if (!isset($allowed[$mime])) {
         header('Location: /admin/gallery?err=type'); exit;
@@ -2526,9 +2524,7 @@ $BRAND_SLOTS = [
     if ($file['size'] > $BRAND_SLOTS[$slot] * 1024 * 1024) {
         header('Location: /admin/customize?err=size'); exit;
     }
-    $finfo = finfo_open(FILEINFO_MIME_TYPE);
-    $mime  = finfo_file($finfo, $file['tmp_name']);
-    finfo_close($finfo);
+    $mime = detect_image_mime($file['tmp_name']);
     $allowed = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif'];
     if (!isset($allowed[$mime])) { header('Location: /admin/customize?err=type'); exit; }
     $ext = $allowed[$mime];

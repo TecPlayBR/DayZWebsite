@@ -49,6 +49,30 @@ if (!function_exists('pending_migrations')) {
     }
 }
 
+if (!function_exists('detect_image_mime')) {
+    /**
+     * Detecta o MIME de um arquivo de imagem de forma resiliente. Alguns hosts NÃO
+     * têm a extensão PHP `fileinfo` (aí `finfo_open()` é undefined e dava fatal
+     * "Call to undefined function finfo_open()" no upload). Ordem:
+     *   1) finfo (ideal, quando a extensão existe);
+     *   2) getimagesize (parte do GD, quase sempre presente — e ainda confirma que é
+     *      uma IMAGEM de verdade, então é até mais seguro pra upload de imagem);
+     *   3) mime_content_type (último recurso).
+     * Retorna o MIME (ex.: 'image/png') ou null. A validação por allowlist continua
+     * sendo feita por quem chama — isto só descobre o tipo.
+     */
+    function detect_image_mime(string $path): ?string {
+        if (function_exists('finfo_open')) {
+            $fi = @finfo_open(FILEINFO_MIME_TYPE);
+            if ($fi) { $m = @finfo_file($fi, $path); @finfo_close($fi); if (!empty($m)) return $m; }
+        }
+        $info = @getimagesize($path);
+        if (!empty($info['mime'])) return $info['mime'];
+        if (function_exists('mime_content_type')) { $m = @mime_content_type($path); if (!empty($m)) return $m; }
+        return null;
+    }
+}
+
 if (!function_exists('ensure_writable_dir')) {
     /**
      * Garante que um diretório existe E é gravável pelo PHP — inclusive em hosts que
@@ -191,9 +215,7 @@ if (!function_exists('upload_image')) {
         if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) return null;
         if (($file['size'] ?? 0) > 5 * 1024 * 1024) return null;
         $allowed = ['image/png' => 'png', 'image/webp' => 'webp', 'image/jpeg' => 'jpg', 'image/gif' => 'gif'];
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $mime  = finfo_file($finfo, $file['tmp_name']);
-        finfo_close($finfo);
+        $mime = detect_image_mime($file['tmp_name']);
         if (!isset($allowed[$mime])) return null;
         ensure_writable_dir($destDir);
         $fname = $prefix . '_' . bin2hex(random_bytes(8)) . '.' . $allowed[$mime];
