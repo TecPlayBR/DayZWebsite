@@ -160,7 +160,7 @@
             <?php endforeach; ?>
         </div>
         <p style="margin-top: 0.8rem; font-size: 0.8rem; color: var(--dim);">
-            O <code>discord_invite</code> é usado pelo link "Discord" do header/footer. Os demais aparecem como ícones no rodapé.
+            O campo <strong>Discord</strong> alimenta o link "Discord" do header e o ícone no rodapé. Os demais aparecem como ícones no rodapé.
         </p>
     </div>
 

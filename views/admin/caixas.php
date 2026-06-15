@@ -35,7 +35,7 @@
         </div>
         <div>
             <label style="display:flex;align-items:center;gap:0.3rem;font-size:0.78rem;color:var(--dim);"><input type="checkbox" name="is_daily" value="1"> Diária grátis</label>
-            <label style="display:flex;align-items:center;gap:0.3rem;font-size:0.78rem;color:var(--dim);margin-top:0.3rem;"><input type="checkbox" name="enabled" value="1" checked> Ativa</label>
+            <small style="display:block;color:var(--dim);font-size:0.7rem;margin-top:0.3rem;">A caixa nasce ativa — desative depois pela lista, se quiser.</small>
         </div>
         <button type="submit" class="btn">Criar</button>
     </form>

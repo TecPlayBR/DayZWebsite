@@ -5,6 +5,19 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.3.6] — 2026-06-15
+
+> Sem migration — só subir os arquivos. Pente-fino do admin + logo responsiva.
+
+### 🖼️ Logo responsiva (logo "com nome" embutido)
+- Quem usa uma **logo com o nome embutido** (imagem larga) em vez de uma logo curta tinha o logo **esmagado/minúsculo** no rodapé (o `.footer-brand img` forçava 60×60). Agora header e rodapé usam **`width:auto` + `max-width` + `object-fit:contain`** — serve tanto logo quadradinha quanto logo larga, sem distorcer.
+
+### 🐛 Admin
+- **Discord "split-brain":** o painel só tem o campo `social_discord`, mas o botão Discord do **header** (+ página de manutenção, erro 500 e rodapé de e-mail) liam `discord_invite` — que não tem campo no admin. Resultado: cliente novo preenchia "Discord" e o botão do header ficava vazio. Agora esses pontos leem `social_discord` (com fallback pro `discord_invite` legado). Texto de ajuda corrigido.
+- **Caixas — criar rápido:** removido o checkbox "Ativa" que era ignorado (caixa nova nasce sempre ativa por design — agora há uma nota explicando, em vez do controle que não fazia nada). Corrigido também um warning de `slug` (chave indefinida) no criar rápido.
+
+---
+
 ## [2.3.5] — 2026-06-15
 
 > Sem migration — só subir os arquivos.

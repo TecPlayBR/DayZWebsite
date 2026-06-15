@@ -8,7 +8,7 @@
             <span class="brand-name"><?= e($siteName) ?></span>
         </a>
 
-        <?php $discord = $config['settings']['discord_invite'] ?? ''; ?>
+        <?php $discord = ($config['settings']['social_discord'] ?? '') ?: ($config['settings']['discord_invite'] ?? ''); ?>
         <nav>
             <ul class="nav-main">
                 <li><a href="/"><?= e(__('nav.home')) ?></a></li>
@@ -109,7 +109,7 @@
         <li><a href="/galeria" data-close><?= e(__('nav.gallery') ?: 'Galeria') ?></a></li>
         <li><a href="/ranking" data-close><?= e(__('nav.ranking') ?: 'Ranking') ?></a></li>
         <li><a href="/rules" data-close><?= e(__('nav.rules')) ?></a></li>
-        <?php $discord = $config['settings']['discord_invite'] ?? ''; ?>
+        <?php $discord = ($config['settings']['social_discord'] ?? '') ?: ($config['settings']['discord_invite'] ?? ''); ?>
         <?php if ($discord): ?>
             <li><a href="<?= e($discord) ?>" target="_blank" rel="noopener" data-close><?= e(__('nav.discord')) ?></a></li>
         <?php endif; ?>

@@ -4,7 +4,7 @@ $msg = $config['settings']['maintenance_message'] ?? 'Estamos fazendo um update 
 $eta = $config['settings']['maintenance_eta'] ?? '';
 $etaTs = $eta ? strtotime($eta) : 0;
 $siteName = $config['settings']['site_name'] ?? ($config['site_name'] ?? 'TECPLAY');
-$discord = $config['settings']['discord_invite'] ?? '';
+$discord = ($config['settings']['social_discord'] ?? '') ?: ($config['settings']['discord_invite'] ?? '');
 ?>
 <!DOCTYPE html>
 <html lang="<?= e(locale()) ?>">

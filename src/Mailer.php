@@ -115,7 +115,7 @@ class Mailer {
         }
         $base .= '<div class="footer">';
         $base .= 'Este é um e-mail automático de <strong>' . htmlspecialchars($siteName) . '</strong>. Não responda.<br>';
-        $base .= 'Suporte: ' . ($config['settings']['discord_invite'] ?? '<a href="https://discord.gg/uwSE3WSjNH">Discord Tecplay</a>');
+        $base .= 'Suporte: ' . (($config['settings']['social_discord'] ?? '') ?: ($config['settings']['discord_invite'] ?? '') ?: '<a href="https://discord.gg/uwSE3WSjNH">Discord Tecplay</a>');
         $base .= '</div>';
         $base .= '</div></body></html>';
         return $base;

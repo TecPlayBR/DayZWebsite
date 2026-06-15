@@ -20,7 +20,7 @@ $hasSocial = array_filter($socials, fn($s) => !empty($s['url']));
         <div class="footer-grid">
 
             <div class="footer-brand">
-                <img src="<?= asset('img/logo_semfundo_small.png') ?>" alt="<?= e($settings['site_name'] ?? 'Logo') ?>" width="60" height="60" loading="lazy" decoding="async">
+                <img src="<?= asset('img/logo_semfundo_small.png') ?>" alt="<?= e($settings['site_name'] ?? 'Logo') ?>" loading="lazy" decoding="async" style="display:block;">
                 <?php
                 // Tagline multilang: prefere site_tagline_{locale}, fallback pro site_tagline
                 // genérico (PT), depois pro hero.subtitle do arquivo de lang.

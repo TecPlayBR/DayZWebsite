@@ -1821,7 +1821,7 @@ $collectDashboardData = function() {
     $id    = (int)($_POST['id'] ?? 0);
     $name  = trim((string)($_POST['name'] ?? ''));
     if ($name === '') { header('Location: /admin/caixas?err=name'); exit; }
-    $slug  = preg_replace('/[^a-z0-9-]/', '', strtolower(str_replace(' ', '-', $_POST['slug'] ?: $name)));
+    $slug  = preg_replace('/[^a-z0-9-]/', '', strtolower(str_replace(' ', '-', ($_POST['slug'] ?? '') ?: $name)));
     if ($slug === '') $slug = 'caixa-' . substr(md5($name), 0, 6);
     $isDaily = !empty($_POST['is_daily']) ? 1 : 0;
     // Capa: upload novo vence; senão usa o campo URL (que vem pré-preenchido com a atual,

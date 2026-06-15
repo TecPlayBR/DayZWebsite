@@ -1,7 +1,7 @@
 <?php /** @var ?string $detail; @var array $config */ ?>
 <?php
 $siteName = $config['settings']['site_name'] ?? ($config['site_name'] ?? 'TECPLAY');
-$discord = $config['settings']['discord_invite'] ?? '';
+$discord = ($config['settings']['social_discord'] ?? '') ?: ($config['settings']['discord_invite'] ?? '');
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
