@@ -5,6 +5,19 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.4.3] — 2026-06-15
+
+> Sem migration — só subir os arquivos. Fechamento da reauditoria Hostinger (itens de código que ainda faltavam).
+
+### 💸 Conversão / UX
+- **`/eventos` com CTA**: cada evento ativo/futuro agora mostra "como participar" + botões **Comprar moedas** e **Discord** (antes não tinha chamada pra ação nenhuma).
+- **`/depoimentos` com incentivo de review**: aviso abaixo do login Steam — "reviews aprovados aparecem aqui e na loja em até 24h; só jogadores verificados avaliam" — pra derrubar a barreira de "será que vale escrever?".
+- Chaves i18n PT/EN pros dois (paridade 295/295).
+
+> Resto da reauditoria (galeria lazy/dims/lightbox a11y, caixas cross-sell/itens/aria-label, shop ♡/buy aria-label, canonical limpando `?stat`, sitemap connect 0.7, etc.) **já estava implementado desde a v2.3.0** — o scraping pegou um estado antigo. Itens de ops (DNS, Search Console, banner OG, e-mail DPO) seguem com o dono do servidor.
+
+---
+
 ## [2.4.2] — 2026-06-15
 
 > Sem migration — só subir os arquivos. Resgate manual de itens das caixas.

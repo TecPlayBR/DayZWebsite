@@ -82,6 +82,7 @@
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right:0.4rem;"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.72 4.01 10.5 9.39 11.7l3.11-6.7H12c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5v.5c0 .83-.67 1.5-1.5 1.5s-1.5-.67-1.5-1.5V12c0-2.21-1.79-4-4-4s-4 1.79-4 4 1.79 4 4 4h.14c.86 1.44 2.43 2.41 4.23 2.49L12 23.99C18.63 24 24 18.63 24 12S18.63 0 12 0z"/></svg>
                         <?= e(__('depoimentos_page.login_btn')) ?>
                     </a>
+                    <p style="font-size:0.8rem; color:var(--dim); margin-top:0.9rem; line-height:1.5;"><?= e(__('depoimentos_page.review_hint', [], 'Reviews aprovados aparecem aqui e na loja em até 24h. Seu nick Steam fica visível; só jogadores verificados podem avaliar.')) ?></p>
                 </div>
             <?php else: ?>
             <form method="POST" action="/reviews/public-submit" class="public-review-fields">

@@ -6,7 +6,7 @@
 <?php \App\View::with('hero_image', 'img/background2.png'); ?>
 <?php \App\View::section('content'); ?>
 <?php
-$card = function(array $ev) {
+$card = function(array $ev) use ($config) {
     $img = $ev['image'] ?? '';
     ob_start(); ?>
     <div class="ev-card ev-<?= e($ev['status']) ?>">
@@ -22,6 +22,17 @@ $card = function(array $ev) {
             <?php if (!empty($ev['prize'])): ?><div class="ev-prize">🏆 <?= e($ev['prize']) ?></div><?php endif; ?>
             <?php if (!empty($ev['starts_at'])): ?>
                 <div class="ev-when">🕒 <?= e(date('d/m/Y H:i', strtotime((string)$ev['starts_at']))) ?><?= !empty($ev['ends_at']) ? ' → ' . e(date('d/m H:i', strtotime((string)$ev['ends_at']))) : '' ?></div>
+            <?php endif; ?>
+            <?php if ($ev['status'] !== 'ended'):
+                $evDisc = ($config['settings']['social_discord'] ?? '') ?: ($config['settings']['discord_invite'] ?? '');
+            ?>
+                <div style="margin-top:0.8rem; border-top:1px solid var(--border); padding-top:0.7rem;">
+                    <p style="font-size:0.8rem; color:var(--dim); margin:0 0 0.5rem;"><?= e(__('eventos.how_to_join', [], 'Como participar: conecte ao servidor e jogue. Quanto mais tempo online, mais chances.')) ?></p>
+                    <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                        <a href="/shop" class="btn" style="padding:0.3rem 0.8rem; font-size:0.78rem;">🪙 <?= e(__('eventos.cta_shop', [], 'Comprar moedas')) ?></a>
+                        <?php if ($evDisc): ?><a href="<?= e($evDisc) ?>" target="_blank" rel="noopener" class="btn btn-outline" style="padding:0.3rem 0.8rem; font-size:0.78rem;">📢 Discord</a><?php endif; ?>
+                    </div>
+                </div>
             <?php endif; ?>
             <?php if ($ev['status'] === 'ended' && !empty($ev['winner_name'])): ?>
                 <div class="ev-winner">🥇 <?= e(__('eventos.winner')) ?> <?php if (!empty($ev['winner_steam_id'])): ?><a href="/player/<?= e($ev['winner_steam_id']) ?>"><?= e($ev['winner_name']) ?></a><?php else: ?><strong><?= e($ev['winner_name']) ?></strong><?php endif; ?></div>
