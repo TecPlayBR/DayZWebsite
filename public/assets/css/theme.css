@@ -1013,3 +1013,17 @@ body:has(.site-header.scrolled) .announcements-strip {
 @media (min-width: 1600px) {
     .footer-grid { max-width: 1400px; margin: 0 auto 3rem; }
 }
+
+/* Marcador de campo obrigatorio (*) nos labels de formulario */
+.req { color: var(--rust-2); margin-left: 0.15rem; font-weight: 700; }
+
+/* Tabelas de dados publicas: em tablet/celular, rolam na horizontal em vez de
+   estourar o layout (em vez de espremer colunas ou vazar pra fora da tela). */
+@media (max-width: 880px) {
+    .ranking-table, .purchases-table {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}

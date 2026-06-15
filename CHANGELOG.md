@@ -5,6 +5,16 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.4.1] — 2026-06-15
+
+> Sem migration — só subir os arquivos. Picuinhas de UX.
+
+### ✨ Acabamento de UX
+- **Asterisco de campo obrigatório**: os labels dos campos obrigatórios marcam `*` (avaliação no `/depoimentos`, SteamID no `/shop`) pra deixar claro o que é exigido antes de enviar.
+- **Tabelas responsivas no tablet**: as tabelas de dados públicas (ranking, "Minhas compras" + histórico de caixas/loja in-game) agora **rolam na horizontal** em telas estreitas, em vez de estourar/esmagar o layout.
+
+---
+
 ## [2.4.0] — 2026-06-15
 
 > **TEM migration** — depois de subir os arquivos, rode `php cli/migrate.php` (aplica `v2.4.0_streamer_affiliate.sql`). Só adiciona campos; dados intactos.

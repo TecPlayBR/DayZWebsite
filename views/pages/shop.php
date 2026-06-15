@@ -189,7 +189,7 @@ if ($prodItems) {
                             <?= e(substr($prefillSteam, 0, 10) . '...') ?>
                         </div>
                     <?php else: ?>
-                        <input type="text" name="steam_id" placeholder="SteamID64 (17 dígitos)" pattern="7656119[0-9]{10}" required maxlength="17" class="pack-input">
+                        <input type="text" name="steam_id" placeholder="SteamID64 (17 dígitos) *" pattern="7656119[0-9]{10}" required aria-required="true" maxlength="17" class="pack-input">
                     <?php endif; ?>
                     <button type="submit" class="btn pack-buy" aria-label="<?= e(__('shop.buy')) ?> <?= e($pkg['name']) ?> — <?= $coinsTotal ?> moedas por R$ <?= number_format($finalPrice, 2, ',', '.') ?>"><?= e(__('shop.buy')) ?></button>
                 </form>

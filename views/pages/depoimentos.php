@@ -94,7 +94,7 @@
                 </div>
 
                 <label>
-                    <span><?= e(__('depoimentos_page.label_rating')) ?></span>
+                    <span><?= e(__('depoimentos_page.label_rating')) ?><span class="req" aria-hidden="true">*</span></span>
                     <div class="public-review-stars" id="public-review-stars" aria-label="<?= e(__('depoimentos_page.label_rating')) ?>">
                         <button type="button" data-r="1">★</button>
                         <button type="button" data-r="2">★</button>
@@ -105,7 +105,7 @@
                 </label>
 
                 <label>
-                    <span><?= e(__('depoimentos_page.label_review')) ?></span>
+                    <span><?= e(__('depoimentos_page.label_review')) ?><span class="req" aria-hidden="true">*</span></span>
                     <textarea name="body" rows="4" maxlength="500" minlength="10" required
                               placeholder="<?= e(__('depoimentos_page.ph_review')) ?>"></textarea>
                 </label>
