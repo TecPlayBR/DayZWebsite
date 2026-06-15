@@ -24,9 +24,9 @@ $czErrMsg = [
     'upload'      => 'Falha no envio do arquivo. Tente de novo.',
     'size'        => 'Arquivo grande demais pro limite desse item.',
     'type'        => 'Formato não suportado. Use PNG, JPG, WEBP ou GIF.',
-    'move'        => 'Não consegui salvar — a pasta public/assets/img/custom/ precisa ter permissão de escrita (chmod 755).',
+    'move'        => 'Não consegui salvar — dê permissão de escrita à pasta public/assets/img/custom/ (chmod 755; se o seu host roda o PHP em usuário separado, use 775).',
     'theme'       => 'Nenhuma cor válida pra salvar.',
-    'theme_write' => 'Não consegui gravar o tema — a pasta public/assets/css/ precisa ter permissão de escrita (chmod 755).',
+    'theme_write' => 'Não consegui gravar o tema — dê permissão de escrita à pasta public/assets/css/ (chmod 755; se não resolver, 775).',
 ];
 ?>
 <?php if (isset($czOkMsg[$czOk])): ?>

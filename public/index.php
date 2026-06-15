@@ -2502,7 +2502,10 @@ $BRAND_SLOTS = [
     $ext = $allowed[$mime];
 
     $customDir = $ROOT . '/public/assets/img/custom';
-    if (!is_dir($customDir)) @mkdir($customDir, 0755, true);
+    if (!is_dir($customDir)) @mkdir($customDir, 0775, true);
+    // Alguns hosts rodam o PHP como usuário diferente do dono dos arquivos (que vieram
+    // por FTP) — sem permissão de grupo o move falha. Tenta abrir a escrita (775).
+    @chmod($customDir, 0775);
 
     $stem = pathinfo($slot, PATHINFO_FILENAME);
     // Remove qualquer versão anterior desse slot (qualquer extensão) antes de gravar.
@@ -2512,7 +2515,11 @@ $BRAND_SLOTS = [
     }
     $dest = $customDir . '/' . $stem . '.' . $ext;
     if (!move_uploaded_file($file['tmp_name'], $dest)) {
-        header('Location: /admin/customize?err=move'); exit;
+        // 2ª tentativa após forçar a permissão da pasta (resolve a maioria dos hosts).
+        @chmod($customDir, 0775);
+        if (!move_uploaded_file($file['tmp_name'], $dest)) {
+            header('Location: /admin/customize?err=move'); exit;
+        }
     }
     \App\AuditLog::record('customize.upload', 'brand', null, ['slot' => $slot, 'ext' => $ext]);
     header('Location: /admin/customize?ok=upload'); exit;
