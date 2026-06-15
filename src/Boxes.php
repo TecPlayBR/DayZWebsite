@@ -14,9 +14,15 @@ class Boxes {
 
     /** Caixas habilitadas pro grid público. */
     public static function all(): array {
-        return Database::fetchAll(
-            "SELECT * FROM boxes WHERE enabled = 1 ORDER BY sort_order ASC, id ASC"
-        );
+        // try/catch: tabela boxes ausente (upgrade sem migrate) → página /caixas
+        // mostra vazio em vez de derrubar com 500.
+        try {
+            return Database::fetchAll(
+                "SELECT * FROM boxes WHERE enabled = 1 ORDER BY sort_order ASC, id ASC"
+            );
+        } catch (\Throwable $e) {
+            return [];
+        }
     }
 
     public static function find(string $slug): ?array {

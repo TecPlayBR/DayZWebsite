@@ -5,6 +5,20 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.2.2] — 2026-06-14
+
+> Sem migration — só subir os arquivos. Correções de uma auditoria de segurança/robustez.
+
+### 🔴 Recuperação de senha do admin estava MORTA (corrigido)
+- Um guard global de CSRF aplicava `Auth::requireAdmin()` em **todo** POST `/admin/*` (menos `/admin/login`). Como `/admin/forgot` e `/admin/reset` são usados por quem está **deslogado**, o `requireAdmin()` jogava o usuário pro login e os handlers **nunca rodavam** — ou seja, "esqueci a senha" não funcionava (lockout sem saída pelo site; só restava o `cli/reset-password.php`).
+- Fix: o guard agora ignora as rotas públicas do admin (`/admin/login`, `/admin/forgot`, `/admin/reset`), que já fazem **CSRF + rate-limit próprios** nos handlers.
+
+### 🟡 Home não cai mais com 500 em banco sem migration
+- Cliente que sobe os arquivos novos mas **esquece de rodar `php cli/migrate.php`** podia derrubar o **site inteiro**: o header chama `Servers::isMulti()` em toda página e a home chama `Events::featured()` — sem as tabelas (`servers`/`events`), a query lançava e a home dava 500 pra todo mundo.
+- Fix: `Servers::*`, `Events::*` e `Boxes::all()` agora **degradam graciosamente** (retornam vazio/single-server) se a tabela não existir, em vez de derrubar a página. Testado em banco com as tabelas removidas.
+
+---
+
 ## [2.2.1] — 2026-06-14
 
 > Sem migration — só subir os arquivos.

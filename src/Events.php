@@ -11,14 +11,24 @@ namespace App;
 class Events {
 
     /** Todos habilitados, com status calculado. */
+    // try/catch: se o cliente atualizou sem rodar migrate (tabela events ausente),
+    // degrada pra "sem eventos" em vez de derrubar a home inteira com 500.
     public static function all(): array {
-        $rows = Database::fetchAll("SELECT * FROM events WHERE enabled = 1 ORDER BY sort_order ASC, COALESCE(starts_at, created_at) DESC");
+        try {
+            $rows = Database::fetchAll("SELECT * FROM events WHERE enabled = 1 ORDER BY sort_order ASC, COALESCE(starts_at, created_at) DESC");
+        } catch (\Throwable $e) {
+            return [];
+        }
         foreach ($rows as &$e) $e['status'] = self::status($e);
         return $rows;
     }
 
     public static function find(string $slug): ?array {
-        $e = Database::fetchOne("SELECT * FROM events WHERE slug = ? AND enabled = 1 LIMIT 1", [$slug]);
+        try {
+            $e = Database::fetchOne("SELECT * FROM events WHERE slug = ? AND enabled = 1 LIMIT 1", [$slug]);
+        } catch (\Throwable $ex) {
+            return null;
+        }
         if ($e) $e['status'] = self::status($e);
         return $e ?: null;
     }
@@ -46,6 +56,10 @@ class Events {
     }
 
     public static function hasAny(): bool {
-        return (int) Database::fetchColumn("SELECT COUNT(*) FROM events WHERE enabled = 1") > 0;
+        try {
+            return (int) Database::fetchColumn("SELECT COUNT(*) FROM events WHERE enabled = 1") > 0;
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 }

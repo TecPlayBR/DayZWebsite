@@ -14,9 +14,14 @@ class Servers {
     }
 
     public static function active(): array {
-        return Database::fetchAll(
-            "SELECT * FROM servers WHERE active = 1 ORDER BY sort_order ASC, id ASC"
-        );
+        // try/catch: tabela servers ausente (upgrade sem migrate) não derruba o site.
+        try {
+            return Database::fetchAll(
+                "SELECT * FROM servers WHERE active = 1 ORDER BY sort_order ASC, id ASC"
+            );
+        } catch (\Throwable $e) {
+            return [];
+        }
     }
 
     public static function find(int $id): ?array {
@@ -34,17 +39,25 @@ class Servers {
         return $row ?: null;
     }
 
-    /** Site opera em modo multi-server? */
+    /** Site opera em modo multi-server? Roda no header de TODA página → blindado. */
     public static function isMulti(): bool {
-        $n = (int)Database::fetchColumn("SELECT COUNT(*) FROM servers WHERE active = 1");
-        return $n > 1;
+        try {
+            $n = (int)Database::fetchColumn("SELECT COUNT(*) FROM servers WHERE active = 1");
+            return $n > 1;
+        } catch (\Throwable $e) {
+            return false; // default seguro: single-server
+        }
     }
 
     public static function defaultId(): int {
-        $id = Database::fetchColumn(
-            "SELECT id FROM servers WHERE active = 1 ORDER BY sort_order ASC, id ASC LIMIT 1"
-        );
-        return (int)($id ?: 1);
+        try {
+            $id = Database::fetchColumn(
+                "SELECT id FROM servers WHERE active = 1 ORDER BY sort_order ASC, id ASC LIMIT 1"
+            );
+            return (int)($id ?: 1);
+        } catch (\Throwable $e) {
+            return 1;
+        }
     }
 
     public static function generateToken(): string {

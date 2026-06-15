@@ -2974,10 +2974,14 @@ $BRAND_SLOTS = [
     \App\View::display('pages.404', ['config' => $config]);
 });
 
-// ============ CSRF GUARD pra POSTs do admin (exceto /admin/login que ja checa) ============
+// ============ CSRF GUARD pra POSTs do admin ============
+// Rotas de admin que são usadas por quem está DESLOGADO (login + recuperação de senha)
+// NÃO podem exigir sessão admin — senão o fluxo de "esqueci a senha" fica inacessível
+// (lockout sem saída). Elas já fazem CSRF + rate-limit próprios nos handlers.
 if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
-    if (strpos($path, '/admin/') === 0 && $path !== '/admin/login') {
+    $publicAdminPost = in_array($path, ['/admin/login', '/admin/forgot', '/admin/reset'], true);
+    if (strpos($path, '/admin/') === 0 && !$publicAdminPost) {
         \App\Auth::requireAdmin();
         if (!\App\Csrf::check()) {
             http_response_code(419);
