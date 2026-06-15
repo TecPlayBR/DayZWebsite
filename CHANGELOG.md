@@ -5,6 +5,16 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.3.4] — 2026-06-15
+
+> Sem migration — só subir os arquivos.
+
+### 💚 Login Steam não joga mais o jogador na loja
+- Depois do login Steam, o jogador era sempre redirecionado pra `/shop` — ficava evasivo, parecia "compra moeda agora". Agora ele **volta pra página onde estava** quando clicou em login (ranking, perfil, etc., com query preservada). Sem referer disponível, cai na **home** (neutro), não na loja.
+- Captura segura: só path interno same-site; ignora `/auth` e `/admin` (sem loop) e referer externo (anti open-redirect). Os fluxos que precisam de destino fixo (avaliar em `/depoimentos`, ver `/my-purchases`) seguem indo pro lugar certo.
+
+---
+
 ## [2.3.3] — 2026-06-15
 
 > Sem migration — só subir os arquivos. Pente-fino das páginas principais.

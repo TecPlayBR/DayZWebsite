@@ -939,6 +939,20 @@ $config['restart'] = \App\Restart::summary();
 // ============ STEAM AUTH ============
 \App\Router::get('/auth/steam', function() use ($config) {
     $siteUrl = $config['site_url'] ?? ('http://' . $_SERVER['HTTP_HOST']);
+    // Volta pra ONDE o usuário estava ao clicar em login (não joga ele na loja —
+    // ficava evasivo, tipo "compra moeda agora"). Só seta se um fluxo específico
+    // (ex: depoimentos, minhas-compras) ainda NÃO definiu o retorno, e só aceita
+    // path interno same-site que não seja /auth ou /admin (evita loop/conflito).
+    if (empty($_SESSION['steam_login_return'])) {
+        $ref = $_SERVER['HTTP_REFERER'] ?? '';
+        if ($ref !== '' && parse_url($ref, PHP_URL_HOST) === ($_SERVER['HTTP_HOST'] ?? '')) {
+            $path = parse_url($ref, PHP_URL_PATH) ?: '/';
+            $query = parse_url($ref, PHP_URL_QUERY);
+            if (!preg_match('#^/(auth|admin)(/|$)#', $path)) {
+                $_SESSION['steam_login_return'] = $path . ($query ? '?' . $query : '');
+            }
+        }
+    }
     header('Location: ' . \App\SteamAuth::loginUrl($siteUrl));
     exit;
 });
@@ -978,12 +992,13 @@ $config['restart'] = \App\Restart::summary();
         }
     } catch (Throwable $e) { /* sem DB? ignora — login funciona via sessao */ }
 
-    // Redireciona pra de onde veio (se setou na sessao antes do login) ou /shop.
+    // Redireciona pra de onde veio (setado em /auth/steam ou por um fluxo específico).
+    // Default = home (NÃO a loja — evita parecer que tá empurrando moeda no login).
     // Guard anti open-redirect: só aceita path interno (começa com / e não //).
-    $back = $_SESSION['steam_login_return'] ?? '/shop';
+    $back = $_SESSION['steam_login_return'] ?? '/';
     unset($_SESSION['steam_login_return']);
     if (!is_string($back) || !preg_match('#^/[A-Za-z0-9/_?&=.\-]*$#', $back) || str_starts_with($back, '//')) {
-        $back = '/shop';
+        $back = '/';
     }
     header('Location: ' . $back);
     exit;
