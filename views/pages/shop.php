@@ -175,9 +175,6 @@ if ($prodItems) {
                         R$ <?= number_format($originalPrice, 2, ',', '.') ?>
                     <?php endif; ?>
                 </div>
-                <?php if ($coinsTotal > 0): ?>
-                    <div class="pack-percoin">R$ <?= number_format($finalPrice / $coinsTotal, 2, ',', '.') ?> / moeda</div>
-                <?php endif; ?>
 
                 <form method="POST" action="/shop/checkout" class="pack-form" data-shop-form>
                     <?= \App\Csrf::field() ?>
@@ -436,7 +433,6 @@ if ($prodItems) {
 .shop-terms-note { font-size: 0.75rem; color: var(--dim); margin: 0.4rem 0 0 1.7rem; }
 .shop-terms.shake { animation: terms-shake .4s; border-left-color: var(--rust-2); background: var(--danger-overlay); }
 
-.pack-percoin { font-size: 0.72rem; color: var(--dim); margin-top: 0.2rem; }
 @keyframes terms-shake {
     0%, 100% { transform: translateX(0); }
     25% { transform: translateX(-8px); }

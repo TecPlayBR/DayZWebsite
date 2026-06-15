@@ -5,6 +5,16 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.3.8] — 2026-06-15
+
+> Sem migration — só subir os arquivos. **Correção importante (afetou cliente real).**
+
+### 🔴 Removido o "R$ X / moeda" (custo por moeda) dos cards da loja
+- O rótulo arredondava pra **"R$ 0,01 / moeda"** em quase todos os pacotes (2 casas decimais), ficando idêntico e inútil. **Pior:** criava uma falsa "tabela de preço por moeda" que jogadores usavam pra **exigir uma quantidade de moedas calculada** (preço ÷ 0,01), recusando a quantia real do pacote — gerou disputa com cliente real.
+- A quantidade de moedas é definida **por pacote** (não por real), então esse "preço por moeda" não faz sentido e foi **removido** dos cards da loja. O preço do pacote e a quantidade de moedas continuam visíveis normalmente.
+
+---
+
 ## [2.3.7] — 2026-06-15
 
 > Sem migration — só subir os arquivos. Fim do pente-fino do admin.
