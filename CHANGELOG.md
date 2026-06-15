@@ -15,6 +15,12 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 - **`migrations/v2.2.0_seed_legal_pages.sql`**: para sites **já em produção** — `INSERT … ON DUPLICATE KEY UPDATE` com `IF(vazio)`, ou seja **só preenche o que está vazio/ausente e NUNCA sobrescreve página já editada**; idempotente. Validado em banco (fresh=6 páginas; preserva editado; refila vazio; re-run não duplica).
 - Conteúdo de exemplo com placeholders (`[NOME DO SERVIDOR]`, `[SEU CNPJ]`, `discord.gg/SEU-CONVITE`, `[IP:PORTA do seu servidor]`) — sem dados de nenhum cliente. Passo de upgrade documentado em **ATUALIZAR.md**.
 
+### 🐛 Auditoria "instalação nova" — outros furos da mesma classe (corrigidos)
+- **Tabela `invoices` faltava no `schema.sql`** (só existia na migration v1.5.0). Como `api/bot-integration.php` e `api/mp-webhook.php` **usam** essa tabela, uma **instalação nova** que usasse a cobrança por Pix de valor livre dava erro "table doesn't exist". Adicionada ao `schema.sql`. (Sites existentes já tinham via `migrate.php` — sem ação.)
+- **Newsletter:** o rodapé mostrava o form de captura de e-mail **por padrão** e o admin **não tinha como desligar** (a chave `newsletter_enabled` não estava na whitelist do `Settings` nem era semeada). Agora **vem DESLIGADA por padrão** (`newsletter_enabled='0'` no seed; default 0 no rodapé) e é uma chave válida/controlável (`newsletter_enabled`, `newsletter_forward_url` no `Settings::SCHEMA`).
+- **Settings sociais** `social_tiktok/twitch/kick/x` agora semeados (já estavam na whitelist; eram só campos vazios sem linha — cosmético, normalizado).
+- ✅ Auditoria das demais dimensões **limpa**: links de menu/rodapé → todas as páginas semeadas; rotas das views todas definidas; paridade de chaves PT/EN; nenhuma outra tabela cuja vazio quebre página pública.
+
 ---
 
 ## [2.1.0] — 2026-06-14

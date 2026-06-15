@@ -324,6 +324,32 @@ CREATE TABLE gallery (
     INDEX idx_pub_sort (published, sort_order)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- ============================================================
+-- TABELA: invoices — cobranças Pix de valor livre (/cobrar do bot)
+-- (migration v1.5.0 — usada por api/bot-integration.php + api/mp-webhook.php)
+-- ============================================================
+DROP TABLE IF EXISTS invoices;
+CREATE TABLE invoices (
+    id            INT AUTO_INCREMENT PRIMARY KEY,
+    invoice_ref   VARCHAR(80)   NOT NULL UNIQUE,   -- id unico do bot (idempotencia)
+    name          VARCHAR(120)  NOT NULL,
+    cpf           VARCHAR(14)   NULL,
+    email         VARCHAR(160)  NULL,
+    phone         VARCHAR(20)   NULL,
+    description   VARCHAR(255)  NOT NULL,
+    amount_brl    DECIMAL(10,2) NOT NULL,
+    status        ENUM('pending','paid','expired','cancelled') NOT NULL DEFAULT 'pending',
+    mp_payment_id VARCHAR(40)   NULL,
+    qr_code       TEXT          NULL,               -- payload Pix EMV p/ retry idempotente
+    created_by    VARCHAR(40)   NULL,               -- discord id do admin (audit)
+    guild_id      VARCHAR(32)   NULL,
+    created_at    DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    paid_at       DATETIME      NULL,
+    expires_at    DATETIME      NULL,
+    INDEX idx_inv_status (status, created_at),
+    INDEX idx_inv_payment (mp_payment_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- ============================================================
@@ -524,6 +550,11 @@ INSERT INTO settings (`key`, `value`) VALUES
 ('social_whatsapp', ''),
 ('social_facebook', ''),
 ('social_youtube', ''),
+('social_tiktok', ''),
+('social_twitch', ''),
+('social_kick', ''),
+('social_x', ''),
+('newsletter_enabled', '0'),
 ('maintenance_enabled', '0'),
 ('maintenance_message', ''),
 ('maintenance_eta', ''),

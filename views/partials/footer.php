@@ -77,9 +77,9 @@ $hasSocial = array_filter($socials, fn($s) => !empty($s['url']));
         </div>
 
         <?php
-        // Newsletter capture: esconde via setting newsletter_enabled = 0 (default ligado).
+        // Newsletter capture: DESLIGADA por padrão (default 0). Ligue com newsletter_enabled = 1.
         // Endpoint POST /api/newsletter-subscribe.
-        $newsletterEnabled = (int)($settings['newsletter_enabled'] ?? 1);
+        $newsletterEnabled = (int)($settings['newsletter_enabled'] ?? 0);
         if ($newsletterEnabled):
         ?>
             <div class="newsletter-card" data-newsletter-card>
