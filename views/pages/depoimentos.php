@@ -66,7 +66,6 @@
             $errKeys = [
                 'rate_limited'  => 'depoimentos_page.err_rate',
                 'csrf'          => 'depoimentos_page.err_csrf',
-                'invalid_name'  => 'depoimentos_page.err_invalid_name',
                 'invalid_body'  => 'depoimentos_page.err_invalid_body',
             ];
             ?>

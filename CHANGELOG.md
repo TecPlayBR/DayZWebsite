@@ -5,6 +5,20 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.3.3] — 2026-06-15
+
+> Sem migration — só subir os arquivos. Pente-fino das páginas principais.
+
+### 🐛 Correções
+- **Contador de players não inventa mais "/60"**: home e `/server-status` mostravam `X/60` quando o máximo do servidor vinha desconhecido (chumbado em 60). Agora mostra só o número de online quando o máximo não é conhecido — nada de denominador inventado pra servidor que não é de 60 slots.
+- **Link morto no `/eventos`**: o vencedor de um evento encerrado virava link `/player/` (vazio) se tivesse nome mas não SteamID. Agora só vira link quando há SteamID; senão é texto normal.
+
+### 🧹 Limpeza (sobras de feature removida)
+- `player_public.php`: removido o CSS órfão `.pp-tx*` (sobra de uma seção de transações que não existe mais — o perfil público não mostra dado financeiro).
+- `depoimentos.php`: removido o mapeamento de erro `invalid_name` (o handler nunca emite — o nick vem da Steam, não de input).
+
+---
+
 ## [2.3.2] — 2026-06-15
 
 > Sem migration — só subir os arquivos.

@@ -24,7 +24,7 @@ $card = function(array $ev) {
                 <div class="ev-when">🕒 <?= e(date('d/m/Y H:i', strtotime((string)$ev['starts_at']))) ?><?= !empty($ev['ends_at']) ? ' → ' . e(date('d/m H:i', strtotime((string)$ev['ends_at']))) : '' ?></div>
             <?php endif; ?>
             <?php if ($ev['status'] === 'ended' && !empty($ev['winner_name'])): ?>
-                <div class="ev-winner">🥇 <?= e(__('eventos.winner')) ?> <a href="/player/<?= e($ev['winner_steam_id'] ?? '') ?>"><?= e($ev['winner_name']) ?></a></div>
+                <div class="ev-winner">🥇 <?= e(__('eventos.winner')) ?> <?php if (!empty($ev['winner_steam_id'])): ?><a href="/player/<?= e($ev['winner_steam_id']) ?>"><?= e($ev['winner_name']) ?></a><?php else: ?><strong><?= e($ev['winner_name']) ?></strong><?php endif; ?></div>
             <?php endif; ?>
         </div>
     </div>

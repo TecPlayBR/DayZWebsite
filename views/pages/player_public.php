@@ -133,14 +133,6 @@ $ex = is_array($stats['extra'] ?? null) ? $stats['extra'] : [];
 .pp-weapon-rank { font-family:var(--font-display); color:var(--hazard); }
 .pp-weapon-name { color:var(--bone); font-weight:700; flex:1; }
 .pp-weapon-meta { color:var(--dim); font-size:.85rem; }
-.pp-tx { display:flex; flex-direction:column; gap:.4rem; }
-.pp-tx-row { display:flex; align-items:center; gap:.8rem; background:var(--bg-1); border:1px solid var(--border); border-left:3px solid var(--moss); padding:.6rem 1rem; flex-wrap:wrap; }
-.pp-tx-icon { font-size:1.2rem; }
-.pp-tx-name { color:var(--bone); font-weight:700; flex:1; min-width:120px; }
-.pp-tx-coins { color:var(--hazard); font-family:var(--font-mono); font-size:.85rem; }
-.pp-tx-price { color:var(--moss); font-family:var(--font-display); }
-.pp-tx-date { color:var(--dim); font-size:.78rem; font-family:var(--font-mono); min-width:120px; text-align:right; }
-@media (max-width:520px){ .pp-tx-date{ text-align:left; } }
 .pp-updated { text-align:center; color:var(--dim); font-size:.78rem; margin-top:1.2rem; }
 .pp-soon { text-align:center; padding:2.5rem 1rem; background:var(--bg-1); border:1px dashed var(--border); border-radius:4px; color:var(--bone); }
 .pp-soon .pp-ic { justify-content:center; }

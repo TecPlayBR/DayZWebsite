@@ -32,7 +32,7 @@
                 <div class="server-card">
                     <div class="server-card-label"><?= e(__('server.label_players')) ?></div>
                     <div class="server-card-value server-card-big">
-                        <?= (int)$status['players'] ?><span style="color: var(--dim); font-size: 0.6em;">/<?= (int)$status['max'] ?: 60 ?></span>
+                        <?= (int)$status['players'] ?><?php if ((int)$status['max'] > 0): ?><span style="color: var(--dim); font-size: 0.6em;">/<?= (int)$status['max'] ?></span><?php endif; ?>
                     </div>
                 </div>
                 <?php if (!empty($status['rank'])): ?>

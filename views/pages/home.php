@@ -103,7 +103,7 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
             <?php if ($ss['online']): ?>
                 <span><?= e(__('hero.status_online')) ?></span>
                 <span style="color: var(--dim);">&middot;</span>
-                <span><strong><?= (int)$ss['players'] ?></strong>/<?= (int)$ss['max'] ?: 60 ?> <?= e(__('hero.status_players')) ?></span>
+                <span><strong><?= (int)$ss['players'] ?></strong><?php if ((int)$ss['max'] > 0): ?>/<?= (int)$ss['max'] ?><?php endif; ?> <?= e(__('hero.status_players')) ?></span>
                 <?php if ($showRank): ?>
                     <span style="color: var(--dim);">&middot;</span>
                     <span title="Ranking BattleMetrics" style="color: var(--hazard);">#<?= (int)$ss['rank'] ?></span>
