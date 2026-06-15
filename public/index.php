@@ -1532,9 +1532,10 @@ $collectDashboardData = function() {
         $allowed = ['image/png' => 'png', 'image/webp' => 'webp', 'image/jpeg' => 'jpg'];
         $finfo = finfo_open(FILEINFO_MIME_TYPE); $mime = finfo_file($finfo, $f['tmp_name']); finfo_close($finfo);
         if ($f['size'] <= 5 * 1024 * 1024 && isset($allowed[$mime])) {
-            if (!is_dir($pkgDir)) @mkdir($pkgDir, 0755, true);
+            ensure_writable_dir($pkgDir);
             $fname = 'p_' . bin2hex(random_bytes(8)) . '.' . $allowed[$mime];
-            if (move_uploaded_file($f['tmp_name'], $pkgDir . '/' . $fname)) {
+            if (!move_uploaded_file($f['tmp_name'], $pkgDir . '/' . $fname)) { ensure_writable_dir($pkgDir); move_uploaded_file($f['tmp_name'], $pkgDir . '/' . $fname); }
+            if (is_file($pkgDir . '/' . $fname)) {
                 if ($image && !preg_match('#^https?://#i', $image)) @unlink($pkgDir . '/' . basename($image));
                 $image = $fname;
             }
@@ -2293,9 +2294,14 @@ $REWARD_CATEGORIES = [
     }
     $ext = $allowed[$mime];
     $fname = 'g_' . bin2hex(random_bytes(8)) . '.' . $ext;
-    $dest = $ROOT . '/public/assets/img/gallery/' . $fname;
+    $galleryDir = $ROOT . '/public/assets/img/gallery';
+    ensure_writable_dir($galleryDir);
+    $dest = $galleryDir . '/' . $fname;
     if (!move_uploaded_file($file['tmp_name'], $dest)) {
-        header('Location: /admin/gallery?err=move'); exit;
+        ensure_writable_dir($galleryDir); // força permissão e tenta de novo
+        if (!move_uploaded_file($file['tmp_name'], $dest)) {
+            header('Location: /admin/gallery?err=move'); exit;
+        }
     }
     \App\Database::execute(
         "INSERT INTO gallery (filename, caption, sort_order, published) VALUES (?, ?, ?, 1)",
@@ -2448,8 +2454,12 @@ $REWARD_CATEGORIES = [
          . "   Gitignored: sobrevive a updates do template. Pra voltar ao padrão, use o botão no painel. */\n"
          . ":root {\n" . implode("\n", $lines) . "\n}\n";
 
+    ensure_writable_dir(dirname($overrideFile));
     if (file_put_contents($overrideFile, $css) === false) {
-        header('Location: /admin/customize?err=theme_write'); exit;
+        ensure_writable_dir(dirname($overrideFile)); // força permissão e tenta de novo
+        if (file_put_contents($overrideFile, $css) === false) {
+            header('Location: /admin/customize?err=theme_write'); exit;
+        }
     }
     // Audit com ANTES -> DEPOIS por cor (diff só do que mudou) — rastreável/recuperável.
     $diff = [];
@@ -2502,10 +2512,7 @@ $BRAND_SLOTS = [
     $ext = $allowed[$mime];
 
     $customDir = $ROOT . '/public/assets/img/custom';
-    if (!is_dir($customDir)) @mkdir($customDir, 0775, true);
-    // Alguns hosts rodam o PHP como usuário diferente do dono dos arquivos (que vieram
-    // por FTP) — sem permissão de grupo o move falha. Tenta abrir a escrita (775).
-    @chmod($customDir, 0775);
+    ensure_writable_dir($customDir);
 
     $stem = pathinfo($slot, PATHINFO_FILENAME);
     // Remove qualquer versão anterior desse slot (qualquer extensão) antes de gravar.
@@ -2515,8 +2522,7 @@ $BRAND_SLOTS = [
     }
     $dest = $customDir . '/' . $stem . '.' . $ext;
     if (!move_uploaded_file($file['tmp_name'], $dest)) {
-        // 2ª tentativa após forçar a permissão da pasta (resolve a maioria dos hosts).
-        @chmod($customDir, 0775);
+        ensure_writable_dir($customDir); // força permissão e tenta de novo
         if (!move_uploaded_file($file['tmp_name'], $dest)) {
             header('Location: /admin/customize?err=move'); exit;
         }

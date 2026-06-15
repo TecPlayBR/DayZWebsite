@@ -5,6 +5,17 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.2.1] — 2026-06-14
+
+> Sem migration — só subir os arquivos.
+
+### 🐛 Upload de logo/galeria/tema "se resolve sozinho" em qualquer host
+- Em hosts que rodam o PHP num **usuário diferente do dono dos arquivos** (enviados por FTP), as pastas de upload nasciam **sem permissão de escrita pro PHP** → o painel dava "precisa de chmod 755" ao subir logo, e o cliente acabava **editando o `index.php` na mão** (que some no próximo update).
+- Novo helper `ensure_writable_dir()`: cria a pasta recursivo e **escala a permissão sozinho (0775 → 0777)** até conseguir gravar. Aplicado em **todos** os pontos de escrita do painel: marca (`assets/img/custom`), galeria (`assets/img/gallery`), imagem de pacote (`assets/img/packages`), itens/caixas (`upload_image`) e tema (`assets/css/theme.override.css`). Cada upload ainda faz **retry** após forçar a permissão.
+- Mensagens de erro do painel agora explicam 755 **ou** 775 conforme o host. Resultado: o cliente **não precisa mais mexer em FTP nem editar código** pra trocar a marca.
+
+---
+
 ## [2.2.0] — 2026-06-14
 
 > **Tem migration:** `v2.2.0_seed_legal_pages.sql`. Rode `php cli/migrate.php` depois de subir os arquivos.

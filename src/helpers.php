@@ -19,6 +19,22 @@ if (!function_exists('e')) {
     }
 }
 
+if (!function_exists('ensure_writable_dir')) {
+    /**
+     * Garante que um diretório existe E é gravável pelo PHP — inclusive em hosts que
+     * rodam o PHP num usuário diferente do dono dos arquivos (enviados por FTP), onde
+     * a pasta nasce sem permissão de escrita pro processo web. Cria recursivo e ESCALA
+     * a permissão (0775 -> 0777) até conseguir. Retorna true se ficou gravável.
+     * Centraliza o "fazer funcionar sozinho" — o cliente não precisa dar chmod na mão.
+     */
+    function ensure_writable_dir(string $dir): bool {
+        if (!is_dir($dir)) @mkdir($dir, 0775, true);
+        if (is_dir($dir) && !is_writable($dir)) @chmod($dir, 0775);
+        if (is_dir($dir) && !is_writable($dir)) @chmod($dir, 0777); // último recurso (host trava 775)
+        return is_dir($dir) && is_writable($dir);
+    }
+}
+
 if (!function_exists('asset')) {
     function asset(string $path): string {
         $rel = ltrim($path, '/');
@@ -149,9 +165,13 @@ if (!function_exists('upload_image')) {
         $mime  = finfo_file($finfo, $file['tmp_name']);
         finfo_close($finfo);
         if (!isset($allowed[$mime])) return null;
-        if (!is_dir($destDir)) @mkdir($destDir, 0755, true);
+        ensure_writable_dir($destDir);
         $fname = $prefix . '_' . bin2hex(random_bytes(8)) . '.' . $allowed[$mime];
-        if (!move_uploaded_file($file['tmp_name'], $destDir . '/' . $fname)) return null;
+        $dest = $destDir . '/' . $fname;
+        if (!move_uploaded_file($file['tmp_name'], $dest)) {
+            ensure_writable_dir($destDir); // força permissão e tenta de novo
+            if (!move_uploaded_file($file['tmp_name'], $dest)) return null;
+        }
         return rtrim($webPrefix, '/') . '/' . $fname;
     }
 }
