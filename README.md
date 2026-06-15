@@ -101,7 +101,7 @@ O **site é grátis** e faz a loja, o painel, a carteira de moedas e o leaderboa
 - **RBAC granular**: 4 papéis com matriz de permissões + página 403 dedicada com info do violador
 - **Security headers** no `.htaccess`: HSTS, X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy
 - **HTTPS forçado** via 301 redirect (precisa descomentar no `.htaccess` raiz)
-- Rate limit no checkout, login admin, reviews públicas e newsletter (dois eixos: IP + IP+user)
+- Rate limit no checkout, login admin e reviews públicas (dois eixos: IP + IP+user)
 - Sanitização HTML em páginas dinâmicas (allowlist + remove `on*`/javascript:/data:)
 - Claim atômico no webhook MP (prevê dupla entrega de coins em race condition)
 - Validação obrigatória de assinatura MP em produção

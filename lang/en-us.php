@@ -205,7 +205,6 @@ return array (
     'subtitle' => 'Pay with PIX, boleto or card. Auto-delivery within 15 seconds after payment confirmation.',
     'soon' => 'Soon',
     'buy' => 'Buy',
-    'coupon_auto' => 'The coupon is applied automatically when you click "BUY" on any pack.',
     'terms_note' => 'Tick the box to confirm you have read and accept. Buying registers your acceptance of the Terms and Refund Policy.',
     'auto_delivery' => '. Automatic delivery within 15 seconds after confirmation.',
     'steamid_warning' => '⚠ Double-check your SteamID before paying — credits go to the SteamID you submit and cannot be transferred later.',
