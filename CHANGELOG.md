@@ -5,6 +5,15 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.3.2] — 2026-06-15
+
+> Sem migration — só subir os arquivos.
+
+### 🔌 Alias do webhook do Mercado Pago
+- Novo `public/api/webhook.php` que encaminha pro `mp-webhook.php`. Alguns painéis do MP ficam apontados pra `/api/webhook.php` (URL antiga/padrão) enquanto o handler real é o `mp-webhook.php` — sem o alias, essa URL do painel dava **404 (webhook morto)**. Agora **as duas URLs funcionam**, então não tem como o painel do MP ficar com webhook quebrado por causa do nome do arquivo. (O ideal segue sendo apontar o painel pra `/api/mp-webhook.php`; o alias é a rede de segurança.)
+
+---
+
 ## [2.3.1] — 2026-06-15
 
 > Sem migration — só subir os arquivos. Limpeza da loja.
