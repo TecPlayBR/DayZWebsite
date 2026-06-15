@@ -52,6 +52,12 @@ class Settings {
         'restart_warn_minutes'     => 'int',     // janela de aviso vermelho (default 5)
         // Cartão: valor mínimo (R$) pra LIBERAR parcelamento. Abaixo disso, só 1x (à vista).
         'card_installments_min'    => 'int',     // default 30 (lido com getInt default)
+        // Integração CFTools Cloud (App ID + Secret + Server API ID). Habilita o ranking
+        // de gameplay (kills/zumbis/K-D/tempo) E a entrega das CAIXAS no jogo. Config via
+        // admin OU config.php (config.php tem prioridade — ver bootstrap do index.php).
+        'cftools_app_id'           => 'string',
+        'cftools_secret'           => 'string',
+        'cftools_server_api_id'    => 'string',
     ];
 
     private static array $cache = [];

@@ -259,6 +259,42 @@ if (!empty($_GET['err'])) {
         </p>
         <?php endif; ?>
 
+        <?php
+        // ===== Histórico da loja in-game (/loja do Discord) =====
+        // Gastos de moeda feitos pelo comando /loja e entregues no jogo.
+        if (!empty($shop_spends)):
+        ?>
+        <h2 style="font-family: var(--font-display); color: var(--bone); font-size: 1.4rem; margin: 3rem 0 1.5rem; letter-spacing: 0.04em;">
+            🎮 Loja in-game (/loja)
+        </h2>
+        <table class="purchases-table">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Item</th>
+                    <th>Moedas</th>
+                    <th class="hide-mobile">Saldo após</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($shop_spends as $s): ?>
+                    <tr>
+                        <td class="dim"><?= e(fmt_dt($s['created_at'])) ?></td>
+                        <td>
+                            <strong><?= e(($s['item_icon'] ? $s['item_icon'] . ' ' : '') . ($s['item_name'] ?: $s['sku'])) ?></strong>
+                            <?php if (!empty($s['item_name']) && $s['item_name'] !== $s['sku']): ?><code class="dim" style="font-size:0.72rem; display:block;"><?= e($s['sku']) ?></code><?php endif; ?>
+                        </td>
+                        <td class="mono" style="color: var(--hazard); font-weight:600;">−<?= number_format((int)$s['coins_spent'], 0, ',', '.') ?></td>
+                        <td class="mono hide-mobile"><?= number_format((int)$s['new_balance'], 0, ',', '.') ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+        <p style="color: var(--dim); font-size: 0.8rem; margin-top: 0.6rem;">
+            🎮 Compras feitas pelo comando <strong>/loja</strong> no Discord, entregues direto no seu personagem dentro do servidor.
+        </p>
+        <?php endif; ?>
+
         <p style="margin-top: 2rem; color: var(--dim); font-size: 0.85rem;">
             <?= e(__('profile.support_question')) ?>
         </p>

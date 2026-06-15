@@ -15,6 +15,12 @@
 
 <?php if (!empty($_GET['ok'])): ?><div class="alert-toast">Salvo!</div><?php endif; ?>
 
+<?php if (!\App\CFTools::isConfigured()): ?>
+    <div class="stat-card" style="margin-bottom:1rem; border-left:3px solid var(--rust);">
+        ⚠️ <strong>CFTools não configurado.</strong> As caixas abrem normalmente, mas o item sorteado <strong>não cai no jogo</strong> (fica pendente). Pra ativar a entrega in-game, preencha a integração CFTools em <a href="/admin/settings" style="color:var(--hazard);">Configurações</a>.
+    </div>
+<?php endif; ?>
+
 <?php if ($pending > 0): ?>
     <div class="stat-card" style="margin-bottom:1rem; border-left:3px solid var(--hazard);">
         ⏳ <strong><?= $pending ?></strong> entrega(s) pendente(s) — caem quando o player estiver online (longe do restart).

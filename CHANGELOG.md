@@ -5,6 +5,21 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.3.9] — 2026-06-15
+
+> Sem migration — só subir os arquivos. UX da loja + histórico in-game no painel + dados de exemplo no instalador.
+
+### 🛒 Aceite dos Termos saiu da vitrine `/shop` → virou aviso no checkout
+- Removido o **checkbox obrigatório** "Li e aceito os Termos" da página da loja (era fricção: o jogador tinha que marcar antes de escolher o pacote). O aceite agora é **por ação** — ao concluir o pagamento na tela de checkout, com um aviso claro "Ao concluir o pagamento, você aceita os Termos de Uso e a Política de Reembolso" linkando ambos. O registro de aceite (`terms_accepted_at`) continua sendo gravado.
+
+### 🎮 Histórico da loja in-game (`/loja` do Discord) no painel do jogador
+- A página **Minhas compras** agora mostra a seção **"Loja in-game (/loja)"** com os gastos de moeda feitos pelo comando `/loja` e entregues no jogo (item, moedas gastas, saldo após, data). Degrada limpo em instalações antigas sem a tabela `shop_spends`.
+
+### 🌱 Instalador (`install.php`) com opção de dados de exemplo
+- Novo checkbox **"Popular com dados fictícios"** (marcado por padrão): cria jogadores, compras, avaliações e anúncios de exemplo pra o site não nascer vazio. Tudo marcado como demo (steam `76561197000*`, anúncios `[demo]`) e removível com `php cli/seed-demo.php --clean` antes do go-live. Lógica de seed extraída pra `cli/seed-demo-lib.php` (compartilhada entre o CLI e o instalador).
+
+---
+
 ## [2.3.8] — 2026-06-15
 
 > Sem migration — só subir os arquivos. **Correção importante (afetou cliente real).**

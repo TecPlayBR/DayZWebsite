@@ -160,8 +160,20 @@ $config['restart'] = \App\Restart::summary();
 // Timeout de inatividade da sessão admin (segundos). Default 1h.
 \App\Auth::setSessionTtl((int)($config['admin_session_ttl'] ?? 3600));
 
-// CFTools Cloud (leaderboard/stats de gameplay) — o site consulta direto, com cache.
-\App\CFTools::init($config['cftools'] ?? [], $ROOT . '/storage/cache');
+// CFTools Cloud (leaderboard/stats de gameplay + drop das caixas no jogo) — consulta
+// direto, com cache. Credenciais: config.php (`$config['cftools']`) TEM PRIORIDADE; se
+// não definidas lá, cai pro que o admin salvou em Configurações (settings). Assim o
+// dev pode fixar no config.php OU o cliente preenche no painel, sem editar PHP.
+$cftoolsCfg = $config['cftools'] ?? [];
+if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoolsCfg['server_api_id'])) {
+    $sAppId  = (string) \App\Settings::get('cftools_app_id', '');
+    $sSecret = (string) \App\Settings::get('cftools_secret', '');
+    $sApiId  = (string) \App\Settings::get('cftools_server_api_id', '');
+    if ($sAppId !== '' && $sSecret !== '' && $sApiId !== '') {
+        $cftoolsCfg = ['app_id' => $sAppId, 'secret' => $sSecret, 'server_api_id' => $sApiId];
+    }
+}
+\App\CFTools::init($cftoolsCfg, $ROOT . '/storage/cache');
 
 // Sessão Steam: completa nome/foto se faltar (sessões antigas / fetch que falhou no login).
 \App\SteamAuth::enrich($config['steam_api_key'] ?? null);
@@ -1198,12 +1210,27 @@ $config['restart'] = \App\Restart::summary();
     $boxOpenings = \App\Database::fetchAll(
         "SELECT * FROM box_openings WHERE steam_id = ? ORDER BY id DESC LIMIT 50", [$steamId]
     );
+    // Histórico da loja in-game (/loja do Discord): gastos de moeda entregues no jogo.
+    // LEFT JOIN pra mostrar o nome do item mesmo que o admin tenha renomeado/removido o SKU.
+    $shopSpends = [];
+    try {
+        $shopSpends = \App\Database::fetchAll(
+            "SELECT s.spend_ref, s.sku, s.coins_spent, s.new_balance, s.created_at,
+                    i.name AS item_name, i.icon AS item_icon
+               FROM shop_spends s
+               LEFT JOIN shop_items i ON i.sku = s.sku
+              WHERE s.steam_id = ?
+              ORDER BY s.id DESC LIMIT 50",
+            [$steamId]
+        );
+    } catch (\Throwable $e) { /* tabela ausente em install antigo — degrada limpo */ }
     \App\View::display('pages.my_purchases', [
         'config' => $config, 'player' => $player, 'purchases' => $purchases,
         'steam_user' => \App\SteamAuth::user(),
         'reviewed_ids' => $reviewedIds,
         'achievements' => $achievementsAll, 'unlocked' => $unlocked,
         'box_openings' => $boxOpenings,
+        'shop_spends' => $shopSpends,
     ]);
 });
 
@@ -1758,7 +1785,15 @@ $collectDashboardData = function() {
     $settings = \App\Database::fetchAll("SELECT `key`, `value` FROM settings ORDER BY `key`");
     $map = [];
     foreach ($settings as $s) $map[$s['key']] = $s['value'];
-    \App\View::display('admin.settings', ['config' => $config, 'settings' => $map]);
+    // CFTools: indica se já tem secret salvo (pra não re-pedir) e se o config.php
+    // está sobrescrevendo os campos do painel (aí o que vale é o arquivo).
+    $cf = $config['cftools'] ?? [];
+    $cftoolsViaConfig = !empty($cf['app_id']) && !empty($cf['secret']) && !empty($cf['server_api_id']);
+    \App\View::display('admin.settings', [
+        'config' => $config, 'settings' => $map,
+        'cftools_secret_set' => ($map['cftools_secret'] ?? '') !== '',
+        'cftools_via_config' => $cftoolsViaConfig,
+    ]);
 });
 
 \App\Router::post('/admin/settings', function() use ($config) {
@@ -1773,7 +1808,8 @@ $collectDashboardData = function() {
                'battlemetrics_id','next_wipe_at','wipe_label',
                'maintenance_message','maintenance_eta',
                'discord_sales_webhook','promo_coupon_code','promo_label',
-               'restart_times','restart_warn_minutes'];
+               'restart_times','restart_warn_minutes',
+               'cftools_app_id','cftools_server_api_id'];
     // Toggles (checkbox): se não veio no POST, vira 0
     $toggles = ['maintenance_enabled', 'live_purchases_enabled', 'live_purchases_anonymize', 'live_purchases_show_price',
                 'restart_enabled'];
@@ -1785,6 +1821,11 @@ $collectDashboardData = function() {
     }
     foreach ($toggles as $k) {
         \App\Settings::set($k, !empty($_POST[$k]) ? '1' : '0');
+    }
+    // Secret do CFTools: só sobrescreve se o admin digitou algo (o campo vem vazio na
+    // tela por segurança — não echoamos o secret salvo). Vazio = mantém o atual.
+    if (isset($_POST['cftools_secret']) && trim((string)$_POST['cftools_secret']) !== '') {
+        \App\Settings::set('cftools_secret', trim((string)$_POST['cftools_secret']));
     }
     header('Location: /admin/settings?ok=1');
     exit;

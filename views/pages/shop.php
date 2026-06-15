@@ -180,7 +180,7 @@ if ($prodItems) {
                     <?= \App\Csrf::field() ?>
                     <input type="hidden" name="package_id" value="<?= e($pkg['id']) ?>">
                     <input type="hidden" name="server_id" value="<?= (int)$selected_server_id ?>" data-server-input>
-                    <input type="hidden" name="terms_accepted" value="" data-terms-flag>
+                    <input type="hidden" name="terms_accepted" value="1">
                     <input type="hidden" name="coupon_code" value="" data-coupon-flag>
                     <?php if ($prefillSteam): ?>
                         <input type="hidden" name="steam_id" value="<?= e($prefillSteam) ?>">
@@ -197,16 +197,6 @@ if ($prodItems) {
             <?php endforeach; ?>
         </div>
 
-
-        <div class="shop-terms">
-            <label>
-                <input type="checkbox" id="global-terms">
-                <span>Li e aceito os <a href="/page/terms" target="_blank" rel="noopener">Termos de Uso</a> e a <a href="/page/refund" target="_blank" rel="noopener">Política de Reembolso</a>.</span>
-            </label>
-            <p class="shop-terms-note">
-                <?= e(__('shop.terms_note')) ?>
-            </p>
-        </div>
 
         <p class="shop-note">
             🔒 <strong>Mercado Pago</strong><?= ($config['delivery_active'] ?? false) ? __('shop.auto_delivery') : __('shop.delivery_manual', [], locale() === 'en-us' ? ' — in-game coin delivery is handled by the server (Agent/Bot) after confirmation.' : ' — a entrega das moedas no jogo é feita pelo servidor (Agent/Bot) após a confirmação.') ?><br>
@@ -418,26 +408,6 @@ if ($prodItems) {
     margin: 0 auto;
     line-height: 1.8;
 }
-.shop-terms {
-    max-width: 700px; margin: 0 auto 1.5rem;
-    background: rgba(212,160,23,0.06);
-    border-left: 3px solid var(--hazard);
-    padding: 1rem 1.4rem;
-}
-.shop-terms label {
-    display: flex; align-items: flex-start; gap: 0.6rem;
-    cursor: pointer; color: var(--bone); font-size: 0.92rem;
-}
-.shop-terms input[type=checkbox] { width: 20px; height: 20px; margin-top: 0.1rem; flex-shrink: 0; }
-.shop-terms a { color: var(--hazard); text-decoration: underline; }
-.shop-terms-note { font-size: 0.75rem; color: var(--dim); margin: 0.4rem 0 0 1.7rem; }
-.shop-terms.shake { animation: terms-shake .4s; border-left-color: var(--rust-2); background: var(--danger-overlay); }
-
-@keyframes terms-shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-8px); }
-    75% { transform: translateX(8px); }
-}
 
 /* Server selector (multi-server) */
 .server-selector {
@@ -529,26 +499,13 @@ document.querySelectorAll('[data-wish]').forEach(btn => {
     });
 });
 
-// Bloqueia submit se termos nao aceitos + dispara animação shake
+// Submit dos cards: trava duplo-clique + aplica a promo sazonal. O aceite dos termos
+// agora é por AÇÃO (com aviso na tela de checkout), sem checkbox de fricção na vitrine.
 (function() {
-    const cb = document.getElementById('global-terms');
-    const termsBox = document.querySelector('.shop-terms');
-    if (!cb) return;
     document.querySelectorAll('[data-shop-form]').forEach(f => {
         f.addEventListener('submit', e => {
             // Anti duplo-clique: se já está enviando, ignora.
             if (f.dataset.submitting === '1') { e.preventDefault(); return false; }
-            if (!cb.checked) {
-                e.preventDefault();
-                termsBox.classList.remove('shake');
-                void termsBox.offsetWidth; // restart animation
-                termsBox.classList.add('shake');
-                termsBox.scrollIntoView({behavior:'smooth', block:'center'});
-                return false;
-            }
-            // Sync flag pro POST
-            const flag = f.querySelector('[data-terms-flag]');
-            if (flag) flag.value = '1';
             // Cupom: aplica só a promo sazonal automaticamente (se houver). O cupom
             // manual é digitado na tela de checkout, não aqui na loja.
             const couponFlag = f.querySelector('[data-coupon-flag]');

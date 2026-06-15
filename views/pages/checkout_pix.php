@@ -47,6 +47,10 @@ $activeTab = ((($active_tab ?? 'pix') === 'card') && $cardAvailable) ? 'card' : 
             </form>
         </div>
 
+        <p style="text-align:center; color:var(--dim); font-size:0.8rem; margin:0.2rem 0 1rem;">
+            Ao concluir o pagamento, você aceita os <a href="/page/terms" target="_blank" rel="noopener" style="color:var(--hazard);">Termos de Uso</a> e a <a href="/page/refund" target="_blank" rel="noopener" style="color:var(--hazard);">Política de Reembolso</a>.
+        </p>
+
         <?php if ($cardAvailable): ?>
         <div class="pay-tabs">
             <button type="button" class="pay-tab-btn <?= $activeTab==='pix'?'active':'' ?>" data-tab="pix">⚡ Pix</button>

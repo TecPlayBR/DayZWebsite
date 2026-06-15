@@ -79,6 +79,36 @@
         </div>
 
         <div style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.2rem;">
+            <label style="display:block; font-size:0.9rem; color:var(--bone); margin-bottom:0.3rem;">
+                🎮 Integração CFTools <small style="color: var(--dim); font-weight: 400;">— habilita o <strong>ranking de gameplay</strong> (kills, zumbis, K/D, tempo online) <strong>e a entrega das caixas no jogo</strong></small>
+            </label>
+            <?php if (!empty($cftools_via_config)): ?>
+                <p style="margin:0.2rem 0 0.8rem; font-size:0.8rem; color:var(--hazard);">
+                    ⚙️ O CFTools está configurado pelo <code>config.php</code> — esses campos do painel ficam ignorados enquanto o arquivo tiver as credenciais.
+                </p>
+            <?php endif; ?>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.8rem;">
+                <div>
+                    <label style="display:block; font-size:0.82rem; color:var(--dim); margin-bottom:0.25rem;">Application ID</label>
+                    <input type="text" name="cftools_app_id" value="<?= e($settings['cftools_app_id'] ?? '') ?>" placeholder="ex: 5f1c...e9" autocomplete="off" style="width:100%; padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:var(--font-mono);">
+                </div>
+                <div>
+                    <label style="display:block; font-size:0.82rem; color:var(--dim); margin-bottom:0.25rem;">Server API ID</label>
+                    <input type="text" name="cftools_server_api_id" value="<?= e($settings['cftools_server_api_id'] ?? '') ?>" placeholder="ex: 9a2b...c4" autocomplete="off" style="width:100%; padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:var(--font-mono);">
+                </div>
+            </div>
+            <div style="margin-top:0.8rem;">
+                <label style="display:block; font-size:0.82rem; color:var(--dim); margin-bottom:0.25rem;">
+                    Application Secret <?= !empty($cftools_secret_set) ? '<span style="color:var(--moss);">— já salvo (deixe vazio pra manter)</span>' : '' ?>
+                </label>
+                <input type="password" name="cftools_secret" value="" placeholder="<?= !empty($cftools_secret_set) ? '•••••••••• (salvo)' : 'cole o Secret aqui' ?>" autocomplete="new-password" style="width:100%; padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:var(--font-mono);">
+            </div>
+            <p style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--dim);">
+                Crie uma aplicação em <a href="https://developer.cftools.cloud/applications" target="_blank" rel="noopener" style="color: var(--hazard);">developer.cftools.cloud</a> (App ID + Secret) e pegue o <strong>Server API ID</strong> nas configurações do seu servidor no painel CFTools. <strong>Sem isso</strong>: o ranking mostra só "Investimento" e as caixas abrem mas ficam pendentes (não caem no jogo). Deixe tudo vazio se não usa CFTools.
+            </p>
+        </div>
+
+        <div style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.2rem;">
             <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.9rem; color:var(--bone); margin-bottom:0.6rem;">
                 <input type="checkbox" name="restart_enabled" value="1" <?= !empty($settings['restart_enabled']) ? 'checked' : '' ?> style="width:18px;height:18px;">
                 🔄 Mostrar próximo restart do servidor

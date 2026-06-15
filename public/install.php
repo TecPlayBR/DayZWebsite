@@ -63,6 +63,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$structureMissing) {
     $mp_token       = trim($_POST['mp_token'] ?? '');
     $mp_public      = trim($_POST['mp_public'] ?? '');
     $mp_webhook_sec = trim($_POST['mp_webhook_sec'] ?? '');
+    $seed_demo      = !empty($_POST['seed_demo']);
+    $seedResult     = null;
+    $cf_app_id      = trim($_POST['cftools_app_id'] ?? '');
+    $cf_secret      = trim($_POST['cftools_secret'] ?? '');
+    $cf_server_api  = trim($_POST['cftools_server_api_id'] ?? '');
 
     // Validacoes basicas
     if ($site_name === '')   $errors[] = 'Nome do site obrigatorio.';
@@ -123,6 +128,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$structureMissing) {
             $up->execute([$site_name, 'site_name']);
             if ($site_tagline) $up->execute([$site_tagline, 'site_tagline']);
 
+            // Dados-demo opcionais: deixa o site "vivo" (jogadores, compras, reviews,
+            // anúncios fictícios) já no 1º acesso. Marcados como demo (steam 76561197000*
+            // e títulos "[demo]") — remova depois com: php cli/seed-demo.php --clean
+            if ($seed_demo) {
+                require_once $ROOT . '/cli/seed-demo-lib.php';
+                try { $seedResult = seed_demo_data($pdo); }
+                catch (\Throwable $e) { /* não bloqueia a instalação se o seed falhar */ }
+            }
+
             // Gera config.php
             $configContent = "<?php\n// Auto-gerado pelo install.php em " . date('Y-m-d H:i:s') . "\n\nreturn [\n";
             $configContent .= "    'site_name'       => " . var_export($site_name, true) . ",\n";
@@ -144,6 +158,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$structureMissing) {
             $configContent .= "        'webhook_secret'    => " . var_export($mp_webhook_sec, true) . ",\n";
             $configContent .= "        'currency'          => 'BRL',\n";
             $configContent .= "        'min_purchase_brl'  => 5,\n";
+            $configContent .= "    ],\n\n";
+            $configContent .= "    // CFTools Cloud: habilita ranking de gameplay (kills/zumbis) + drop das caixas no jogo.\n";
+            $configContent .= "    // Pode deixar vazio aqui e preencher depois em /admin (Configurações).\n";
+            $configContent .= "    'cftools' => [\n";
+            $configContent .= "        'app_id'        => " . var_export($cf_app_id, true) . ",\n";
+            $configContent .= "        'secret'        => " . var_export($cf_secret, true) . ",\n";
+            $configContent .= "        'server_api_id' => " . var_export($cf_server_api, true) . ",\n";
             $configContent .= "    ],\n\n";
             $configContent .= "    'mail' => [\n";
             $configContent .= "        'from'      => " . var_export('no-reply@' . preg_replace('#^https?://([^/]+).*#', '$1', $site_url ?: ('http://' . ($_SERVER['HTTP_HOST'] ?? 'localhost'))), true) . ",\n";
@@ -253,6 +274,12 @@ header p { color: var(--dim); margin-top: 0.5rem; font-size: 0.95rem; }
             <li>Banco populado com 6 pacotes de moedas (editaveis no admin)</li>
             <li>Usuario admin <code><?= htmlspecialchars($admin_user) ?></code> criado</li>
             <li>Config gravado em <code>config/config.php</code></li>
+            <?php if ($seedResult): ?>
+            <li>Dados de exemplo criados: <?= (int)$seedResult['players'] ?> jogadores,
+                <?= (int)$seedResult['purchases'] ?> compras, <?= (int)$seedResult['reviews'] ?> avaliacoes,
+                <?= (int)$seedResult['announcements'] ?> anuncios
+                <span style="color:var(--dim);">— remova antes de abrir pro publico com <code>php cli/seed-demo.php --clean</code></span></li>
+            <?php endif; ?>
         </ul>
         <p style="margin-top: 1rem;">
             <a href="/" class="btn">Acessar o site</a>
@@ -373,6 +400,33 @@ header p { color: var(--dim); margin-top: 0.5rem; font-size: 0.95rem; }
                 <input type="text" name="mp_webhook_sec" value="<?= htmlspecialchars($_POST['mp_webhook_sec'] ?? '') ?>">
             </div>
             <p class="hint">Pega ambos em https://www.mercadopago.com.br/developers/panel</p>
+        </div>
+
+        <div class="card">
+            <h2>CFTools <small style="font-size: 0.75rem; color: var(--dim);">(opcional — ranking de kills/zumbis + drop das caixas no jogo)</small></h2>
+            <div class="row">
+                <label>Application ID</label>
+                <input type="text" name="cftools_app_id" value="<?= htmlspecialchars($_POST['cftools_app_id'] ?? '') ?>" autocomplete="off">
+            </div>
+            <div class="row">
+                <label>Application Secret</label>
+                <input type="text" name="cftools_secret" value="<?= htmlspecialchars($_POST['cftools_secret'] ?? '') ?>" autocomplete="off">
+            </div>
+            <div class="row">
+                <label>Server API ID</label>
+                <input type="text" name="cftools_server_api_id" value="<?= htmlspecialchars($_POST['cftools_server_api_id'] ?? '') ?>" autocomplete="off">
+            </div>
+            <p class="hint">Cria em developer.cftools.cloud e pega o Server API ID no painel do servidor. Sem isso, o ranking mostra so "Investimento" e as caixas nao caem no jogo. Da pra preencher depois no admin.</p>
+        </div>
+
+        <div class="card">
+            <h2>Dados de exemplo <small style="font-size: 0.75rem; color: var(--dim);">(recomendado pra testar)</small></h2>
+            <label style="display:flex; align-items:flex-start; gap:0.6rem; cursor:pointer;">
+                <input type="checkbox" name="seed_demo" value="1" <?= isset($_POST['seed_demo']) ? (!empty($_POST['seed_demo']) ? 'checked' : '') : 'checked' ?> style="width:18px; height:18px; margin-top:0.2rem;">
+                <span>Popular o site com <strong>dados ficticios</strong> (jogadores, compras, avaliacoes e anuncios)
+                pra ele nao ficar vazio no primeiro acesso. Tudo marcado como demo e removivel depois
+                com <code>php cli/seed-demo.php --clean</code> (ou apagando no painel) antes de abrir pro publico.</span>
+            </label>
         </div>
 
         <div style="text-align: center;">
