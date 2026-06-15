@@ -223,19 +223,6 @@ return array (
     'powered' => 'Powered by Tecplay Agent',
     'copyright' => '&copy; :year :site. All rights reserved.',
   ),
-  'newsletter' => 
-  array (
-    'title' => '📡 Exclusive updates',
-    'subtitle' => 'Get wipes, events and promos by e-mail. Zero spam.',
-    'placeholder' => 'your@email.com',
-    'submit' => 'Subscribe',
-    'success' => '✓ Done! You are on the list.',
-    'success_email_sent' => 'We sent a confirmation email. If it doesn\'t arrive in 5 min, check your spam folder.',
-    'invalid' => 'Invalid e-mail. Check and try again.',
-    'rate' => 'Slow down! Try again in a few minutes.',
-    'fail' => 'Something went wrong. Try again shortly.',
-    'offline' => 'No connection. Try again.',
-  ),
   'profile' => 
   array (
     'kicker' => 'MY PROFILE',

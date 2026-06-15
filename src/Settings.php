@@ -52,9 +52,6 @@ class Settings {
         'restart_warn_minutes'     => 'int',     // janela de aviso vermelho (default 5)
         // Cartão: valor mínimo (R$) pra LIBERAR parcelamento. Abaixo disso, só 1x (à vista).
         'card_installments_min'    => 'int',     // default 30 (lido com getInt default)
-        // Newsletter (captura de e-mail no rodapé). DESLIGADA por padrão; ligue se quiser usar.
-        'newsletter_enabled'       => 'bool',
-        'newsletter_forward_url'   => 'url',     // opcional: encaminha o e-mail pra um webhook/Mailchimp
     ];
 
     private static array $cache = [];

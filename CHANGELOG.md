@@ -17,7 +17,7 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ### 🐛 Auditoria "instalação nova" — outros furos da mesma classe (corrigidos)
 - **Tabela `invoices` faltava no `schema.sql`** (só existia na migration v1.5.0). Como `api/bot-integration.php` e `api/mp-webhook.php` **usam** essa tabela, uma **instalação nova** que usasse a cobrança por Pix de valor livre dava erro "table doesn't exist". Adicionada ao `schema.sql`. (Sites existentes já tinham via `migrate.php` — sem ação.)
-- **Newsletter:** o rodapé mostrava o form de captura de e-mail **por padrão** e o admin **não tinha como desligar** (a chave `newsletter_enabled` não estava na whitelist do `Settings` nem era semeada). Agora **vem DESLIGADA por padrão** (`newsletter_enabled='0'` no seed; default 0 no rodapé) e é uma chave válida/controlável (`newsletter_enabled`, `newsletter_forward_url` no `Settings::SCHEMA`).
+- **Newsletter REMOVIDA por completo:** o form de captura de e-mail do rodapé aparecia por padrão e não tinha utilidade clara. Removido tudo — bloco do rodapé (HTML/JS/CSS), rota `POST /api/newsletter-subscribe`, tabela `newsletter_emails` do `schema.sql`, chaves de tradução (`newsletter.*` em PT/EN) e chaves de `Settings`. (Sites existentes mantêm a tabela `newsletter_emails` parada, sem uso — não removo dado deles; quem quiser dropar faz manualmente.)
 - **Settings sociais** `social_tiktok/twitch/kick/x` agora semeados (já estavam na whitelist; eram só campos vazios sem linha — cosmético, normalizado).
 - ✅ Auditoria das demais dimensões **limpa**: links de menu/rodapé → todas as páginas semeadas; rotas das views todas definidas; paridade de chaves PT/EN; nenhuma outra tabela cuja vazio quebre página pública.
 

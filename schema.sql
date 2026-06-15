@@ -167,23 +167,6 @@ CREATE TABLE reviews (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================================
--- TABELA: newsletter_emails
--- Inscrições no email capture do footer. Endpoint /api/newsletter-subscribe.
--- ============================================================
-DROP TABLE IF EXISTS newsletter_emails;
-CREATE TABLE newsletter_emails (
-    id              INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    email           VARCHAR(190) NOT NULL UNIQUE,
-    source          VARCHAR(40)  NOT NULL DEFAULT 'footer',
-    ip              VARCHAR(45)  NULL,
-    user_agent      VARCHAR(255) NULL,
-    confirmed_at    TIMESTAMP    NULL,
-    unsubscribed_at TIMESTAMP    NULL,
-    created_at      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_created (created_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- ============================================================
 -- TABELA: coupons
 -- Cupons de desconto aplicáveis no checkout.
 -- discount_type=percent: discount_value é 0-100 (% off)
@@ -554,7 +537,6 @@ INSERT INTO settings (`key`, `value`) VALUES
 ('social_twitch', ''),
 ('social_kick', ''),
 ('social_x', ''),
-('newsletter_enabled', '0'),
 ('maintenance_enabled', '0'),
 ('maintenance_message', ''),
 ('maintenance_eta', ''),
