@@ -32,8 +32,9 @@ return array (
     'title' => 'Galeria',
     'subtitle' => 'Momentos capturados dentro do servidor. Junte-se à comunidade e crie os seus.',
     'empty' => 'Nenhuma screenshot por aqui ainda. Volte logo.',
+    'intro' => 'Screenshots capturados pelos jogadores do :site — servidor DayZ BR no mapa Chernarus. Bases construídas, raids noturnas, veículos, zonas quentes e a comunidade em ação.',
   ),
-  'hero' => 
+  'hero' =>
   array (
     'kicker' => 'Bem-vindo ao fim do mundo',
     'title' => 'O Mundo Acabou. Você Não.',
@@ -208,6 +209,8 @@ return array (
     'terms_note' => 'Marque a caixa pra confirmar que leu e aceita. Ao comprar, fica registrado que você aceitou os Termos e a Política de Reembolso.',
     'auto_delivery' => '. Entrega automática em até 15 segundos após confirmação.',
     'steamid_warning' => '⚠ Confira o seu SteamID antes de pagar — créditos vão pro SteamID informado e não podem ser transferidos depois.',
+    'with_coins' => 'Com suas moedas, abra também as',
+    'try_boxes' => 'Caixas de Loot',
   ),
   'footer' => 
   array (
@@ -297,6 +300,9 @@ return array (
     'err_connection' => 'Erro de conexão.',
     'delivered' => 'Entregue no seu personagem in-game!',
     'pending_delivery' => 'Vai cair quando você estiver online (longe do restart).',
+    'see_items' => 'Ver itens possíveis',
+    'no_coins' => 'Sem moedas?',
+    'buy_at_shop' => 'Compre na Loja',
   ),
   'pix' =>
   array (

@@ -252,9 +252,13 @@ $config['restart'] = \App\Restart::summary();
 
 \App\Router::get('/sitemap.xml', function() use ($config) {
     $siteUrl = rtrim($config['site_url'] ?? '', '/') ?: (($_SERVER['REQUEST_SCHEME'] ?? 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost'));
+    // lastmod real das páginas de conteúdo (sinal de re-crawl pro Google) — última
+    // atualização de pacote serve de proxy pra home/loja. Falha → sem lastmod (ok).
+    $pkgLastmod = null;
+    try { $pkgLastmod = \App\Database::fetchColumn("SELECT MAX(updated_at) FROM packages") ?: null; } catch (\Throwable $e) {}
     $urls = [
-        ['/',             '1.0', 'daily'],
-        ['/shop',         '0.9', 'daily'],
+        ['/',             '1.0', 'daily',  $pkgLastmod],
+        ['/shop',         '0.9', 'daily',  $pkgLastmod],
         ['/caixas',       '0.7', 'weekly'],
         ['/galeria',      '0.7', 'weekly'],
         ['/depoimentos',  '0.6', 'weekly'],
@@ -268,7 +272,9 @@ $config['restart'] = \App\Restart::summary();
     // não duplicar conteúdo (/rules vs /page/rules) — o Google penaliza duplicata.
     foreach (\App\Database::fetchAll("SELECT slug, updated_at FROM pages WHERE published = 1") as $p) {
         if ($p['slug'] === 'rules') continue;
-        $urls[] = ['/page/' . $p['slug'], '0.5', 'monthly', $p['updated_at']];
+        // /page/connect é página de alto valor SEO (IP, guia, problemas) → prioridade maior.
+        $prio = $p['slug'] === 'connect' ? '0.7' : '0.5';
+        $urls[] = ['/page/' . $p['slug'], $prio, 'monthly', $p['updated_at']];
     }
 
     header('Content-Type: application/xml; charset=utf-8');

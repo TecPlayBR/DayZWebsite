@@ -34,6 +34,13 @@ if ($mode === 'gameplay') {
 <section class="section section-bg-2">
     <div class="container">
 
+        <p class="rank-intro">
+            Hall of Fame do <strong><?= e($rkSite) ?></strong> — ranking ao vivo dos sobreviventes que mais
+            investiram, mais kills acumularam e mais tempo passaram em Chernarus. Os dados atualizam
+            automaticamente após cada sessão de jogo. Quer aparecer aqui? Conecte ao servidor, jogue e
+            <a href="/shop">compre moedas</a> pra equipar.
+        </p>
+
         <!-- Online agora (CFTools) -->
         <?php if (!empty($online)): ?>
             <div class="online-box">
@@ -42,7 +49,7 @@ if ($mode === 'gameplay') {
                     <?php foreach ($online as $o): ?>
                         <a class="online-player" href="/player/<?= e($o['steam_id']) ?>" title="<?= e($o['name']) ?><?= $o['ping'] ? ' · ping ' . (int)$o['ping'] . 'ms' : '' ?>">
                             <?php if (!empty($o['avatar'])): ?>
-                                <img src="<?= e($o['avatar']) ?>" alt="" referrerpolicy="no-referrer" onerror="this.style.display='none'">
+                                <img src="<?= e($o['avatar']) ?>" alt="" width="22" height="22" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.style.display='none'">
                             <?php endif; ?>
                             <span><?= e($o['name']) ?></span>
                         </a>
@@ -203,6 +210,10 @@ if ($mode === 'gameplay') {
 
 <style>
 #rank-results { transition: opacity .15s ease; }
+.rank-intro { max-width:780px; margin:0 auto 2rem; text-align:center; color:var(--dim); font-size:0.92rem; line-height:1.7; }
+.rank-intro strong { color:var(--bone); }
+.rank-intro a { color:var(--hazard); text-decoration:none; }
+.rank-intro a:hover { text-decoration:underline; }
 .online-box { background:var(--bg-1); border:1px solid var(--border); border-left:3px solid var(--moss); border-radius:4px; padding:1rem 1.2rem; margin-bottom:1.5rem; }
 .online-head { font-family:var(--font-display); color:var(--bone); font-size:.95rem; margin-bottom:.7rem; display:flex; align-items:center; gap:.5rem; }
 .online-dot { width:9px; height:9px; border-radius:50%; background:var(--moss); box-shadow:0 0 8px var(--moss); animation:onlinePulse 2s infinite; }

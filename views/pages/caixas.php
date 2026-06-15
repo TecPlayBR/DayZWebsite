@@ -31,6 +31,9 @@ $rarityColor = [
         <?php if (empty($boxes)): ?>
             <p style="text-align:center;color:var(--dim);padding:3rem 0;"><?= e(__('caixas.none_available')) ?></p>
         <?php else: ?>
+        <?php if ($steam_user): ?>
+            <p class="caixas-crosssell"><?= e(__('caixas.no_coins', [], 'Sem moedas?')) ?> <a href="/shop"><?= e(__('caixas.buy_at_shop', [], 'Compre na Loja')) ?> →</a></p>
+        <?php endif; ?>
         <div class="caixas-grid">
             <?php foreach ($boxes as $b):
                 $daily = (int)$b['is_daily'] === 1;
@@ -47,6 +50,17 @@ $rarityColor = [
                     </div>
                     <h3 class="caixa-name"><?= e($b['name']) ?></h3>
                     <?php if (!empty($b['description'])): ?><p class="caixa-desc"><?= e($b['description']) ?></p><?php endif; ?>
+                    <?php $poolItems = array_filter($b['items'] ?? [], fn($it) => ($it['type'] ?? 'item') !== 'coins'); ?>
+                    <?php if (!empty($poolItems)): ?>
+                        <details class="caixa-items">
+                            <summary><?= e(__('caixas.see_items', [], 'Ver itens possíveis')) ?> (<?= count($poolItems) ?>)</summary>
+                            <ul>
+                                <?php foreach ($poolItems as $it): ?>
+                                    <li><span class="caixa-item-dot" style="background:<?= $rarityColor[$it['rarity']] ?? $rarityColor['common'] ?>"></span><?= e($it['name']) ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </details>
+                    <?php endif; ?>
                     <div class="caixa-cost"><?= $daily ? '🆓 ' . e(__('caixas.free')) : ('🪙 ' . (int)$b['cost_coins'] . ' ' . e(__('caixas.coins_word'))) ?></div>
                     <?php if (!$steam_user): ?>
                         <a href="/auth/steam" class="btn caixa-open"><?= e(__('caixas.login_to_open')) ?></a>
@@ -104,6 +118,16 @@ $rarityColor = [
 @media (prefers-reduced-motion: reduce) { .caixa-img img, .caixa-img-ph, .caixa-img::before { animation:none; } }
 .caixa-name { font-family:var(--font-display); color:var(--bone); font-size:1.05rem; letter-spacing:0.04em; margin-bottom:0.3rem; }
 .caixa-desc { font-size:0.8rem; color:var(--dim); margin-bottom:0.6rem; flex:1; }
+.caixas-crosssell { text-align:center; margin:0 0 1.6rem; color:var(--dim); font-size:0.9rem; }
+.caixas-crosssell a { color:var(--hazard); font-weight:600; text-decoration:none; }
+.caixas-crosssell a:hover { text-decoration:underline; }
+.caixa-items { margin:0 0 0.6rem; text-align:left; }
+.caixa-items summary { cursor:pointer; color:var(--bone); font-size:0.78rem; font-family:var(--font-mono); list-style:none; text-align:center; opacity:0.85; transition:opacity .15s; }
+.caixa-items summary:hover { opacity:1; color:var(--hazard); }
+.caixa-items summary::-webkit-details-marker { display:none; }
+.caixa-items ul { list-style:none; margin:0.6rem 0 0; padding:0.6rem 0.7rem; max-height:160px; overflow-y:auto; background:var(--bg-0); border:1px solid var(--border); border-radius:5px; }
+.caixa-items li { display:flex; align-items:center; gap:0.45rem; font-size:0.76rem; color:var(--dim); padding:0.16rem 0; }
+.caixa-item-dot { flex:0 0 auto; width:8px; height:8px; border-radius:50%; display:inline-block; }
 .caixa-cost { color:var(--hazard); font-family:var(--font-mono); margin:0.5rem 0 0.9rem; }
 .caixa-open { width:100%; margin-top:auto; }
 .caixa-open:disabled { opacity:0.5; cursor:not-allowed; }

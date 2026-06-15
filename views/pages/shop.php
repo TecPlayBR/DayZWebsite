@@ -134,7 +134,8 @@ if ($prodItems) {
                 <button type="button" class="pack-wish <?= $isWished ? 'wished' : '' ?>"
                         data-wish="<?= e($pkg['id']) ?>"
                         title="<?= $isWished ? 'Remover da lista de desejos' : 'Adicionar à lista de desejos' ?>"
-                        aria-label="Wishlist"><?= $isWished ? '♥' : '♡' ?></button>
+                        aria-pressed="<?= $isWished ? 'true' : 'false' ?>"
+                        aria-label="<?= e(($isWished ? 'Remover ' : 'Favoritar ') . $pkg['name'] . ' na lista de desejos') ?>"><span aria-hidden="true"><?= $isWished ? '♥' : '♡' ?></span></button>
 
                 <?php if ($coinsBonus > 0 && !empty($pkg['bonus_badge'])): ?>
                     <div class="pack-badge"><?= e($pkg['bonus_badge']) ?></div>
@@ -240,6 +241,10 @@ if ($prodItems) {
             🔒 <strong>Mercado Pago</strong><?= ($config['delivery_active'] ?? false) ? __('shop.auto_delivery') : __('shop.delivery_manual', [], locale() === 'en-us' ? ' — in-game coin delivery is handled by the server (Agent/Bot) after confirmation.' : ' — a entrega das moedas no jogo é feita pelo servidor (Agent/Bot) após a confirmação.') ?><br>
             <?= __('shop.steamid_warning') ?>
         </p>
+
+        <p class="shop-crosssell">
+            🎁 <?= e(__('shop.with_coins', [], 'Com suas moedas, abra também as')) ?> <a href="/caixas"><?= e(__('shop.try_boxes', [], 'Caixas de Loot')) ?> →</a>
+        </p>
     </div>
 </section>
 
@@ -251,6 +256,9 @@ if ($prodItems) {
     gap: 1.5rem;
     margin-bottom: 3rem;
 }
+.shop-crosssell { text-align:center; margin:1.5rem 0 0; color:var(--dim); font-size:0.92rem; }
+.shop-crosssell a { color:var(--hazard); font-weight:600; text-decoration:none; }
+.shop-crosssell a:hover { text-decoration:underline; }
 .pack-card {
     background: linear-gradient(180deg, var(--bg-2) 0%, var(--bg-1) 100%);
     border: 1px solid var(--border);

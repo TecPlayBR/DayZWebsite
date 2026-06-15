@@ -32,6 +32,7 @@ return array (
     'title' => 'Gallery',
     'subtitle' => 'Moments captured inside the server. Join the community and create your own.',
     'empty' => 'No screenshots here yet. Check back soon.',
+    'intro' => 'Screenshots captured by :site players — Brazilian DayZ server on the Chernarus map. Bases built, night raids, vehicles, hot zones and the community in action.',
   ),
   'hero' => 
   array (
@@ -208,8 +209,10 @@ return array (
     'terms_note' => 'Tick the box to confirm you have read and accept. Buying registers your acceptance of the Terms and Refund Policy.',
     'auto_delivery' => '. Automatic delivery within 15 seconds after confirmation.',
     'steamid_warning' => '⚠ Double-check your SteamID before paying — credits go to the SteamID you submit and cannot be transferred later.',
+    'with_coins' => 'With your coins, also open the',
+    'try_boxes' => 'Loot Boxes',
   ),
-  'footer' => 
+  'footer' =>
   array (
     'about' => 'About',
     'contact' => 'Contact',
@@ -297,6 +300,9 @@ return array (
     'err_connection' => 'Connection error.',
     'delivered' => 'Delivered to your in-game character!',
     'pending_delivery' => 'It will drop once you are online (away from restart).',
+    'see_items' => 'See possible items',
+    'no_coins' => 'No coins?',
+    'buy_at_shop' => 'Buy in the Shop',
   ),
   'pix' =>
   array (

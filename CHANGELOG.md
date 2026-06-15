@@ -5,6 +5,31 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.3.0] — 2026-06-14
+
+> Sem migration — só subir os arquivos. Onda de **performance, acessibilidade, SEO e conversão** (reauditoria externa).
+
+### ⚡ Performance / Core Web Vitals
+- **Galeria**: `width`/`height` + `decoding=async` em todas as imagens (mata CLS), 1ª imagem com `fetchpriority=high` (LCP), demais com `loading=lazy`. Alt descritivo (nome + servidor + Chernarus).
+- **Ranking**: avatares "online agora" com `width`/`height` + `loading=lazy` + `decoding=async`.
+- (Hero preload com `fetchpriority` e canonical sem querystring já existiam desde a v2.1 — confirmados.)
+
+### ♿ Acessibilidade
+- **Lightbox da galeria** agora é `role=dialog aria-modal`, com **alt dinâmico** por imagem, **foco movido pro botão fechar** ao abrir, **restaurado** ao fechar, e **focus-trap** no Tab (Esc/setas já existiam).
+- **Wishlist** (♡) na loja: `aria-pressed` + `aria-label` com o nome do pacote; o ícone vira `aria-hidden`.
+- (aria-label nos botões Comprar/Abrir e seletor de idioma com `role=listbox`/`aria-selected` já existiam — confirmados.)
+
+### 💸 Conversão / UX
+- **Cross-sell**: `/shop` linka pras **Caixas** e `/caixas` linka pra **Loja** ("sem moedas?") — as duas páginas de conversão agora se conversam.
+- **Caixas** mostram os **itens possíveis** (lista expansível `details/summary`, com cor de raridade) — responde a objeção de "compra às cegas".
+
+### 🔍 SEO on-page
+- **Galeria** e **Ranking** ganharam **texto introdutório** (anti-thin-content) com nome do servidor + palavras-chave do nicho.
+- **Sitemap**: `/page/connect` promovido a prioridade **0.7**; `/` e `/shop` ganham `lastmod` real (última atualização de pacote) pra sinalizar re-crawl.
+- Novas chaves i18n (PT/EN, paridade 290=290) pros textos acima.
+
+---
+
 ## [2.2.3] — 2026-06-14
 
 > Sem migration — só subir os arquivos.

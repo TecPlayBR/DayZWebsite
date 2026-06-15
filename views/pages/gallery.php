@@ -20,6 +20,10 @@
             <p class="page-subtitle"><?= e(__('gallery.subtitle')) ?></p>
         </div>
 
+        <?php if (!empty($items)): ?>
+            <p class="gallery-intro"><?= e(__('gallery.intro', ['site' => $gSite], 'Screenshots capturados pelos jogadores do ' . $gSite . ' — servidor DayZ BR no mapa Chernarus. Bases construídas, raids noturnas, veículos, zonas quentes e a comunidade em ação.')) ?></p>
+        <?php endif; ?>
+
         <?php if (empty($items)): ?>
             <div class="empty-state">
                 <span class="empty-icon" style="font-size: 4rem; opacity: 0.4;">📷</span>
@@ -27,13 +31,17 @@
             </div>
         <?php else: ?>
             <div class="gallery-grid">
-                <?php foreach ($items as $it): ?>
+                <?php foreach ($items as $i => $it):
+                    $cap = trim((string)($it['caption'] ?? ''));
+                    $alt = ($cap !== '' ? $cap : 'Screenshot') . ' — ' . $gSite . ' DayZ Chernarus';
+                ?>
                     <a href="<?= asset('img/gallery/' . $it['filename']) ?>" class="gallery-item"
-                       data-caption="<?= e($it['caption'] ?? '') ?>">
+                       data-caption="<?= e($cap) ?>" data-alt="<?= e($alt) ?>">
                         <img src="<?= asset('img/gallery/' . $it['filename']) ?>"
-                             alt="<?= e($it['caption'] ?? 'Screenshot') ?>" loading="lazy">
-                        <?php if (!empty($it['caption'])): ?>
-                            <span class="gallery-caption"><?= e($it['caption']) ?></span>
+                             alt="<?= e($alt) ?>" width="800" height="600" decoding="async"
+                             <?= $i === 0 ? 'fetchpriority="high"' : 'loading="lazy"' ?>>
+                        <?php if ($cap !== ''): ?>
+                            <span class="gallery-caption"><?= e($cap) ?></span>
                         <?php endif; ?>
                     </a>
                 <?php endforeach; ?>
@@ -43,7 +51,7 @@
     </div>
 </section>
 
-<div id="gallery-lightbox" class="gallery-lightbox" hidden>
+<div id="gallery-lightbox" class="gallery-lightbox" role="dialog" aria-modal="true" aria-label="Visualizador de imagens da galeria" hidden>
     <button class="gallery-lightbox-close" aria-label="Fechar (Esc)" title="Fechar (Esc)">×</button>
     <button class="gallery-lightbox-nav prev" aria-label="Anterior (←)" title="Anterior (←)">‹</button>
     <button class="gallery-lightbox-nav next" aria-label="Próxima (→)" title="Próxima (→)">›</button>
@@ -164,6 +172,10 @@
     .gallery-lightbox-nav.next { right: 0.4rem; }
     .gallery-lightbox-foot { padding: 0 1rem; flex-direction: column; gap: 0.4rem; }
 }
+.gallery-intro {
+    max-width: 760px; margin: 1.5rem auto 0; text-align: center;
+    color: var(--dim); font-size: 0.92rem; line-height: 1.7;
+}
 .empty-state {
     text-align: center; padding: 4rem 1rem;
     color: var(--dim);
@@ -185,6 +197,7 @@
     const btnClose = lb.querySelector('.gallery-lightbox-close');
     const items = Array.from(document.querySelectorAll('.gallery-item'));
     let idx = 0;
+    let lastFocused = null; // pra devolver o foco ao fechar (a11y)
 
     function show(i) {
         if (i < 0 || i >= items.length) return;
@@ -195,13 +208,21 @@
         newImg.onload = () => { img.src = a.href; img.classList.remove('loading'); };
         newImg.onerror = () => img.classList.remove('loading');
         newImg.src = a.href;
+        img.alt = a.dataset.alt || a.dataset.caption || 'Imagem da galeria';
         cap.textContent = a.dataset.caption || '';
         count.textContent = (i + 1) + ' / ' + items.length;
         btnPrev.disabled = (i === 0);
         btnNext.disabled = (i === items.length - 1);
     }
-    function open(i) { show(i); lb.hidden = false; document.body.style.overflow = 'hidden'; }
-    function close() { lb.hidden = true; img.src = ''; document.body.style.overflow = ''; }
+    function open(i) {
+        lastFocused = document.activeElement;
+        show(i); lb.hidden = false; document.body.style.overflow = 'hidden';
+        btnClose.focus(); // move o foco pra dentro do modal
+    }
+    function close() {
+        lb.hidden = true; img.src = ''; document.body.style.overflow = '';
+        if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
+    }
     function next() { if (idx < items.length - 1) show(idx + 1); }
     function prev() { if (idx > 0) show(idx - 1); }
 
@@ -217,6 +238,16 @@
         if (e.key === 'Escape') close();
         else if (e.key === 'ArrowRight') next();
         else if (e.key === 'ArrowLeft')  prev();
+        else if (e.key === 'Tab') {
+            // Focus trap: mantém o Tab circulando entre os controles do modal.
+            const f = [btnClose, btnPrev, btnNext].filter(b => !b.disabled);
+            if (!f.length) return;
+            const cur = f.indexOf(document.activeElement);
+            e.preventDefault();
+            const ni = e.shiftKey ? (cur <= 0 ? f.length - 1 : cur - 1)
+                                  : (cur === f.length - 1 ? 0 : cur + 1);
+            f[ni].focus();
+        }
     });
 
     // Swipe touch (mobile)
