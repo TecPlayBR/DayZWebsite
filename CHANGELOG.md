@@ -5,6 +5,17 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.3.1] — 2026-06-15
+
+> Sem migration — só subir os arquivos. Limpeza da loja.
+
+### 🧹 Loja (/shop) — tira ruído
+- **Removido o campo de cupom da `/shop`**: era redundante — o cupom já é digitado na tela de **checkout**. A promo sazonal continua aplicando automática no "Comprar" (preço riscado segue válido); cupom manual só no checkout.
+- **Removido o depoimento (social proof) de dentro da `/shop`**: review de player não faz sentido no meio da loja — fica em `/depoimentos`. (O estilo `.pack-percoin`, que estava escondido nesse bloco, foi movido pro CSS principal — preço por moeda segue estilizado.)
+- Testado: `/shop` renderiza 200 sem erro; cupom/depoimento fora; botão Comprar, preço-por-moeda e cross-sell intactos.
+
+---
+
 ## [2.3.0] — 2026-06-14
 
 > Sem migration — só subir os arquivos. Onda de **performance, acessibilidade, SEO e conversão** (reauditoria externa).

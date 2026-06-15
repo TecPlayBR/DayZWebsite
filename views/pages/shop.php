@@ -99,22 +99,6 @@ if ($prodItems) {
             </div>
         <?php endif; ?>
 
-        <?php $topReview = \App\Database::fetchOne("SELECT body, rating, display_name FROM reviews WHERE approved = 1 AND body <> '' ORDER BY rating DESC, created_at DESC LIMIT 1"); ?>
-        <?php if ($topReview): ?>
-        <div class="shop-social-proof">
-            <span class="ssp-stars" aria-label="<?= (int)$topReview['rating'] ?> de 5 estrelas"><?= str_repeat('★', (int)$topReview['rating']) ?></span>
-            <span class="ssp-quote">“<?= e(mb_strimwidth($topReview['body'], 0, 130, '…')) ?>”</span>
-            <span class="ssp-author">— <?= e($topReview['display_name'] ?: 'Sobrevivente') ?> · <a href="/depoimentos">ver todos →</a></span>
-        </div>
-        <style>
-        .shop-social-proof { max-width:760px; margin:0 auto 1.5rem; background:rgba(212,160,23,0.08); border:1px solid var(--border);
-            border-left:3px solid var(--hazard); border-radius:6px; padding:0.9rem 1.2rem; text-align:center; font-size:0.92rem; color:var(--bone); }
-        .shop-social-proof .ssp-stars { color:var(--hazard); margin-right:0.4rem; }
-        .shop-social-proof .ssp-author { color:var(--dim); font-size:0.82rem; display:block; margin-top:0.3rem; }
-        .shop-social-proof .ssp-author a { color:var(--rust-2); }
-        .pack-percoin { font-size:0.72rem; color:var(--dim); margin-top:0.2rem; }
-        </style>
-        <?php endif; ?>
 
         <div class="packs-grid">
             <?php foreach ($packages as $pkg):
@@ -216,16 +200,6 @@ if ($prodItems) {
             <?php endforeach; ?>
         </div>
 
-        <div class="shop-coupon">
-            <label for="global-coupon">
-                <span>🎟 Tem um cupom de desconto?</span>
-                <input type="text" id="global-coupon" placeholder="EX: BLACKFRIDAY20" maxlength="40"
-                       oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9_-]/g, '')">
-            </label>
-            <p class="shop-coupon-note">
-                <?= e(__('shop.coupon_auto')) ?>
-            </p>
-        </div>
 
         <div class="shop-terms">
             <label>
@@ -462,30 +436,7 @@ if ($prodItems) {
 .shop-terms-note { font-size: 0.75rem; color: var(--dim); margin: 0.4rem 0 0 1.7rem; }
 .shop-terms.shake { animation: terms-shake .4s; border-left-color: var(--rust-2); background: var(--danger-overlay); }
 
-.shop-coupon {
-    max-width: 700px; margin: 0 auto 1rem;
-    background: rgba(193,68,14,0.06);
-    border-left: 3px solid var(--rust);
-    padding: 0.9rem 1.4rem;
-}
-.shop-coupon label {
-    display: flex; align-items: center; gap: 0.8rem;
-    color: var(--bone); font-size: 0.92rem; flex-wrap: wrap;
-}
-.shop-coupon label > span { font-weight: 600; min-width: max-content; }
-.shop-coupon input {
-    flex: 1; min-width: 200px;
-    padding: 0.5rem 0.8rem;
-    background: var(--bg-0);
-    border: 1px solid var(--border);
-    color: var(--hazard);
-    font-family: var(--font-mono);
-    font-size: 0.9rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-}
-.shop-coupon input:focus { outline: none; border-color: var(--rust); }
-.shop-coupon-note { font-size: 0.75rem; color: var(--dim); margin: 0.5rem 0 0; }
+.pack-percoin { font-size: 0.72rem; color: var(--dim); margin-top: 0.2rem; }
 @keyframes terms-shake {
     0%, 100% { transform: translateX(0); }
     25% { transform: translateX(-8px); }
@@ -602,14 +553,11 @@ document.querySelectorAll('[data-wish]').forEach(btn => {
             // Sync flag pro POST
             const flag = f.querySelector('[data-terms-flag]');
             if (flag) flag.value = '1';
-            // Sync cupom — usa input manual; se vazio, usa promo sazonal (se houver)
-            const couponInput = document.getElementById('global-coupon');
+            // Cupom: aplica só a promo sazonal automaticamente (se houver). O cupom
+            // manual é digitado na tela de checkout, não aqui na loja.
             const couponFlag = f.querySelector('[data-coupon-flag]');
             const promoCode = <?= !empty($promo_coupon) ? json_encode($promo_coupon['code']) : '""' ?>;
-            if (couponFlag) {
-                const manual = couponInput ? couponInput.value.trim() : '';
-                couponFlag.value = manual !== '' ? manual : promoCode;
-            }
+            if (couponFlag) couponFlag.value = promoCode;
             // Estado de carregamento (feedback + trava duplo-submit). Usa classe, não
             // disabled, pra não atrapalhar o envio do form.
             f.dataset.submitting = '1';
