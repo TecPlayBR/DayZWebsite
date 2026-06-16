@@ -5,6 +5,17 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.5.2] — 2026-06-16
+
+> Sem migration — só subir os arquivos. Correção de instalação nova.
+
+### 🐛 Instalação nova mostrava "migrations pendentes" falso
+- O `install.php` importa o `schema.sql` (que já tem o efeito de TODAS as migrations), mas **não marcava** o `schema_migrations` → o painel do admin de um site **recém-instalado** mostrava o banner "⚠ Banco de dados desatualizado — X migrations pendentes" mesmo estando 100% em dia (o `pending_migrations()` compara a pasta `migrations/` com a tabela `schema_migrations`, que nascia vazia).
+- Fix: o `install.php` agora **carimba todas as migrations como aplicadas** logo após importar o schema. Instalação do zero nasce com 0 pendências.
+- (Sites já no ar que mostravam o aviso por terem migrations antigas não-rastreadas: rodar `php cli/migrate.php` uma vez resolve — ele aplica/pula benigno e marca tudo.)
+
+---
+
 ## [2.5.1] — 2026-06-16
 
 > Sem migration — só subir os arquivos. Visual do preview de chances das caixas.

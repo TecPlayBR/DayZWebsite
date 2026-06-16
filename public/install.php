@@ -118,6 +118,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$structureMissing) {
             // Estrategia simples: roda direto via exec (suporta multi-statement no mysql native)
             $pdo->exec($sql);
 
+            // Marca TODAS as migrations como aplicadas: o schema.sql já inclui o efeito de
+            // todas, então uma instalação do zero está em dia. Sem isso o painel mostraria
+            // "migrations pendentes" FALSO num site recém-instalado (o pending compara a
+            // pasta migrations/ com a tabela schema_migrations, que nasceria vazia).
+            try {
+                $pdo->exec("CREATE TABLE IF NOT EXISTS schema_migrations (filename VARCHAR(150) NOT NULL PRIMARY KEY, applied_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+                $stmtMig = $pdo->prepare("INSERT IGNORE INTO schema_migrations (filename) VALUES (?)");
+                foreach (glob($ROOT . '/migrations/*.sql') as $mf) {
+                    $stmtMig->execute([basename($mf)]);
+                }
+            } catch (\Throwable $e) { /* não bloqueia o install */ }
+
             // Cria admin user com senha bcrypt
             $hash = password_hash($admin_pass, PASSWORD_BCRYPT);
             $stmt = $pdo->prepare("INSERT INTO admin_users (username, password_hash, email) VALUES (?, ?, ?)");
