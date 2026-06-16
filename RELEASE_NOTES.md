@@ -1,6 +1,14 @@
-# 🏴 DayZ Website Template — Notas da versão (v2.4.0)
+# 🏴 DayZ Website Template — Notas da versão (v2.5.0)
 
-> **Atualizar é seguro e não apaga nada.** A **v2.4.0 TEM migration** — suba os arquivos e rode `php cli/migrate.php`. A linha 2.3.x não tinha. O log completo fica no **[CHANGELOG.md](CHANGELOG.md)**; aqui vão os destaques.
+> **Atualizar é seguro e não apaga nada.** A **v2.5.0 TEM migration** (igual a v2.4.0) — suba os arquivos e rode `php cli/migrate.php`. O log completo fica no **[CHANGELOG.md](CHANGELOG.md)**; aqui vão os destaques.
+
+---
+
+## 🆕 v2.5.0 — Caixas: raridade define a chance + preview de odds
+
+- **Campo "peso" removido** do editor de caixa: a **raridade** define a chance sozinha (comum cai muito, lendário pouco). Menos confusão; o admin só escolhe a raridade.
+- **Preview de chances na `/caixas`**: o "Ver itens possíveis" mostra ícone + nome + raridade colorida + a **chance % real** de cada item (transparência de loot box, anti "ninguém me avisou", estilo Free Fire/PUBG).
+- **Tem migration** (`v2.5.0_box_weight_from_rarity.sql`) que normaliza os pesos pela raridade.
 
 ---
 

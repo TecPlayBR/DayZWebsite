@@ -13,6 +13,15 @@ namespace App;
 class Boxes {
 
     /** Caixas habilitadas pro grid público. */
+    // A RARIDADE define o peso/chance (o campo "peso" manual saiu do admin — 2026-06-16).
+    // Mesmos valores no JS do caixa_edit.php e na migration v2.5.0 — manter em sincronia.
+    public const RARITY_WEIGHT = [
+        'common' => 100, 'uncommon' => 40, 'rare' => 15, 'epic' => 5, 'legendary' => 2,
+    ];
+    public static function rarityWeight(string $rarity): int {
+        return self::RARITY_WEIGHT[$rarity] ?? self::RARITY_WEIGHT['common'];
+    }
+
     public static function all(): array {
         // try/catch: tabela boxes ausente (upgrade sem migrate) → página /caixas
         // mostra vazio em vez de derrubar com 500.

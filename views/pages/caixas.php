@@ -10,6 +10,13 @@ $rarityColor = [
     'common' => '#9aa0a6', 'uncommon' => '#4a9d5b', 'rare' => '#3b7ddd',
     'epic' => '#9b4dca', 'legendary' => '#d4a017',
 ];
+$rarityLabel = [
+    'common'    => __('caixas.rar_common', [], 'Comum'),
+    'uncommon'  => __('caixas.rar_uncommon', [], 'Incomum'),
+    'rare'      => __('caixas.rar_rare', [], 'Raro'),
+    'epic'      => __('caixas.rar_epic', [], 'Épico'),
+    'legendary' => __('caixas.rar_legendary', [], 'Lendário'),
+];
 ?>
 
 <section class="hero" style="min-height:34vh;padding-bottom:1.5rem;">
@@ -50,13 +57,30 @@ $rarityColor = [
                     </div>
                     <h3 class="caixa-name"><?= e($b['name']) ?></h3>
                     <?php if (!empty($b['description'])): ?><p class="caixa-desc"><?= e($b['description']) ?></p><?php endif; ?>
-                    <?php $poolItems = array_filter($b['items'] ?? [], fn($it) => ($it['type'] ?? 'item') !== 'coins'); ?>
-                    <?php if (!empty($poolItems)): ?>
+                    <?php
+                    $poolItems = $b['items'] ?? [];
+                    // Mais provável no topo (transparência: o jogador vê a chance real de cada item).
+                    usort($poolItems, fn($a, $c) => ($c['chance_pct'] ?? 0) <=> ($a['chance_pct'] ?? 0));
+                    if (!empty($poolItems)): ?>
                         <details class="caixa-items">
                             <summary><?= e(__('caixas.see_items', [], 'Ver itens possíveis')) ?> (<?= count($poolItems) ?>)</summary>
+                            <p class="caixa-odds-note"><?= e(__('caixas.odds_note', [], 'Chances reais de cada item:')) ?></p>
                             <ul>
-                                <?php foreach ($poolItems as $it): ?>
-                                    <li><span class="caixa-item-dot" style="background:<?= $rarityColor[$it['rarity']] ?? $rarityColor['common'] ?>"></span><?= e($it['name']) ?></li>
+                                <?php foreach ($poolItems as $it):
+                                    $rc = $rarityColor[$it['rarity']] ?? $rarityColor['common'];
+                                    $isCoins = ($it['type'] ?? 'item') === 'coins';
+                                    $pctTxt = rtrim(rtrim(number_format((float)($it['chance_pct'] ?? 0), 2, ',', ''), '0'), ',');
+                                ?>
+                                    <li class="caixa-item-row" style="border-left-color:<?= $rc ?>">
+                                        <?php if (!$isCoins && !empty($it['image'])): ?>
+                                            <img class="caixa-item-ico" src="<?= e($it['image']) ?>" alt="" width="22" height="22" loading="lazy" decoding="async" onerror="this.style.display='none'">
+                                        <?php else: ?>
+                                            <span class="caixa-item-dot" style="background:<?= $rc ?>"></span>
+                                        <?php endif; ?>
+                                        <span class="caixa-item-name"><?= $isCoins ? '💰 ' : '' ?><?= e($it['name']) ?><?php if (!$isCoins && (int)$it['quantity'] > 1): ?> <span class="caixa-item-qty">x<?= (int)$it['quantity'] ?></span><?php endif; ?></span>
+                                        <?php if (!$isCoins): ?><span class="caixa-item-rar" style="color:<?= $rc ?>"><?= e($rarityLabel[$it['rarity']] ?? $it['rarity']) ?></span><?php endif; ?>
+                                        <span class="caixa-item-chance"><?= $pctTxt ?>%</span>
+                                    </li>
                                 <?php endforeach; ?>
                             </ul>
                         </details>
@@ -126,8 +150,14 @@ $rarityColor = [
 .caixa-items summary:hover { opacity:1; color:var(--hazard); }
 .caixa-items summary::-webkit-details-marker { display:none; }
 .caixa-items ul { list-style:none; margin:0.6rem 0 0; padding:0.6rem 0.7rem; max-height:160px; overflow-y:auto; background:var(--bg-0); border:1px solid var(--border); border-radius:5px; }
-.caixa-items li { display:flex; align-items:center; gap:0.45rem; font-size:0.76rem; color:var(--dim); padding:0.16rem 0; }
-.caixa-item-dot { flex:0 0 auto; width:8px; height:8px; border-radius:50%; display:inline-block; }
+.caixa-odds-note { font-size:0.7rem; color:var(--dim); margin:0.5rem 0 0.3rem; text-align:center; opacity:0.85; }
+.caixa-items li.caixa-item-row { display:flex; align-items:center; gap:0.5rem; font-size:0.74rem; color:var(--bone); padding:0.28rem 0.45rem; border-left:3px solid var(--border); border-radius:2px; margin-bottom:0.2rem; background:var(--bg-1); }
+.caixa-item-ico { flex:0 0 auto; width:22px; height:22px; object-fit:contain; }
+.caixa-item-dot { flex:0 0 auto; width:9px; height:9px; border-radius:50%; display:inline-block; }
+.caixa-item-name { flex:1 1 auto; text-align:left; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.caixa-item-qty { color:var(--dim); }
+.caixa-item-rar { flex:0 0 auto; font-size:0.66rem; font-family:var(--font-mono); opacity:0.9; }
+.caixa-item-chance { flex:0 0 auto; font-family:var(--font-mono); color:var(--hazard); font-weight:600; min-width:44px; text-align:right; }
 .caixa-cost { color:var(--hazard); font-family:var(--font-mono); margin:0.5rem 0 0.9rem; }
 .caixa-open { width:100%; margin-top:auto; }
 .caixa-open:disabled { opacity:0.5; cursor:not-allowed; }

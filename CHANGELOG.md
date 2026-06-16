@@ -5,6 +5,19 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.5.0] — 2026-06-16
+
+> **TEM migration** — suba os arquivos e rode `php cli/migrate.php` (`v2.5.0_box_weight_from_rarity.sql`). Normaliza os pesos das caixas pela raridade.
+
+### 🎁 Caixas: a raridade define a chance (campo "peso" removido)
+- O campo **"Peso"** saiu do editor de caixa (form + tabela do pool). Agora a **raridade define a chance sozinha** (comum cai muito, lendário cai pouco) — o peso é derivado server-side (`Boxes::RARITY_WEIGHT`: comum 100 / incomum 40 / raro 15 / épico 5 / lendário 2). Menos confusão pro admin, que só escolhe a raridade.
+- Migration normaliza o peso de todos os itens existentes pela raridade (idempotente).
+
+### 🔍 Preview de chances na `/caixas` (transparência — anti "ninguém me avisou")
+- O **"Ver itens possíveis"** agora mostra, por item: **ícone** (se houver, estilo Free Fire/PUBG), nome + qtd, **raridade colorida** e a **chance % real** — ordenado do mais provável pro mais raro, com nota "chances reais de cada item". Transparência de loot box pra evitar disputa. Inclui as recompensas em moedas. i18n PT/EN.
+
+---
+
 ## [2.4.3] — 2026-06-15
 
 > Sem migration — só subir os arquivos. Fechamento da reauditoria Hostinger (itens de código que ainda faltavam).

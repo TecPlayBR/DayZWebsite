@@ -2033,10 +2033,11 @@ $collectDashboardData = function() {
     }
     $up = upload_image($_FILES['image_file'] ?? [], $ROOT . '/public/assets/img/caixas', 'ci', '/assets/img/caixas');
     if ($up) $image = $up;
+    $rarity = in_array($_POST['rarity'] ?? 'common', ['common','uncommon','rare','epic','legendary'], true) ? $_POST['rarity'] : 'common';
     $f = [
         $type, $classname, $name, $image, $qty,
-        max(0, (int)($_POST['weight'] ?? 1)),
-        in_array($_POST['rarity'] ?? 'common', ['common','uncommon','rare','epic','legendary'], true) ? $_POST['rarity'] : 'common',
+        \App\Boxes::rarityWeight($rarity), // peso DERIVADO da raridade (campo "peso" removido do admin)
+        $rarity,
         !empty($_POST['enabled']) ? 1 : 0,
         (int)($_POST['sort_order'] ?? 0),
     ];
