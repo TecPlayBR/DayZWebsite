@@ -59,27 +59,43 @@ $rarityLabel = [
                     <?php if (!empty($b['description'])): ?><p class="caixa-desc"><?= e($b['description']) ?></p><?php endif; ?>
                     <?php
                     $poolItems = $b['items'] ?? [];
-                    // Mais provável no topo (transparência: o jogador vê a chance real de cada item).
-                    usort($poolItems, fn($a, $c) => ($c['chance_pct'] ?? 0) <=> ($a['chance_pct'] ?? 0));
+                    // Prêmios raros no topo (o que o jogador sonha em tirar), depois por chance.
+                    $rarRank = ['legendary' => 5, 'epic' => 4, 'rare' => 3, 'uncommon' => 2, 'common' => 1];
+                    usort($poolItems, function ($a, $c) use ($rarRank) {
+                        $ra = $rarRank[$a['rarity']] ?? 0; $rck = $rarRank[$c['rarity']] ?? 0;
+                        return $ra !== $rck ? $rck <=> $ra : (($c['chance_pct'] ?? 0) <=> ($a['chance_pct'] ?? 0));
+                    });
+                    $maxChance = 0; foreach ($poolItems as $pi) $maxChance = max($maxChance, (float)($pi['chance_pct'] ?? 0));
                     if (!empty($poolItems)): ?>
-                        <details class="caixa-items">
-                            <summary><?= e(__('caixas.see_items', [], 'Ver itens possíveis')) ?> (<?= count($poolItems) ?>)</summary>
+                        <details class="caixa-items" open>
+                            <summary>🎲 <?= e(__('caixas.see_items', [], 'Ver itens possíveis')) ?> · <?= count($poolItems) ?></summary>
                             <p class="caixa-odds-note"><?= e(__('caixas.odds_note', [], 'Chances reais de cada item:')) ?></p>
                             <ul>
                                 <?php foreach ($poolItems as $it):
                                     $rc = $rarityColor[$it['rarity']] ?? $rarityColor['common'];
                                     $isCoins = ($it['type'] ?? 'item') === 'coins';
-                                    $pctTxt = rtrim(rtrim(number_format((float)($it['chance_pct'] ?? 0), 2, ',', ''), '0'), ',');
+                                    $pct = (float)($it['chance_pct'] ?? 0);
+                                    $pctTxt = rtrim(rtrim(number_format($pct, 2, ',', ''), '0'), ',');
+                                    $barW = $maxChance > 0 ? max(5, (int)round($pct / $maxChance * 100)) : 0;
+                                    $rarTxt = $isCoins ? __('caixas.coins_word', [], 'moedas') : ($rarityLabel[$it['rarity']] ?? $it['rarity']);
+                                    $nameTxt = ($isCoins ? '💰 ' : '') . $it['name'] . ((int)$it['quantity'] > 1 && !$isCoins ? ' x' . (int)$it['quantity'] : '');
                                 ?>
-                                    <li class="caixa-item-row" style="border-left-color:<?= $rc ?>">
+                                    <li class="caixa-item-row" style="--rc:<?= $rc ?>">
                                         <?php if (!$isCoins && !empty($it['image'])): ?>
-                                            <img class="caixa-item-ico" src="<?= e($it['image']) ?>" alt="" width="22" height="22" loading="lazy" decoding="async" onerror="this.style.display='none'">
+                                            <img class="caixa-item-ico" src="<?= e($it['image']) ?>" alt="" width="30" height="30" loading="lazy" decoding="async" onerror="this.style.display='none'">
                                         <?php else: ?>
-                                            <span class="caixa-item-dot" style="background:<?= $rc ?>"></span>
+                                            <span class="caixa-item-dot"></span>
                                         <?php endif; ?>
-                                        <span class="caixa-item-name"><?= $isCoins ? '💰 ' : '' ?><?= e($it['name']) ?><?php if (!$isCoins && (int)$it['quantity'] > 1): ?> <span class="caixa-item-qty">x<?= (int)$it['quantity'] ?></span><?php endif; ?></span>
-                                        <?php if (!$isCoins): ?><span class="caixa-item-rar" style="color:<?= $rc ?>"><?= e($rarityLabel[$it['rarity']] ?? $it['rarity']) ?></span><?php endif; ?>
-                                        <span class="caixa-item-chance"><?= $pctTxt ?>%</span>
+                                        <div class="ci-main">
+                                            <div class="ci-head">
+                                                <span class="ci-name" title="<?= e($nameTxt) ?>"><?= e($nameTxt) ?></span>
+                                                <span class="ci-pct"><?= $pctTxt ?>%</span>
+                                            </div>
+                                            <div class="ci-meta">
+                                                <span class="ci-rar"><?= e($rarTxt) ?></span>
+                                                <span class="ci-bar"><span style="width:<?= $barW ?>%"></span></span>
+                                            </div>
+                                        </div>
                                     </li>
                                 <?php endforeach; ?>
                             </ul>
@@ -145,19 +161,31 @@ $rarityLabel = [
 .caixas-crosssell { text-align:center; margin:0 0 1.6rem; color:var(--dim); font-size:0.9rem; }
 .caixas-crosssell a { color:var(--hazard); font-weight:600; text-decoration:none; }
 .caixas-crosssell a:hover { text-decoration:underline; }
-.caixa-items { margin:0 0 0.6rem; text-align:left; }
-.caixa-items summary { cursor:pointer; color:var(--bone); font-size:0.78rem; font-family:var(--font-mono); list-style:none; text-align:center; opacity:0.85; transition:opacity .15s; }
-.caixa-items summary:hover { opacity:1; color:var(--hazard); }
-.caixa-items summary::-webkit-details-marker { display:none; }
-.caixa-items ul { list-style:none; margin:0.6rem 0 0; padding:0.6rem 0.7rem; max-height:160px; overflow-y:auto; background:var(--bg-0); border:1px solid var(--border); border-radius:5px; }
-.caixa-odds-note { font-size:0.7rem; color:var(--dim); margin:0.5rem 0 0.3rem; text-align:center; opacity:0.85; }
-.caixa-items li.caixa-item-row { display:flex; align-items:center; gap:0.5rem; font-size:0.74rem; color:var(--bone); padding:0.28rem 0.45rem; border-left:3px solid var(--border); border-radius:2px; margin-bottom:0.2rem; background:var(--bg-1); }
-.caixa-item-ico { flex:0 0 auto; width:22px; height:22px; object-fit:contain; }
-.caixa-item-dot { flex:0 0 auto; width:9px; height:9px; border-radius:50%; display:inline-block; }
-.caixa-item-name { flex:1 1 auto; text-align:left; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.caixa-item-qty { color:var(--dim); }
-.caixa-item-rar { flex:0 0 auto; font-size:0.66rem; font-family:var(--font-mono); opacity:0.9; }
-.caixa-item-chance { flex:0 0 auto; font-family:var(--font-mono); color:var(--hazard); font-weight:600; min-width:44px; text-align:right; }
+.caixa-items { margin:0 0 0.8rem; text-align:left; }
+.caixa-items > summary { cursor:pointer; list-style:none; text-align:center; font-family:var(--font-mono); font-size:0.72rem; letter-spacing:0.05em; color:var(--bone); background:var(--bg-0); border:1px solid var(--border); border-radius:6px; padding:0.45rem; transition:border-color .15s, color .15s; }
+.caixa-items > summary:hover { border-color:var(--hazard); color:var(--hazard); }
+.caixa-items > summary::-webkit-details-marker { display:none; }
+.caixa-items[open] > summary { margin-bottom:0.55rem; }
+.caixa-odds-note { font-size:0.62rem; color:var(--dim); margin:0 0 0.45rem; text-align:center; text-transform:uppercase; letter-spacing:0.07em; opacity:0.75; }
+.caixa-items ul { list-style:none; margin:0; padding:0.15rem; max-height:236px; overflow-y:auto; display:flex; flex-direction:column; gap:0.32rem; }
+/* scrollbar fininha moderna */
+.caixa-items ul { scrollbar-width:thin; scrollbar-color:var(--border) transparent; }
+.caixa-items ul::-webkit-scrollbar { width:6px; }
+.caixa-items ul::-webkit-scrollbar-track { background:transparent; }
+.caixa-items ul::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+.caixa-items ul:hover::-webkit-scrollbar-thumb { background:var(--rust); }
+.caixa-item-row { display:flex; align-items:center; gap:0.6rem; padding:0.42rem 0.55rem; background:var(--bg-1); border:1px solid var(--border); border-left:3px solid var(--rc); border-radius:6px; transition:transform .12s, background .12s; }
+.caixa-item-row:hover { transform:translateX(2px); background:color-mix(in srgb, var(--rc) 9%, var(--bg-1)); }
+.caixa-item-ico { flex:0 0 auto; width:30px; height:30px; object-fit:contain; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
+.caixa-item-dot { flex:0 0 auto; width:11px; height:11px; border-radius:50%; background:var(--rc); box-shadow:0 0 8px var(--rc); }
+.ci-main { flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:0.28rem; }
+.ci-head { display:flex; align-items:baseline; justify-content:space-between; gap:0.5rem; }
+.ci-name { font-size:0.78rem; color:var(--bone); line-height:1.25; }
+.ci-pct { flex:0 0 auto; font-family:var(--font-mono); font-size:0.8rem; font-weight:700; color:var(--rc); }
+.ci-meta { display:flex; align-items:center; gap:0.5rem; }
+.ci-rar { flex:0 0 auto; font-size:0.58rem; font-family:var(--font-mono); text-transform:uppercase; letter-spacing:0.05em; color:var(--rc); border:1px solid var(--rc); border-radius:3px; padding:0.04rem 0.34rem; opacity:0.9; }
+.ci-bar { flex:1 1 auto; height:4px; background:var(--bg-0); border-radius:3px; overflow:hidden; }
+.ci-bar > span { display:block; height:100%; background:var(--rc); border-radius:3px; box-shadow:0 0 6px var(--rc); }
 .caixa-cost { color:var(--hazard); font-family:var(--font-mono); margin:0.5rem 0 0.9rem; }
 .caixa-open { width:100%; margin-top:auto; }
 .caixa-open:disabled { opacity:0.5; cursor:not-allowed; }

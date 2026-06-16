@@ -5,6 +5,17 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.5.1] — 2026-06-16
+
+> Sem migration — só subir os arquivos. Visual do preview de chances das caixas.
+
+### 🎨 Preview de odds das caixas — design moderno
+- O "Ver itens possíveis" agora abre **por padrão** (chances **à vista**, sem precisar clicar) com scroll fininho moderno (cabe até caixa com 40+ itens sem esticar o card).
+- Cada item: **ícone** + **nome completo** (não corta mais — "Caixa de Munição 7.62" aparece inteiro, com tooltip), **chip de raridade colorido**, **% de chance** e uma **barrinha visual** proporcional (cor da raridade, com glow). **Prêmios raros no topo** (lendário primeiro).
+- 100% CSS/markup (sem migration). Cores por raridade via `--rc`.
+
+---
+
 ## [2.5.0] — 2026-06-16
 
 > **TEM migration** — suba os arquivos e rode `php cli/migrate.php` (`v2.5.0_box_weight_from_rarity.sql`). Normaliza os pesos das caixas pela raridade.
