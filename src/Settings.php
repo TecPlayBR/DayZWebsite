@@ -64,6 +64,9 @@ class Settings {
         // Entrega das caixas: 0 = automática (cai quando online); 1 = resgate manual
         // (segura até o player clicar "Receber" no painel ou resgatar in-game).
         'box_claim_enabled'        => 'bool',
+        // Privacidade: 1 = oculta a LISTA de nomes dos players online no /ranking
+        // (mantém só a contagem). Evita exposição/"chororo" de quem está online.
+        'hide_online_players'      => 'bool',
     ];
 
     private static array $cache = [];

@@ -45,6 +45,7 @@ if ($mode === 'gameplay') {
         <?php if (!empty($online)): ?>
             <div class="online-box">
                 <div class="online-head"><span class="online-dot"></span> <?= count($online) ?> online agora</div>
+                <?php if (!\App\Settings::getBool('hide_online_players')): ?>
                 <div class="online-list">
                     <?php foreach ($online as $o): ?>
                         <a class="online-player" href="/player/<?= e($o['steam_id']) ?>" title="<?= e($o['name']) ?><?= $o['ping'] ? ' · ping ' . (int)$o['ping'] . 'ms' : '' ?>">
@@ -55,6 +56,7 @@ if ($mode === 'gameplay') {
                         </a>
                     <?php endforeach; ?>
                 </div>
+                <?php endif; ?>
             </div>
         <?php endif; ?>
 

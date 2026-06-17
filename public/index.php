@@ -1898,7 +1898,7 @@ $collectDashboardData = function() {
                'cftools_app_id','cftools_server_api_id'];
     // Toggles (checkbox): se não veio no POST, vira 0
     $toggles = ['maintenance_enabled', 'live_purchases_enabled', 'live_purchases_anonymize', 'live_purchases_show_price',
-                'restart_enabled', 'affiliate_enabled', 'affiliate_allow_switch', 'box_claim_enabled'];
+                'restart_enabled', 'affiliate_enabled', 'affiliate_allow_switch', 'box_claim_enabled', 'hide_online_players'];
 
     // Escrita via Settings::set(): valida contra o whitelist (SCHEMA), normaliza
     // por tipo e atualiza o cache em memória. Chave fora do SCHEMA é rejeitada.
@@ -1913,7 +1913,27 @@ $collectDashboardData = function() {
     if (isset($_POST['cftools_secret']) && trim((string)$_POST['cftools_secret']) !== '') {
         \App\Settings::set('cftools_secret', trim((string)$_POST['cftools_secret']));
     }
+    // Mudou config do CFTools -> invalida o cache (token/lookup velhos batem no app
+    // antigo). Sem isso, trocar o app CFTools "nao funciona" ate limpar storage/cache
+    // na mao (bug reportado por usuario do template). Cache rebuilda no proximo acesso.
+    \App\CFTools::clearCache();
     header('Location: /admin/settings?ok=1');
+    exit;
+});
+
+// Limpar cache manualmente (escape hatch p/ config que "nao pega" por cache velho).
+\App\Router::post('/admin/clear-cache', function() use ($ROOT) {
+    \App\Auth::requireCan('settings');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
+    $n = \App\CFTools::clearCache();
+    // Tambem os caches seguros-de-reconstruir: status do servidor + perfis steam.
+    $dir = $ROOT . '/storage/cache';
+    $globs = array_merge(
+        glob($dir . '/server-status/*.json') ?: [],
+        glob($dir . '/steam-*.json') ?: []
+    );
+    foreach ($globs as $f) { if (@unlink($f)) $n++; }
+    header('Location: /admin/settings?cache=' . $n);
     exit;
 });
 

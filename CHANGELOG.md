@@ -5,6 +5,17 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.5.3] — 2026-06-17
+
+> Sem migration — só subir os arquivos. Robustez (cache) + privacidade do ranking.
+
+### 🐛 Trocar as credenciais do CFTools não "pegava" sem limpar cache na mão
+- O `CFTools` cacheia o token de auth (23h) e lookups (até 7 dias) em `storage/cache`. Ao **trocar o app CFTools** (App ID / Secret / Server API ID), o token **antigo** continuava valendo contra o app novo → a integração (ranking de gameplay + entrega das caixas) parecia "morta" até apagar `storage/cache` na mão.
+- Fix: salvar as Configurações agora **invalida o cache do CFTools automaticamente** (`CFTools::clearCache()`). Também adicionei um botão **🧹 Limpar cache** em Configurações como reforço (limpa CFTools + status do servidor + perfis Steam). Reportado por um usuário do template.
+
+### 🔒 Opção de ocultar os nomes dos players online no ranking
+- Novo toggle em **Configurações → Privacidade do ranking** (`hide_online_players`). Quando ligado, o `/ranking` mostra só a **contagem** ("X online agora") e **oculta a lista de nomes** — evita expor quem está jogando.
+
 ## [2.5.2] — 2026-06-16
 
 > Sem migration — só subir os arquivos. Correção de instalação nova.

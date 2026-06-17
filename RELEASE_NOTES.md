@@ -1,6 +1,13 @@
-# 🏴 DayZ Website Template — Notas da versão (v2.5.0)
+# 🏴 DayZ Website Template — Notas da versão (v2.5.3)
 
-> **Atualizar é seguro e não apaga nada.** A **v2.5.0 TEM migration** (igual a v2.4.0) — suba os arquivos e rode `php cli/migrate.php`. O log completo fica no **[CHANGELOG.md](CHANGELOG.md)**; aqui vão os destaques.
+> **Atualizar é seguro e não apaga nada.** A **v2.5.3 NÃO tem migration** — é só subir os arquivos. O log completo fica no **[CHANGELOG.md](CHANGELOG.md)**; aqui vão os destaques.
+
+---
+
+## 🆕 v2.5.3 — Cache do CFTools auto-limpa + privacidade do ranking
+
+- **🐛 Trocar o app CFTools agora "pega" na hora.** Antes, o token antigo ficava em cache (23h) e a integração parecia morta até limpar `storage/cache` na mão. Agora salvar as Configurações **limpa o cache do CFTools automaticamente** — e tem um botão **🧹 Limpar cache** de reforço.
+- **🔒 Ocultar nomes dos players online.** Novo toggle em *Configurações → Privacidade do ranking*: mostra só a contagem "X online" e esconde a lista de nomes.
 
 ---
 

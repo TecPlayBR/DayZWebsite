@@ -49,6 +49,21 @@ class CFTools {
         @file_put_contents($f, json_encode($data), LOCK_EX);
     }
 
+    /**
+     * Invalida TODO o cache do CFTools (token, lookups, leaderboard, player).
+     * Chamar quando a config do CFTools muda no admin — senão o token/lookup
+     * VELHO (cache 23h/7d) continua valendo contra o app NOVO e a integracao
+     * "nao funciona" ate alguem apagar storage/cache na mao. Retorna nº de arquivos.
+     */
+    public static function clearCache(): int {
+        if (!self::$cacheDir || !is_dir(self::$cacheDir)) return 0;
+        $n = 0;
+        foreach ((glob(self::$cacheDir . '/cftools-*.json') ?: []) as $f) {
+            if (@unlink($f)) $n++;
+        }
+        return $n;
+    }
+
     // ---------- HTTP ----------
     private static function http(string $method, string $path, array $query = [], ?array $body = null, ?string $token = null): array {
         $url = self::ROOT . $path . ($query ? ('?' . http_build_query($query)) : '');

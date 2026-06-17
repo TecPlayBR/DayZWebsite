@@ -110,6 +110,16 @@
 
         <div style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.2rem;">
             <label style="display:block; font-size:0.9rem; color:var(--bone); margin-bottom:0.5rem;">
+                🛡️ Privacidade do ranking <small style="color: var(--dim); font-weight: 400;">— controla a lista de quem está online</small>
+            </label>
+            <label style="display:flex; align-items:flex-start; gap:0.5rem; font-size:0.9rem; color:var(--bone);">
+                <input type="checkbox" name="hide_online_players" value="1" <?= !empty($settings['hide_online_players']) ? 'checked' : '' ?> style="width:18px;height:18px;margin-top:0.15rem;">
+                <span>Ocultar os <strong>nomes</strong> dos players online no <code>/ranking</code> (mantém só a <strong>contagem</strong> "X online"). Evita expor quem está jogando.</span>
+            </label>
+        </div>
+
+        <div style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.2rem;">
+            <label style="display:block; font-size:0.9rem; color:var(--bone); margin-bottom:0.5rem;">
                 🎮 Programa de afiliado / streamer <small style="color: var(--dim); font-weight: 400;">— paga cachê pros streamers por venda feita com o cupom deles (o cliente se atrela ao streamer)</small>
             </label>
             <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.9rem; color:var(--bone); margin-bottom:0.6rem;">
@@ -314,6 +324,20 @@
         <button type="submit" class="<?= $bonus ? 'btn-mini' : 'btn-mini outline' ?>">
             <?= $bonus ? '✓ BÔNUS LIGADO — desligar' : '✗ BÔNUS DESLIGADO — ligar' ?>
         </button>
+    </form>
+</div>
+
+<div style="margin-top: 2.5rem;">
+    <h2 style="font-family: var(--font-display); color: var(--bone); font-size: 1.1rem; margin-bottom: 1rem;">🧹 Cache</h2>
+    <p style="color: var(--dim); margin-bottom: 1rem; max-width: 640px;">
+        Trocou as credenciais do <strong>CFTools</strong> ou o servidor e a integração "não pegou"? Limpe o cache aqui (o site reconstrói no próximo acesso). <em>Normalmente isso já acontece sozinho ao salvar as configurações</em> — este botão é um reforço.
+    </p>
+    <?php if (isset($_GET['cache'])): ?>
+        <p style="color: var(--moss); margin-bottom: 1rem; font-size: 0.9rem;">✓ Cache limpo (<?= (int)$_GET['cache'] ?> arquivo(s)). A integração reconstrói no próximo acesso.</p>
+    <?php endif; ?>
+    <form method="POST" action="/admin/clear-cache" style="display: inline;">
+        <?= \App\Csrf::field() ?>
+        <button type="submit" class="btn-mini outline">🧹 Limpar cache</button>
     </form>
 </div>
 
