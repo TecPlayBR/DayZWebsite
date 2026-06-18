@@ -5,6 +5,16 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.6.0] — 2026-06-18
+
+> **TEM migration** (`v2.6.0_entitlements.sql`) — suba os arquivos e rode `php cli/migrate.php`.
+
+### 🎟️ Entitlements (VIP / BattlePass) gerenciados pelo SITE
+- Novo admin **`/admin/entitlements`**: concede/revoga **VIP** (tiers PanelVip1..4 / CUSTOM) e **BattlePass** por SteamID + dias, escopado por servidor.
+- Endpoint **`/api/entitlements.php`** (auth `X-Agent-Token` / `?token=`, mesmo padrão do `sync-players`): o `tecplay-agent` puxa os pendentes/revogados e escreve os JSON do mod Sparda (`VipPanel/PlayersVIP.json` + `BattlePass/premiums/<steamid>.json`), depois confirma (ACK). Fluxo: pending→applied / revoked→removed.
+- Tabela `player_grants` (migration `v2.6.0_entitlements.sql`).
+- O **site é a fonte da verdade** (quem manda no servidor de jogo). O agent (v2.3.0+) aplica com verify/retry anti-clobber (os mods Sparda escrevem os mesmos arquivos).
+
 ## [2.5.3] — 2026-06-17
 
 > Sem migration — só subir os arquivos. Robustez (cache) + privacidade do ranking.

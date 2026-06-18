@@ -2959,6 +2959,54 @@ $BRAND_SLOTS = [
     ]);
 });
 
+// ============ ADMIN: ENTITLEMENTS (VIP / BattlePass) ============
+\App\Router::get('/admin/entitlements', function() use ($config) {
+    \App\Auth::requireCan('coupons');
+    $sid = \App\Servers::defaultId();
+    $grants = \App\Database::fetchAll(
+        "SELECT * FROM player_grants WHERE server_id = ? ORDER BY id DESC LIMIT 100",
+        [$sid]
+    );
+    \App\View::display('admin.entitlements', ['config' => $config, 'grants' => $grants]);
+});
+
+\App\Router::post('/admin/entitlements/grant', function() use ($config) {
+    \App\Auth::requireCan('coupons');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
+    $sid   = \App\Servers::defaultId();
+    $steam = trim($_POST['steam_id'] ?? '');
+    $nick  = trim($_POST['nickname'] ?? '') ?: null;
+    $type  = in_array($_POST['type'] ?? '', ['vip', 'battlepass'], true) ? $_POST['type'] : 'vip';
+    $tier  = null;
+    if ($type === 'vip') {
+        $tier = in_array($_POST['tier'] ?? '', ['PanelVip1','PanelVip2','PanelVip3','PanelVip4','CUSTOM'], true) ? $_POST['tier'] : 'PanelVip1';
+    }
+    $days  = max(1, min(3650, (int)($_POST['days'] ?? 30)));
+    if (!preg_match('/^7656119[0-9]{10}$/', $steam)) { header('Location: /admin/entitlements?err=steam'); exit; }
+    $exp = (new \DateTime("+{$days} days"))->format('Y-m-d');
+    \App\Database::query(
+        "INSERT INTO player_grants (server_id, steam_id, nickname, type, tier, days, expiration_date, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')",
+        [$sid, $steam, $nick, $type, $tier, $days, $exp]
+    );
+    header('Location: /admin/entitlements?ok=1');
+    exit;
+});
+
+\App\Router::post('/admin/entitlements/revoke', function() use ($config) {
+    \App\Auth::requireCan('coupons');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
+    $sid = \App\Servers::defaultId();
+    $id  = (int)($_POST['id'] ?? 0);
+    // applied/pending -> revoked (o agent remove do jogo + ack -> removed)
+    \App\Database::query(
+        "UPDATE player_grants SET status = 'revoked' WHERE id = ? AND server_id = ? AND status IN ('applied','pending')",
+        [$id, $sid]
+    );
+    header('Location: /admin/entitlements?ok=2');
+    exit;
+});
+
 \App\Router::get('/admin/announcements', function() use ($config) {
     \App\Auth::requireCan('announcements');
     $list = \App\Database::fetchAll(

@@ -1,6 +1,13 @@
-# 🏴 DayZ Website Template — Notas da versão (v2.5.3)
+# 🏴 DayZ Website Template — Notas da versão (v2.6.0)
 
-> **Atualizar é seguro e não apaga nada.** A **v2.5.3 NÃO tem migration** — é só subir os arquivos. O log completo fica no **[CHANGELOG.md](CHANGELOG.md)**; aqui vão os destaques.
+> **Atualizar é seguro e não apaga nada.** A **v2.6.0 TEM migration** — suba os arquivos e rode `php cli/migrate.php`. O log completo fica no **[CHANGELOG.md](CHANGELOG.md)**; aqui vão os destaques.
+
+---
+
+## 🆕 v2.6.0 — VIP & BattlePass pelo painel (entitlements)
+
+- **Conceda VIP/Passe no admin** (`/admin/entitlements`): escolhe o SteamID, o tier (PanelVip1..4) e os dias — o site vira a fonte da verdade.
+- O **tecplay-agent** puxa do site (`/api/entitlements.php`) e escreve no servidor (mod Sparda), com verify/retry. Conceder → **Ativo** no jogo; revogar → **removido**. Sem comando, tudo no painel.
 
 ---
 
