@@ -5,6 +5,16 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.6.1] — 2026-06-19
+
+> Sem migration — só subir os arquivos. Hardening de segurança (pós-pentest defensivo).
+
+### 🔒 Segurança
+- **`install.php` em produção agora retorna 404 puro** quando já instalado (antes vazava `<h1>Ja instalado</h1>` + instrução pra forçar reinstalação — reconhecimento gratuito pra atacante). Recomendado também **remover o `install.php`** do servidor após instalar.
+- **CSP em modo `Content-Security-Policy-Report-Only`** no `.htaccess` (FASE 1: não bloqueia nada, só reporta violações). Allowlist pra Mercado Pago + Steam + Google Fonts + jsDelivr. Quando os reports confirmarem que nada legítimo viola, trocar pra enforce (`Content-Security-Policy`). **Não enforce sem testar o checkout no navegador.**
+- Novo endpoint **`/api/csp-report.php`** coleta as violações de CSP em `storage/cache/csp-reports.log` (204 sempre, sem corpo, cap de tamanho, sem PII).
+- (Confirmados na auditoria, já existentes: rate-limit no login admin 5/user+20/IP→15min, webhook MP exige HMAC + re-consulta o pagamento em produção, perfil público `/player` não vaza saldo/PII, nicks escapados com `e()`, cookies Secure+HttpOnly+SameSite, queries parametrizadas.)
+
 ## [2.6.0] — 2026-06-18
 
 > **TEM migration** (`v2.6.0_entitlements.sql`) — suba os arquivos e rode `php cli/migrate.php`.

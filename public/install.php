@@ -33,8 +33,11 @@ foreach ($structureRequired as $label => $path) {
 }
 
 if (file_exists($configFile)) {
-    http_response_code(403);
-    die('<h1>Ja instalado.</h1><p>Apague <code>config/config.php</code> se quiser reinstalar (vai perder a senha admin atual).</p>');
+    // Ja instalado: 404 puro, sem vazar estrutura/instrucao (defesa contra recon —
+    // nao confirma que existe config.php nem ensina como forcar reinstalacao).
+    // Pra reinstalar de proposito: apague config/config.php e este 404 some sozinho.
+    http_response_code(404);
+    die();
 }
 
 $errors = [];
