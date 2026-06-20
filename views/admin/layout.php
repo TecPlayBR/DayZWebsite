@@ -46,6 +46,7 @@
             ['discord_integration', '/admin/discord-integration','🤖 Integração Discord',  str_starts_with($current, '/admin/discord-integration')],
             ['combos',              '/admin/combos',             '🎁 Combos',              str_starts_with($current, '/admin/combos')],
             ['settings',            '/admin/rewards',            '🏆 Recompensas',         str_starts_with($current, '/admin/rewards')],
+            ['settings',            '/admin/achievements',       '🏅 Bônus Conquista',     str_starts_with($current, '/admin/achievements')],
             ['purchases',           '/admin/purchases',          '💰 Compras',             str_starts_with($current, '/admin/purchases')],
             ['pages',               '/admin/pages',              '📄 Páginas',             str_starts_with($current, '/admin/pages')],
             ['announcements',       '/admin/announcements',      '📢 Anúncios',            str_starts_with($current, '/admin/announcements')],
@@ -57,6 +58,7 @@
             ['team',                '/admin/team',               '🧑‍💼 Equipe',            str_starts_with($current, '/admin/team')],
             ['audit',               '/admin/audit',              '📋 Audit Log',           str_starts_with($current, '/admin/audit')],
             ['logs',                '/admin/logs',               '🐛 Logs PHP',            str_starts_with($current, '/admin/logs')],
+            ['logs',                '/admin/logins',             '🔑 Logins',              str_starts_with($current, '/admin/logins')],
             ['customize',           '/admin/customize',          '🎨 Visual',              str_starts_with($current, '/admin/customize')],
             ['settings',            '/admin/settings',           '⚙️ Config',              str_starts_with($current, '/admin/settings')],
         ];

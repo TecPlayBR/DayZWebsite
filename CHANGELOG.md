@@ -5,6 +5,21 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.7.0] — 2026-06-20
+
+> **TEM migration** (`v2.7.0_achievement_rewards_loginlog.sql`) — suba os arquivos e rode `php cli/migrate.php`.
+
+### 👤 Perfil unificado (fim da duplicidade `my-purchases` × `/player`)
+- O **`/player/{steamid}` virou o perfil ÚNICO**. Visitante vê só o público (stats de combate + conquistas); o **dono logado** vê também o bloco privado **no próprio perfil** (saldo, compras + avaliar, histórico de caixas, loja in-game, "Apoie seu Streamer"). O **`/my-purchases` agora redireciona** pro perfil (links/bookmarks/forms seguem funcionando, com os flashes preservados na query).
+- Financeiro **nunca** aparece pra visitante — quando não é o dono, os campos de saldo/investido **nem saem do banco** (LGPD). As **conquistas passaram a ser públicas** no perfil.
+
+### 🏅 Recompensa por conquista (configurável) — `/admin/achievements`
+- O admin define **+X moedas por conquista** (0 = nenhuma) + um liga/desliga global. Quando o jogador desbloqueia, ganha o bônus **por conta da casa** — pago **1x por conquista por jogador** (idempotente via claim atômico em `achievement_rewards_log`), creditado automaticamente quando ele vê o próprio perfil/loga.
+- **Não aparece na loja**: só credita e fica registrado no log do painel (+ auditoria em `balance_log`). Teto de 100k por recompensa (anti-abuso).
+
+### 🔑 Log de login no site — `/admin/logins`
+- Registro de **quem entrou via Steam** (SteamID, nick, IP, navegador) pra auditoria/privacidade, com busca por SteamID. **Sem trancar o ranking** (que segue público pro SEO/vitrine) — o log é desacoplado.
+
 ## [2.6.1] — 2026-06-19
 
 > Sem migration — só subir os arquivos. Hardening de segurança (pós-pentest defensivo).

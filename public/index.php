@@ -399,10 +399,19 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
         \App\View::display('pages.404', ['config' => $config]);
         return;
     }
-    // Perfil PÚBLICO: NÃO seleciona dados financeiros (saldo/investido) — eles são
-    // privados (dono em /my-purchases, staff em /admin). LGPD: não vaza nem no HTML.
+    // Perfil UNIFICADO: público pra todos; o DONO logado vê tb o bloco privado
+    // (saldo/compras/caixas/loja/streamer). Financeiro só SAI do banco quando é o
+    // próprio dono (LGPD: visitante nunca recebe saldo nem no HTML nem na query).
+    $viewerId = \App\SteamAuth::steamId();
+    $isOwner  = $viewerId !== null && $viewerId === $steamId;
+    // Recompensa por conquista: reconcilia/credita (idempotente) o que o dono ainda não
+    // recebeu — antes do SELECT do player, pra o saldo já refletir o bônus desta visita.
+    if ($isOwner) { \App\Achievements::grantRewards($steamId); }
+    $playerCols = $isOwner
+        ? "id, steam_id, display_name, coins, total_spent_brl, last_seen_at"
+        : "steam_id, display_name, last_seen_at";
     $player = \App\Database::fetchOne(
-        "SELECT steam_id, display_name, last_seen_at FROM players WHERE steam_id = ?",
+        "SELECT {$playerCols} FROM players WHERE steam_id = ?",
         [$steamId]
     );
     if (!$player) {
@@ -438,13 +447,68 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
         }
     }
 
-    \App\View::display('pages.player_public', [
-        'config'         => $config,
-        'player'         => $player,
-        'stats'          => $stats ?: null,
-        'avatar'         => $avatar,
-        'display_name'   => $name ?: 'Sobrevivente',
-    ]);
+    // Conquistas: públicas (aparecem pra qualquer visitante do perfil).
+    $achievementsAll = \App\Achievements::all();
+    $unlockedAch     = \App\Achievements::unlocked($steamId);
+
+    $viewData = [
+        'config'       => $config,
+        'player'       => $player,
+        'stats'        => $stats ?: null,
+        'avatar'       => $avatar,
+        'display_name' => $name ?: 'Sobrevivente',
+        'is_owner'     => $isOwner,
+        'achievements' => $achievementsAll,
+        'unlocked'     => $unlockedAch,
+    ];
+
+    // Bloco PRIVADO do dono (antigo /my-purchases): compras, caixas, loja, streamer.
+    if ($isOwner) {
+        $viewData['purchases'] = \App\Database::fetchAll(
+            "SELECT * FROM purchases
+              WHERE steam_id = ?
+                AND (mp_status <> 'pending' OR created_at > (NOW() - INTERVAL 35 MINUTE))
+              ORDER BY created_at DESC LIMIT 50",
+            [$steamId]
+        );
+        $reviewedIds = [];
+        foreach (\App\Database::fetchAll("SELECT purchase_id FROM reviews WHERE steam_id = ?", [$steamId]) as $r) {
+            $reviewedIds[(int)$r['purchase_id']] = true;
+        }
+        $viewData['reviewed_ids'] = $reviewedIds;
+        $viewData['box_openings'] = \App\Database::fetchAll(
+            "SELECT * FROM box_openings WHERE steam_id = ? ORDER BY id DESC LIMIT 50", [$steamId]
+        );
+        $shopSpends = [];
+        try {
+            $shopSpends = \App\Database::fetchAll(
+                "SELECT s.spend_ref, s.sku, s.coins_spent, s.new_balance, s.created_at,
+                        i.name AS item_name, i.icon AS item_icon
+                   FROM shop_spends s
+                   LEFT JOIN shop_items i ON i.sku = s.sku
+                  WHERE s.steam_id = ?
+                  ORDER BY s.id DESC LIMIT 50",
+                [$steamId]
+            );
+        } catch (\Throwable $e) { /* tabela ausente em install antigo — degrada limpo */ }
+        $viewData['shop_spends'] = $shopSpends;
+
+        $affiliateOn = \App\Affiliate::enabled();
+        $myStreamerCode = $affiliateOn ? \App\Affiliate::binding($steamId) : null;
+        $myStreamerName = null;
+        if ($myStreamerCode) {
+            $myStreamerName = \App\Database::fetchColumn(
+                "SELECT affiliate_name FROM coupons WHERE UPPER(code) = UPPER(?) LIMIT 1", [$myStreamerCode]
+            ) ?: $myStreamerCode;
+        }
+        $viewData['affiliate_on']           = $affiliateOn;
+        $viewData['affiliate_allow_switch'] = \App\Affiliate::allowSwitch();
+        $viewData['my_streamer_code']       = $myStreamerCode;
+        $viewData['my_streamer_name']       = $myStreamerName;
+        $viewData['box_claim_enabled']      = \App\Settings::getBool('box_claim_enabled');
+    }
+
+    \App\View::display('pages.player_public', $viewData);
 });
 
 \App\Router::get('/server-status', function() use ($config) {
@@ -1036,6 +1100,16 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
         }
     } catch (Throwable $e) { /* sem DB? ignora — login funciona via sessao */ }
 
+    // Log de login (privacidade/auditoria: quem entrou no site via Steam). Best-effort —
+    // SteamID é público; IP/UA pra auditoria. Decoupled do ranking (que segue público).
+    try {
+        \App\Database::query(
+            "INSERT INTO login_log (steam_id, display_name, ip, user_agent) VALUES (?, ?, ?, ?)",
+            [$steamId, $profile['display_name'] ?? null, \App\RateLimit::clientIp(),
+             substr((string)($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 255)]
+        );
+    } catch (\Throwable $e) { /* tabela ausente (migration pendente) — degrada limpo */ }
+
     // Redireciona pra de onde veio (setado em /auth/steam ou por um fluxo específico).
     // Default = home (NÃO a loja — evita parecer que tá empurrando moeda no login).
     // Guard anti open-redirect: só aceita path interno (começa com / e não //).
@@ -1209,75 +1283,18 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     die(json_encode(['ok' => true, 'action' => $action]));
 });
 
-\App\Router::get('/my-purchases', function() use ($config) {
+\App\Router::get('/my-purchases', function() {
+    // UNIFICADO no perfil: /my-purchases agora é o próprio /player/{seu-id}.
+    // Mantido como redirect pra não quebrar links/bookmarks + os redirects dos POSTs
+    // (claim-box, apoiar-streamer, reviews) que apontam pra cá com flash na query string.
     if (!\App\SteamAuth::check()) {
         $_SESSION['steam_login_return'] = '/my-purchases';
         header('Location: /auth/steam');
         exit;
     }
-    $steamId = \App\SteamAuth::steamId();
-    $player = \App\Database::fetchOne(
-        "SELECT id, steam_id, display_name, coins, total_spent_brl, last_seen_at
-           FROM players WHERE steam_id = ? LIMIT 1", [$steamId]
-    );
-    // Mostra compras concluídas/falhas + pendências RECENTES (<35min, ainda pagáveis).
-    // Esconde pendências abandonadas (PIX gerado e nunca pago) pra não duplicar o histórico.
-    $purchases = \App\Database::fetchAll(
-        "SELECT * FROM purchases
-          WHERE steam_id = ?
-            AND (mp_status <> 'pending' OR created_at > (NOW() - INTERVAL 35 MINUTE))
-          ORDER BY created_at DESC LIMIT 50",
-        [$steamId]
-    );
-    // IDs de compras que JÁ têm review
-    $reviewedIds = [];
-    foreach (\App\Database::fetchAll(
-        "SELECT purchase_id FROM reviews WHERE steam_id = ?", [$steamId]
-    ) as $r) {
-        $reviewedIds[(int)$r['purchase_id']] = true;
-    }
-    $achievementsAll = \App\Achievements::all();
-    $unlocked = \App\Achievements::unlocked($steamId);
-    // Histórico de caixas abertas (recebidas + pendentes) — o "inventário" do player.
-    $boxOpenings = \App\Database::fetchAll(
-        "SELECT * FROM box_openings WHERE steam_id = ? ORDER BY id DESC LIMIT 50", [$steamId]
-    );
-    // Histórico da loja in-game (/loja do Discord): gastos de moeda entregues no jogo.
-    // LEFT JOIN pra mostrar o nome do item mesmo que o admin tenha renomeado/removido o SKU.
-    $shopSpends = [];
-    try {
-        $shopSpends = \App\Database::fetchAll(
-            "SELECT s.spend_ref, s.sku, s.coins_spent, s.new_balance, s.created_at,
-                    i.name AS item_name, i.icon AS item_icon
-               FROM shop_spends s
-               LEFT JOIN shop_items i ON i.sku = s.sku
-              WHERE s.steam_id = ?
-              ORDER BY s.id DESC LIMIT 50",
-            [$steamId]
-        );
-    } catch (\Throwable $e) { /* tabela ausente em install antigo — degrada limpo */ }
-    // Programa "Apoie seu Streamer": vínculo atual + nome do streamer (se houver).
-    $affiliateOn = \App\Affiliate::enabled();
-    $myStreamerCode = $affiliateOn ? \App\Affiliate::binding($steamId) : null;
-    $myStreamerName = null;
-    if ($myStreamerCode) {
-        $myStreamerName = \App\Database::fetchColumn(
-            "SELECT affiliate_name FROM coupons WHERE UPPER(code) = UPPER(?) LIMIT 1", [$myStreamerCode]
-        ) ?: $myStreamerCode;
-    }
-    \App\View::display('pages.my_purchases', [
-        'config' => $config, 'player' => $player, 'purchases' => $purchases,
-        'steam_user' => \App\SteamAuth::user(),
-        'reviewed_ids' => $reviewedIds,
-        'achievements' => $achievementsAll, 'unlocked' => $unlocked,
-        'box_openings' => $boxOpenings,
-        'shop_spends' => $shopSpends,
-        'affiliate_on' => $affiliateOn,
-        'affiliate_allow_switch' => \App\Affiliate::allowSwitch(),
-        'my_streamer_code' => $myStreamerCode,
-        'my_streamer_name' => $myStreamerName,
-        'box_claim_enabled' => \App\Settings::getBool('box_claim_enabled'),
-    ]);
+    $qs = $_SERVER['QUERY_STRING'] ?? '';
+    header('Location: /player/' . \App\SteamAuth::steamId() . ($qs !== '' ? '?' . $qs : ''));
+    exit;
 });
 
 // "Apoie seu Streamer": cliente atrela o perfil a um streamer digitando o código dele.
@@ -3053,6 +3070,62 @@ $BRAND_SLOTS = [
     \App\Database::query("DELETE FROM announcements WHERE id = ?", [(int)$id]);
     header('Location: /admin/announcements?ok=1');
     exit;
+});
+
+// ── Recompensa por conquista (configurável) ──────────────────────────
+\App\Router::get('/admin/achievements', function() use ($config) {
+    \App\Auth::requireCan('settings');
+    $rewards = json_decode((string)\App\Settings::get('achievement_rewards', '{}'), true);
+    \App\View::display('admin.achievements', [
+        'config'     => $config,
+        'list'       => \App\Achievements::all(),
+        'rewards'    => is_array($rewards) ? $rewards : [],
+        'enabled'    => \App\Settings::getBool('achievement_rewards_enabled'),
+        'paid_count' => (int)\App\Database::fetchColumn("SELECT COUNT(*) FROM achievement_rewards_log"),
+        'paid_coins' => (int)\App\Database::fetchColumn("SELECT COALESCE(SUM(coins),0) FROM achievement_rewards_log"),
+        'recent'     => \App\Database::fetchAll("SELECT * FROM achievement_rewards_log ORDER BY id DESC LIMIT 30"),
+    ]);
+});
+\App\Router::post('/admin/achievements', function() use ($config) {
+    \App\Auth::requireCan('settings');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
+    $enabled = !empty($_POST['enabled']) ? '1' : '0';
+    $rewards = [];
+    foreach (\App\Achievements::all() as $a) {
+        $v = (int)($_POST['reward'][$a['slug']] ?? 0);
+        if ($v < 0) $v = 0;
+        if ($v > 100000) $v = 100000;
+        if ($v > 0) $rewards[$a['slug']] = $v;
+    }
+    // Form isolado: grava SÓ as 2 chaves dele (não toca o resto das settings).
+    \App\Database::query(
+        "INSERT INTO settings (`key`,`value`) VALUES ('achievement_rewards', ?)
+         ON DUPLICATE KEY UPDATE `value` = VALUES(`value`)",
+        [json_encode($rewards, JSON_UNESCAPED_UNICODE)]
+    );
+    \App\Database::query(
+        "INSERT INTO settings (`key`,`value`) VALUES ('achievement_rewards_enabled', ?)
+         ON DUPLICATE KEY UPDATE `value` = VALUES(`value`)",
+        [$enabled]
+    );
+    header('Location: /admin/achievements?ok=1');
+    exit;
+});
+
+// ── Log de logins no site (auditoria) ────────────────────────────────
+\App\Router::get('/admin/logins', function() use ($config) {
+    \App\Auth::requireCan('logs');
+    $q = preg_replace('/[^0-9]/', '', (string)($_GET['steam'] ?? ''));
+    $rows = $q !== ''
+        ? \App\Database::fetchAll("SELECT * FROM login_log WHERE steam_id = ? ORDER BY id DESC LIMIT 200", [$q])
+        : \App\Database::fetchAll("SELECT * FROM login_log ORDER BY id DESC LIMIT 200");
+    \App\View::display('admin.logins', [
+        'config' => $config,
+        'rows'   => $rows,
+        'q'      => $q,
+        'total'  => (int)\App\Database::fetchColumn("SELECT COUNT(*) FROM login_log"),
+        'uniq'   => (int)\App\Database::fetchColumn("SELECT COUNT(DISTINCT steam_id) FROM login_log"),
+    ]);
 });
 
 \App\Router::get('/admin/support', function() use ($config) {

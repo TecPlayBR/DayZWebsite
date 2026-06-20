@@ -89,4 +89,43 @@ class Achievements {
         }
         return $unlocked;
     }
+
+    /**
+     * Recompensa configurável por conquista (admin define em settings:
+     *   achievement_rewards_enabled = '1'  + achievement_rewards = {"slug": coins, ...}).
+     * Idempotente: credita +X moedas UMA vez por conquista por jogador — o INSERT IGNORE
+     * em achievement_rewards_log é o "claim atômico" (rowCount=1 = ganhei; 0 = já paguei).
+     * NÃO lista publicamente: só credita e registra no log do painel. Chamada quando o
+     * dono vê o próprio perfil (reconcilia o que faltou). Retorna [slug => coins] do que pagou.
+     */
+    public static function grantRewards(string $steamId): array {
+        if (!Settings::getBool('achievement_rewards_enabled')) return [];
+        $rewards = json_decode((string) Settings::get('achievement_rewards', '{}'), true);
+        if (!is_array($rewards) || !$rewards) return [];
+
+        $player = Database::fetchOne("SELECT id, coins FROM players WHERE steam_id = ? LIMIT 1", [$steamId]);
+        if (!$player) return []; // sem player = sem onde creditar (conquistas derivam de compra)
+
+        $paid = [];
+        foreach (array_keys(self::unlocked($steamId)) as $slug) {
+            $coins = (int) ($rewards[$slug] ?? 0);
+            if ($coins <= 0) continue;
+            if ($coins > 100000) $coins = 100000; // teto sano (anti-abuso)
+            // Claim atômico: só credita quem GANHOU o INSERT. Replay/concorrência = 0 = pula.
+            $claim = Database::execute(
+                "INSERT IGNORE INTO achievement_rewards_log (steam_id, slug, coins) VALUES (?, ?, ?)",
+                [$steamId, $slug, $coins]
+            );
+            if ($claim === 0) continue; // já recompensado
+            $old = (int) $player['coins'];
+            Database::query("UPDATE players SET coins = coins + ? WHERE id = ?", [$coins, (int) $player['id']]);
+            $player['coins'] = $old + $coins; // consistência se pagar 2+ no mesmo loop
+            BalanceLog::record(
+                (int) $player['id'], $steamId, $old, $old + $coins,
+                'achievement', 'achievement', null, "Conquista: {$slug} (+{$coins} por conta da casa)"
+            );
+            $paid[$slug] = $coins;
+        }
+        return $paid;
+    }
 }
