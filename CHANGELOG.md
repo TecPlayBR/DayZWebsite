@@ -5,6 +5,14 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.7.1] — 2026-06-21
+
+> Sem migration — só subir `public/api/mp-webhook.php`.
+
+### 🔒 Anti-underpay no webhook do Mercado Pago (defesa em profundidade)
+- O webhook agora confere que o **valor REALMENTE pago** (consultado na API do MP, não no payload da notificação) **cobre o preço da compra** antes de creditar. Se vier menor (tentativa de "pagar R$1 numa coisa cara"), marca a compra como `underpaid` e **não credita** — registra no log do servidor pro admin revisar. É redundância forte: o `unit_price` da preference já é server-side (vem do banco, nunca do cliente), mas isto fecha qualquer brecha de manipulação de valor.
+- Recapitulando as proteções de pagamento já existentes (confirmadas em auditoria): **replay/duplicação** barrado por claim atômico (`delivered_at IS NULL` + rowCount); **notificação forjada** barrada por **assinatura HMAC obrigatória em produção** + **re-consulta do pagamento na API do MP**; **preço** sempre server-side (lookup do pacote no banco).
+
 ## [2.7.0] — 2026-06-20
 
 > **TEM migration** (`v2.7.0_achievement_rewards_loginlog.sql`) — suba os arquivos e rode `php cli/migrate.php`.

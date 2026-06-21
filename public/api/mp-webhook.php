@@ -156,6 +156,21 @@ if (!$purchase) {
 
 // Se aprovado e ainda nao entregue, credita coins no player
 if ($status === 'approved' && empty($purchase['delivered_at'])) {
+    // ====== GUARDA ANTI-UNDERPAY (defesa em profundidade) ======
+    // O valor REALMENTE pago (consultado no MP, nao no payload) tem que cobrir o preco
+    // da compra. O unit_price da preference ja e server-side (do banco), entao isto e
+    // redundancia FORTE contra qualquer tentativa de "paguei R$1 numa coisa cara".
+    $paidAmount = (float) ($payment['transaction_amount'] ?? 0);
+    $expected   = (float) $purchase['price_brl'];
+    if ($expected > 0 && $paidAmount + 0.01 < $expected) {
+        error_log("[MP webhook] UNDERPAY purchase {$purchase['id']}: pago R$ {$paidAmount} < esperado R$ {$expected} - NAO credita");
+        \App\Database::query(
+            "UPDATE purchases SET mp_status = 'underpaid' WHERE id = ? AND delivered_at IS NULL",
+            [(int) $purchase['id']]
+        );
+        die(json_encode(['ok' => false, 'error' => 'amount_mismatch']));
+    }
+
     // ============ CLAIM ATÔMICO ============
     // Dois webhooks paralelos do mesmo purchase_id PODEM chegar simultaneamente.
     // Marca delivered_at e checa rowCount: só quem efetivamente alterou a linha
