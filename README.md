@@ -9,7 +9,7 @@ Tema apocalipse · Painel admin completo · Mercado Pago · Login Steam · Multi
 [![MySQL](https://img.shields.io/badge/MySQL-5.7+-4479A1?style=flat-square&logo=mysql&logoColor=white)](https://www.mysql.com)
 [![License](https://img.shields.io/badge/License-Tecplay--NC-a855f7?style=flat-square)](LICENSE.txt)
 [![Status](https://img.shields.io/badge/Status-Produção-16a34a?style=flat-square)]()
-[![Versão](https://img.shields.io/badge/Versão-2.6.0-facc15?style=flat-square)](RELEASE_NOTES.md)
+[![Versão](https://img.shields.io/badge/Versão-2.7.1-facc15?style=flat-square)](RELEASE_NOTES.md)
 
 *Sobreviva. Construa. Domine. Agora também na web.*
 
@@ -64,9 +64,10 @@ O **site é grátis** e faz a loja, o painel, a carteira de moedas e o leaderboa
 - **Galeria** de screenshots com lightbox e setas
 - **Hall da Fama** dos jogadores (top coins + top apoiadores)
 - **Sistema de avaliações** dos jogadores
-- **12 conquistas automáticas** (Primeiro Sangue, Veterano, Lendário, Madrugador, Insone, Tubarão, Colecionador, Persistência, Generoso, Tiro Rápido, Veterano de Guerra) — totalmente i18n
+- **12 conquistas automáticas** (Primeiro Sangue, Veterano, Lendário, Madrugador, Insone, Tubarão, Colecionador, Persistência, Generoso, Tiro Rápido, Veterano de Guerra) — totalmente i18n, com **recompensa configurável em moedas** (admin define +X por conquista, liga/desliga; pago 1x por jogador "por conta da casa")
 - **Reviews públicas** em `/depoimentos` (qualquer visitante envia, admin modera) + `AggregateRating` Schema.org pro Google
 - **Wishlist** de pacotes pros jogadores logados
+- **Perfil do jogador unificado** (`/player/{steamid}`): visitante vê o público (stats de combate + conquistas); o **dono logado** vê também o privado no mesmo lugar (saldo, compras, histórico de caixas, loja in-game, streamer) — sem página separada, sem vazar financeiro pra visitante
 - **Páginas dinâmicas** (Termos, Privacidade LGPD, Regras, Reembolso) editáveis no admin
 - **SEO completo**: Open Graph, Twitter Card, JSON-LD, sitemap.xml, robots.txt
 
@@ -79,6 +80,8 @@ O **site é grátis** e faz a loja, o painel, a carteira de moedas e o leaderboa
 - **🗓 Eventos** — cria eventos/sorteios (datas, prêmio, vencedor); status calculado pelas datas
 - **🏆 Recompensas com agendamento** — premia o top do ranking em moedas: cadência Manual/Semanal/Mensal, **auto-creditar** (cron) ou botão **"Premiar agora"** (idempotente) + histórico
 - **🎮 Entrega Sparda nativa** — gera as URLs pro mod entregar moeda in-game sem o Agent pago
+- **🏅 Bônus por conquista** — define +X moedas por conquista (liga/desliga); credita 1x por jogador automaticamente, com log no painel (idempotente, teto anti-abuso)
+- **🔑 Log de logins** — quem entrou via Steam (SteamID/nick/IP/navegador), com busca por SteamID (auditoria/privacidade; ranking segue público)
 - **Audit log** de toda ação administrativa
 - **Histórico granular de saldo** por jogador
 - **Console de logs PHP** integrado ao painel
@@ -112,6 +115,9 @@ O **site é grátis** e faz a loja, o painel, a carteira de moedas e o leaderboa
 - **Rate-limit anti-bruteforce** nos endpoints `/api/*` — conta **só falhas de auth** por IP, então o mod/agent legítimo (token válido) nunca é limitado
 - **Abertura de caixa serializada** (`GET_LOCK`) contra race de duplo-clique na diária
 - `session_regenerate_id` no login Steam (anti session-fixation); health-check sem métricas de negócio; JSON-LD com `JSON_HEX_TAG`
+- **CSP em modo `Report-Only`** + coletor de violações (`/api/csp-report.php`) — fase 1 pré-enforce, com allowlist do Mercado Pago/Steam
+- **`install.php` retorna 404** quando já instalado (não vaza estrutura/instrução); arquivos sensíveis (`.env`/`.sql`/`.bak`/`.git`) negados/ausentes do docroot
+- **Anti-underpay no webhook MP** — confere `valor pago ≥ preço` antes de creditar (redundância sobre o preço, que já é sempre server-side); validação Steam OpenID re-checada na origem; upload valida MIME real + nome aleatório
 - **Pagamento com cartão PCI SAQ-A**: tokenização client-side (Secure Fields do MP), o PAN nunca passa pelo servidor
 
 ### ⚡ Performance otimizada
