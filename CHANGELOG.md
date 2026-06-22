@@ -5,6 +5,16 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.8.0] — 2026-06-22
+
+> Sem migration — só subir os arquivos.
+
+### 📊 Tabelas do admin: ordenar (clique na coluna) + filtrar
+- Componente **reutilizável** no painel: **clique no cabeçalho** de qualquer tabela pra ordenar (asc/desc, detecta número/texto/data com `localeCompare` pt-BR), e **campo de filtro** multi-termo (espaço = E) que aparece em listas com **6+ linhas**. Auto-aplica em **todas** as `.admin-table` (Jogadores, Compras, Pacotes, Cupons, Combos…) — uma vez só, sem mexer em cada tela. Progressive enhancement (se o JS falhar, a tabela funciona normal) e compatível com a navegação PJAX (re-aplica via MutationObserver).
+
+### ✏️ Editar item de caixa (sem deletar e refazer)
+- O pool de itens da caixa ganhou **botão ✎ Editar** por item: preenche o form com os dados atuais (tipo, classname, nome, qtd, raridade, ativo) e salva por cima — a **imagem é mantida** se você não trocar. Antes só dava pra remover e recadastrar. (O backend já suportava `UPDATE`; faltava a interface.)
+
 ## [2.7.2] — 2026-06-22
 
 > Sem migration — só subir os arquivos.

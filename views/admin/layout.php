@@ -255,6 +255,88 @@
 @media (prefers-reduced-motion: no-preference) {
     @view-transition { navigation: auto; }
 }
+/* Tabelas ordenáveis + filtráveis (componente reutilizável) */
+table.admin-table thead th { user-select: none; }
+table.admin-table thead th[data-sortable] { cursor: pointer; }
+table.admin-table thead th[data-sortable]:hover { color: var(--bone); }
+.tbl-filter { margin: 0 0 .7rem; }
+.tbl-filter input {
+    width: 100%; max-width: 340px; padding: .5rem .7rem;
+    background: var(--bg-0); border: 1px solid var(--border); color: var(--bone);
+    font-family: inherit; font-size: .88rem;
+}
+.tbl-filter .tbl-count { color: var(--dim); font-size: .78rem; margin-left: .6rem; }
 </style>
+<script>
+/* Componente: torna qualquer table.admin-table ordenável (clique no cabeçalho) +
+   filtrável (campo de busca multi-termo). Progressive enhancement: se o JS falhar,
+   a tabela continua funcionando normal. Re-aplica no PJAX via MutationObserver. */
+(function () {
+    function parseNum(s) {
+        var t = s.replace(/[^0-9,.\-]/g, '').replace(/\./g, '').replace(',', '.');
+        if (t === '' || t === '-' || t === '.') return null;
+        var n = parseFloat(t);
+        return isNaN(n) ? null : n;
+    }
+    function sortTable(table, idx, th) {
+        var tbody = table.tBodies[0]; if (!tbody) return;
+        var rows = Array.prototype.slice.call(tbody.rows);
+        var dir = th.getAttribute('data-dir') === 'asc' ? 'desc' : 'asc';
+        Array.prototype.forEach.call(th.parentNode.cells, function (c) {
+            c.removeAttribute('data-dir');
+            var b = c.querySelector('.tbl-arrow'); if (b) b.remove();
+        });
+        th.setAttribute('data-dir', dir);
+        var get = function (tr) { var c = tr.cells[idx]; return c ? c.textContent.trim() : ''; };
+        rows.sort(function (a, b) {
+            var x = get(a), y = get(b), nx = parseNum(x), ny = parseNum(y), r;
+            if (nx !== null && ny !== null) r = nx - ny;
+            else r = x.localeCompare(y, 'pt', { numeric: true, sensitivity: 'base' });
+            return dir === 'asc' ? r : -r;
+        });
+        rows.forEach(function (r) { tbody.appendChild(r); });
+        var arrow = document.createElement('span');
+        arrow.className = 'tbl-arrow'; arrow.textContent = dir === 'asc' ? ' ▲' : ' ▼';
+        th.appendChild(arrow);
+    }
+    function enhance(table) {
+        if (table.getAttribute('data-enh')) return;
+        table.setAttribute('data-enh', '1');
+        var thead = table.tHead, tbody = table.tBodies[0];
+        if (!thead || !thead.rows[0] || !tbody) return;
+        Array.prototype.forEach.call(thead.rows[0].cells, function (th, idx) {
+            if (th.hasAttribute('data-nosort')) return;
+            th.setAttribute('data-sortable', '1');
+            th.addEventListener('click', function () { sortTable(table, idx, th); });
+        });
+        // só adiciona filtro se valer a pena (>= 6 linhas)
+        if (tbody.rows.length >= 6) {
+            var wrap = document.createElement('div'); wrap.className = 'tbl-filter';
+            var inp = document.createElement('input');
+            inp.type = 'search'; inp.placeholder = '🔎 Filtrar (espaço = E)…';
+            var cnt = document.createElement('span'); cnt.className = 'tbl-count';
+            wrap.appendChild(inp); wrap.appendChild(cnt);
+            table.parentNode.insertBefore(wrap, table);
+            inp.addEventListener('input', function () {
+                var terms = inp.value.toLowerCase().split(/\s+/).filter(Boolean), shown = 0;
+                Array.prototype.forEach.call(tbody.rows, function (tr) {
+                    var ok = terms.every(function (t) { return tr.textContent.toLowerCase().indexOf(t) !== -1; });
+                    tr.style.display = ok ? '' : 'none'; if (ok) shown++;
+                });
+                cnt.textContent = terms.length ? (shown + ' de ' + tbody.rows.length) : '';
+            });
+        }
+    }
+    function scan() {
+        document.querySelectorAll('table.admin-table').forEach(enhance);
+    }
+    if (document.readyState !== 'loading') scan();
+    else document.addEventListener('DOMContentLoaded', scan);
+    // PJAX troca o conteúdo sem reload → re-escaneia (childList só pega add/remove de nós,
+    // não o style.display do filtro, então não re-dispara à toa).
+    var host = document.querySelector('.admin-main') || document.body;
+    new MutationObserver(scan).observe(host, { childList: true, subtree: true });
+})();
+</script>
 </body>
 </html>

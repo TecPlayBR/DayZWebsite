@@ -42,9 +42,11 @@
 </div>
 
 <div class="stat-card" style="margin-bottom:1.5rem;">
-    <div class="label">Adicionar item ao pool</div>
-    <form method="POST" action="/admin/caixas/<?= (int)$box['id'] ?>/items/save" enctype="multipart/form-data" class="bi-form" style="margin-top:0.8rem;">
+    <div class="label" id="bi-form-title">Adicionar item ao pool</div>
+    <form method="POST" action="/admin/caixas/<?= (int)$box['id'] ?>/items/save" enctype="multipart/form-data" class="bi-form" id="bi-itemform" style="margin-top:0.8rem;">
         <?= \App\Csrf::field() ?>
+        <input type="hidden" name="item_id" id="bi-item-id" value="">
+        <input type="hidden" name="sort_order" id="bi-sort" value="">
         <div style="display:grid;grid-template-columns:0.8fr 1.3fr 1.3fr 1.1fr;gap:0.5rem;">
             <label>Tipo
                 <select name="type" id="bi-type">
@@ -52,20 +54,23 @@
                     <option value="coins">💰 Moedas</option>
                 </select>
             </label>
-            <label id="bi-class-l">Classname<input type="text" name="classname" placeholder="AKM"></label>
-            <label>Nome exibido<input type="text" name="name" placeholder="Fuzil AKM"></label>
+            <label id="bi-class-l">Classname<input type="text" name="classname" id="bi-classname" placeholder="AKM"></label>
+            <label>Nome exibido<input type="text" name="name" id="bi-name" placeholder="Fuzil AKM"></label>
             <label>Imagem (capa)<input type="file" name="image_file" accept="image/png,image/webp,image/jpeg"></label>
         </div>
         <div style="display:grid;grid-template-columns:0.6fr 1.2fr auto;gap:0.5rem;margin-top:0.5rem;align-items:end;">
-            <label id="bi-qty-l">Qtd<input type="number" name="quantity" value="1" min="1"></label>
+            <label id="bi-qty-l">Qtd<input type="number" name="quantity" id="bi-qty" value="1" min="1"></label>
             <label>Raridade
                 <select name="rarity" id="bi-rarity">
                     <option value="common">Comum</option><option value="uncommon">Incomum</option>
                     <option value="rare">Raro</option><option value="epic">Épico</option><option value="legendary">Lendário</option>
                 </select>
             </label>
-            <input type="hidden" name="enabled" value="1">
-            <button type="submit" class="btn">+ Add</button>
+            <div style="display:flex;align-items:center;gap:0.6rem;">
+                <label style="flex-direction:row;align-items:center;gap:0.35rem;"><input type="checkbox" name="enabled" id="bi-enabled" value="1" checked style="width:auto;"> Ativo</label>
+                <button type="submit" class="btn" id="bi-submit">+ Add</button>
+                <a href="#" id="bi-cancel" style="display:none;color:var(--rust-2);font-size:0.8rem;">cancelar</a>
+            </div>
         </div>
         <p style="font-size:0.78rem;color:var(--dim);margin-top:0.5rem;" id="bi-hint">A <strong>raridade</strong> define a chance — lendário cai bem menos que comum, automático. <span id="bi-chance" style="color:var(--hazard);"></span></p>
     </form>
@@ -97,6 +102,35 @@
     chance();
 })();
 </script>
+<script>
+/* Editar item do pool: preenche o form com os dados do item + manda item_id (o backend
+   faz UPDATE). Imagem fica vazia = mantém a atual. "cancelar" volta pro modo adicionar. */
+(function(){
+    var form=document.getElementById('bi-itemform'); if(!form) return;
+    var g=function(id){return document.getElementById(id);};
+    var f={id:g('bi-item-id'),type:g('bi-type'),classname:g('bi-classname'),name:g('bi-name'),
+        qty:g('bi-qty'),rarity:g('bi-rarity'),enabled:g('bi-enabled'),sort:g('bi-sort'),
+        submit:g('bi-submit'),cancel:g('bi-cancel'),title:g('bi-form-title')};
+    function fireType(){ if(f.type){ f.type.dispatchEvent(new Event('change')); } }
+    function reset(){
+        f.id.value='';f.classname.value='';f.name.value='';f.qty.value='1';f.type.value='item';
+        f.rarity.value='common';f.enabled.checked=true;f.sort.value='';
+        f.submit.textContent='+ Add';f.cancel.style.display='none';
+        f.title.textContent='Adicionar item ao pool';fireType();
+    }
+    document.querySelectorAll('.bi-edit').forEach(function(b){
+        b.addEventListener('click',function(){
+            f.id.value=b.dataset.id;f.type.value=b.dataset.type;f.classname.value=b.dataset.classname;
+            f.name.value=b.dataset.name;f.qty.value=b.dataset.qty;f.rarity.value=b.dataset.rarity;
+            f.enabled.checked=(b.dataset.enabled==='1');f.sort.value=b.dataset.sort;
+            f.submit.textContent='💾 Salvar alterações';f.cancel.style.display='';
+            f.title.textContent='Editando: '+b.dataset.name+' — imagem: deixe vazio pra manter a atual';
+            fireType();form.scrollIntoView({behavior:'smooth',block:'center'});
+        });
+    });
+    if(f.cancel) f.cancel.addEventListener('click',function(e){e.preventDefault();reset();});
+})();
+</script>
 
 <div class="stat-card">
     <div class="label">Pool de itens (<?= count($items) ?>) — soma dos pesos: <?= (int)$total_weight ?></div>
@@ -118,10 +152,20 @@
                     <td><?= ($it['type'] ?? 'item') === 'coins' ? (int)$it['quantity'] . ' 🪙' : (int)$it['quantity'] ?></td>
                     <td style="color:var(--hazard);font-weight:600;"><?= $pct ?>%</td>
                     <td><?= e($it['rarity']) ?></td>
-                    <td style="text-align:right;">
+                    <td style="text-align:right;white-space:nowrap;">
+                        <button type="button" class="bi-edit" title="Editar item"
+                            data-id="<?= (int)$it['id'] ?>"
+                            data-type="<?= e($it['type'] ?? 'item') ?>"
+                            data-classname="<?= e($it['classname']) ?>"
+                            data-name="<?= e($it['name']) ?>"
+                            data-qty="<?= (int)$it['quantity'] ?>"
+                            data-rarity="<?= e($it['rarity']) ?>"
+                            data-enabled="<?= (int)$it['enabled'] ?>"
+                            data-sort="<?= (int)($it['sort_order'] ?? 0) ?>"
+                            style="background:none;border:none;color:var(--rust-2);cursor:pointer;margin-right:8px;font-size:0.95rem;">✎</button>
                         <form method="POST" action="/admin/caixas/<?= (int)$box['id'] ?>/items/<?= (int)$it['id'] ?>/delete" style="display:inline;" onsubmit="return confirm('Remover <?= e(addslashes($it['name'])) ?>?');">
                             <?= \App\Csrf::field() ?>
-                            <button type="submit" style="background:none;border:none;color:var(--rust-2);cursor:pointer;">✕</button>
+                            <button type="submit" style="background:none;border:none;color:var(--rust-2);cursor:pointer;" title="Remover">✕</button>
                         </form>
                     </td>
                 </tr>
