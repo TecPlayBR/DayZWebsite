@@ -492,6 +492,10 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
             );
         } catch (\Throwable $e) { /* tabela ausente em install antigo — degrada limpo */ }
         $viewData['shop_spends'] = $shopSpends;
+        // Premiações do ranking que esse player ganhou (pra ele ver que recebeu).
+        $viewData['reward_payouts'] = \App\Database::fetchAll(
+            "SELECT * FROM reward_payouts WHERE steam_id = ? ORDER BY id DESC LIMIT 30", [$steamId]
+        );
 
         $affiliateOn = \App\Affiliate::enabled();
         $myStreamerCode = $affiliateOn ? \App\Affiliate::binding($steamId) : null;

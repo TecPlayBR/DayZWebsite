@@ -10,6 +10,7 @@ $purchases      = $purchases      ?? [];
 $reviewed_ids   = $reviewed_ids   ?? [];
 $box_openings   = $box_openings   ?? [];
 $shop_spends    = $shop_spends    ?? [];
+$reward_payouts = $reward_payouts ?? [];
 ?>
 <?php \App\View::extend('layouts.main'); ?>
 <?php \App\View::with('hero_image', 'img/background2.png'); ?>
@@ -355,6 +356,26 @@ if (!empty($_GET['err'])) {
             </tbody>
         </table>
         <p style="color: var(--dim); font-size: 0.8rem; margin-top: 0.6rem;">🎮 Compras feitas pelo comando <strong>/loja</strong> no Discord, entregues direto no seu personagem.</p>
+        <?php endif; ?>
+
+        <?php if (!empty($reward_payouts)):
+            $rwCat = ['kills'=>'Kills','kills_infected'=>'Zumbis','kdratio'=>'K/D','playtime'=>'Tempo online','longest_kill'=>'Kill mais longa'];
+        ?>
+        <h2 class="pp-section-title">🏆 Premiações do ranking</h2>
+        <table class="purchases-table">
+            <thead><tr><th>Quando</th><th>Categoria</th><th>Lugar</th><th>Moedas</th></tr></thead>
+            <tbody>
+                <?php foreach ($reward_payouts as $rw): ?>
+                    <tr>
+                        <td class="dim"><?= e(fmt_dt($rw['created_at'])) ?></td>
+                        <td><?= e($rwCat[$rw['category']] ?? $rw['category']) ?></td>
+                        <td><strong><?= (int)$rw['place'] ?>º</strong></td>
+                        <td class="mono" style="color:var(--moss);font-weight:600;">+<?= number_format((int)$rw['coins'], 0, ',', '.') ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+        <p style="color: var(--dim); font-size: 0.8rem; margin-top: 0.6rem;">🏆 Moedas que você ganhou ficando no topo do ranking — caem direto no seu saldo.</p>
         <?php endif; ?>
 
         <p style="margin-top: 2rem; color: var(--dim); font-size: 0.85rem;"><?= e(__('profile.support_question')) ?></p>
