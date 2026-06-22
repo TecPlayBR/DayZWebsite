@@ -1,4 +1,4 @@
-# 🏴 DayZ Website Template — Notas da versão (v2.8.5)
+# 🏴 DayZ Website Template — Notas da versão (v2.9.0)
 
 > **Atualizar é seguro e não apaga nada.** Suba os arquivos e rode `php cli/migrate.php` (idempotente). O log completo fica no **[CHANGELOG.md](CHANGELOG.md)**; aqui vão os destaques.
 
@@ -8,7 +8,7 @@
 
 - **👤 Perfil unificado** (`/player`): visitante vê combate + conquistas; o **dono logado** vê também saldo, compras, caixas e loja no mesmo lugar (fim da página `/my-purchases` separada). Financeiro nunca aparece pra visitante (LGPD).
 - **🏅 Recompensa por conquista** (admin dá moedas por conquista, 1x por jogador) + **🏆 premiação do ranking aparece no perfil** do jogador (antes caía no saldo em silêncio).
-- **🛠 Admin mais produtivo:** tabelas **ordenáveis + filtráveis**, **criar pacote de moeda**, **editar item de caixa**, **log de logins**.
+- **🛠 Admin mais produtivo:** tabelas **ordenáveis + filtráveis**, **criar pacote de moeda**, **editar item de caixa**, **log de logins**, **premiação liga/desliga por categoria** e **abas do ranking configuráveis** (esconde categoria que não faz sentido pro servidor).
 - **🔒 Segurança (pós-pentest):** anti-underpay no checkout (valor pago ≥ preço), CSP em Report-Only + coletor, `install.php` retorna 404 quando já instalado, validação Steam OpenID e upload (MIME real) confirmadas.
 - **🛟 Install/Update à prova de defasagem:** a instalação do zero **roda as migrations** sobre o `schema.sql` → nasce completa (nenhuma tabela faltando pro cliente). Update = subir arquivos + `php cli/migrate.php`.
 

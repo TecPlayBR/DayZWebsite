@@ -9,7 +9,7 @@ Tema apocalipse · Painel admin completo · Mercado Pago · Login Steam · Multi
 [![MySQL](https://img.shields.io/badge/MySQL-5.7+-4479A1?style=flat-square&logo=mysql&logoColor=white)](https://www.mysql.com)
 [![License](https://img.shields.io/badge/License-Tecplay--NC-a855f7?style=flat-square)](LICENSE.txt)
 [![Status](https://img.shields.io/badge/Status-Produção-16a34a?style=flat-square)]()
-[![Versão](https://img.shields.io/badge/Versão-2.8.5-facc15?style=flat-square)](RELEASE_NOTES.md)
+[![Versão](https://img.shields.io/badge/Versão-2.9.0-facc15?style=flat-square)](RELEASE_NOTES.md)
 
 *Sobreviva. Construa. Domine. Agora também na web.*
 
@@ -78,7 +78,8 @@ O **site é grátis** e faz a loja, o painel, a carteira de moedas e o leaderboa
 - **Loja in-game** (🛒) — cadastre itens que o jogador compra com moeda no Discord (`/loja`): SKU, custo e o que é entregue in-game (classnames). O bot debita e o servidor dropa o item
 - **🎁 Caixas** — cria caixas (custo/diária + imagem, **ordem na vitrine**, cooldown opcional) e o pool de itens com **raridade que define a chance** (peso auto-preenchido + % ao vivo). Drop in-game via CFTools GameLabs. **📜 Log de aberturas** pesquisável por SteamID com o horário exato do drop (resolve disputa anti-golpista)
 - **🗓 Eventos** — cria eventos/sorteios (datas, prêmio, vencedor); status calculado pelas datas
-- **🏆 Recompensas com agendamento** — premia o top do ranking em moedas: cadência Manual/Semanal/Mensal, **auto-creditar** (cron) ou botão **"Premiar agora"** (idempotente) + histórico
+- **🏆 Recompensas com agendamento** — premia o top do ranking em moedas: cadência Manual/Semanal/Mensal, **auto-creditar** (cron) ou botão **"Premiar agora"** (idempotente) + histórico. Premiação **liga/desliga por categoria**.
+- **👁 Abas do ranking configuráveis** — escolha quais categorias aparecem no `/ranking` público (esconda "Zumbis", "Tempo online" ou "Investimento" se não fizerem sentido pro seu servidor) — independente da premiação
 - **🎮 Entrega Sparda nativa** — gera as URLs pro mod entregar moeda in-game sem o Agent pago
 - **🏅 Bônus por conquista** — define +X moedas por conquista (liga/desliga); credita 1x por jogador automaticamente, com log no painel (idempotente, teto anti-abuso)
 - **🔑 Log de logins** — quem entrou via Steam (SteamID/nick/IP/navegador), com busca por SteamID (auditoria/privacidade; ranking segue público)
