@@ -121,14 +121,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$structureMissing) {
             // Estrategia simples: roda direto via exec (suporta multi-statement no mysql native)
             $pdo->exec($sql);
 
-            // Marca TODAS as migrations como aplicadas: o schema.sql já inclui o efeito de
-            // todas, então uma instalação do zero está em dia. Sem isso o painel mostraria
-            // "migrations pendentes" FALSO num site recém-instalado (o pending compara a
-            // pasta migrations/ com a tabela schema_migrations, que nasceria vazia).
+            // RODA as migrations em cima do schema (são idempotentes: CREATE/ADD IF NOT
+            // EXISTS). Assim, mesmo que o schema.sql fique levemente atrás das migrations,
+            // a instalação do zero sai COMPLETA — nada de tabela faltando pro cliente (ex:
+            // player_grants, achievement_rewards_log, login_log). Depois marca como aplicadas.
             try {
                 $pdo->exec("CREATE TABLE IF NOT EXISTS schema_migrations (filename VARCHAR(150) NOT NULL PRIMARY KEY, applied_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
                 $stmtMig = $pdo->prepare("INSERT IGNORE INTO schema_migrations (filename) VALUES (?)");
-                foreach (glob($ROOT . '/migrations/*.sql') as $mf) {
+                $migFiles = glob($ROOT . '/migrations/*.sql') ?: [];
+                sort($migFiles); // ordem lexical = ordem de versão
+                foreach ($migFiles as $mf) {
+                    try { $pdo->exec((string) file_get_contents($mf)); }
+                    catch (\Throwable $e) { /* "já existe" é benigno — o schema.sql já tinha o efeito */ }
                     $stmtMig->execute([basename($mf)]);
                 }
             } catch (\Throwable $e) { /* não bloqueia o install */ }

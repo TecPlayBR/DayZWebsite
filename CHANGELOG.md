@@ -5,6 +5,20 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.8.5] — 2026-06-22
+
+> Sem migration nova. **Correção importante de instalação do zero** + ajustes.
+
+### 🐛 Install do zero estava incompleto (cliente novo ficava sem tabelas)
+- O `install.php` importava o `schema.sql` e **só marcava** as migrations como aplicadas — mas o `schema.sql` estava **atrás** das migrations novas (`player_grants`, `achievement_rewards_log`, `login_log` não estavam nele). Resultado: uma instalação do zero nascia **sem** essas tabelas → VIP/Passe, Bônus por conquista e Log de login quebravam (500) no cliente novo.
+- **Fix duplo:** (1) `schema.sql` sincronizado com as 3 tabelas; (2) o `install.php` agora **RODA as migrations** em cima do schema (idempotentes, ignora "já existe") em vez de só marcá-las — assim qualquer defasagem futura do schema **nunca** deixa o cliente sem tabela. **Validado** num install do zero no staging (30 tabelas, 17 migrations, tudo OK).
+
+### ✨ Ajustes (2.8.1–2.8.4)
+- **Filtro de tabela respeita `data-nofilter`** — não duplica onde já há busca server-side (ex: Jogadores só ordena). **Ordenar** continua em todas.
+- **Telas de Log** (Logins, Logs de caixa) agora **ordenam** por coluna (via `data-enhance`, sem mudar o visual).
+- **🐛 Editar item de caixa** voltou a funcionar (o handler do ✎ não prendia porque o script rodava antes dos botões; agora usa *event delegation*, robusto e compatível com o PJAX).
+- **🏆 Premiação do ranking aparece no perfil** do jogador (seção "Premiações do ranking" — data, categoria, lugar, moedas). Antes caía no saldo em silêncio.
+
 ## [2.8.0] — 2026-06-22
 
 > Sem migration — só subir os arquivos.

@@ -528,6 +528,55 @@ CREATE TABLE events (
     KEY idx_enabled (enabled)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- ============================================================
+-- Entitlements VIP/BattlePass (v2.6.0) — geridos pelo site, aplicados pelo agent
+-- ============================================================
+DROP TABLE IF EXISTS player_grants;
+CREATE TABLE player_grants (
+    id              INT AUTO_INCREMENT PRIMARY KEY,
+    server_id       INT          NOT NULL,
+    steam_id        VARCHAR(20)  NOT NULL,
+    nickname        VARCHAR(120) NULL,
+    type            VARCHAR(20)  NOT NULL,
+    tier            VARCHAR(20)  NULL,
+    days            INT          NOT NULL DEFAULT 0,
+    expiration_date DATE         NULL,
+    status          VARCHAR(20)  NOT NULL DEFAULT 'pending',
+    notes           VARCHAR(255) NULL,
+    created_at      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    applied_at      DATETIME     NULL,
+    updated_at      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_grants_server_status (server_id, status),
+    INDEX idx_grants_steam (steam_id),
+    INDEX idx_grants_exp (expiration_date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ============================================================
+-- Recompensa por conquista + Log de login (v2.7.0)
+-- ============================================================
+DROP TABLE IF EXISTS achievement_rewards_log;
+CREATE TABLE achievement_rewards_log (
+    id         INT AUTO_INCREMENT PRIMARY KEY,
+    steam_id   VARCHAR(20)  NOT NULL,
+    slug       VARCHAR(40)  NOT NULL,
+    coins      INT          NOT NULL DEFAULT 0,
+    created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_ach_steam_slug (steam_id, slug),
+    KEY idx_ach_created (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+DROP TABLE IF EXISTS login_log;
+CREATE TABLE login_log (
+    id           INT AUTO_INCREMENT PRIMARY KEY,
+    steam_id     VARCHAR(20)  NOT NULL,
+    display_name VARCHAR(190) NULL,
+    ip           VARCHAR(45)  NULL,
+    user_agent   VARCHAR(255) NULL,
+    created_at   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    KEY idx_login_steam (steam_id),
+    KEY idx_login_created (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- Settings padrao
 INSERT INTO settings (`key`, `value`) VALUES
 ('bonus_enabled', '1'),

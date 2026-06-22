@@ -9,7 +9,7 @@ Tema apocalipse · Painel admin completo · Mercado Pago · Login Steam · Multi
 [![MySQL](https://img.shields.io/badge/MySQL-5.7+-4479A1?style=flat-square&logo=mysql&logoColor=white)](https://www.mysql.com)
 [![License](https://img.shields.io/badge/License-Tecplay--NC-a855f7?style=flat-square)](LICENSE.txt)
 [![Status](https://img.shields.io/badge/Status-Produção-16a34a?style=flat-square)]()
-[![Versão](https://img.shields.io/badge/Versão-2.7.1-facc15?style=flat-square)](RELEASE_NOTES.md)
+[![Versão](https://img.shields.io/badge/Versão-2.8.5-facc15?style=flat-square)](RELEASE_NOTES.md)
 
 *Sobreviva. Construa. Domine. Agora também na web.*
 
@@ -82,6 +82,9 @@ O **site é grátis** e faz a loja, o painel, a carteira de moedas e o leaderboa
 - **🎮 Entrega Sparda nativa** — gera as URLs pro mod entregar moeda in-game sem o Agent pago
 - **🏅 Bônus por conquista** — define +X moedas por conquista (liga/desliga); credita 1x por jogador automaticamente, com log no painel (idempotente, teto anti-abuso)
 - **🔑 Log de logins** — quem entrou via Steam (SteamID/nick/IP/navegador), com busca por SteamID (auditoria/privacidade; ranking segue público)
+- **📊 Tabelas ordenáveis + filtráveis** — clique no cabeçalho ordena (número/texto/data); filtro instantâneo multi-termo nas listas grandes (Jogadores, Compras, Pacotes…)
+- **➕ Criar pacote de moeda** e **✏️ editar item de caixa** direto no painel (sem precisar deletar e refazer)
+- **🛟 Install à prova de defasagem** — o `install.php` roda as migrations sobre o `schema.sql`, então uma instalação do zero nasce **completa** (nenhuma tabela faltando pro cliente)
 - **Audit log** de toda ação administrativa
 - **Histórico granular de saldo** por jogador
 - **Console de logs PHP** integrado ao painel
