@@ -60,10 +60,13 @@ if ($mode === 'gameplay') {
             </div>
         <?php endif; ?>
 
-        <!-- Abas -->
-        <?php if ($cftools_on): ?>
+        <!-- Abas (só as visíveis — admin escolhe em /admin/rewards) -->
+        <?php $invest_visible = $invest_visible ?? true; ?>
+        <?php if ($cftools_on && ($invest_visible || !empty($gameplay_stats))): ?>
             <div class="rank-tabs">
-                <a class="rank-tab <?= $mode === 'invest' ? 'active' : '' ?>" href="/ranking">Investimento</a>
+                <?php if ($invest_visible): ?>
+                    <a class="rank-tab <?= $mode === 'invest' ? 'active' : '' ?>" href="/ranking">Investimento</a>
+                <?php endif; ?>
                 <?php foreach ($gameplay_stats as $sk => $sl): ?>
                     <a class="rank-tab <?= ($mode === 'gameplay' && $stat === $sk) ? 'active' : '' ?>" href="/ranking?stat=<?= e($sk) ?>"><?= e($sl) ?></a>
                 <?php endforeach; ?>

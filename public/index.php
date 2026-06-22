@@ -365,14 +365,29 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     $rewards = $rewardsRaw ? (json_decode($rewardsRaw, true) ?: []) : [];
     $cfOn = \App\CFTools::isConfigured();
     $online = $cfOn ? (\App\CFTools::onlinePlayers() ?: []) : [];
-    $stat = (string)($_GET['stat'] ?? 'invest');
 
-    if ($stat !== 'invest' && isset($gameplayStats[$stat]) && $cfOn) {
+    // Visibilidade das abas (admin escolhe quais aparecem em /admin/rewards). Default: todas.
+    $tabsCfg = is_array($rewards['tabs'] ?? null) ? $rewards['tabs'] : [];
+    $tabVis  = static fn(string $k): bool => !array_key_exists($k, $tabsCfg) || !empty($tabsCfg[$k]);
+    $visGameplay   = array_filter($gameplayStats, $tabVis, ARRAY_FILTER_USE_KEY);
+    $investVisible = $tabVis('invest');
+
+    $stat = (string)($_GET['stat'] ?? 'invest');
+    // Nunca renderiza aba oculta: pedido escondido/indisponível cai numa visível.
+    if ($stat !== 'invest') {
+        if (!$cfOn || !isset($visGameplay[$stat])) {
+            $stat = $investVisible ? 'invest' : ((string) array_key_first($visGameplay) ?: 'invest');
+        }
+    } elseif (!$investVisible) {
+        $stat = ($cfOn && $visGameplay) ? (string) array_key_first($visGameplay) : 'invest';
+    }
+
+    if ($stat !== 'invest' && isset($visGameplay[$stat]) && $cfOn) {
         $lb = \App\CFTools::leaderboard($stat, 50) ?: [];
         \App\View::display('pages.ranking', [
             'config' => $config, 'mode' => 'gameplay', 'stat' => $stat,
-            'gameplay_stats' => $gameplayStats, 'cftools_on' => true, 'lb' => $lb,
-            'rewards' => $rewards, 'online' => $online,
+            'gameplay_stats' => $visGameplay, 'cftools_on' => true, 'lb' => $lb,
+            'rewards' => $rewards, 'online' => $online, 'invest_visible' => $investVisible,
         ]);
         return;
     }
@@ -386,8 +401,8 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     );
     \App\View::display('pages.ranking', [
         'config' => $config, 'mode' => 'invest', 'top' => $top,
-        'gameplay_stats' => $gameplayStats, 'cftools_on' => $cfOn, 'rewards' => $rewards,
-        'online' => $online,
+        'gameplay_stats' => $visGameplay, 'cftools_on' => $cfOn, 'rewards' => $rewards,
+        'online' => $online, 'invest_visible' => $investVisible,
     ]);
 });
 
@@ -2209,6 +2224,11 @@ $REWARD_CATEGORIES = [
                 '3' => max(0, (int)($_POST['cat_' . $key . '_3'] ?? 0)),
             ],
         ];
+    }
+    // Visibilidade das abas do /ranking (esconder aba inteira; independe de premiação).
+    $out['tabs'] = ['invest' => !empty($_POST['tab_invest']) ? 1 : 0];
+    foreach (array_keys($REWARD_CATEGORIES) as $key) {
+        $out['tabs'][$key] = !empty($_POST['tab_' . $key]) ? 1 : 0;
     }
     \App\Settings::set('leaderboard_rewards', json_encode($out, JSON_UNESCAPED_UNICODE));
     \App\AuditLog::record('rewards.save', 'rewards', null);

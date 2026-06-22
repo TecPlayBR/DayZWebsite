@@ -64,6 +64,19 @@ function _rw($cats, $key, $place) { return (int)($cats[$key]['coins'][(string)$p
         </p>
     </div>
 
+    <?php $tabsCfg = $rewards['tabs'] ?? []; $tabVisV = function($k) use ($tabsCfg){ return !array_key_exists($k,$tabsCfg) || !empty($tabsCfg[$k]); }; ?>
+    <div class="stat-card" style="padding:1.2rem 1.5rem; margin-bottom:1.5rem;">
+        <div class="label" style="margin-bottom:.5rem;">👁 Abas visíveis no /ranking</div>
+        <p style="color:var(--dim); font-size:.82rem; margin:0 0 .9rem;">Desmarque pra <strong>esconder a aba inteira</strong> do ranking público (não tem a ver com premiação). Ex: servidor sem sistema de zumbi esconde "Zumbis"; quem não quer expor "quem mais gastou" esconde "Investimento".</p>
+        <div style="display:flex; flex-wrap:wrap; gap:1rem;">
+            <label style="display:flex; align-items:center; gap:.4rem; cursor:pointer;"><input type="checkbox" name="tab_invest" value="1" <?= $tabVisV('invest')?'checked':'' ?>> Investimento <span style="color:var(--dim);">(quem mais gastou)</span></label>
+            <?php foreach ($categories as $key => $label): ?>
+                <label style="display:flex; align-items:center; gap:.4rem; cursor:pointer;"><input type="checkbox" name="tab_<?= e($key) ?>" value="1" <?= $tabVisV($key)?'checked':'' ?>> <?= e($label) ?></label>
+            <?php endforeach; ?>
+        </div>
+        <p style="color:var(--dim); font-size:.78rem; margin:.7rem 0 0;">As abas de gameplay precisam do CFTools ligado pra aparecer. "Investimento" é dado do site (sempre disponível).</p>
+    </div>
+
     <table class="admin-table">
         <thead>
             <tr>

@@ -5,6 +5,14 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.9.0] — 2026-06-22
+
+> Sem migration (config em settings).
+
+### 👁 Esconder abas do ranking (visibilidade por categoria)
+- Novo em **Admin → Recompensas → "Abas visíveis no /ranking"**: desmarque pra **esconder a aba inteira** de uma categoria do ranking público — **independente de premiação**. Ex: servidor sem sistema de zumbi esconde "Zumbis"; quem não quer expor "quem mais gastou" esconde "Investimento"; ou esconde "Tempo online".
+- Cobre **Investimento + as 5 de gameplay** (Kills, Zumbis, K/D, Tempo online, Kill mais longa). **Default: todas visíveis** (instalações existentes não mudam). Aba oculta **nunca renderiza** — nem por link direto (`?stat=` cai numa aba visível).
+
 ## [2.8.7] — 2026-06-22
 
 > Sem migration nova. Revisão do TEXTO-SEMENTE das páginas legais (afeta instalações NOVAS do template).
