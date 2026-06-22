@@ -1718,6 +1718,63 @@ $collectDashboardData = function() {
     exit;
 });
 
+// ── Criar pacote novo (id = slug; INSERT) ────────────────────────────
+\App\Router::get('/admin/packages/new', function() use ($config) {
+    \App\Auth::requireCan('packages');
+    \App\View::display('admin.package_edit', ['config' => $config, 'pkg' => null]);
+});
+\App\Router::post('/admin/packages/create', function() use ($config, $ROOT) {
+    \App\Auth::requireCan('packages');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
+    $id = strtolower(trim($_POST['id'] ?? ''));
+    if (!preg_match('/^[a-z0-9][a-z0-9_\-]{1,39}$/', $id)) {
+        header('Location: /admin/packages/new?err=id'); exit;
+    }
+    if (\App\Database::fetchOne("SELECT id FROM packages WHERE id = ? LIMIT 1", [$id])) {
+        header('Location: /admin/packages/new?err=dup'); exit;
+    }
+    $name       = trim($_POST['name'] ?? '');
+    $icon       = trim($_POST['icon'] ?? '🪙');
+    $coins      = max(0, (int)($_POST['coins'] ?? 0));
+    $bonus      = max(0, (int)($_POST['bonus_coins'] ?? 0));
+    $price      = max(0, (float)str_replace(',', '.', $_POST['price_brl'] ?? '0'));
+    $bonusBadge = trim($_POST['bonus_badge'] ?? '') ?: null;
+    $ribbon     = trim($_POST['ribbon'] ?? '') ?: null;
+    $featured   = isset($_POST['featured']) ? 1 : 0;
+    $sortOrder  = (int)($_POST['sort_order'] ?? 0);
+    $perks      = array_values(array_filter(array_map('trim', explode("\n", $_POST['perks'] ?? ''))));
+    $bonusPerks = array_values(array_filter(array_map('trim', explode("\n", $_POST['bonus_perks'] ?? ''))));
+    if (!$name || $coins <= 0 || $price <= 0) {
+        header('Location: /admin/packages/new?err=invalid'); exit;
+    }
+    // Imagem (capa) opcional — mesmo guard do save (MIME real + nome aleatório).
+    $image = null;
+    $pkgDir = $ROOT . '/public/assets/img/packages';
+    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+        $f = $_FILES['image'];
+        $allowed = ['image/png' => 'png', 'image/webp' => 'webp', 'image/jpeg' => 'jpg'];
+        $mime = detect_image_mime($f['tmp_name']);
+        if ($f['size'] <= 5 * 1024 * 1024 && isset($allowed[$mime])) {
+            ensure_writable_dir($pkgDir);
+            $fname = 'p_' . bin2hex(random_bytes(8)) . '.' . $allowed[$mime];
+            if (move_uploaded_file($f['tmp_name'], $pkgDir . '/' . $fname) && is_file($pkgDir . '/' . $fname)) {
+                $image = $fname;
+            }
+        } else {
+            header('Location: /admin/packages/new?err=img'); exit;
+        }
+    }
+    \App\Database::query(
+        "INSERT INTO packages
+            (id, name, icon, image, coins, bonus_coins, price_brl, bonus_badge, ribbon, featured, sort_order, perks_json, bonus_perks_json, enabled)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)",
+        [$id, $name, $icon, $image, $coins, $bonus, $price, $bonusBadge, $ribbon, $featured, $sortOrder,
+         json_encode($perks, JSON_UNESCAPED_UNICODE), json_encode($bonusPerks, JSON_UNESCAPED_UNICODE)]
+    );
+    header('Location: /admin/packages?ok=1');
+    exit;
+});
+
 // ============ LOJA IN-GAME (catálogo gastável — Fase 2) ============
 // Gerido por quem tem a permissão 'packages' (mesma da loja de moedas).
 

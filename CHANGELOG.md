@@ -5,6 +5,13 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.7.2] — 2026-06-22
+
+> Sem migration — só subir os arquivos.
+
+### ➕ Criar pacote de moeda no admin (faltava!)
+- O admin de **Pacotes** agora tem **"➕ Novo pacote"** — antes só dava pra editar/ligar/desligar os seedados. Form em `/admin/packages/new` (define o **ID/slug** único, nome, moedas, bônus, preço, imagem, perks) → `POST /admin/packages/create` (valida slug `[a-z0-9_-]`, **rejeita ID duplicado**, INSERT). O pacote novo já entra automaticamente na loja/checkout (mesmas rotas validadas, preço server-side — sem exposição). O `package_edit.php` virou null-safe (serve criar **e** editar).
+
 ## [2.7.1] — 2026-06-21
 
 > Sem migration — só subir `public/api/mp-webhook.php`.

@@ -9,7 +9,8 @@
         <h1>Pacotes de Moedas</h1>
         <p>Quando o bônus está desligado, os jogadores recebem só o valor base (sem o "+X" extra).</p>
     </div>
-    <div>
+    <div style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
+        <a href="/admin/packages/new" class="btn-mini">➕ Novo pacote</a>
         <form method="POST" action="/admin/packages/toggle-bonus" style="display: inline;">
             <?= \App\Csrf::field() ?>
             <button type="submit" class="<?= $bonus_enabled ? 'btn-mini' : 'btn-mini outline' ?>">

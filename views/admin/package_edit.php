@@ -1,5 +1,14 @@
-<?php /** @var array $config, $pkg */ ?>
-<?php $title = 'Editar pacote'; ?>
+<?php /** @var array $config; @var ?array $pkg */ ?>
+<?php
+// Null-safe: $pkg null = criar pacote novo; senão = editar.
+$pkg = array_merge([
+    'id'=>null,'name'=>'','icon'=>'🪙','image'=>null,'coins'=>0,'bonus_coins'=>0,
+    'price_brl'=>0,'bonus_badge'=>'','ribbon'=>'','featured'=>0,'sort_order'=>0,
+    'perks_json'=>'[]','bonus_perks_json'=>'[]',
+], is_array($pkg ?? null) ? $pkg : []);
+$isNew = empty($pkg['id']);
+$title = $isNew ? 'Novo pacote' : 'Editar pacote';
+?>
 <?php \App\View::extend('admin.layout'); ?>
 <?php \App\View::section('content'); ?>
 
@@ -8,19 +17,34 @@
 
 <div class="admin-page-head">
     <div>
-        <h1>Editar: <?= e($pkg['name']) ?></h1>
-        <p>ID: <code><?= e($pkg['id']) ?></code> (não editável)</p>
+        <h1><?= $isNew ? '➕ Novo pacote' : 'Editar: ' . e($pkg['name']) ?></h1>
+        <?php if (!$isNew): ?><p>ID: <code><?= e($pkg['id']) ?></code> (não editável)</p><?php endif; ?>
     </div>
     <a href="/admin/packages" class="btn-mini outline">← Voltar</a>
 </div>
 
 <?php if (!empty($_GET['err'])): ?>
     <div style="background:var(--danger-overlay);border-left:3px solid var(--rust-2);padding:0.7rem 1rem;margin-bottom:1.5rem;color:var(--text-danger);font-size:0.9rem;">
-        <?= ($_GET['err'] === 'img') ? 'Imagem inválida: use PNG/WEBP/JPG até 5MB.' : 'Verifique: nome obrigatório, moedas > 0, preço > 0.' ?>
+        <?= match($_GET['err']) {
+            'img'   => 'Imagem inválida: use PNG/WEBP/JPG até 5MB.',
+            'dup'   => 'Já existe um pacote com esse ID. Escolha outro.',
+            'id'    => 'ID inválido: use minúsculas, números, - ou _ (2 a 40 caracteres).',
+            default => 'Verifique: nome obrigatório, moedas > 0, preço > 0.',
+        } ?>
     </div>
 <?php endif; ?>
 
-<form method="POST" action="/admin/packages/<?= e($pkg['id']) ?>/save" enctype="multipart/form-data" style="max-width: 800px;">
+<form method="POST" action="<?= $isNew ? '/admin/packages/create' : '/admin/packages/' . e($pkg['id']) . '/save' ?>" enctype="multipart/form-data" style="max-width: 800px;">
+    <?php if ($isNew): ?>
+    <div class="stat-card" style="margin-bottom: 1rem;">
+        <div class="label">Identificador</div>
+        <div style="margin-top: 1rem;">
+            <label style="display:block; font-size:0.85rem; margin-bottom:0.3rem;">ID do pacote (slug — não muda depois)</label>
+            <input type="text" name="id" required pattern="[a-z0-9][a-z0-9_\-]{1,39}" placeholder="ex: starter, pro, mega" style="width:100%; padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:var(--font-mono);">
+            <p style="font-size:0.78rem; color:var(--dim); margin-top:0.3rem;">Único e fixo. Só minúsculas, números, <code>-</code> ou <code>_</code> (2–40 caracteres).</p>
+        </div>
+    </div>
+    <?php endif; ?>
     <?= \App\Csrf::field() ?>
 
     <div class="stat-card" style="margin-bottom: 1rem;">
