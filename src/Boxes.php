@@ -41,13 +41,6 @@ class Boxes {
         return $b;
     }
 
-    public static function findById(int $id): ?array {
-        $b = Database::fetchOne("SELECT * FROM boxes WHERE id = ? LIMIT 1", [$id]);
-        if (!$b) return null;
-        $b['items'] = self::items($id);
-        return $b;
-    }
-
     /** Itens habilitados da caixa + % calculado (peso/soma). */
     public static function items(int $boxId): array {
         $items = Database::fetchAll(

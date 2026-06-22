@@ -54,12 +54,4 @@ class Events {
         if ($end !== null && $now > $end)     return 'ended';
         return 'active';
     }
-
-    public static function hasAny(): bool {
-        try {
-            return (int) Database::fetchColumn("SELECT COUNT(*) FROM events WHERE enabled = 1") > 0;
-        } catch (\Throwable $e) {
-            return false;
-        }
-    }
 }

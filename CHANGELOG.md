@@ -5,6 +5,14 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.8.6] — 2026-06-22
+
+> Sem migration. Limpeza de código (sem mudança de comportamento).
+
+### 🧹 Código morto removido (pente-fino)
+- Auditoria read-only de todo o codebase (119 arquivos): **nenhuma** view/classe órfã, **nenhum** bloco de código comentado/inalcançável, **zero** debug leftover. Codebase já estava limpo.
+- Removidas **6 funções/métodos sem nenhum call site** (confirmado por grep reverso): `view()` (helpers — wrapper não usado de `View::display`), `Csrf::require()`, `Boxes::findById()`, `Events::hasAny()`, `Lang::available()`, `Settings::isAllowed()`. Smoke test (home/shop/ranking/eventos/caixas) 200 após remoção.
+
 ## [2.8.5] — 2026-06-22
 
 > Sem migration nova. **Correção importante de instalação do zero** + ajustes.

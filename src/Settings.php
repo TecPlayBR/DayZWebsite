@@ -115,10 +115,6 @@ class Settings {
         return false;
     }
 
-    public static function isAllowed(string $key): bool {
-        return isset(self::SCHEMA[$key]);
-    }
-
     /**
      * Grava uma setting. Rejeita (retorna false) qualquer chave fora do SCHEMA.
      * Normaliza por tipo e atualiza o cache em memória.

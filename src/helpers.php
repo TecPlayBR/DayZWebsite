@@ -193,12 +193,6 @@ if (!function_exists('locale')) {
     }
 }
 
-if (!function_exists('view')) {
-    function view(string $view, array $data = []): void {
-        View::display($view, $data);
-    }
-}
-
 if (!function_exists('partial')) {
     function partial(string $view, array $data = []): void {
         View::partial($view, $data);

@@ -29,10 +29,6 @@ class Lang {
         return self::$currentLocale;
     }
 
-    public static function available(): array {
-        return self::$availableLocales;
-    }
-
     /**
      * Traduz uma chave. Suporta nested: __('home.hero.title')
      * Suporta interpolacao: __('greeting', ['name' => 'Bryan'])  -> "Olá, :name" vira "Olá, Bryan"

@@ -24,11 +24,4 @@ class Csrf {
         if (!is_string($sent) || empty($_SESSION[self::KEY])) return false;
         return hash_equals($_SESSION[self::KEY], $sent);
     }
-
-    public static function require(): void {
-        if (!self::check()) {
-            http_response_code(419);
-            die('CSRF token inválido. Recarregue a página.');
-        }
-    }
 }
