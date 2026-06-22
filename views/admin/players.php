@@ -53,7 +53,7 @@
     </div>
 </form>
 
-<table class="admin-table">
+<table class="admin-table" data-nofilter><!-- já tem busca server-side (nome/ID); só ordenar -->
     <thead>
         <tr>
             <th>SteamID</th>

@@ -309,8 +309,9 @@ table.admin-table thead th[data-sortable]:hover { color: var(--bone); }
             th.setAttribute('data-sortable', '1');
             th.addEventListener('click', function () { sortTable(table, idx, th); });
         });
-        // só adiciona filtro se valer a pena (>= 6 linhas)
-        if (tbody.rows.length >= 6) {
+        // filtro só se valer a pena (>= 6 linhas) E a tela não tiver busca própria
+        // (marque a <table> com data-nofilter onde já existe barra de pesquisa server-side).
+        if (tbody.rows.length >= 6 && !table.hasAttribute('data-nofilter')) {
             var wrap = document.createElement('div'); wrap.className = 'tbl-filter';
             var inp = document.createElement('input');
             inp.type = 'search'; inp.placeholder = '🔎 Filtrar (espaço = E)…';
