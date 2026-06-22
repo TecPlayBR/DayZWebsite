@@ -103,32 +103,40 @@
 })();
 </script>
 <script>
-/* Editar item do pool: preenche o form com os dados do item + manda item_id (o backend
-   faz UPDATE). Imagem fica vazia = mantém a atual. "cancelar" volta pro modo adicionar. */
+/* Editar item do pool: clica no ✎ → preenche o form com os dados + manda item_id (o
+   backend faz UPDATE; imagem vazia = mantém a atual). Usa EVENT DELEGATION no document
+   porque a tabela dos botões vem DEPOIS deste script no HTML (querySelector direto
+   pegaria zero botões) — e assim sobrevive ao PJAX (anexa uma vez só). */
 (function(){
-    var form=document.getElementById('bi-itemform'); if(!form) return;
-    var g=function(id){return document.getElementById(id);};
-    var f={id:g('bi-item-id'),type:g('bi-type'),classname:g('bi-classname'),name:g('bi-name'),
-        qty:g('bi-qty'),rarity:g('bi-rarity'),enabled:g('bi-enabled'),sort:g('bi-sort'),
-        submit:g('bi-submit'),cancel:g('bi-cancel'),title:g('bi-form-title')};
-    function fireType(){ if(f.type){ f.type.dispatchEvent(new Event('change')); } }
-    function reset(){
-        f.id.value='';f.classname.value='';f.name.value='';f.qty.value='1';f.type.value='item';
-        f.rarity.value='common';f.enabled.checked=true;f.sort.value='';
-        f.submit.textContent='+ Add';f.cancel.style.display='none';
-        f.title.textContent='Adicionar item ao pool';fireType();
+    if (window.__biEditBound) return; window.__biEditBound = true;
+    var g = function(id){ return document.getElementById(id); };
+    function setVal(id,v){ var el=g(id); if(el) el.value=v; }
+    function fireType(){ var t=g('bi-type'); if(t) t.dispatchEvent(new Event('change')); }
+    function setMode(editing, name){
+        var s=g('bi-submit'), c=g('bi-cancel'), t=g('bi-form-title');
+        if(s) s.textContent = editing ? '💾 Salvar alterações' : '+ Add';
+        if(c) c.style.display = editing ? '' : 'none';
+        if(t) t.textContent = editing ? ('Editando: '+name+' — imagem: deixe vazio pra manter a atual') : 'Adicionar item ao pool';
     }
-    document.querySelectorAll('.bi-edit').forEach(function(b){
-        b.addEventListener('click',function(){
-            f.id.value=b.dataset.id;f.type.value=b.dataset.type;f.classname.value=b.dataset.classname;
-            f.name.value=b.dataset.name;f.qty.value=b.dataset.qty;f.rarity.value=b.dataset.rarity;
-            f.enabled.checked=(b.dataset.enabled==='1');f.sort.value=b.dataset.sort;
-            f.submit.textContent='💾 Salvar alterações';f.cancel.style.display='';
-            f.title.textContent='Editando: '+b.dataset.name+' — imagem: deixe vazio pra manter a atual';
-            fireType();form.scrollIntoView({behavior:'smooth',block:'center'});
-        });
+    document.addEventListener('click', function(e){
+        var b = e.target.closest ? e.target.closest('.bi-edit') : null;
+        if (b) {
+            var d = b.dataset;
+            setVal('bi-item-id', d.id); setVal('bi-type', d.type); setVal('bi-classname', d.classname);
+            setVal('bi-name', d.name); setVal('bi-qty', d.qty); setVal('bi-rarity', d.rarity); setVal('bi-sort', d.sort);
+            var en=g('bi-enabled'); if(en) en.checked = (d.enabled === '1');
+            setMode(true, d.name); fireType();
+            var form=g('bi-itemform'); if(form) form.scrollIntoView({behavior:'smooth', block:'center'});
+            return;
+        }
+        if (e.target && e.target.id === 'bi-cancel') {
+            e.preventDefault();
+            setVal('bi-item-id',''); setVal('bi-classname',''); setVal('bi-name',''); setVal('bi-sort','');
+            setVal('bi-qty','1'); setVal('bi-type','item'); setVal('bi-rarity','common');
+            var en=g('bi-enabled'); if(en) en.checked=true;
+            setMode(false); fireType();
+        }
     });
-    if(f.cancel) f.cancel.addEventListener('click',function(e){e.preventDefault();reset();});
 })();
 </script>
 
