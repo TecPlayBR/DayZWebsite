@@ -20,7 +20,7 @@
     <div class="stat-card" style="text-align:center; padding:2.5rem 1rem; color:var(--dim);">Nenhum login registrado<?= $q !== '' ? ' pra esse SteamID' : '' ?>.</div>
 <?php else: ?>
     <div class="stat-card" style="padding:0; overflow-x:auto;">
-        <table style="width:100%; border-collapse:collapse; font-size:.85rem;">
+        <table data-enhance data-nofilter style="width:100%; border-collapse:collapse; font-size:.85rem;">
             <thead><tr style="text-align:left; color:var(--dim); border-bottom:1px solid var(--border);">
                 <th style="padding:.7rem 1rem;">Quando</th><th>Nick</th><th>SteamID</th><th>IP</th><th class="hide-mobile">Navegador</th>
             </tr></thead>

@@ -329,7 +329,9 @@ table.admin-table thead th[data-sortable]:hover { color: var(--bone); }
         }
     }
     function scan() {
-        document.querySelectorAll('table.admin-table').forEach(enhance);
+        // .admin-table = listas padrão; [data-enhance] = opt-in p/ tabelas com estilo
+        // próprio (ex.: telas de log) que querem só o ordenar, sem herdar o estilo.
+        document.querySelectorAll('table.admin-table, table[data-enhance]').forEach(enhance);
     }
     if (document.readyState !== 'loading') scan();
     else document.addEventListener('DOMContentLoaded', scan);

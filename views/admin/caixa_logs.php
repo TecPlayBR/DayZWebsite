@@ -26,7 +26,7 @@
         <p style="color:var(--dim);margin-top:0.8rem;">Nenhuma abertura encontrada.</p>
     <?php else: ?>
     <div style="overflow-x:auto;">
-    <table style="width:100%;border-collapse:collapse;font-size:0.82rem;margin-top:0.8rem;white-space:nowrap;">
+    <table data-enhance data-nofilter style="width:100%;border-collapse:collapse;font-size:0.82rem;margin-top:0.8rem;white-space:nowrap;">
         <thead><tr style="text-align:left;color:var(--dim);border-bottom:1px solid var(--border);">
             <th style="padding:0.5rem 0.4rem;">#</th><th>Aberta em</th><th>SteamID</th><th>Caixa</th><th>Item</th><th>Classname</th><th>Qtd</th><th>Status</th><th>Entregue em (drop)</th>
         </tr></thead>
