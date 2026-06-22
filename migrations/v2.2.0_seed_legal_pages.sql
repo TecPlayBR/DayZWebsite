@@ -96,7 +96,7 @@ VALUES ('rules', 'Regras do Servidor', 'Server Rules', '<h2>Regras do Servidor</
 
 <h3>8. Wipes (Reset Periódico)</h3>
 <ul>
-<li>O servidor pode ter wipes programados. A data será anunciada no <a href="https://discord.gg/SEU-CONVITE-CONVITE">Discord oficial</a> e no banner do site.</li>
+<li>O servidor pode ter wipes programados. A data será anunciada no <a href="https://discord.gg/SEU-CONVITE">Discord oficial</a> e no banner do site.</li>
 <li>No wipe, sua progressão (base, inventário) é perdida — como no DayZ vanilla. Suas <strong>moedas compradas na loja são preservadas</strong>.</li>
 <li>Moedas obtidas via loja in-game (Trader) podem ser wipadas — verifique antes.</li>
 <li>Wipe forçado (sem aviso, por falha técnica nossa) → você tem direito a reembolso ou reposição.</li>
@@ -119,7 +119,7 @@ VALUES ('rules', 'Regras do Servidor', 'Server Rules', '<h2>Regras do Servidor</
 
 <p style="font-size:0.85rem;color:#8aa0b5;margin-top:1.5rem;">
 <strong>Responsável legal:</strong> [RAZAO SOCIAL DA SUA EMPRESA], CNPJ [00.000.000/0000-00]. <strong>[NOME DO SERVIDOR]</strong> é marca registrada.<br>
-Dúvidas: <a href="https://discord.gg/SEU-CONVITE-CONVITE">Discord oficial [NOME DO SERVIDOR]</a>.
+Dúvidas: <a href="https://discord.gg/SEU-CONVITE">Discord oficial [NOME DO SERVIDOR]</a>.
 </p>
 ', '<h2>Server Rules</h2>
 <p class=''legal-meta''>Last update: 2026-06-04 - Applies to all players on the [NOME DO SERVIDOR] server and the official Discord community.</p>
@@ -203,7 +203,7 @@ Dúvidas: <a href="https://discord.gg/SEU-CONVITE-CONVITE">Discord oficial [NOME
 </ul>
 <h3>8. Wipes (Periodic Reset)</h3>
 <ul>
-<li>The server may have scheduled wipes. The date will be announced on the <a href=''https://discord.gg/SEU-CONVITE-CONVITE''>official Discord</a> and on the site banner.</li>
+<li>The server may have scheduled wipes. The date will be announced on the <a href=''https://discord.gg/SEU-CONVITE''>official Discord</a> and on the site banner.</li>
 <li>On wipe, your progression (base, inventory) is lost - like vanilla DayZ. Your <strong>coins purchased in the shop are preserved</strong>.</li>
 <li>Coins from in-game shop (Trader) may be wiped - check before.</li>
 <li>Forced wipe (no notice, due to our technical failure) -> you have right to refund or replacement.</li>
@@ -223,7 +223,7 @@ Dúvidas: <a href="https://discord.gg/SEU-CONVITE-CONVITE">Discord oficial [NOME
 <p>By connecting to the server or joining Discord, you accept these rules in full. Updates to this page will be announced with up to 7 days advance notice, except in urgent cases (security, serious exploit).</p>
 <p style=''font-size:0.85rem;color:#8aa0b5;margin-top:1.5rem;''>
 <strong>Legal entity:</strong> [RAZAO SOCIAL DA SUA EMPRESA], CNPJ [00.000.000/0000-00]. <strong>[NOME DO SERVIDOR]</strong> is a registered trademark.<br>
-Questions: <a href=''https://discord.gg/SEU-CONVITE-CONVITE''>[NOME DO SERVIDOR] official Discord</a>.
+Questions: <a href=''https://discord.gg/SEU-CONVITE''>[NOME DO SERVIDOR] official Discord</a>.
 </p>', 1, 1)
 ON DUPLICATE KEY UPDATE
   title_ptbr = IF(title_ptbr IS NULL OR title_ptbr = '', VALUES(title_ptbr), title_ptbr),
@@ -407,7 +407,7 @@ VALUES ('privacy', 'Política de Privacidade (LGPD)', 'Privacy Policy (LGPD)', '
 <h3>6. Retenção de dados</h3>
 <ul>
 <li><strong>Logs de acesso</strong>: 12 meses (Marco Civil art. 15).</li>
-<li><strong>Logs de moedas (coin_history)</strong>: 365 dias rolling.</li>
+<li><strong>Logs de moedas (coin_history)</strong>: 365 dias corridos.</li>
 <li><strong>Histórico de pagamentos</strong>: 5 anos (obrigação fiscal).</li>
 <li><strong>Saldo de Moedas e SteamID</strong>: enquanto a conta estiver ativa, com prazo de 24 meses sem login para inativação automática.</li>
 </ul>
@@ -430,7 +430,7 @@ VALUES ('privacy', 'Política de Privacidade (LGPD)', 'Privacy Policy (LGPD)', '
 <p>Para dúvidas, solicitações ou denúncias relativas a esta política, abra um ticket no Discord oficial linkado no rodapé.</p>
 </section>', '<h2>Privacy Policy (Brazilian LGPD)</h2>
 <h3>1. Data Controller</h3>
-<p>[NOME DO SERVIDOR] Store, operated in partnership with [SUA EMPRESA] (CNPJ [SEU CNPJ]). Contact: <a href=''https://discord.gg/SEU-CONVITE-CONVITE''>official Discord</a>.</p>
+<p>[NOME DO SERVIDOR] Store, operated in partnership with [SUA EMPRESA] (CNPJ [SEU CNPJ]). Contact: <a href=''https://discord.gg/SEU-CONVITE''>official Discord</a>.</p>
 <h3>2. Data we collect</h3>
 <p>Public Steam ID, Steam name, coin balance, purchase history, last connection IP. We do NOT collect CPF, address, or phone.</p>
 <h3>3. Processing purpose (LGPD art. 7)</h3>
@@ -507,7 +507,7 @@ VALUES ('refund', 'Política de Reembolso', 'Refund Policy', '<h2>Política de R
 <h3>2. When refund is NOT granted</h3>
 <p>Coins already spent in-game. Ban for misconduct. Claim after 7 days of purchase. Purchase above R$200 with more than 30 days.</p>
 <h3>3. How to request a refund</h3>
-<p>Open a ticket on our official Discord: <a href=''https://discord.gg/SEU-CONVITE-CONVITE''>discord.gg/SEU-CONVITE</a>. Include: Steam ID, payment proof (Mercado Pago), and reason.</p>
+<p>Open a ticket on our official Discord: <a href=''https://discord.gg/SEU-CONVITE''>discord.gg/SEU-CONVITE</a>. Include: Steam ID, payment proof (Mercado Pago), and reason.</p>
 <h3>4. Partial refund</h3>
 <p>Evaluated case by case. If you used part of the coins, refund will be proportional to the unused balance.</p>
 <h3>5. Recurrence</h3>
@@ -605,7 +605,7 @@ VALUES ('faq', 'Perguntas Frequentes', 'Frequently Asked Questions', '<h2>Pergun
 <details class="faq-item">
 <summary class="faq-q">Como falo com a equipe?</summary>
 <div class="faq-a">
-<p>Pelo <strong>Discord oficial</strong> linkado no rodapé. Atendemos do o mais rápido possível (média de 2-12 horas, exceto madrugada e feriados).</p>
+<p>Pelo <strong>Discord oficial</strong> linkado no rodapé. Atendemos o mais rápido possível (média de 2-12 horas, exceto madrugada e feriados).</p>
 </div>
 </details>', '<h2>FAQ - Frequently Asked Questions</h2>
 <h3>How do I buy coins?</h3>
@@ -623,7 +623,7 @@ VALUES ('faq', 'Perguntas Frequentes', 'Frequently Asked Questions', '<h2>Pergun
 <h3>Can I receive bonus coins?</h3>
 <p>Yes. Packages from Astuto+ deliver extra coins (+5/+10/+15/+25/+50). Loyalty bonus by volume spent (R$ 250 / 500 / 750 / 1000+).</p>
 <h3>How do I report a bug or problem?</h3>
-<p>Discord: <a href=''https://discord.gg/SEU-CONVITE-CONVITE''>discord.gg/SEU-CONVITE</a> - support channel.</p>', 1, 5)
+<p>Discord: <a href=''https://discord.gg/SEU-CONVITE''>discord.gg/SEU-CONVITE</a> - support channel.</p>', 1, 5)
 ON DUPLICATE KEY UPDATE
   title_ptbr = IF(title_ptbr IS NULL OR title_ptbr = '', VALUES(title_ptbr), title_ptbr),
   body_ptbr  = IF(body_ptbr  IS NULL OR body_ptbr  = '', VALUES(body_ptbr),  body_ptbr),
@@ -666,14 +666,14 @@ VALUES ('connect', 'Como Conectar', 'How to Connect', '<h2>Como Conectar no Serv
 <h3>IP e porta do servidor</h3>
 <div class=''legal-callout''>
 <p><strong>IP:</strong> <code>[IP do seu servidor]</code><br>
-<strong>Porta:</strong> <code>2402</code><br>
+<strong>Porta:</strong> <code>2302</code><br>
 <strong>Mapa:</strong> Chernarus<br>
 <strong>Slots:</strong> 60 jogadores</p>
 </div>
 
 <h3>BattleMetrics (status ao vivo)</h3>
 <p>Acompanhe o status ao vivo do servidor, players online e histórico:<br>
-<a href=''https://www.battlemetrics.com/servers/dayz/38863389'' target=''_blank'' rel=''noopener''>battlemetrics.com/servers/dayz/38863389</a></p>
+<a href=''https://www.battlemetrics.com/servers/dayz/SEU-ID-BATTLEMETRICS'' target=''_blank'' rel=''noopener''>battlemetrics.com/servers/dayz/SEU-ID-BATTLEMETRICS</a></p>
 
 <h3>Primeira vez? Veja o que fazer:</h3>
 <ol>
@@ -690,7 +690,7 @@ VALUES ('connect', 'Como Conectar', 'How to Connect', '<h2>Como Conectar no Serv
 <li><strong>''Wrong Signature''</strong> → mods desatualizados. Atualize via Steam Workshop.</li>
 <li><strong>''Connection Failed''</strong> → servidor pode estar reiniciando. Espera 2-5 min e tenta de novo.</li>
 <li><strong>''Kicked: BattlEye''</strong> → BattlEye corrompido. Botão direito no DayZ → Propriedades → Verificar Integridade.</li>
-<li><strong>Outras dúvidas</strong> → entre no nosso <a href=''https://discord.gg/SEU-CONVITE-CONVITE'' target=''_blank'' rel=''noopener''>Discord oficial</a> e abra ticket.</li>
+<li><strong>Outras dúvidas</strong> → entre no nosso <a href=''https://discord.gg/SEU-CONVITE'' target=''_blank'' rel=''noopener''>Discord oficial</a> e abra ticket.</li>
 </ul>
 
 <h3>Mods do servidor</h3>
@@ -698,7 +698,7 @@ VALUES ('connect', 'Como Conectar', 'How to Connect', '<h2>Como Conectar no Serv
 
 <h3>Discord oficial</h3>
 <p>Pra avisos de wipe, eventos, suporte e comunidade:<br>
-<a href=''https://discord.gg/SEU-CONVITE-CONVITE'' target=''_blank'' rel=''noopener''>discord.gg/SEU-CONVITE</a></p>
+<a href=''https://discord.gg/SEU-CONVITE'' target=''_blank'' rel=''noopener''>discord.gg/SEU-CONVITE</a></p>
 ', '<h2>How to Connect to the Server</h2>
 <p class=''legal-meta''>Step-by-step guide to join [NOME DO SERVIDOR] for the first time.</p>
 
@@ -734,14 +734,14 @@ VALUES ('connect', 'Como Conectar', 'How to Connect', '<h2>Como Conectar no Serv
 <h3>Server IP and Port</h3>
 <div class=''legal-callout''>
 <p><strong>IP:</strong> <code>[IP do seu servidor]</code><br>
-<strong>Port:</strong> <code>2402</code><br>
+<strong>Port:</strong> <code>2302</code><br>
 <strong>Map:</strong> Chernarus<br>
 <strong>Slots:</strong> 60 players</p>
 </div>
 
 <h3>BattleMetrics (live status)</h3>
 <p>Follow server live status, online players, and history:<br>
-<a href=''https://www.battlemetrics.com/servers/dayz/38863389'' target=''_blank'' rel=''noopener''>battlemetrics.com/servers/dayz/38863389</a></p>
+<a href=''https://www.battlemetrics.com/servers/dayz/SEU-ID-BATTLEMETRICS'' target=''_blank'' rel=''noopener''>battlemetrics.com/servers/dayz/SEU-ID-BATTLEMETRICS</a></p>
 
 <h3>First time? What to do:</h3>
 <ol>
@@ -758,7 +758,7 @@ VALUES ('connect', 'Como Conectar', 'How to Connect', '<h2>Como Conectar no Serv
 <li><strong>''Wrong Signature''</strong> → outdated mods. Update via Steam Workshop.</li>
 <li><strong>''Connection Failed''</strong> → server may be restarting. Wait 2-5 min and try again.</li>
 <li><strong>''Kicked: BattlEye''</strong> → BattlEye corrupted. Right-click DayZ → Properties → Verify Integrity.</li>
-<li><strong>Other questions</strong> → join our <a href=''https://discord.gg/SEU-CONVITE-CONVITE'' target=''_blank'' rel=''noopener''>official Discord</a> and open a ticket.</li>
+<li><strong>Other questions</strong> → join our <a href=''https://discord.gg/SEU-CONVITE'' target=''_blank'' rel=''noopener''>official Discord</a> and open a ticket.</li>
 </ul>
 
 <h3>Server mods</h3>
@@ -766,7 +766,7 @@ VALUES ('connect', 'Como Conectar', 'How to Connect', '<h2>Como Conectar no Serv
 
 <h3>Official Discord</h3>
 <p>For wipe announcements, events, support, and community:<br>
-<a href=''https://discord.gg/SEU-CONVITE-CONVITE'' target=''_blank'' rel=''noopener''>discord.gg/SEU-CONVITE</a></p>
+<a href=''https://discord.gg/SEU-CONVITE'' target=''_blank'' rel=''noopener''>discord.gg/SEU-CONVITE</a></p>
 ', 1, 6)
 ON DUPLICATE KEY UPDATE
   title_ptbr = IF(title_ptbr IS NULL OR title_ptbr = '', VALUES(title_ptbr), title_ptbr),

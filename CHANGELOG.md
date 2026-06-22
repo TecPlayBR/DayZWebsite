@@ -5,6 +5,16 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.8.7] — 2026-06-22
+
+> Sem migration nova. Revisão do TEXTO-SEMENTE das páginas legais (afeta instalações NOVAS do template).
+
+### 🧹 Seed das páginas legais revisado (gramática + vestígios)
+Corrigido em `schema.sql` + `migrations/v2.2.0_seed_legal_pages.sql` (o que um cliente NOVO recebe ao instalar):
+- **`discord.gg/SEU-CONVITE-CONVITE` → `SEU-CONVITE`** (placeholder tinha "CONVITE" duplicado — 11 ocorrências).
+- FAQ: "Atendemos **do o** mais rápido" → "o mais rápido". Privacidade: "365 dias **rolling**" → "corridos".
+- **Removido vestígio do DanoninhoZ no template:** a página "Como Conectar" trazia o BattleMetrics real (`/dayz/38863389`) e a porta `2402` (do Dano) hardcoded → agora `SEU-ID-BATTLEMETRICS` e porta padrão `2302`.
+
 ## [2.8.6] — 2026-06-22
 
 > Sem migration. Limpeza de código (sem mudança de comportamento).
