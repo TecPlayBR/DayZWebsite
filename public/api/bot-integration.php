@@ -193,7 +193,7 @@ function _prepare_purchase(array $body, string $action): array {
     $appliedCouponCode = null;
     $priceFinal = $priceOriginal;
     if ($couponCode !== '') {
-        [$coupon, $err] = \App\Coupon::lookup($couponCode, $packageId, $priceOriginal);
+        [$coupon, $err] = \App\Coupon::lookup($couponCode, $packageId, $priceOriginal, $steamId);
         if ($err) {
             _bail(400, 'invalid_coupon', $action);
         }

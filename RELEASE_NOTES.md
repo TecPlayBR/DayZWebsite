@@ -1,6 +1,16 @@
-# 🏴 DayZ Website Template — Notas da versão (v2.9.0)
+# 🏴 DayZ Website Template — Notas da versão (v2.9.1)
 
 > **Atualizar é seguro e não apaga nada.** Suba os arquivos e rode `php cli/migrate.php` (idempotente). O log completo fica no **[CHANGELOG.md](CHANGELOG.md)**; aqui vão os destaques.
+
+---
+
+## 🆕 v2.9.1 — Cupons editáveis + limite por jogador, excluir pacote, perfil mais transparente
+
+- **🎟 Editar cupom** (não só criar/apagar) e **limite de uso por jogador** — ex: `1` pra um cupom de aniversário, um por pessoa (além do limite TOTAL somando todo mundo).
+- **🗑 Excluir pacote** de moeda no admin (pacote com compras é protegido — desative em vez de apagar).
+- **👤 Perfil do jogador:** o **bônus de conquista** agora aparece pro próprio jogador; a mensagem do **"Receber" da caixa** subiu pro topo (visível na hora); e a premiação do ranking explica quando "não creditou nada" é porque o período já foi premiado.
+
+> ⚠️ **Tem migration** (`coupons.per_user_limit`): rode `php cli/migrate.php` ao atualizar.
 
 ---
 

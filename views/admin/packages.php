@@ -25,7 +25,12 @@
 </div>
 
 <?php if (!empty($_GET['ok'])): ?>
-    <div class="alert-toast">Atualizado.</div>
+    <div class="alert-toast"><?= $_GET['ok'] === 'deleted' ? 'Pacote excluído.' : 'Atualizado.' ?></div>
+<?php endif; ?>
+<?php if (($_GET['err'] ?? '') === 'inuse'): ?>
+    <div class="alert-toast" style="background:rgba(231,76,60,0.15); border-left:3px solid var(--rust-2); color:var(--text-danger);">
+        Esse pacote já tem compras registradas, então não pode ser apagado (o histórico/recibo do jogador depende dele). <strong>Desative</strong> em vez de excluir — ele some da loja e o histórico fica intacto.
+    </div>
 <?php endif; ?>
 
 <table class="admin-table">
@@ -79,6 +84,11 @@
                         <button type="submit" class="btn-mini outline">
                             <?= (int)$p['enabled'] ? 'Desativar' : 'Ativar' ?>
                         </button>
+                    </form>
+                    <form method="POST" action="/admin/packages/<?= e($p['id']) ?>/delete" style="display: inline;"
+                          onsubmit="return confirm('Excluir o pacote &quot;<?= e(addslashes($p['name'])) ?>&quot;? Isso é permanente. (Pacotes com compras não são apagados — desative-os.)');">
+                        <?= \App\Csrf::field() ?>
+                        <button type="submit" class="btn-mini outline" style="color:var(--rust-2); border-color:var(--rust-2);">Excluir</button>
                     </form>
                 </td>
             </tr>

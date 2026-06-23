@@ -11,7 +11,7 @@ class Coupon {
      * Busca cupom pelo código (case-insensitive) e valida elegibilidade.
      * Retorna array com [coupon, error]. Se error != null, cupom inválido.
      */
-    public static function lookup(string $code, ?string $packageId = null, ?float $packagePrice = null): array {
+    public static function lookup(string $code, ?string $packageId = null, ?float $packagePrice = null, ?string $steamId = null): array {
         $code = strtoupper(trim($code));
         if ($code === '') return [null, 'empty'];
 
@@ -32,6 +32,17 @@ class Coupon {
         }
         if (!empty($coupon['max_uses']) && (int)$coupon['used_count'] >= (int)$coupon['max_uses']) {
             return [null, 'exhausted'];
+        }
+        // Limite POR jogador (ex: cupom de aniversário = 1x por pessoa).
+        // Conta as compras pagas dele com este código. Degrada limpo em base antiga (coluna ausente).
+        if ($steamId !== null && !empty($coupon['per_user_limit'])) {
+            $usedByUser = (int) Database::fetchColumn(
+                "SELECT COUNT(*) FROM purchases
+                  WHERE steam_id = ? AND UPPER(coupon_code) = UPPER(?)
+                    AND (mp_status = 'approved' OR delivered_at IS NOT NULL)",
+                [$steamId, $code]
+            );
+            if ($usedByUser >= (int)$coupon['per_user_limit']) return [null, 'user_exhausted'];
         }
 
         // Filtro por pacote
@@ -92,6 +103,7 @@ class Coupon {
             'not_yet_valid'        => 'Este cupom ainda não está válido.',
             'expired'              => 'Este cupom expirou.',
             'exhausted'            => 'Este cupom já atingiu o limite de usos.',
+            'user_exhausted'       => 'Você já usou este cupom o máximo de vezes permitido.',
             'not_for_this_package' => 'Este cupom não vale pro pacote selecionado.',
             default                => 'Cupom inválido.',
         };

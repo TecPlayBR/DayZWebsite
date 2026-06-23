@@ -19,6 +19,7 @@ $errMsg = match($err) {
 };
 $okMsg = match($ok) {
     'created'  => 'Cupom criado.',
+    'updated'  => 'Cupom atualizado.',
     'toggled'  => 'Status atualizado.',
     'deleted'  => 'Cupom removido.',
     default => null,
@@ -34,7 +35,7 @@ $pkgMap = array_column($packages ?? [], 'name', 'id');
 <form method="POST" action="/admin/coupons/create" class="stat-card" style="padding: 1.5rem; margin-bottom: 2rem;">
     <?= \App\Csrf::field() ?>
     <div class="label" style="margin-bottom: 1rem;">+ Novo cupom</div>
-    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 0.8rem; margin-bottom: 0.8rem;">
+    <div style="display: grid; grid-template-columns: 1.6fr 1fr 0.9fr 1fr 1fr; gap: 0.8rem; margin-bottom: 0.4rem;">
         <div>
             <label style="display:block; font-size:0.75rem; color:var(--dim); margin-bottom:0.3rem; text-transform: uppercase;">Código</label>
             <input type="text" name="code" required minlength="3" placeholder="BLACKFRIDAY20"
@@ -55,11 +56,17 @@ $pkgMap = array_column($packages ?? [], 'name', 'id');
                    style="width:100%; padding:0.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:var(--font-mono);">
         </div>
         <div>
-            <label style="display:block; font-size:0.75rem; color:var(--dim); margin-bottom:0.3rem; text-transform: uppercase;">Máx. usos <small>(opcional)</small></label>
+            <label style="display:block; font-size:0.75rem; color:var(--dim); margin-bottom:0.3rem; text-transform: uppercase;">Máx. TOTAL <small>(opc.)</small></label>
             <input type="number" name="max_uses" min="1" placeholder="∞"
                    style="width:100%; padding:0.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone);">
         </div>
+        <div>
+            <label style="display:block; font-size:0.75rem; color:var(--dim); margin-bottom:0.3rem; text-transform: uppercase;">Máx. p/ jogador <small>(opc.)</small></label>
+            <input type="number" name="per_user_limit" min="1" placeholder="∞"
+                   style="width:100%; padding:0.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone);">
+        </div>
     </div>
+    <p style="font-size:0.72rem; color:var(--dim); margin:0 0 0.8rem;">💡 <strong>Máx. TOTAL</strong> = usos somando todos os jogadores. <strong>Máx. p/ jogador</strong> = quantas vezes cada pessoa pode usar (coloque <strong>1</strong> pra um cupom de aniversário, um por pessoa). Vazio = ilimitado.</p>
     <?php if (!empty($packages)): ?>
     <div style="margin-bottom: 0.8rem;">
         <label style="display:block; font-size:0.75rem; color:var(--dim); margin-bottom:0.4rem; text-transform: uppercase;">Vale só pra estes pacotes <small>(opcional — nada marcado = todos)</small></label>
@@ -169,6 +176,9 @@ $pkgMap = array_column($packages ?? [], 'name', 'id');
                     <?php else: ?>
                         <span class="dim">/ ∞</span>
                     <?php endif; ?>
+                    <?php if (!empty($c['per_user_limit'])): ?>
+                        <div class="dim" style="font-size:0.7rem;">máx <?= (int)$c['per_user_limit'] ?>x/jogador</div>
+                    <?php endif; ?>
                 </td>
                 <td class="dim" style="font-size:0.8rem;">
                     <?= $c['valid_from']  ? 'De ' . e($c['valid_from']) : 'Sempre' ?><br>
@@ -183,6 +193,7 @@ $pkgMap = array_column($packages ?? [], 'name', 'id');
                 </td>
                 <td class="dim" style="font-size: 0.8rem;"><?= e($c['notes'] ?? '—') ?></td>
                 <td style="white-space: nowrap;">
+                    <a href="/admin/coupons/<?= (int)$c['id'] ?>/edit" class="btn-mini outline">Editar</a>
                     <form method="POST" action="/admin/coupons/<?= (int)$c['id'] ?>/toggle" style="display: inline;">
                         <?= \App\Csrf::field() ?>
                         <button type="submit" class="btn-mini outline"><?= (int)$c['active'] ? 'Desativar' : 'Ativar' ?></button>

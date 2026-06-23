@@ -184,7 +184,8 @@ CREATE TABLE coupons (
     code VARCHAR(40) NOT NULL UNIQUE,
     discount_type ENUM('percent','fixed','coins') NOT NULL DEFAULT 'percent',
     discount_value DECIMAL(8,2) NOT NULL,
-    max_uses INT NULL,
+    max_uses INT NULL,                       -- limite GLOBAL de usos (todos os jogadores somados); NULL = ilimitado
+    per_user_limit INT NULL,                 -- limite POR jogador (ex: 1 = cada um usa uma vez só); NULL = ilimitado
     used_count INT NOT NULL DEFAULT 0,
     valid_from DATETIME NULL,
     valid_until DATETIME NULL,

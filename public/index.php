@@ -511,6 +511,17 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
         $viewData['reward_payouts'] = \App\Database::fetchAll(
             "SELECT * FROM reward_payouts WHERE steam_id = ? ORDER BY id DESC LIMIT 30", [$steamId]
         );
+        // Bônus de conquista creditados (mesma transparência: o player vê o que recebeu).
+        $achPayouts = \App\Database::fetchAll(
+            "SELECT * FROM achievement_rewards_log WHERE steam_id = ? ORDER BY id DESC LIMIT 30", [$steamId]
+        );
+        if ($achPayouts) {
+            $achNames = [];
+            foreach (\App\Achievements::all() as $a) { $achNames[$a['slug']] = $a['name']; }
+            foreach ($achPayouts as &$ap) { $ap['name'] = $achNames[$ap['slug']] ?? $ap['slug']; }
+            unset($ap);
+        }
+        $viewData['achievement_payouts'] = $achPayouts;
 
         $affiliateOn = \App\Affiliate::enabled();
         $myStreamerCode = $affiliateOn ? \App\Affiliate::binding($steamId) : null;
@@ -795,7 +806,7 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     // mesmo sem cupom agora — assim a recorrência dele conta pro streamer).
     $affiliateStamp = \App\Affiliate::binding($steamId);
     if ($couponCode !== '') {
-        [$coupon, $err] = \App\Coupon::lookup($couponCode, $packageId, $priceOriginal);
+        [$coupon, $err] = \App\Coupon::lookup($couponCode, $packageId, $priceOriginal, $steamId);
         if ($err) {
             \App\View::display('pages.checkout_error', [
                 'config' => $config,
@@ -1661,6 +1672,17 @@ $collectDashboardData = function() {
     if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     \App\Database::query("UPDATE packages SET enabled = 1 - enabled WHERE id = ?", [$id]);
     header('Location: /admin/packages?ok=1');
+    exit;
+});
+
+\App\Router::post('/admin/packages/{id}/delete', function($id) use ($config) {
+    \App\Auth::requireCan('packages');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
+    // Pacote com compras NÃO é apagado (preserva histórico/recibo do jogador) — desative em vez disso.
+    $used = (int)\App\Database::fetchColumn("SELECT COUNT(*) FROM purchases WHERE package_id = ?", [$id]);
+    if ($used > 0) { header('Location: /admin/packages?err=inuse'); exit; }
+    \App\Database::query("DELETE FROM packages WHERE id = ?", [$id]);
+    header('Location: /admin/packages?ok=deleted');
     exit;
 });
 
@@ -2983,6 +3005,7 @@ $BRAND_SLOTS = [
     $type  = in_array($_POST['discount_type'] ?? '', ['percent','fixed','coins'], true) ? $_POST['discount_type'] : 'percent';
     $value = max(0.01, (float)str_replace(',', '.', $_POST['discount_value'] ?? '0'));
     $maxUses = (int)($_POST['max_uses'] ?? 0) ?: null;
+    $perUserLimit = (int)($_POST['per_user_limit'] ?? 0) ?: null;
     $validFrom  = trim($_POST['valid_from']  ?? '') ?: null;
     $validUntil = trim($_POST['valid_until'] ?? '') ?: null;
     $notes = trim($_POST['notes'] ?? '') ?: null;
@@ -3010,9 +3033,9 @@ $BRAND_SLOTS = [
 
     try {
         \App\Database::query(
-            "INSERT INTO coupons (code, discount_type, discount_value, max_uses, valid_from, valid_until, notes, package_ids, active, affiliate_name, commission_pct_1, commission_pct_2, commission_pct_3plus)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?)",
-            [$code, $type, $value, $maxUses, $validFrom, $validUntil, $notes, $packageIds, $affiliateName, $pct1, $pct2, $pct3]
+            "INSERT INTO coupons (code, discount_type, discount_value, max_uses, per_user_limit, valid_from, valid_until, notes, package_ids, active, affiliate_name, commission_pct_1, commission_pct_2, commission_pct_3plus)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?)",
+            [$code, $type, $value, $maxUses, $perUserLimit, $validFrom, $validUntil, $notes, $packageIds, $affiliateName, $pct1, $pct2, $pct3]
         );
         \App\AuditLog::record('coupon.created', 'coupon', $code, [
             'type' => $type, 'value' => $value, 'max_uses' => $maxUses,
@@ -3023,6 +3046,54 @@ $BRAND_SLOTS = [
             header('Location: /admin/coupons?err=duplicate');
         } else { throw $e; }
     }
+    exit;
+});
+
+\App\Router::get('/admin/coupons/{id}/edit', function($id) use ($config) {
+    \App\Auth::requireCan('coupons');
+    $coupon = \App\Database::fetchOne("SELECT * FROM coupons WHERE id = ? LIMIT 1", [(int)$id]);
+    if (!$coupon) { http_response_code(404); echo 'Cupom não encontrado'; exit; }
+    $packages = \App\Database::fetchAll("SELECT id, name FROM packages ORDER BY sort_order ASC");
+    \App\View::display('admin.coupon_edit', ['config' => $config, 'coupon' => $coupon, 'packages' => $packages]);
+});
+
+\App\Router::post('/admin/coupons/{id}/save', function($id) use ($config) {
+    \App\Auth::requireCan('coupons');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
+    $existing = \App\Database::fetchOne("SELECT id, code FROM coupons WHERE id = ? LIMIT 1", [(int)$id]);
+    if (!$existing) { http_response_code(404); exit; }
+    // O código é a identidade do cupom (compras/vínculos apontam pra ele) → NÃO se edita aqui.
+    $type  = in_array($_POST['discount_type'] ?? '', ['percent','fixed','coins'], true) ? $_POST['discount_type'] : 'percent';
+    $value = max(0.01, (float)str_replace(',', '.', $_POST['discount_value'] ?? '0'));
+    if ($type === 'percent' && $value > 100) { $value = 100; }
+    $maxUses      = (int)($_POST['max_uses'] ?? 0) ?: null;
+    $perUserLimit = (int)($_POST['per_user_limit'] ?? 0) ?: null;
+    $validFrom  = trim($_POST['valid_from']  ?? '') ?: null;
+    $validUntil = trim($_POST['valid_until'] ?? '') ?: null;
+    $notes = trim($_POST['notes'] ?? '') ?: null;
+    $affiliateName = trim($_POST['affiliate_name'] ?? '');
+    $affiliateName = $affiliateName !== '' ? mb_substr($affiliateName, 0, 120) : null;
+    $clampPct = fn($k) => max(0.0, min(100.0, (float) str_replace(',', '.', $_POST[$k] ?? '0')));
+    $pct1 = $clampPct('commission_pct_1');
+    $pct2 = $clampPct('commission_pct_2');
+    $pct3 = $clampPct('commission_pct_3plus');
+    $packageIds = null;
+    $sel = $_POST['package_ids'] ?? [];
+    if (is_array($sel) && $sel) {
+        $validIds = array_column(\App\Database::fetchAll("SELECT id FROM packages"), 'id');
+        $keep = array_values(array_intersect($validIds, $sel));
+        if ($keep) $packageIds = json_encode($keep);
+    }
+    \App\Database::query(
+        "UPDATE coupons SET discount_type = ?, discount_value = ?, max_uses = ?, per_user_limit = ?,
+                valid_from = ?, valid_until = ?, notes = ?, package_ids = ?,
+                affiliate_name = ?, commission_pct_1 = ?, commission_pct_2 = ?, commission_pct_3plus = ?
+         WHERE id = ?",
+        [$type, $value, $maxUses, $perUserLimit, $validFrom, $validUntil, $notes, $packageIds,
+         $affiliateName, $pct1, $pct2, $pct3, (int)$id]
+    );
+    \App\AuditLog::record('coupon.updated', 'coupon', $existing['code'], ['type' => $type, 'value' => $value]);
+    header('Location: /admin/coupons?ok=updated');
     exit;
 });
 

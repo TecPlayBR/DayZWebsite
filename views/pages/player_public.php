@@ -11,6 +11,7 @@ $reviewed_ids   = $reviewed_ids   ?? [];
 $box_openings   = $box_openings   ?? [];
 $shop_spends    = $shop_spends    ?? [];
 $reward_payouts = $reward_payouts ?? [];
+$achievement_payouts = $achievement_payouts ?? [];
 ?>
 <?php \App\View::extend('layouts.main'); ?>
 <?php \App\View::with('hero_image', 'img/background2.png'); ?>
@@ -36,10 +37,21 @@ $fmtTime = function ($s): string {
 };
 $ex = is_array($stats['extra'] ?? null) ? $stats['extra'] : [];
 
-// Flash (só relevante pro dono — vêm dos redirects de review/caixa/streamer)
+// Flash (só relevante pro dono — vêm dos redirects de review/caixa/streamer).
+// Mostrado em banner no TOPO (visível na hora), não enterrado nas seções.
 $flash = null;
-if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') $flash = ['success', __('profile.flash_review_ok')];
-if (!empty($_GET['err'])) {
+if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
+    $flash = ['success', __('profile.flash_review_ok')];
+} elseif (!empty($_GET['box'])) {
+    $flash = match($_GET['box']) {
+        'ok'          => ['success', '✓ Item liberado! Vai cair no chão perto de você no servidor em instantes.'],
+        'wait'        => ['danger',  '⚠ Pra receber agora você precisa estar ONLINE no servidor (e fora da janela de restart). Entra no jogo e clica Receber de novo.'],
+        'already'     => ['success', 'Esse item já tinha sido entregue.'],
+        'ratelimited' => ['danger',  'Calma — muitos resgates seguidos. Tenta de novo em instantes.'],
+        'invalid'     => ['danger',  'Item inválido.'],
+        default       => ['danger',  'Não consegui resgatar esse item agora.'],
+    };
+} elseif (!empty($_GET['err'])) {
     $flash = ['danger', match($_GET['err']) {
         'invalid_purchase' => __('profile.flash_invalid'),
         'too_soon'         => __('profile.flash_too_soon'),
@@ -298,15 +310,7 @@ if (!empty($_GET['err'])) {
         if (!empty($box_openings)):
         ?>
         <h2 id="caixas" class="pp-section-title">🎁 Histórico de Caixas</h2>
-        <?php
-        $boxFlash = [
-            'ok'=>['✓ Item liberado! Vai cair no chão perto de você no servidor em instantes.','var(--moss)'],
-            'wait'=>['Pra receber agora você precisa estar online no servidor (e fora da janela de restart). Entre no jogo e clique Receber.','var(--hazard)'],
-            'already'=>['Esse item já tinha sido entregue.','var(--dim)'],
-            'invalid'=>['Item inválido.','var(--rust-2)'],
-            'ratelimited'=>['Calma — muitos resgates seguidos. Tenta de novo em instantes.','var(--rust-2)'],
-        ][$_GET['box'] ?? ''] ?? null;
-        if ($boxFlash): ?><p style="color: <?= $boxFlash[1] ?>; font-size: 0.88rem; margin: -0.5rem 0 1rem;"><?= e($boxFlash[0]) ?></p><?php endif; ?>
+        <?php /* O resultado do "Receber" agora aparece no banner do topo (visível na hora). */ ?>
         <table class="purchases-table">
             <thead><tr><th>Data</th><th>Item</th><th class="hide-mobile">Raridade</th><th>Qtd</th><th>Status</th></tr></thead>
             <tbody>
@@ -376,6 +380,23 @@ if (!empty($_GET['err'])) {
             </tbody>
         </table>
         <p style="color: var(--dim); font-size: 0.8rem; margin-top: 0.6rem;">🏆 Moedas que você ganhou ficando no topo do ranking — caem direto no seu saldo.</p>
+        <?php endif; ?>
+
+        <?php if (!empty($achievement_payouts)): ?>
+        <h2 class="pp-section-title">🏅 Bônus de conquistas</h2>
+        <table class="purchases-table">
+            <thead><tr><th>Quando</th><th>Conquista</th><th>Moedas</th></tr></thead>
+            <tbody>
+                <?php foreach ($achievement_payouts as $ap): ?>
+                    <tr>
+                        <td class="dim"><?= e(fmt_dt($ap['created_at'])) ?></td>
+                        <td><?= e($ap['name'] ?? $ap['achievement']) ?></td>
+                        <td class="mono" style="color:var(--moss);font-weight:600;">+<?= number_format((int)$ap['coins'], 0, ',', '.') ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+        <p style="color: var(--dim); font-size: 0.8rem; margin-top: 0.6rem;">🏅 Moedas que você ganhou desbloqueando conquistas — creditadas uma vez por conquista.</p>
         <?php endif; ?>
 
         <p style="margin-top: 2rem; color: var(--dim); font-size: 0.85rem;"><?= e(__('profile.support_question')) ?></p>

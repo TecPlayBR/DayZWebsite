@@ -10,8 +10,14 @@
     </div>
 </div>
 
-<?php if (($_GET['ok'] ?? '') === 'award'): ?>
-    <div class="alert-toast">✓ Premiação rodada — <?= (int)($_GET['n'] ?? 0) ?> moeda(s) creditada(s).</div>
+<?php if (($_GET['ok'] ?? '') === 'award'): $n = (int)($_GET['n'] ?? 0); ?>
+    <?php if ($n > 0): ?>
+        <div class="alert-toast">✓ Premiação rodada — <?= $n ?> colocação(ões) premiada(s). As moedas já caíram no saldo dos vencedores (aparece no perfil de cada um, em "🏆 Premiações do ranking").</div>
+    <?php else: ?>
+        <div class="alert-toast" style="background:var(--bg-1);border-left:3px solid var(--hazard);color:var(--bone);">
+            Premiação rodada, mas <strong>nada novo foi creditado</strong> — ou o período <code><?= e($period_label) ?></code> já tinha sido premiado (não paga 2x no mesmo período), ou o leaderboard CFTools ainda não tem vencedor elegível com SteamID. Quem já recebeu vê no próprio perfil.
+        </div>
+    <?php endif; ?>
 <?php elseif (($_GET['ok'] ?? '') !== ''): ?>
     <div class="alert-toast">Recompensas salvas.</div>
 <?php elseif (($_GET['err'] ?? '') !== ''): ?>

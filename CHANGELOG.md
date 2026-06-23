@@ -5,6 +5,23 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.9.1] — 2026-06-23
+
+> **Tem migration** (`v2.9.1_coupon_per_user_limit.sql` — adiciona `coupons.per_user_limit`). Rode `php cli/migrate.php` ao atualizar.
+
+### 🎟 Cupons: editar + limite por jogador
+- **Editar cupom** (✎): antes só dava pra criar, ativar/desativar ou apagar. Agora a tela **Editar** ajusta desconto, limites, pacotes, janela de validade e dados de afiliado. O **código não muda** (compras e vínculos apontam pra ele).
+- **Limite por jogador** (`per_user_limit`): além do limite **TOTAL** (`max_uses`, somando todo mundo), dá pra dizer **quantas vezes cada jogador** pode usar. Ex: `1` = cupom de aniversário, um por pessoa. Conta as compras pagas do jogador com aquele código. Vazio = sem limite por jogador.
+  - Esclarecida a semântica na tela: **Máx. TOTAL** (todos somados) × **Máx. por jogador**.
+
+### 🗑 Excluir pacote de moeda
+- Novo botão **Excluir** em Admin → Pacotes (faltava — só dava pra desativar). **Proteção:** pacote que já tem compras **não é apagado** (preserva o histórico/recibo do jogador) — a tela avisa e sugere desativar.
+
+### 👤 Perfil do jogador: transparência das recompensas
+- **Bônus de conquista** agora aparece no perfil do dono ("🏅 Bônus de conquistas") — antes só o admin via o log; o jogador recebia as moedas sem ver o registro.
+- **Resgate de caixa ("Receber"):** a mensagem (ex: "precisa estar no jogo") agora aparece num **banner no topo** do perfil, visível na hora — antes ficava enterrada lá embaixo na seção de caixas e parecia que "nada acontecia".
+- **Premiação do ranking:** a mensagem do admin ao premiar ficou clara — distingue "creditou X colocações" de "nada novo (período já premiado / sem vencedor elegível)", já que a premiação **não paga 2x no mesmo período**.
+
 ## [2.9.0] — 2026-06-22
 
 > Sem migration (config em settings).
