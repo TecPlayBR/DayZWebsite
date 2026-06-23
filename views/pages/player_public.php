@@ -61,20 +61,43 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
 }
 ?>
 
-<?php if ($is_owner && $flash):
-    $isOk = $flash[0] === 'success';
-    $bg   = $isOk ? '#2f3a26' : '#5c1f18';   // sólido: contraste alto, legível
-    $bd   = $isOk ? '#7e9b5e' : '#e0573f';
-    $tx   = $isOk ? '#eef5e6' : '#ffe6e0';
-?>
-    <div id="pp-flash" role="alert" style="max-width: 820px; margin: 1.2rem auto 0; padding: 0.95rem 1.1rem;
-                display: flex; align-items: flex-start; gap: 0.8rem;
-                background: <?= $bg ?>; border: 1px solid <?= $bd ?>; border-left: 4px solid <?= $bd ?>;
-                border-radius: 6px; color: <?= $tx ?>; font-size: 0.95rem; line-height: 1.45; box-shadow: 0 6px 20px rgba(0,0,0,0.4);">
-        <span style="flex: 1;"><?= e($flash[1]) ?></span>
-        <button type="button" onclick="document.getElementById('pp-flash').remove()" aria-label="Fechar"
-                style="background: none; border: none; color: <?= $tx ?>; font-size: 1.2rem; line-height: 1; cursor: pointer; opacity: 0.8; padding: 0;">&times;</button>
+<?php if ($is_owner && $flash): $isOk = $flash[0] === 'success'; ?>
+    <div id="pp-flash" class="pp-toast <?= $isOk ? 'pp-toast-ok' : 'pp-toast-err' ?>" role="alert">
+        <span class="pp-toast-ico" aria-hidden="true"><?= $isOk ? '✓' : '⚠' ?></span>
+        <span class="pp-toast-msg"><?= e($flash[1]) ?></span>
+        <button type="button" class="pp-toast-close" aria-label="Fechar">&times;</button>
     </div>
+    <style>
+    .pp-toast {
+        position: fixed; top: 88px; right: 20px; z-index: 100000;
+        width: min(380px, calc(100vw - 40px));
+        display: flex; align-items: flex-start; gap: 0.6rem;
+        padding: 0.9rem 1rem; border-radius: 8px;
+        font-size: 0.92rem; line-height: 1.45; font-weight: 500;
+        box-shadow: 0 10px 34px rgba(0,0,0,0.55);
+        animation: ppToastIn 0.3s ease both;
+    }
+    .pp-toast-ok  { background: #2f3a26; border: 1px solid #7e9b5e; color: #eef5e6; }
+    .pp-toast-err { background: #5c1f18; border: 1px solid #e0573f; color: #ffe6e0; }
+    .pp-toast-ico { font-size: 1.05rem; line-height: 1.3; flex-shrink: 0; }
+    .pp-toast-msg { flex: 1; }
+    .pp-toast-close { background: none; border: none; color: inherit; font-size: 1.25rem; line-height: 1; cursor: pointer; opacity: 0.75; padding: 0; flex-shrink: 0; }
+    .pp-toast-close:hover { opacity: 1; }
+    .pp-toast.pp-hide { animation: ppToastOut 0.4s ease forwards; }
+    @keyframes ppToastIn  { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: none; } }
+    @keyframes ppToastOut { to { opacity: 0; transform: translateX(28px); } }
+    @media (max-width: 560px) { .pp-toast { top: 74px; left: 12px; right: 12px; width: auto; } }
+    </style>
+    <script>
+    (function () {
+        var t = document.getElementById('pp-flash');
+        if (!t) return;
+        var ttl = t.classList.contains('pp-toast-err') ? 9000 : 6000; // erro/aviso fica mais tempo
+        function close() { t.classList.add('pp-hide'); setTimeout(function () { if (t.parentNode) t.remove(); }, 400); }
+        var timer = setTimeout(close, ttl);
+        t.querySelector('.pp-toast-close').addEventListener('click', function () { clearTimeout(timer); close(); });
+    })();
+    </script>
 <?php endif; ?>
 
 <section class="hero" style="min-height: 34vh; padding-bottom: 1.5rem;">

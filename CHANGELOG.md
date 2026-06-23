@@ -5,6 +5,13 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.10.2] — 2026-06-23
+
+> Sem migration.
+
+### 🔔 Aviso do "Receber" virou toast flutuante
+- O aviso ao resgatar caixa (ex: "precisa estar no jogo") agora é um **toast flutuante** no canto superior direito (acima da navbar, `z-index` alto), com slide-in e **some sozinho** depois de alguns segundos (erro/aviso fica ~9s; sucesso ~6s) — além do botão de fechar. Antes ele entrava no fluxo da página e ficava escondido atrás do header fixo.
+
 ## [2.10.1] — 2026-06-23
 
 > **Tem migration** (`v2.10.1_reviews_avatar.sql` — `reviews.avatar`). Rode `php cli/migrate.php`.
