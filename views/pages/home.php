@@ -398,7 +398,13 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
                         <?= e($r['body']) ?>
                     </blockquote>
                     <figcaption class="testimonial-meta">
-                        <span class="testimonial-avatar testimonial-avatar-letter"><?= e(mb_strtoupper(mb_substr($name, 0, 1))) ?></span>
+                        <?php $av = trim((string)($r['avatar'] ?? '')); $letter = e(mb_strtoupper(mb_substr($name, 0, 1))); ?>
+                        <?php if ($av !== '' && preg_match('#^https?://#i', $av)): ?>
+                            <img class="testimonial-avatar" src="<?= e($av) ?>" alt="<?= e($name) ?>" loading="lazy" referrerpolicy="no-referrer"
+                                 onerror="this.outerHTML='<span class=\'testimonial-avatar testimonial-avatar-letter\'><?= $letter ?></span>'">
+                        <?php else: ?>
+                            <span class="testimonial-avatar testimonial-avatar-letter"><?= $letter ?></span>
+                        <?php endif; ?>
                         <span class="testimonial-author">
                             <strong><?= e($name) ?></strong>
                             <em><?= e(__($roleKey)) ?></em>
@@ -426,6 +432,8 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
     padding: 1.6rem 1.5rem;
     margin: 0;
     position: relative;
+    display: flex;
+    flex-direction: column;
 }
 .testimonial-text {
     color: var(--bone);
@@ -433,6 +441,8 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
     line-height: 1.55;
     margin: 0 0 1.2rem;
     font-style: italic;
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
 .testimonial-quote {
     color: var(--hazard);
@@ -449,9 +459,10 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
     margin-bottom: 0.8rem;
     text-shadow: 0 0 6px var(--hazard-border);
 }
-.testimonial-meta { display: flex; align-items: center; gap: 0.75rem; font-style: normal; }
+.testimonial-meta { display: flex; align-items: center; gap: 0.75rem; font-style: normal; margin-top: auto; padding-top: 0.4rem; }
 .testimonial-avatar {
     width: 42px; height: 42px;
+    flex-shrink: 0;
     border-radius: 50%;
     background: var(--bg-2);
     border: 1px solid var(--border);
@@ -462,8 +473,8 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
     font-size: 1.1rem;
 }
 .testimonial-avatar-letter { background: rgba(193,68,14,0.18); }
-.testimonial-author { display: flex; flex-direction: column; line-height: 1.3; }
-.testimonial-author strong { color: var(--bone); font-size: 0.9rem; }
+.testimonial-author { display: flex; flex-direction: column; line-height: 1.3; min-width: 0; }
+.testimonial-author strong { color: var(--bone); font-size: 0.9rem; overflow-wrap: break-word; word-break: break-word; }
 .testimonial-author em { color: var(--dim); font-size: 0.78rem; font-style: normal; }
 </style>
 <?php endif; ?>

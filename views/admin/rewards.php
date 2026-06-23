@@ -10,12 +10,12 @@
     </div>
 </div>
 
-<?php if (($_GET['ok'] ?? '') === 'award'): $n = (int)($_GET['n'] ?? 0); ?>
+<?php if (($_GET['ok'] ?? '') === 'award'): $n = (int)($_GET['n'] ?? 0); $sk = (int)($_GET['sk'] ?? 0); ?>
     <?php if ($n > 0): ?>
-        <div class="alert-toast">✓ Premiação rodada — <?= $n ?> colocação(ões) premiada(s). As moedas já caíram no saldo dos vencedores (aparece no perfil de cada um, em "🏆 Premiações do ranking").</div>
+        <div class="alert-toast">✓ Premiação rodada — <?= $n ?> colocação(ões) premiada(s). As moedas já caíram no saldo dos vencedores (aparece no perfil de cada um, em "🏆 Premiações do ranking").<?= $sk > 0 ? ' ⚠ ' . $sk . ' vencedor(es) NÃO recebeu(ram): a conta dele ainda não está vinculada (ele precisa abrir o site/perfil 1x logado pra vincular a Steam ao CFTools).' : '' ?></div>
     <?php else: ?>
         <div class="alert-toast" style="background:var(--bg-1);border-left:3px solid var(--hazard);color:var(--bone);">
-            Premiação rodada, mas <strong>nada novo foi creditado</strong> — ou o período <code><?= e($period_label) ?></code> já tinha sido premiado (não paga 2x no mesmo período), ou o leaderboard CFTools ainda não tem vencedor elegível com SteamID. Quem já recebeu vê no próprio perfil.
+            Premiação rodada, mas <strong>nada novo foi creditado</strong> — ou o período <code><?= e($period_label) ?></code> já tinha sido premiado (não paga 2x no mesmo período)<?= $sk > 0 ? ', ou os ' . $sk . ' vencedor(es) do leaderboard ainda não vincularam a conta no site (precisam abrir o perfil 1x logado pra mapear a Steam↔CFTools)' : ', ou o leaderboard CFTools ainda não tem vencedor elegível' ?>. Quem já recebeu vê no próprio perfil.
         </div>
     <?php endif; ?>
 <?php elseif (($_GET['ok'] ?? '') !== ''): ?>

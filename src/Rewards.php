@@ -72,6 +72,7 @@ class Rewards {
 
         $label = self::periodLabel($cfg['cadence']);
         $paid = [];
+        $skipped = [];   // vencedores que não deu pra creditar (sem steam_id mapeável)
         foreach (self::CATEGORIES as $key => $catLabel) {
             $cat = $cfg['cats'][$key] ?? null;
             if (!$cat || empty($cat['enabled'])) continue;
@@ -86,9 +87,16 @@ class Rewards {
                 if ($coins <= 0) continue;
                 $row = $lb[$place - 1] ?? null;
                 if (!$row) continue;
-                $steamId = (string)($row['steam_id'] ?? '');
-                if (!preg_match('/^\d{17}$/', $steamId)) continue;   // sem steam_id válido, pula
                 $name = (string)($row['latest_name'] ?? ($row['name'] ?? ''));
+                // O leaderboard CFTools devolve cftools_id + latest_name, mas NÃO o steam_id.
+                // Resolve o steam64: usa o do row se vier, senão mapeia o cftools_id pelo
+                // player_stats (preenchido quando o player abre o perfil / via bot).
+                $steamId = self::resolveSteamId($row);
+                if (!preg_match('/^\d{17}$/', $steamId)) {
+                    // Vencedor sem conta vinculada no site → não dá pra creditar. Reporta.
+                    $skipped[] = ['category' => $key, 'cat_label' => $catLabel, 'place' => $place, 'name' => $name, 'coins' => $coins];
+                    continue;
+                }
 
                 try {
                     if (self::creditOnce($label, $key, $place, $steamId, $name, $coins)) {
@@ -101,7 +109,23 @@ class Rewards {
         }
         // marca o último award (cosmético, pro admin ver)
         self::touchLastAwarded();
-        return ['ok' => true, 'label' => $label, 'paid' => $paid];
+        return ['ok' => true, 'label' => $label, 'paid' => $paid, 'skipped' => $skipped];
+    }
+
+    /**
+     * Resolve o steam64 de uma linha do leaderboard CFTools.
+     * O leaderboard NÃO traz steam_id (só cftools_id + latest_name) → mapeia o
+     * cftools_id pelo player_stats (preenchido quando o player abre o perfil/bot).
+     */
+    private static function resolveSteamId(array $row): string {
+        $sid = (string)($row['steam_id'] ?? '');
+        if (preg_match('/^\d{17}$/', $sid)) return $sid;
+        $cid = (string)($row['cftools_id'] ?? ($row['id'] ?? ''));
+        if ($cid === '') return '';
+        return (string)(Database::fetchColumn(
+            "SELECT steam_id FROM player_stats WHERE cftools_id = ? AND steam_id IS NOT NULL ORDER BY updated_at DESC LIMIT 1",
+            [$cid]
+        ) ?: '');
     }
 
     /**

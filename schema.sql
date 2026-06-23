@@ -160,6 +160,7 @@ CREATE TABLE reviews (
     purchase_id INT NULL,                 -- NULL pra reviews públicas (source='public')
     steam_id VARCHAR(20) NULL,            -- NULL pra reviews públicas
     display_name VARCHAR(100) NULL,
+    avatar VARCHAR(255) NULL,             -- foto Steam (capturada do login no envio); fallback = inicial do nome
     rating TINYINT NOT NULL,
     body TEXT NULL,
     source VARCHAR(20) NOT NULL DEFAULT 'purchase',  -- 'purchase' (compra real) | 'public' (form em /depoimentos)

@@ -36,9 +36,18 @@
                 <?php foreach ($reviews as $r): ?>
                     <div class="review-card">
                         <div class="review-header">
-                            <div>
-                                <strong class="review-author"><?= e($r['display_name'] ?? 'Sobrevivente') ?></strong>
-                                <span class="review-date"><?= date('d/m/Y', strtotime($r['created_at'])) ?></span>
+                            <?php $rName = $r['display_name'] ?? 'Sobrevivente'; $rAv = trim((string)($r['avatar'] ?? '')); $rLetter = e(mb_strtoupper(mb_substr($rName, 0, 1))); ?>
+                            <div class="review-id">
+                                <?php if ($rAv !== '' && preg_match('#^https?://#i', $rAv)): ?>
+                                    <img class="review-avatar" src="<?= e($rAv) ?>" alt="<?= e($rName) ?>" loading="lazy" referrerpolicy="no-referrer"
+                                         onerror="this.outerHTML='<span class=\'review-avatar review-avatar-letter\'><?= $rLetter ?></span>'">
+                                <?php else: ?>
+                                    <span class="review-avatar review-avatar-letter"><?= $rLetter ?></span>
+                                <?php endif; ?>
+                                <div class="review-id-text">
+                                    <strong class="review-author"><?= e($rName) ?></strong>
+                                    <span class="review-date"><?= date('d/m/Y', strtotime($r['created_at'])) ?></span>
+                                </div>
                             </div>
                             <div class="review-stars" aria-label="<?= (int)$r['rating'] ?> de 5 estrelas">
                                 <?= str_repeat('★', (int)$r['rating']) . str_repeat('☆', 5 - (int)$r['rating']) ?>
@@ -166,9 +175,20 @@
     display: flex; justify-content: space-between; align-items: flex-start;
     gap: 1rem; margin-bottom: 0.8rem;
 }
+.review-id { display: flex; align-items: center; gap: 0.7rem; min-width: 0; }
+.review-id-text { display: flex; flex-direction: column; min-width: 0; }
+.review-avatar {
+    width: 40px; height: 40px; flex-shrink: 0;
+    border-radius: 50%; object-fit: cover;
+    background: var(--bg-0); border: 1px solid var(--border);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--hazard); font-family: var(--font-display); font-size: 1.05rem;
+}
+.review-avatar-letter { background: rgba(193,68,14,0.18); }
 .review-author {
-    font-family: var(--font-mono); font-size: 1rem;
+    font-family: var(--font-mono); font-size: 0.95rem;
     color: var(--bone); display: block;
+    overflow-wrap: break-word; word-break: break-word;
 }
 .review-date {
     font-size: 0.75rem; color: var(--dim); font-family: var(--font-mono);
@@ -176,11 +196,12 @@
 .review-stars {
     color: var(--hazard); font-size: 1.1rem; letter-spacing: 0.08em;
     text-shadow: 0 0 8px var(--hazard-border);
-    white-space: nowrap;
+    white-space: nowrap; flex-shrink: 0;
 }
 .review-body {
     color: var(--bone); font-size: 0.95rem; line-height: 1.6;
     margin: 0; font-style: italic; opacity: 0.95;
+    overflow-wrap: break-word; word-break: break-word;
 }
 
 .review-login-cta { text-align:center; padding:1rem 0; }

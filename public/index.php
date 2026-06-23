@@ -339,7 +339,7 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     // Testimonials no home: pega ate 3 reviews aprovadas (rating >= 4) — fonte unica de verdade,
     // mesmas reviews que aparecem em /depoimentos. Substitui o setting testimonials_json antigo.
     $homeReviews = \App\Database::fetchAll(
-        "SELECT display_name, rating, body, source, created_at
+        "SELECT display_name, avatar, rating, body, source, created_at
            FROM reviews
           WHERE approved = 1 AND rating >= 4 AND body IS NOT NULL AND body != ''
           ORDER BY created_at DESC LIMIT 3"
@@ -1235,10 +1235,12 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     $body   = trim((string)($_POST['body'] ?? ''));
     if (mb_strlen($body) < 10 || mb_strlen($body) > 500) { header('Location: /depoimentos?err=invalid_body'); exit; }
 
+    $avatar = trim((string)($user['avatar'] ?? '')) ?: null;
+    if ($avatar !== null && !preg_match('#^https?://#i', $avatar)) $avatar = null; // só URL http(s)
     \App\Database::query(
-        "INSERT INTO reviews (purchase_id, steam_id, display_name, rating, body, source, approved)
-         VALUES (NULL, ?, ?, ?, ?, 'public', 0)",
-        [$steamId, mb_substr($name, 0, 60), $rating, $body]
+        "INSERT INTO reviews (purchase_id, steam_id, display_name, avatar, rating, body, source, approved)
+         VALUES (NULL, ?, ?, ?, ?, ?, 'public', 0)",
+        [$steamId, mb_substr($name, 0, 60), $avatar, $rating, $body]
     );
     header('Location: /depoimentos?ok=submitted');
     exit;
@@ -1264,11 +1266,13 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     }
 
     $user = \App\SteamAuth::user();
+    $avatar = trim((string)($user['avatar'] ?? '')) ?: null;
+    if ($avatar !== null && !preg_match('#^https?://#i', $avatar)) $avatar = null;
     try {
         \App\Database::query(
-            "INSERT INTO reviews (purchase_id, steam_id, display_name, rating, body, approved)
-             VALUES (?, ?, ?, ?, ?, 0)",
-            [$purchaseId, $steamId, $user['display_name'] ?? null, $rating, $body ?: null]
+            "INSERT INTO reviews (purchase_id, steam_id, display_name, avatar, rating, body, approved)
+             VALUES (?, ?, ?, ?, ?, ?, 0)",
+            [$purchaseId, $steamId, $user['display_name'] ?? null, $avatar, $rating, $body ?: null]
         );
     } catch (\PDOException $e) {
         if ($e->getCode() === '23000') {
@@ -2301,7 +2305,8 @@ $REWARD_CATEGORIES = [
     \App\AuditLog::record('rewards.award_now', 'rewards', null, ['paid' => count($res['paid'] ?? [])]);
     if (!$res['ok']) { header('Location: /admin/rewards?err=' . urlencode($res['error'] ?? 'erro')); exit; }
     $n = count($res['paid']);
-    header('Location: /admin/rewards?ok=award&n=' . $n);
+    $sk = count($res['skipped'] ?? []);
+    header('Location: /admin/rewards?ok=award&n=' . $n . '&sk=' . $sk);
     exit;
 });
 

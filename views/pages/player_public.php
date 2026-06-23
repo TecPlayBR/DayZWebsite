@@ -61,12 +61,19 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
 }
 ?>
 
-<?php if ($is_owner && $flash): ?>
-    <div style="position: sticky; top: 80px; z-index: 50; max-width: 800px; margin: 1rem auto 0; padding: 0.85rem 1.2rem;
-                background: <?= $flash[0]==='success' ? 'rgba(90,108,78,0.18)' : 'rgba(231,76,60,0.18)' ?>;
-                border-left: 3px solid <?= $flash[0]==='success' ? 'var(--moss)' : 'var(--rust-2)' ?>;
-                color: <?= $flash[0]==='success' ? 'var(--text-success)' : 'var(--text-danger)' ?>; font-size: 0.9rem;">
-        <?= e($flash[1]) ?>
+<?php if ($is_owner && $flash):
+    $isOk = $flash[0] === 'success';
+    $bg   = $isOk ? '#2f3a26' : '#5c1f18';   // sólido: contraste alto, legível
+    $bd   = $isOk ? '#7e9b5e' : '#e0573f';
+    $tx   = $isOk ? '#eef5e6' : '#ffe6e0';
+?>
+    <div id="pp-flash" role="alert" style="max-width: 820px; margin: 1.2rem auto 0; padding: 0.95rem 1.1rem;
+                display: flex; align-items: flex-start; gap: 0.8rem;
+                background: <?= $bg ?>; border: 1px solid <?= $bd ?>; border-left: 4px solid <?= $bd ?>;
+                border-radius: 6px; color: <?= $tx ?>; font-size: 0.95rem; line-height: 1.45; box-shadow: 0 6px 20px rgba(0,0,0,0.4);">
+        <span style="flex: 1;"><?= e($flash[1]) ?></span>
+        <button type="button" onclick="document.getElementById('pp-flash').remove()" aria-label="Fechar"
+                style="background: none; border: none; color: <?= $tx ?>; font-size: 1.2rem; line-height: 1; cursor: pointer; opacity: 0.8; padding: 0;">&times;</button>
     </div>
 <?php endif; ?>
 

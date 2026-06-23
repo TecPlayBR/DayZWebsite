@@ -5,6 +5,23 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.10.1] — 2026-06-23
+
+> **Tem migration** (`v2.10.1_reviews_avatar.sql` — `reviews.avatar`). Rode `php cli/migrate.php`.
+
+### 🏆 FIX importante — premiação do ranking creditava ZERO
+- O leaderboard do CFTools devolve `cftools_id` + `latest_name`, mas **nunca o `steam_id`** — e a premiação lia `row['steam_id']`, então **pulava todo mundo e não creditava ninguém** (o admin via "0 creditadas" e o jogador não tinha histórico). Agora resolve o `steam_id` mapeando o `cftools_id` pelo `player_stats`. O vencedor que ainda não vinculou a conta (nunca abriu o perfil logado) é **reportado** ("X não recebeu — precisa abrir o site 1x") em vez de sumir em silêncio.
+
+### 🪙 Tela "Venda de VIP" (admin) redesenhada
+- Layout limpo e alinhado (estava com campos desalinhados): um cartão por plano com toggle, nome, descrição e os 3 preços (30/60/90) em grade.
+
+### 👤 Perfil — aviso do "Receber" legível
+- O aviso ao resgatar caixa offline ("precisa estar no jogo") agora é um **banner de alto contraste com botão de fechar** no topo (antes o vermelho era ilegível e ficava fixo na tela).
+
+### ⭐ Depoimentos — foto da Steam + alinhamento
+- Os depoimentos (home e `/depoimentos`) agora mostram a **foto do perfil Steam** do autor (capturada no envio; quem não tem cai na inicial do nome).
+- Cartões com **texto longo não quebram mais** o layout: rodapé/avatar fixos embaixo, nome e corpo com quebra correta.
+
 ## [2.10.0] — 2026-06-23
 
 > Sem migration (config em `settings`, compra usa `player_grants` que já existe). Nada a rodar ao atualizar.

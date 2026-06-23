@@ -1,6 +1,16 @@
-# 🏴 DayZ Website Template — Notas da versão (v2.10.0)
+# 🏴 DayZ Website Template — Notas da versão (v2.10.1)
 
 > **Atualizar é seguro e não apaga nada.** Suba os arquivos e rode `php cli/migrate.php` (idempotente). O log completo fica no **[CHANGELOG.md](CHANGELOG.md)**; aqui vão os destaques.
+
+---
+
+## 🆕 v2.10.1 — Fix da premiação do ranking + foto Steam nos depoimentos
+
+- **🏆 FIX:** a premiação do ranking creditava **zero** (o leaderboard CFTools não traz `steam_id`; agora resolve via `cftools_id`→`player_stats`). Vencedor sem conta vinculada é reportado pro admin em vez de sumir.
+- **⭐ Depoimentos:** mostram a **foto da Steam** do autor (fallback na inicial) e não quebram mais com texto longo.
+- **🪙 Admin "Venda de VIP"** redesenhada (alinhada); **aviso do "Receber"** no perfil agora é legível (alto contraste + fechar).
+
+> ⚠️ **Tem migration** (`reviews.avatar`): rode `php cli/migrate.php`.
 
 ---
 
