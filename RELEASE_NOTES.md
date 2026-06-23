@@ -1,6 +1,16 @@
-# 🏴 DayZ Website Template — Notas da versão (v2.9.1)
+# 🏴 DayZ Website Template — Notas da versão (v2.10.0)
 
 > **Atualizar é seguro e não apaga nada.** Suba os arquivos e rode `php cli/migrate.php` (idempotente). O log completo fica no **[CHANGELOG.md](CHANGELOG.md)**; aqui vão os destaques.
+
+---
+
+## 🆕 v2.10.0 — Loja de VIP / BattlePass paga com moedas
+
+- **🪙 Aba "VIP"** nova: o jogador compra **VIP (PanelVip1–4)** ou **BattlePass** por **30/60/90 dias** gastando as **moedas** dele (sem dinheiro real). O **agent aplica no Sparda** igual à concessão manual.
+- **Renovar soma dias** (não perde o que pagou); a aba mostra o que está ativo e até quando.
+- **Admin → 🪙 Venda de VIP:** liga/desliga + tabela de preço (tier × duração) em moedas. Sem migration.
+
+> Aba própria de propósito: a **Loja** é onde entra dinheiro (compra moeda); o **VIP** é onde a moeda é gasta. Separado, o ciclo fica claro e não mistura PIX com moeda na mesma vitrine.
 
 ---
 

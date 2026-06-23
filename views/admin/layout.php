@@ -53,6 +53,7 @@
             ['coupons',             '/admin/coupons',            '🎟 Cupons',              str_starts_with($current, '/admin/coupons')],
             ['coupons',             '/admin/streamers',          '🎮 Streamers',           str_starts_with($current, '/admin/streamers')],
             ['coupons',             '/admin/entitlements',       '🎟️ VIP/Passe',          str_starts_with($current, '/admin/entitlements')],
+            ['coupons',             '/admin/vip',                '🪙 Venda de VIP',        str_starts_with($current, '/admin/vip')],
             ['reviews',             '/admin/reviews',            '⭐ Avaliações',          str_starts_with($current, '/admin/reviews')],
             ['gallery',             '/admin/gallery',            '🖼 Galeria',             str_starts_with($current, '/admin/gallery')],
             ['team',                '/admin/team',               '🧑‍💼 Equipe',            str_starts_with($current, '/admin/team')],

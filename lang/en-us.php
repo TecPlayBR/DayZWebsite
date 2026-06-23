@@ -10,6 +10,7 @@ return array (
     'home' => 'Home',
     'shop' => 'Shop',
     'boxes' => 'Cases',
+    'vip' => 'VIP',
     'events' => 'Events',
     'more' => 'More',
     'rules' => 'Rules',

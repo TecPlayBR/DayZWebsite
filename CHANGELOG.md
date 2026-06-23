@@ -5,6 +5,17 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.10.0] — 2026-06-23
+
+> Sem migration (config em `settings`, compra usa `player_grants` que já existe). Nada a rodar ao atualizar.
+
+### 🪙 Loja de VIP / BattlePass paga com MOEDAS (aba `/vip`)
+- Nova **aba "VIP"** no site: o jogador compra **VIP (PanelVip1–4)** ou **BattlePass** por **30/60/90 dias** gastando as **moedas** que já tem — sem dinheiro real. A aba só aparece quando o admin liga a venda.
+- **Checkout em moedas, atômico:** debita o saldo sem nunca deixar negativo (mesma trava do gasto in-game), grava o benefício e o **agent aplica no Sparda** no próximo ciclo — exatamente o fluxo de entitlements da concessão manual.
+- **Renovação soma dias:** comprar de novo antes de expirar **empilha** os dias no que ainda falta (o jogador nunca perde o que pagou). A aba mostra o que está ativo e até quando.
+- **Admin → 🪙 Venda de VIP:** liga/desliga geral + por plano, nome/descrição exibidos e a **tabela de preço (tier × 30/60/90 dias)** em moedas. Preço 0/vazio = aquela opção não é vendida.
+- Por que aba própria (e não dentro da Loja): a Loja é **entrada** de dinheiro (compra moeda com PIX/cartão); VIP é **gasto** de moeda — famílias diferentes. Separar deixa o ciclo "compro moeda → gasto no VIP" claro e não mistura duas formas de pagamento na mesma vitrine.
+
 ## [2.9.1] — 2026-06-23
 
 > **Tem migration** (`v2.9.1_coupon_per_user_limit.sql` — adiciona `coupons.per_user_limit`). Rode `php cli/migrate.php` ao atualizar.

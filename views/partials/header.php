@@ -14,6 +14,7 @@
                 <li><a href="/"><?= e(__('nav.home')) ?></a></li>
                 <li><a href="/shop"><?= e(__('nav.shop')) ?></a></li>
                 <li><a href="/caixas"><?= e(__('nav.boxes')) ?></a></li>
+                <?php if (\App\Vip::enabled()): ?><li><a href="/vip"><?= e(__('nav.vip', [], 'VIP')) ?></a></li><?php endif; ?>
                 <li><a href="/ranking"><?= e(__('nav.ranking')) ?></a></li>
                 <li class="nav-drop">
                     <button type="button" class="nav-drop-btn" aria-haspopup="true" aria-expanded="false">
@@ -102,6 +103,7 @@
         <li><a href="/" data-close><?= e(__('nav.home')) ?></a></li>
         <li><a href="/shop" data-close><?= e(__('nav.shop')) ?></a></li>
         <li><a href="/caixas" data-close><?= e(__('nav.boxes')) ?></a></li>
+        <?php if (\App\Vip::enabled()): ?><li><a href="/vip" data-close><?= e(__('nav.vip', [], 'VIP')) ?></a></li><?php endif; ?>
         <li><a href="/eventos" data-close><?= e(__('nav.events')) ?></a></li>
         <?php if (\App\Servers::isMulti()): ?>
             <li><a href="/servidores" data-close><?= e(__('nav.servers') ?: 'Servidores') ?></a></li>

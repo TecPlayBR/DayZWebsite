@@ -46,6 +46,8 @@ class Settings {
         'bonus_enabled'            => 'bool',
         // Config de recompensas do leaderboard (JSON gerenciado em /admin/rewards).
         'leaderboard_rewards'      => 'json',
+        // Config da loja de VIP/Passe paga com moedas (JSON gerenciado em /admin/vip).
+        'vip_store'                => 'json',
         // Restart do servidor: horários (BR) pra mostrar o próximo + blindar o drop.
         'restart_enabled'          => 'bool',
         'restart_times'            => 'string',  // "00:00, 04:00, 08:00, ..."

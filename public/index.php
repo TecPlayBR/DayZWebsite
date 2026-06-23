@@ -68,6 +68,7 @@ require $ROOT . '/src/Achievements.php';
 require $ROOT . '/src/Servers.php';
 require $ROOT . '/src/Boxes.php';
 require $ROOT . '/src/Rewards.php';
+require $ROOT . '/src/Vip.php';
 require $ROOT . '/src/Events.php';
 require $ROOT . '/src/Html.php';
 require $ROOT . '/src/helpers.php';
@@ -648,6 +649,40 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     if (!hash_equals((string)($config['agent_token'] ?? ''), (string)$token)) { http_response_code(401); echo json_encode(['error' => 'unauthorized']); return; }
     $n = \App\Boxes::deliverPending(100);
     echo json_encode(['ok' => true, 'delivered' => $n]);
+});
+
+// ============ VIP / BATTLEPASS (loja paga com moedas) ============
+\App\Router::get('/vip', function() use ($config) {
+    if (!\App\Vip::enabled()) { header('Location: /'); exit; }
+    $serverId  = \App\Servers::defaultId();
+    $steamUser = \App\SteamAuth::user();
+    $coins = 0; $active = [];
+    if ($steamUser) {
+        $coins  = (int)(\App\Database::fetchColumn("SELECT coins FROM players WHERE steam_id = ?", [$steamUser['steam_id']]) ?: 0);
+        $active = \App\Vip::activeForPlayer($serverId, $steamUser['steam_id']);
+    }
+    \App\View::display('pages.vip', [
+        'config' => $config, 'vip' => \App\Vip::config(), 'durations' => \App\Vip::DURATIONS,
+        'steam_user' => $steamUser, 'coins' => $coins, 'active' => $active,
+    ]);
+});
+
+\App\Router::post('/vip/buy', function() use ($config) {
+    if (!\App\SteamAuth::check()) { header('Location: /auth/steam'); exit; }
+    if (!\App\Csrf::check()) { header('Location: /vip?err=csrf'); exit; }
+    if (!\App\Vip::enabled()) { header('Location: /'); exit; }
+    $steamId = \App\SteamAuth::steamId();
+    $rl = \App\RateLimit::check('vip-buy:' . $steamId, 10, 60);
+    if (empty($rl['allowed'])) { header('Location: /vip?err=rate'); exit; }
+    $type = in_array($_POST['type'] ?? '', ['vip', 'battlepass'], true) ? $_POST['type'] : 'vip';
+    $tier = $type === 'vip' ? trim($_POST['tier'] ?? '') : null;
+    $days = (int)($_POST['days'] ?? 0);
+    $user = \App\SteamAuth::user();
+    $nick = $user['display_name'] ?? null;
+    $res  = \App\Vip::purchase(\App\Servers::defaultId(), $steamId, $nick, $type, $tier, $days);
+    if (!$res['ok']) { header('Location: /vip?err=' . urlencode($res['error'])); exit; }
+    header('Location: /vip?ok=' . ($res['extended'] ? 'renewed' : 'bought'));
+    exit;
 });
 
 \App\Router::get('/rules', function() use ($config) {
@@ -3129,6 +3164,46 @@ $BRAND_SLOTS = [
 });
 
 // ============ ADMIN: ENTITLEMENTS (VIP / BattlePass) ============
+// Loja de VIP/Passe por moedas: liga/desliga + tabela de preços (tier x duração).
+\App\Router::get('/admin/vip', function() use ($config) {
+    \App\Auth::requireCan('coupons');
+    \App\View::display('admin.vip', ['config' => $config, 'vip' => \App\Vip::config(), 'durations' => \App\Vip::DURATIONS]);
+});
+
+\App\Router::post('/admin/vip', function() use ($config) {
+    \App\Auth::requireCan('coupons');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
+    $cfg = ['enabled' => !empty($_POST['enabled']), 'tiers' => [], 'battlepass' => []];
+    foreach (\App\Vip::VIP_TIERS as $key) {
+        $prices = [];
+        foreach (\App\Vip::DURATIONS as $d) {
+            $v = (int)($_POST["price_{$key}_{$d}"] ?? 0);
+            if ($v > 0) $prices[(string)$d] = $v;
+        }
+        $cfg['tiers'][$key] = [
+            'enabled' => !empty($_POST["en_{$key}"]),
+            'label'   => mb_substr(trim($_POST["label_{$key}"] ?? ''), 0, 60),
+            'desc'    => mb_substr(trim($_POST["desc_{$key}"] ?? ''), 0, 200),
+            'prices'  => $prices,
+        ];
+    }
+    $bpp = [];
+    foreach (\App\Vip::DURATIONS as $d) {
+        $v = (int)($_POST["price_bp_{$d}"] ?? 0);
+        if ($v > 0) $bpp[(string)$d] = $v;
+    }
+    $cfg['battlepass'] = [
+        'enabled' => !empty($_POST['en_bp']),
+        'label'   => mb_substr(trim($_POST['label_bp'] ?? ''), 0, 60),
+        'desc'    => mb_substr(trim($_POST['desc_bp'] ?? ''), 0, 200),
+        'prices'  => $bpp,
+    ];
+    \App\Settings::set('vip_store', json_encode($cfg, JSON_UNESCAPED_UNICODE));
+    \App\AuditLog::record('vip_store.saved', 'settings', null);
+    header('Location: /admin/vip?ok=1');
+    exit;
+});
+
 \App\Router::get('/admin/entitlements', function() use ($config) {
     \App\Auth::requireCan('coupons');
     $sid = \App\Servers::defaultId();

@@ -265,6 +265,7 @@ CREATE TABLE balance_log (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     player_id      INT NOT NULL,
     steam_id       VARCHAR(20) NOT NULL,
+    delta          INT NOT NULL DEFAULT 0,
     balance_before INT NOT NULL,
     balance_after  INT NOT NULL,
     source         VARCHAR(40) NOT NULL,
