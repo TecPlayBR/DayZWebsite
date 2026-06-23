@@ -5,6 +5,19 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.10.3] — 2026-06-23
+
+> Sem migration. Fix de código no webhook + (no DanoninhoZ) reconciliação de dados.
+
+### 👤 Comprador sem nome virava "Anônimo" no ranking
+- A loja pega o SteamID por **input** (sem login Steam), então quem compra só digitando o ID nascia **sem nome** e aparecia como **"Anônimo"** no ranking de investimento. Agora, ao aprovar o pagamento, o site **busca o nick na Steam** (Web API se houver key, senão XML público) e grava no jogador. (No Dano, fiz o backfill dos nomes que faltavam.)
+
+### 🏆 Ranking de investimento mostrava valor errado
+- O ranking lia um **cache** (`players.total_spent_brl`) que podia ficar defasado (ex: após reset de teste), mostrando menos do que o jogador gastou de verdade. Reconciliado pela soma real das compras aprovadas. (As conquistas já usavam a soma real, então estavam certas.)
+
+### 💬 Conquista "Generoso" não liberava
+- Conquista de avaliação só conta review **com SteamID vinculado**. Uma review antiga sem SteamID não creditava o jogador — corrigido o vínculo no caso reportado.
+
 ## [2.10.2] — 2026-06-23
 
 > Sem migration.

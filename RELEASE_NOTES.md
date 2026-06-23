@@ -1,6 +1,14 @@
-# 🏴 DayZ Website Template — Notas da versão (v2.10.1)
+# 🏴 DayZ Website Template — Notas da versão (v2.10.3)
 
 > **Atualizar é seguro e não apaga nada.** Suba os arquivos e rode `php cli/migrate.php` (idempotente). O log completo fica no **[CHANGELOG.md](CHANGELOG.md)**; aqui vão os destaques.
+
+---
+
+## 🆕 v2.10.3 — Nome do comprador no ranking + valor de investimento correto
+
+- **👤 Comprador "Anônimo":** quem compra digitando o SteamID (sem login) agora tem o **nick buscado na Steam** no pagamento — não cai mais como "Anônimo" no ranking.
+- **🏆 Ranking de investimento** passou a usar a **soma real** das compras (um cache podia ficar defasado e mostrar menos).
+- **💬 Conquista "Generoso"** só conta review com SteamID vinculado (corrigido o caso reportado).
 
 ---
 

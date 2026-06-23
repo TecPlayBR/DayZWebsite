@@ -20,6 +20,7 @@ require $ROOT . '/src/Mailer.php';
 require $ROOT . '/src/DiscordWebhook.php';
 require $ROOT . '/src/Coupon.php';
 require $ROOT . '/src/BalanceLog.php';
+require $ROOT . '/src/SteamAuth.php';
 
 $configFile = $ROOT . '/config/config.php';
 if (!file_exists($configFile)) {
@@ -184,22 +185,35 @@ if ($status === 'approved' && empty($purchase['delivered_at'])) {
     }
 
     $existing = \App\Database::fetchOne(
-        "SELECT id, coins FROM players WHERE steam_id = ? LIMIT 1",
+        "SELECT id, coins, display_name FROM players WHERE steam_id = ? LIMIT 1",
         [$purchase['steam_id']]
     );
     $coinsToAdd = (int)$purchase['coins_total'];
     $price = (float)$purchase['price_brl'];
 
+    // Compra na loja pega o SteamID por INPUT (sem login Steam) → o player nasce SEM
+    // nome e cai como "Anônimo" no ranking. Quando faltar nome, busca na Steam (Web
+    // API se houver key, senão XML público). Best-effort: falhou → segue sem nome.
+    $steamName = function (string $sid) use ($config): ?string {
+        try {
+            $p = \App\SteamAuth::fetchProfile($sid, $config['steam_api_key'] ?? null);
+            $n = trim((string)($p['display_name'] ?? ''));
+            return $n !== '' ? mb_substr($n, 0, 100) : null;
+        } catch (\Throwable $e) { return null; }
+    };
+
     if ($existing) {
         $oldCoins = (int)($existing['coins'] ?? 0);
+        $fetchedName = empty($existing['display_name']) ? $steamName($purchase['steam_id']) : null;
         \App\Database::query(
             "UPDATE players
                 SET coins = coins + ?,
                     total_spent_brl = total_spent_brl + ?,
                     origin = 'payment',
+                    display_name = COALESCE(display_name, ?),
                     last_seen_at = NOW()
               WHERE id = ?",
-            [$coinsToAdd, $price, (int)$existing['id']]
+            [$coinsToAdd, $price, $fetchedName, (int)$existing['id']]
         );
         \App\BalanceLog::record(
             (int)$existing['id'], $purchase['steam_id'],
@@ -209,9 +223,9 @@ if ($status === 'approved' && empty($purchase['delivered_at'])) {
         );
     } else {
         \App\Database::query(
-            "INSERT INTO players (steam_id, coins, total_spent_brl, origin, last_seen_at)
-             VALUES (?, ?, ?, 'payment', NOW())",
-            [$purchase['steam_id'], $coinsToAdd, $price]
+            "INSERT INTO players (steam_id, display_name, coins, total_spent_brl, origin, last_seen_at)
+             VALUES (?, ?, ?, ?, 'payment', NOW())",
+            [$purchase['steam_id'], $steamName($purchase['steam_id']), $coinsToAdd, $price]
         );
         $newId = (int)\App\Database::pdo()->lastInsertId();
         \App\BalanceLog::record(
