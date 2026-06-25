@@ -5,6 +5,14 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.11.0] — 2026-06-25
+
+> Sem migration (config em `settings`). 
+
+### 🏠 Seção "O Que Você Vai Encontrar" agora é editável no painel
+- A vitrine de cards da home (abaixo dos depoimentos) saiu do código fixo e virou **editável em Admin → 🏠 Seção da Home**: título, subtítulo, liga/desliga e **até 8 cards** (emoji + título + texto). Card sem título é ignorado (menos cards = deixar vazio).
+- **Instalação nova não muda:** sem nada salvo, a seção cai nos **4 cards genéricos** do idioma (igual antes). Cada servidor escreve os próprios diferenciais sem mexer em código — e o template não carrega conteúdo de cliente nenhum.
+
 ## [2.10.4] — 2026-06-25
 
 > Sem migration. Integração opcional com Financeiro/matriz central (config-driven).

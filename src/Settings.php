@@ -48,6 +48,8 @@ class Settings {
         'leaderboard_rewards'      => 'json',
         // Config da loja de VIP/Passe paga com moedas (JSON gerenciado em /admin/vip).
         'vip_store'                => 'json',
+        // Seção "O Que Você Vai Encontrar" da home (JSON gerenciado em /admin/home-features).
+        'home_features'            => 'json',
         // Restart do servidor: horários (BR) pra mostrar o próximo + blindar o drop.
         'restart_enabled'          => 'bool',
         'restart_times'            => 'string',  // "00:00, 04:00, 08:00, ..."

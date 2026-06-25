@@ -221,3 +221,47 @@ if (!function_exists('upload_image')) {
         return rtrim($webPrefix, '/') . '/' . $fname;
     }
 }
+
+if (!function_exists('home_features')) {
+    /**
+     * Config da seção "O Que Você Vai Encontrar" da home.
+     * Se o admin editou (setting `home_features` com cards), usa isso. Senão, cai
+     * pros 4 cards genéricos do idioma (template padrão — instalação nova não muda).
+     * Retorna ['enabled'=>bool, 'title'=>str, 'subtitle'=>str, 'cards'=>[['icon','title','text'],...]].
+     */
+    function home_features(): array {
+        $raw = \App\Settings::get('home_features', '');
+        $c = $raw ? json_decode($raw, true) : null;
+        if (is_array($c) && !empty($c['cards']) && is_array($c['cards'])) {
+            $cards = [];
+            foreach ($c['cards'] as $card) {
+                $t = trim((string)($card['title'] ?? ''));
+                if ($t === '') continue;
+                $cards[] = [
+                    'icon'  => trim((string)($card['icon'] ?? '◆')) ?: '◆',
+                    'title' => $t,
+                    'text'  => trim((string)($card['text'] ?? '')),
+                ];
+            }
+            if ($cards) {
+                return [
+                    'enabled'  => !isset($c['enabled']) || !empty($c['enabled']),
+                    'title'    => trim((string)($c['title'] ?? '')) ?: __('features.title'),
+                    'subtitle' => trim((string)($c['subtitle'] ?? '')) ?: __('features.subtitle'),
+                    'cards'    => $cards,
+                ];
+            }
+        }
+        // Fallback: 4 cards genéricos do idioma (comportamento original do template).
+        $icons = ['survival' => '☣', 'economy' => '⛁', 'pvp' => '⚔', 'community' => '✦'];
+        $cards = [];
+        foreach ($icons as $key => $icon) {
+            $cards[] = [
+                'icon'  => $icon,
+                'title' => __('features.items.' . $key . '.title'),
+                'text'  => __('features.items.' . $key . '.text'),
+            ];
+        }
+        return ['enabled' => true, 'title' => __('features.title'), 'subtitle' => __('features.subtitle'), 'cards' => $cards];
+    }
+}

@@ -1,6 +1,12 @@
-# 🏴 DayZ Website Template — Notas da versão (v2.10.4)
+# 🏴 DayZ Website Template — Notas da versão (v2.11.0)
 
 > **Atualizar é seguro e não apaga nada.** Suba os arquivos e rode `php cli/migrate.php` (idempotente). O log completo fica no **[CHANGELOG.md](CHANGELOG.md)**; aqui vão os destaques.
+
+---
+
+## 🆕 v2.11.0 — Seção da home editável no painel
+
+- A seção **"O Que Você Vai Encontrar"** (cards de venda na home) virou **editável em Admin → 🏠 Seção da Home**: título, subtítulo e até 8 cards (emoji + título + texto). Sem nada salvo, mantém os 4 cards genéricos de antes.
 
 ---
 

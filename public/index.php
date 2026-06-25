@@ -2456,6 +2456,41 @@ $REWARD_CATEGORIES = [
     exit;
 });
 
+// Seção "O Que Você Vai Encontrar" da home (cards de venda). Editável; default = genérico.
+\App\Router::get('/admin/home-features', function() use ($config) {
+    \App\Auth::requireCan('pages');
+    \App\View::display('admin.home_features', ['config' => $config, 'hf' => home_features()]);
+});
+
+\App\Router::post('/admin/home-features', function() use ($config) {
+    \App\Auth::requireCan('pages');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
+    $icons = $_POST['card_icon']  ?? [];
+    $titles = $_POST['card_title'] ?? [];
+    $texts = $_POST['card_text']  ?? [];
+    $cards = [];
+    for ($i = 0; $i < count($titles); $i++) {
+        $t = trim((string)($titles[$i] ?? ''));
+        if ($t === '') continue; // card sem título = descartado
+        $cards[] = [
+            'icon'  => mb_substr(trim((string)($icons[$i] ?? '◆')) ?: '◆', 0, 8),
+            'title' => mb_substr($t, 0, 60),
+            'text'  => mb_substr(trim((string)($texts[$i] ?? '')), 0, 240),
+        ];
+        if (count($cards) >= 8) break; // teto sano
+    }
+    $cfg = [
+        'enabled'  => !empty($_POST['enabled']),
+        'title'    => mb_substr(trim((string)($_POST['title'] ?? '')), 0, 80),
+        'subtitle' => mb_substr(trim((string)($_POST['subtitle'] ?? '')), 0, 240),
+        'cards'    => $cards,
+    ];
+    \App\Settings::set('home_features', json_encode($cfg, JSON_UNESCAPED_UNICODE));
+    \App\AuditLog::record('home_features.saved', 'settings', null, ['cards' => count($cards)]);
+    header('Location: /admin/home-features?ok=1');
+    exit;
+});
+
 // Rota pública dinâmica: /{slug} (após todas as rotas específicas, captura qualquer slug válido)
 \App\Router::get('/page/{slug}', function($slug) use ($config) {
     $page = \App\Database::fetchOne(

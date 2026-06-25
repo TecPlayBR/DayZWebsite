@@ -480,34 +480,27 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
 <?php endif; ?>
 
 <!-- ============ FEATURES ============ -->
+<?php $hf = home_features(); ?>
+<?php if ($hf['enabled'] && !empty($hf['cards'])): ?>
 <section class="section section-bg-2" id="features">
     <div class="container">
         <div class="section-header">
-            <h2><?= e(__('features.title')) ?></h2>
-            <p><?= e(__('features.subtitle')) ?></p>
+            <h2><?= e($hf['title']) ?></h2>
+            <?php if (($hf['subtitle'] ?? '') !== ''): ?><p><?= e($hf['subtitle']) ?></p><?php endif; ?>
         </div>
 
         <div class="features-grid">
-            <?php
-            $featureIcons = [
-                'survival'  => '☣',
-                'economy'   => '⛁',
-                'pvp'       => '⚔',
-                'community' => '✦',
-            ];
-            foreach (['survival', 'economy', 'pvp', 'community'] as $key):
-                $item = __('features.items.' . $key . '.title');
-                $text = __('features.items.' . $key . '.text');
-            ?>
+            <?php foreach ($hf['cards'] as $card): ?>
                 <div class="feature">
-                    <div class="feature-icon"><?= $featureIcons[$key] ?></div>
-                    <h3><?= e($item) ?></h3>
-                    <p><?= e($text) ?></p>
+                    <div class="feature-icon"><?= e($card['icon']) ?></div>
+                    <h3><?= e($card['title']) ?></h3>
+                    <?php if (($card['text'] ?? '') !== ''): ?><p><?= e($card['text']) ?></p><?php endif; ?>
                 </div>
             <?php endforeach; ?>
         </div>
     </div>
 </section>
+<?php endif; ?>
 
 <!-- ============ TEASER DE EVENTO (destaque) ============ -->
 <?php if (!empty($featured_event)): $fe = $featured_event; ?>
