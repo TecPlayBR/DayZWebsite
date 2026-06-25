@@ -5,8 +5,8 @@
 <?php
 $field = 'width:100%; padding:0.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone);';
 $cards = $hf['cards'] ?? [];
-// Sempre 8 linhas: preenche com os cards atuais, resto vazio (linha sem título = descartada).
-while (count($cards) < 8) $cards[] = ['icon' => '', 'title' => '', 'text' => ''];
+// Sempre 12 linhas: preenche com os cards atuais, resto vazio (linha sem título = descartada).
+while (count($cards) < 12) $cards[] = ['icon' => '', 'title' => '', 'text' => ''];
 ?>
 
 <div class="admin-page-head">
@@ -40,7 +40,7 @@ while (count($cards) < 8) $cards[] = ['icon' => '', 'title' => '', 'text' => '']
     </div>
 
     <div class="stat-card">
-        <div class="label" style="margin-bottom:0.4rem;">Cards (até 8)</div>
+        <div class="label" style="margin-bottom:0.4rem;">Cards (até 12)</div>
         <p style="color:var(--dim); font-size:0.78rem; margin-bottom:1rem;">Ícone = 1 emoji (ex: 🔫 💣 🏗️ 💰 🏪 📦). Texto curto, focado no benefício pro jogador.</p>
         <?php foreach ($cards as $i => $c): ?>
             <div style="display:grid; grid-template-columns:70px 1fr; gap:0.8rem; margin-bottom:0.9rem; padding-bottom:0.9rem; border-bottom:1px solid var(--border);">

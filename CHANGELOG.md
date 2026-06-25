@@ -5,6 +5,12 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.11.1] — 2026-06-25
+
+> Sem migration.
+
+- Seção da Home: limite de **8 → 12 cards** (servidores com muitas mecânicas cabem todas). Editor mostra 12 linhas.
+
 ## [2.11.0] — 2026-06-25
 
 > Sem migration (config em `settings`). 

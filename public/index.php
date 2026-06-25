@@ -2477,7 +2477,7 @@ $REWARD_CATEGORIES = [
             'title' => mb_substr($t, 0, 60),
             'text'  => mb_substr(trim((string)($texts[$i] ?? '')), 0, 240),
         ];
-        if (count($cards) >= 8) break; // teto sano
+        if (count($cards) >= 12) break; // teto sano
     }
     $cfg = [
         'enabled'  => !empty($_POST['enabled']),
