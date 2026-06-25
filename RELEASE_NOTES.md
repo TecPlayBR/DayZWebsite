@@ -1,6 +1,14 @@
-# 🏴 DayZ Website Template — Notas da versão (v2.11.0)
+# 🏴 DayZ Website Template — Notas da versão (v2.12.0)
 
 > **Atualizar é seguro e não apaga nada.** Suba os arquivos e rode `php cli/migrate.php` (idempotente). O log completo fica no **[CHANGELOG.md](CHANGELOG.md)**; aqui vão os destaques.
+
+---
+
+## 🆕 v2.12.0 — +3 conquistas de gameplay, perfil enxuto e cards alinhados
+
+- **🏅 3 conquistas novas de gameplay** (🎯 Franco-Atirador, ☣ Exterminador, ⏳ Veterano de Chernarus) — premiam o que o jogador faz no jogo, não só compras (15 no total).
+- **👤 Perfil em dropdowns:** históricos (compras, caixas, loja, prêmios, bônus) fecham por padrão — a página não estica. Caixa com item a receber abre sozinha; sem forçar avaliação.
+- **🎁 Cards de caixa alinhados** (botão Abrir ancorado no fundo dos 3).
 
 ---
 

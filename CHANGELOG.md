@@ -5,6 +5,21 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.12.0] — 2026-06-25
+
+> Sem migration.
+
+### 🏅 +3 conquistas de gameplay
+- Novas conquistas baseadas no que o jogador faz **no jogo** (via `player_stats`/CFTools), não só em compras: **🎯 Franco-Atirador** (kill a 150m+), **☣ Exterminador** (500 zumbis), **⏳ Veterano de Chernarus** (100h online). Total agora: 15 conquistas. Degradam limpo se o servidor não tiver CFTools.
+
+### 🎁 Cards de caixa alinhados
+- O footer (custo + botão **Abrir**) agora ancora no **fundo** de todos os cards — a caixa diária (com poucos itens) não fica mais "pra cima" que as outras. Layout uniforme.
+
+### 👤 Perfil do jogador mais enxuto (dropdowns)
+- Os históricos (compras, caixas, loja in-game, premiações do ranking, bônus de conquista) viraram **dropdowns fechados por padrão** — a página não estica mais. Cada um mostra até **25** registros.
+- **Caixas com item a receber abrem sozinhas** e ganham destaque (borda + "⏳ X a receber") — só fica aberto o que precisa de ação.
+- **Sem forçar avaliação:** removida a coluna "Avaliar" e o pop-up no histórico de compras. Quem quiser avaliar usa a página **/depoimentos** (avaliar é espontâneo, não obrigação por ter comprado).
+
 ## [2.11.1] — 2026-06-25
 
 > Sem migration.

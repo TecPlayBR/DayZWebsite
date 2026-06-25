@@ -125,10 +125,25 @@ return array (
       'name' => 'Rapid Fire',
       'description' => '2 or more purchases on the same day',
     ),
-    'anniversary' => 
+    'anniversary' =>
     array (
       'name' => 'War Veteran',
       'description' => 'First purchase 1+ year ago',
+    ),
+    'sharpshooter' =>
+    array (
+      'name' => 'Sharpshooter',
+      'description' => 'A kill from 150m or farther',
+    ),
+    'exterminator' =>
+    array (
+      'name' => 'Exterminator',
+      'description' => '500 infected killed',
+    ),
+    'survivor' =>
+    array (
+      'name' => 'Chernarus Veteran',
+      'description' => '100 hours surviving on the server',
     ),
   ),
   'purchase_status' => 

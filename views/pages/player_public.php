@@ -212,91 +212,48 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
         <!-- ============================================================ -->
         <!-- ===== PRIVADO (só o dono): histórico de compras + caixas ==== -->
         <!-- ============================================================ -->
-        <h2 class="pp-section-title"><?= $icon('coins') ?> <?= e(__('profile.history')) ?></h2>
+        <?php /* Históricos em dropdown FECHADO por padrão (a página não estica). Mostra até 25. */ $cap = 25; ?>
         <?php if (empty($purchases)): ?>
-            <div style="text-align: center; padding: 2.5rem 1rem;">
+            <h2 class="pp-section-title"><?= $icon('coins') ?> <?= e(__('profile.history')) ?></h2>
+            <div style="text-align: center; padding: 2rem 1rem;">
                 <p style="color: var(--dim); margin-bottom: 1.2rem;"><?= e(__('profile.no_purchases')) ?></p>
                 <a href="/shop" class="btn"><?= e(__('nav.shop')) ?> →</a>
             </div>
         <?php else: ?>
-            <table class="purchases-table">
-                <thead>
-                    <tr>
-                        <th>Data</th><th>Pacote</th><th>Moedas</th><th>Valor</th>
-                        <th class="hide-mobile"><?= e(__('profile.payment_method')) ?></th>
-                        <th>Status</th><th>Avaliar</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($purchases as $p):
-                        $canReview = $p['mp_status'] === 'approved' && !empty($p['delivered_at'])
-                                  && strtotime($p['delivered_at']) <= (time() - 7 * 86400)
-                                  && empty($reviewed_ids[(int)$p['id']]);
-                        $alreadyReviewed = !empty($reviewed_ids[(int)$p['id']]);
-                    ?>
-                        <tr>
-                            <td class="dim"><?= e(fmt_dt($p['created_at'])) ?></td>
-                            <td><strong><?= e($p['package_id']) ?></strong></td>
-                            <td class="mono"><?= (int)$p['coins_total'] ?><?php if ((int)$p['coins_bonus'] > 0): ?> <small style="color: var(--moss);">(+<?= (int)$p['coins_bonus'] ?>)</small><?php endif; ?></td>
-                            <td>R$ <?= number_format((float)$p['price_brl'], 2, ',', '.') ?></td>
-                            <td class="hide-mobile dim"><?= e($p['payment_method'] ?? '—') ?></td>
-                            <td>
-                                <?php
-                                $cls = match($p['mp_status']) {
-                                    'approved' => 'badge-success',
-                                    'rejected','cancelled','refunded' => 'badge-danger',
-                                    'pending' => 'badge-warning',
-                                    default => 'badge-info'
-                                };
-                                $statusKey = 'purchase_status.' . ($p['mp_status'] ?? 'unknown');
-                                $statusTr  = __($statusKey);
-                                $label = ($statusTr === $statusKey) ? ($p['mp_status'] ?? '—') : $statusTr;
-                                ?>
-                                <span class="purchase-badge <?= $cls ?>"><?= $label ?></span>
-                            </td>
-                            <td>
-                                <?php if ($alreadyReviewed): ?>
-                                    <span class="dim" style="font-size: 0.8rem;">★ avaliado</span>
-                                <?php elseif ($canReview): ?>
-                                    <button type="button" class="btn-mini" style="padding: 0.3rem 0.7rem; font-size: 0.75rem;"
-                                            onclick="openReviewForm(<?= (int)$p['id'] ?>, '<?= e($p['package_id']) ?>')">Avaliar</button>
-                                <?php else: ?>
-                                    <span class="dim" style="font-size: 0.75rem;">—</span>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-
-            <div id="review-modal" class="review-modal" hidden role="dialog" aria-modal="true" aria-labelledby="review-modal-title">
-                <div class="review-modal-card">
-                    <form method="POST" action="/reviews/submit">
-                        <?= \App\Csrf::field() ?>
-                        <h3 id="review-modal-title" style="font-family: var(--font-display); color: var(--bone); margin-bottom: 0.5rem;"><?= e(__('profile.review_title')) ?></h3>
-                        <p style="color: var(--dim); font-size: 0.85rem; margin-bottom: 1.2rem;"><?= e(__('profile.pack_label')) ?> <strong id="review-pkg-name" style="color: var(--hazard);">—</strong></p>
-                        <input type="hidden" name="purchase_id" id="review-purchase-id" value="">
-                        <input type="hidden" name="rating" id="review-rating-value" value="5">
-                        <div class="review-stars-pick" id="review-stars-pick" aria-label="Nota">
-                            <button type="button" data-r="1">★</button><button type="button" data-r="2">★</button><button type="button" data-r="3">★</button><button type="button" data-r="4">★</button><button type="button" data-r="5" class="active">★</button>
-                        </div>
-                        <textarea name="body" rows="4" maxlength="500" placeholder="<?= e(__('profile.review_ph')) ?>" style="width:100%; padding:0.7rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:inherit; resize:vertical; margin-bottom: 1rem;"></textarea>
-                        <p style="font-size: 0.75rem; color: var(--dim); margin-bottom: 1.2rem;"><?= e(__('profile.moderation_note')) ?></p>
-                        <div style="display: flex; gap: 0.6rem; justify-content: flex-end;">
-                            <button type="button" class="btn-mini outline" onclick="closeReviewForm()">Cancelar</button>
-                            <button type="submit" class="btn-mini"><?= e(__('profile.review_send')) ?></button>
-                        </div>
-                    </form>
+            <details class="pp-acc">
+                <summary><?= $icon('coins') ?> <?= e(__('profile.history')) ?> <span class="pp-acc-count"><?= count($purchases) ?></span></summary>
+                <div class="pp-acc-body">
+                    <table class="purchases-table">
+                        <thead><tr><th>Data</th><th>Pacote</th><th>Moedas</th><th>Valor</th><th class="hide-mobile"><?= e(__('profile.payment_method')) ?></th><th>Status</th></tr></thead>
+                        <tbody>
+                            <?php foreach (array_slice($purchases, 0, $cap) as $p): ?>
+                                <tr>
+                                    <td class="dim"><?= e(fmt_dt($p['created_at'])) ?></td>
+                                    <td><strong><?= e($p['package_id']) ?></strong></td>
+                                    <td class="mono"><?= (int)$p['coins_total'] ?><?php if ((int)$p['coins_bonus'] > 0): ?> <small style="color: var(--moss);">(+<?= (int)$p['coins_bonus'] ?>)</small><?php endif; ?></td>
+                                    <td>R$ <?= number_format((float)$p['price_brl'], 2, ',', '.') ?></td>
+                                    <td class="hide-mobile dim"><?= e($p['payment_method'] ?? '—') ?></td>
+                                    <td>
+                                        <?php
+                                        $cls = match($p['mp_status']) {
+                                            'approved' => 'badge-success',
+                                            'rejected','cancelled','refunded' => 'badge-danger',
+                                            'pending' => 'badge-warning',
+                                            default => 'badge-info'
+                                        };
+                                        $statusKey = 'purchase_status.' . ($p['mp_status'] ?? 'unknown');
+                                        $statusTr  = __($statusKey);
+                                        $label = ($statusTr === $statusKey) ? ($p['mp_status'] ?? '—') : $statusTr;
+                                        ?>
+                                        <span class="purchase-badge <?= $cls ?>"><?= $label ?></span>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                    <?php if (count($purchases) > $cap): ?><p class="pp-acc-more">Mostrando as <?= $cap ?> compras mais recentes.</p><?php endif; ?>
                 </div>
-            </div>
-            <script>
-                function openReviewForm(id, pkg){document.getElementById('review-purchase-id').value=id;document.getElementById('review-pkg-name').textContent=pkg;document.getElementById('review-modal').hidden=false;setRating(5);}
-                function closeReviewForm(){document.getElementById('review-modal').hidden=true;}
-                function setRating(r){document.getElementById('review-rating-value').value=r;document.querySelectorAll('#review-stars-pick button').forEach(b=>{b.classList.toggle('active',parseInt(b.dataset.r)<=r);});}
-                document.querySelectorAll('#review-stars-pick button').forEach(b=>{b.addEventListener('click',()=>setRating(parseInt(b.dataset.r)));});
-                document.getElementById('review-modal')?.addEventListener('click',e=>{if(e.target.id==='review-modal')closeReviewForm();});
-                document.addEventListener('keydown',e=>{const m=document.getElementById('review-modal');if(e.key==='Escape'&&m&&!m.hidden)closeReviewForm();});
-            </script>
+            </details>
         <?php endif; ?>
 
         <?php
@@ -338,13 +295,16 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
         $rarPt = ['common'=>'Comum','uncommon'=>'Incomum','rare'=>'Raro','epic'=>'Épico','legendary'=>'Lendário'];
         $rarColor = ['common'=>'var(--dim)','uncommon'=>'var(--moss)','rare'=>'#4a90d9','epic'=>'#a855f7','legendary'=>'var(--hazard)'];
         if (!empty($box_openings)):
+            $boxPending = 0;
+            foreach ($box_openings as $o) { if (!((($o['status'] ?? '') === 'delivered') || !empty($o['delivered_at']))) $boxPending++; }
         ?>
-        <h2 id="caixas" class="pp-section-title">🎁 Histórico de Caixas</h2>
-        <?php /* O resultado do "Receber" agora aparece no banner do topo (visível na hora). */ ?>
+        <details id="caixas" class="pp-acc<?= $boxPending ? ' pp-acc-pending' : '' ?>"<?= $boxPending ? ' open' : '' ?>>
+            <summary>🎁 Histórico de Caixas <span class="pp-acc-count"><?= $boxPending ? ('⏳ ' . $boxPending . ' a receber') : count($box_openings) ?></span></summary>
+            <div class="pp-acc-body">
         <table class="purchases-table">
             <thead><tr><th>Data</th><th>Item</th><th class="hide-mobile">Raridade</th><th>Qtd</th><th>Status</th></tr></thead>
             <tbody>
-                <?php foreach ($box_openings as $o):
+                <?php foreach (array_slice($box_openings, 0, $cap) as $o):
                     $delivered = (($o['status'] ?? '') === 'delivered') || !empty($o['delivered_at']);
                     $rk = strtolower($o['rarity'] ?? 'common');
                 ?>
@@ -372,14 +332,19 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
             <?php if (!empty($box_claim_enabled)): ?>📥 <strong>Pendente</strong> = clique <strong>Receber</strong> quando estiver <strong>online no servidor</strong>, num lugar seguro. O item cai no chão perto de você.
             <?php else: ?>⏳ <strong>Pendente</strong> = entra automaticamente assim que você estiver <strong>online no servidor</strong> (ou clique <strong>Receber</strong> pra forçar).<?php endif; ?>
         </p>
+        <?php if (count($box_openings) > $cap): ?><p class="pp-acc-more">Mostrando as <?= $cap ?> aberturas mais recentes.</p><?php endif; ?>
+            </div>
+        </details>
         <?php endif; ?>
 
         <?php if (!empty($shop_spends)): ?>
-        <h2 class="pp-section-title">🎮 Loja in-game (/loja)</h2>
+        <details class="pp-acc">
+            <summary>🎮 Loja in-game (/loja) <span class="pp-acc-count"><?= count($shop_spends) ?></span></summary>
+            <div class="pp-acc-body">
         <table class="purchases-table">
             <thead><tr><th>Data</th><th>Item</th><th>Moedas</th><th class="hide-mobile">Saldo após</th></tr></thead>
             <tbody>
-                <?php foreach ($shop_spends as $s): ?>
+                <?php foreach (array_slice($shop_spends, 0, $cap) as $s): ?>
                     <tr>
                         <td class="dim"><?= e(fmt_dt($s['created_at'])) ?></td>
                         <td><strong><?= e(($s['item_icon'] ? $s['item_icon'] . ' ' : '') . ($s['item_name'] ?: $s['sku'])) ?></strong><?php if (!empty($s['item_name']) && $s['item_name'] !== $s['sku']): ?><code class="dim" style="font-size:0.72rem; display:block;"><?= e($s['sku']) ?></code><?php endif; ?></td>
@@ -390,16 +355,21 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
             </tbody>
         </table>
         <p style="color: var(--dim); font-size: 0.8rem; margin-top: 0.6rem;">🎮 Compras feitas pelo comando <strong>/loja</strong> no Discord, entregues direto no seu personagem.</p>
+        <?php if (count($shop_spends) > $cap): ?><p class="pp-acc-more">Mostrando os <?= $cap ?> mais recentes.</p><?php endif; ?>
+            </div>
+        </details>
         <?php endif; ?>
 
         <?php if (!empty($reward_payouts)):
             $rwCat = ['kills'=>'Kills','kills_infected'=>'Zumbis','kdratio'=>'K/D','playtime'=>'Tempo online','longest_kill'=>'Kill mais longa'];
         ?>
-        <h2 class="pp-section-title">🏆 Premiações do ranking</h2>
+        <details class="pp-acc">
+            <summary>🏆 Premiações do ranking <span class="pp-acc-count"><?= count($reward_payouts) ?></span></summary>
+            <div class="pp-acc-body">
         <table class="purchases-table">
             <thead><tr><th>Quando</th><th>Categoria</th><th>Lugar</th><th>Moedas</th></tr></thead>
             <tbody>
-                <?php foreach ($reward_payouts as $rw): ?>
+                <?php foreach (array_slice($reward_payouts, 0, $cap) as $rw): ?>
                     <tr>
                         <td class="dim"><?= e(fmt_dt($rw['created_at'])) ?></td>
                         <td><?= e($rwCat[$rw['category']] ?? $rw['category']) ?></td>
@@ -410,14 +380,19 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
             </tbody>
         </table>
         <p style="color: var(--dim); font-size: 0.8rem; margin-top: 0.6rem;">🏆 Moedas que você ganhou ficando no topo do ranking — caem direto no seu saldo.</p>
+        <?php if (count($reward_payouts) > $cap): ?><p class="pp-acc-more">Mostrando as <?= $cap ?> mais recentes.</p><?php endif; ?>
+            </div>
+        </details>
         <?php endif; ?>
 
         <?php if (!empty($achievement_payouts)): ?>
-        <h2 class="pp-section-title">🏅 Bônus de conquistas</h2>
+        <details class="pp-acc">
+            <summary>🏅 Bônus de conquistas <span class="pp-acc-count"><?= count($achievement_payouts) ?></span></summary>
+            <div class="pp-acc-body">
         <table class="purchases-table">
             <thead><tr><th>Quando</th><th>Conquista</th><th>Moedas</th></tr></thead>
             <tbody>
-                <?php foreach ($achievement_payouts as $ap): ?>
+                <?php foreach (array_slice($achievement_payouts, 0, $cap) as $ap): ?>
                     <tr>
                         <td class="dim"><?= e(fmt_dt($ap['created_at'])) ?></td>
                         <td><?= e($ap['name'] ?? $ap['achievement']) ?></td>
@@ -427,6 +402,9 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
             </tbody>
         </table>
         <p style="color: var(--dim); font-size: 0.8rem; margin-top: 0.6rem;">🏅 Moedas que você ganhou desbloqueando conquistas — creditadas uma vez por conquista.</p>
+        <?php if (count($achievement_payouts) > $cap): ?><p class="pp-acc-more">Mostrando os <?= $cap ?> mais recentes.</p><?php endif; ?>
+            </div>
+        </details>
         <?php endif; ?>
 
         <p style="margin-top: 2rem; color: var(--dim); font-size: 0.85rem;"><?= e(__('profile.support_question')) ?></p>
@@ -454,6 +432,20 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
 .pp-value { color:var(--bone); font-family:var(--font-display); font-size:1.5rem; }
 .pp-section-title { display:flex; align-items:center; gap:.5rem; font-family:var(--font-display); color:var(--bone); font-size:1.2rem; margin:2.5rem 0 1rem; border-bottom:2px solid var(--rust); padding-bottom:.5rem; }
 .pp-section-title svg { color:var(--rust); }
+/* Históricos em dropdown (fechados por padrão) — perfil não estica mais. */
+.pp-acc { border:1px solid var(--border); border-radius:6px; background:var(--bg-1); margin:1rem 0; overflow:hidden; }
+.pp-acc > summary { cursor:pointer; list-style:none; display:flex; align-items:center; gap:.55rem; padding:.95rem 1.1rem; font-family:var(--font-display); color:var(--bone); font-size:1.05rem; letter-spacing:.03em; }
+.pp-acc > summary::-webkit-details-marker { display:none; }
+.pp-acc > summary svg { color:var(--rust); flex:0 0 auto; }
+.pp-acc > summary::after { content:'▾'; margin-left:auto; color:var(--dim); transition:transform .2s; }
+.pp-acc[open] > summary::after { transform:rotate(180deg); }
+.pp-acc > summary:hover { color:var(--hazard); }
+.pp-acc-count { font-family:var(--font-mono); font-size:.78rem; color:var(--dim); font-weight:400; }
+.pp-acc-body { padding:0 1.1rem 1.1rem; }
+.pp-acc-more { color:var(--dim); font-size:.78rem; margin-top:.6rem; text-align:center; opacity:.8; }
+/* caixa com item a receber: borda de alerta + contador destacado (já abre aberta) */
+.pp-acc-pending { border-color:var(--hazard); box-shadow:0 0 0 1px var(--hazard) inset; }
+.pp-acc-pending > summary .pp-acc-count { color:var(--hazard); }
 .pp-weapons { display:flex; flex-direction:column; gap:.5rem; }
 .pp-weapon { display:flex; align-items:center; gap:.8rem; background:var(--bg-1); border:1px solid var(--border); border-left:3px solid var(--rust); padding:.7rem 1rem; }
 .pp-weapon-rank { font-family:var(--font-display); color:var(--hazard); }

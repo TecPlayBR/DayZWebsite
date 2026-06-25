@@ -125,13 +125,28 @@ return array (
       'name' => 'Tiro Rápido',
       'description' => '2 ou mais compras no mesmo dia',
     ),
-    'anniversary' => 
+    'anniversary' =>
     array (
       'name' => 'Veterano de Guerra',
       'description' => 'Primeira compra há 1 ano ou mais',
     ),
+    'sharpshooter' =>
+    array (
+      'name' => 'Franco-Atirador',
+      'description' => 'Uma kill a 150m ou mais de distância',
+    ),
+    'exterminator' =>
+    array (
+      'name' => 'Exterminador',
+      'description' => '500 zumbis abatidos',
+    ),
+    'survivor' =>
+    array (
+      'name' => 'Veterano de Chernarus',
+      'description' => '100 horas sobrevivendo no servidor',
+    ),
   ),
-  'purchase_status' => 
+  'purchase_status' =>
   array (
     'approved' => '✓ Entregue',
     'pending' => '⏳ Aguardando',

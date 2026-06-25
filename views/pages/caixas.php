@@ -157,7 +157,7 @@ $rarityLabel = [
 @keyframes caixa-glow { 0%,100%{opacity:0.55; transform:scale(0.95)} 50%{opacity:1; transform:scale(1.05)} }
 @media (prefers-reduced-motion: reduce) { .caixa-img img, .caixa-img-ph, .caixa-img::before { animation:none; } }
 .caixa-name { font-family:var(--font-display); color:var(--bone); font-size:1.05rem; letter-spacing:0.04em; margin-bottom:0.3rem; }
-.caixa-desc { font-size:0.8rem; color:var(--dim); margin-bottom:0.6rem; flex:1; }
+.caixa-desc { font-size:0.8rem; color:var(--dim); margin-bottom:0.6rem; }
 .caixas-crosssell { text-align:center; margin:0 0 1.6rem; color:var(--dim); font-size:0.9rem; }
 .caixas-crosssell a { color:var(--hazard); font-weight:600; text-decoration:none; }
 .caixas-crosssell a:hover { text-decoration:underline; }
@@ -186,8 +186,10 @@ $rarityLabel = [
 .ci-rar { flex:0 0 auto; font-size:0.58rem; font-family:var(--font-mono); text-transform:uppercase; letter-spacing:0.05em; color:var(--rc); border:1px solid var(--rc); border-radius:3px; padding:0.04rem 0.34rem; opacity:0.9; }
 .ci-bar { flex:1 1 auto; height:4px; background:var(--bg-0); border-radius:3px; overflow:hidden; }
 .ci-bar > span { display:block; height:100%; background:var(--rc); border-radius:3px; box-shadow:0 0 6px var(--rc); }
-.caixa-cost { color:var(--hazard); font-family:var(--font-mono); margin:0.5rem 0 0.9rem; }
-.caixa-open { width:100%; margin-top:auto; }
+/* Footer (custo + botão) ancorado no FUNDO do card → os 3 cards alinham o botão,
+   independente de quantos itens a lista tem (o daily não sobe mais). */
+.caixa-cost { color:var(--hazard); font-family:var(--font-mono); margin:auto 0 0.9rem; }
+.caixa-open { width:100%; }
 .caixa-open:disabled { opacity:0.5; cursor:not-allowed; }
 
 .box-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.92); z-index:9999; display:flex; align-items:center; justify-content:center; }

@@ -25,6 +25,10 @@ class Achievements {
             'generous'    => '💬',
             'rapid_fire'  => '⚡',
             'anniversary' => '🎂',
+            // Conquistas de GAMEPLAY (derivadas do player_stats — CFTools/bot).
+            'sharpshooter'=> '🎯',
+            'exterminator'=> '☣',
+            'survivor'    => '⏳',
         ];
         $out = [];
         foreach ($slugs as $slug => $icon) {
@@ -87,6 +91,20 @@ class Achievements {
         if (!empty($stats['first_purchase_at']) && strtotime($stats['first_purchase_at']) <= strtotime('-1 year')) {
             $unlocked['anniversary'] = true;
         }
+
+        // Conquistas de GAMEPLAY (player_stats vem do CFTools/bot; degrada limpo se ausente).
+        try {
+            $gs = Database::fetchOne(
+                "SELECT kills, kills_infected, playtime_seconds, longest_kill_m FROM player_stats WHERE steam_id = ? LIMIT 1",
+                [$steamId]
+            );
+            if ($gs) {
+                if ((float)($gs['longest_kill_m']  ?? 0) >= 150)    $unlocked['sharpshooter'] = true;
+                if ((int)  ($gs['kills_infected']  ?? 0) >= 500)    $unlocked['exterminator'] = true;
+                if ((int)  ($gs['playtime_seconds']?? 0) >= 360000) $unlocked['survivor']     = true; // 100h
+            }
+        } catch (\Throwable $e) { /* sem player_stats (install antigo) — ignora */ }
+
         return $unlocked;
     }
 
