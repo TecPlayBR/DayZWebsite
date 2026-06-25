@@ -298,4 +298,29 @@ if ($status === 'approved' && empty($purchase['delivered_at'])) {
     }
 }
 
+// ============ Forward pra matriz/Financeiro (opcional, config-driven) ============
+// Alguns operadores rodam um Financeiro central (ex: Tecplay) que precisa saber das
+// vendas. O MP só chama 1 URL (a nossa), então ENCAMINHAMOS a notificação pra matriz
+// DEPOIS de entregar a moeda. Fire-and-forget: se a matriz cair, NÃO afeta a loja.
+// Só dispara se configurado em config.php (template padrão NÃO encaminha pra ninguém):
+//   'matriz' => ['forward_url' => 'https://.../mercadopago-webhook', 'server_slug' => 'meu-servidor']
+$matrizUrl  = trim($config['matriz']['forward_url'] ?? '');
+$matrizSlug = trim($config['matriz']['server_slug'] ?? '');
+if ($matrizUrl !== '') {
+    $fwd = $matrizUrl . (str_contains($matrizUrl, '?') ? '&' : '?') . 'server=' . urlencode($matrizSlug);
+    try {
+        $ch = curl_init($fwd);
+        curl_setopt_array($ch, [
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => $raw,   // o corpo cru que o MP mandou (a matriz re-busca o pagamento)
+            CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 4,
+            CURLOPT_NOSIGNAL       => 1,
+        ]);
+        @curl_exec($ch);   // ignora resposta de propósito (best-effort)
+        curl_close($ch);
+    } catch (\Throwable $e) { /* silencioso — nunca quebra a loja */ }
+}
+
 die(json_encode(['ok' => true, 'status' => $status, 'delivered' => $status === 'approved']));

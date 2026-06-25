@@ -5,6 +5,15 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.10.4] — 2026-06-25
+
+> Sem migration. Integração opcional com Financeiro/matriz central (config-driven).
+
+### 🔁 Encaminhar vendas pra um Financeiro central (opcional)
+- O Mercado Pago só notifica **uma** URL (a da loja). Quem roda um **painel financeiro central** que também precisa saber das vendas agora pode configurar o webhook pra **encaminhar** a notificação pra lá **depois de entregar a moeda** — **fire-and-forget** (timeout curto, erro ignorado: se o Financeiro cair, a loja **não** para de entregar).
+- **Config-driven** (`config.php` → `matriz.forward_url` + `matriz.server_slug`); **vazio = não encaminha pra ninguém** (padrão do template — nada vaza pra terceiros).
+- A criação do pagamento agora manda **descrição clara** (`"{site} — {pacote} ({N} moedas)"`) e **`metadata.server_slug` + `metadata.kind="loja"`** — resolve vendas que chegavam sem descrição e atribui ao servidor certo no painel central.
+
 ## [2.10.3] — 2026-06-23
 
 > Sem migration. Fix de código no webhook + (no DanoninhoZ) reconciliação de dados.

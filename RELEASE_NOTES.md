@@ -1,6 +1,13 @@
-# 🏴 DayZ Website Template — Notas da versão (v2.10.3)
+# 🏴 DayZ Website Template — Notas da versão (v2.10.4)
 
 > **Atualizar é seguro e não apaga nada.** Suba os arquivos e rode `php cli/migrate.php` (idempotente). O log completo fica no **[CHANGELOG.md](CHANGELOG.md)**; aqui vão os destaques.
+
+---
+
+## 🆕 v2.10.4 — Encaminhar vendas pra um Financeiro central (opcional)
+
+- Quem roda um **painel financeiro central** pode configurar o webhook pra **encaminhar** cada venda pra lá **depois de entregar a moeda** (fire-and-forget — se o central cair, a loja não para). Config em `config.php` (`matriz.forward_url` + `server_slug`); **vazio = não encaminha** (padrão).
+- Pagamentos agora vão com **descrição clara** e **`metadata.server_slug`/`kind`** pra atribuição correta.
 
 ---
 

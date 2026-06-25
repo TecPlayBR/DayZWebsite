@@ -109,4 +109,14 @@ return [
         'endpoint' => '',  // ex: http://127.0.0.1:8765 (deixe vazio pra desativar)
         'token'    => '',  // mesmo WEBHOOK_TOKEN do bot
     ],
+
+    // OPCIONAL — encaminhar as vendas pra um Financeiro/matriz central.
+    // O Mercado Pago só chama 1 URL (a nossa); se você roda um painel financeiro
+    // central que também precisa saber das vendas, o webhook ENCAMINHA a notificação
+    // pra essa URL DEPOIS de entregar a moeda (fire-and-forget — se cair, não afeta a
+    // loja). Deixe 'forward_url' vazio pra NÃO encaminhar pra ninguém (padrão).
+    'matriz' => [
+        'forward_url' => '',          // ex: https://.../mercadopago-webhook  (vazio = desativado)
+        'server_slug' => '',          // identifica este servidor no painel central (?server= + metadata.server_slug)
+    ],
 ];

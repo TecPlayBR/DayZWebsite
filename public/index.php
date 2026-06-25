@@ -943,13 +943,15 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     // QR copia-e-cola gerado aqui; o jogador paga sem deixar a página. O mp-webhook.php
     // credita os coins na aprovação. Cartão/boleto ficam no fallback /shop/card/{id}.
     $expires = gmdate("Y-m-d\\TH:i:s.000P", time() + 1800); // QR válido ~30 min
+    $siteName = $config['settings']['site_name'] ?? ($config['site_name'] ?? 'Loja');
     $pay = $mp->createPixPayment([
         'transaction_amount' => round($priceBrl, 2),
-        'description'        => $pkg['name'] . ' — ' . $coinsTotal . ' moedas',
+        'description'        => $siteName . ' — ' . $pkg['name'] . ' (' . $coinsTotal . ' moedas)',
         'external_reference' => (string)$purchaseId,
         'notification_url'   => $siteUrl . '/api/mp-webhook.php',
         'date_of_expiration' => $expires,
         'payer'              => ['email' => $steamId . '@pix.tecplay.inf.br'],
+        'metadata'           => ['server_slug' => trim($config['matriz']['server_slug'] ?? ''), 'kind' => 'loja'],
     ]);
     $tx = $pay['point_of_interaction']['transaction_data'] ?? null;
     if (!$pay || !$tx || empty($tx['qr_code'])) {
@@ -1033,6 +1035,7 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
         'auto_return'    => 'approved',
         'notification_url' => $siteUrl . '/api/mp-webhook.php',
         'statement_descriptor' => $config['settings']['site_name'] ?? $config['site_name'] ?? 'DAYZ',
+        'metadata' => ['server_slug' => trim($config['matriz']['server_slug'] ?? ''), 'kind' => 'loja'],
     ]);
     if (!$pref || empty($pref['init_point'])) {
         \App\View::display('pages.checkout_error', ['config' => $config, 'msg' => 'Não foi possível criar o pagamento. Tente novamente em alguns minutos.']);
@@ -1074,15 +1077,18 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     if (!$mp->isConfigured()) { http_response_code(503); echo json_encode(['ok' => false, 'error' => 'Pagamento indisponível no momento.']); return; }
     $siteUrl = rtrim($config['site_url'] ?? ('https://' . $_SERVER['HTTP_HOST']), '/');
 
+    $cardPkg = \App\Database::fetchOne("SELECT name FROM packages WHERE id = ? LIMIT 1", [$p['package_id']]);
+    $cardSite = $config['settings']['site_name'] ?? ($config['site_name'] ?? 'Loja');
     $payload = [
         'transaction_amount' => round((float)$p['price_brl'], 2),
         'token'              => $token,
-        'description'        => 'Compra #' . $p['id'] . ' — ' . (int)$p['coins_total'] . ' moedas',
+        'description'        => $cardSite . ' — ' . ($cardPkg['name'] ?? 'Moedas') . ' (' . (int)$p['coins_total'] . ' moedas)',
         'installments'       => $installments,
         'payment_method_id'  => $pmId,
         'external_reference' => (string)$p['id'],
         'notification_url'   => $siteUrl . '/api/mp-webhook.php',
         'payer'              => ['email' => $email],
+        'metadata'           => ['server_slug' => trim($config['matriz']['server_slug'] ?? ''), 'kind' => 'loja'],
     ];
     if ($issuerId !== '')  $payload['issuer_id'] = $issuerId;
     if ($docNumber !== '') $payload['payer']['identification'] = ['type' => $docType, 'number' => $docNumber];
