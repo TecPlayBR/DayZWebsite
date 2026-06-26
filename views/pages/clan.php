@@ -1,5 +1,5 @@
 <?php /** @var array $config, $clan, $members; @var bool $is_owner; @var ?array $my_clan, $my_request, $steam_user; @var array $pending, $sent_invites */ ?>
-<?php $sent_invites = $sent_invites ?? []; ?>
+<?php $sent_invites = $sent_invites ?? []; $my_invite = $my_invite ?? false; ?>
 <?php \App\View::with('title', '[' . $clan['tag'] . '] ' . $clan['name'] . ' — Clã'); ?>
 <?php \App\View::extend('layouts.main'); ?>
 <?php \App\View::with('hero_image', 'img/background2.png'); ?>
@@ -12,6 +12,7 @@ $requestedThis = $my_request && (int)$my_request['clan_id'] === (int)$clan['id']
 $full = (int)$clan['member_count'] >= (int)$clan['member_cap'];
 $okMsg = match($_GET['ok'] ?? '') {
     'requested'=>'Pedido enviado! O dono do clã vai avaliar.', 'invited'=>'Convite enviado.',
+    'joined'=>'🎉 Você entrou no clã! Bem-vindo.',
     'accepted'=>'Membro aceito.', 'rejected'=>'Pedido recusado.', 'kicked'=>'Membro removido.', 'saved'=>'Clã atualizado.',
     'transferred'=>'Pronto! Você passou o comando do clã pra outro membro — agora você é membro comum.',
     'invite_cancelled'=>'Convite revogado.',
@@ -56,6 +57,20 @@ $errMsg = ($_GET['err'] ?? '') !== '' ? \App\Clan::errorMessage($_GET['err']) : 
                 </form>
             <?php elseif ($inOtherClan): ?>
                 <p style="color:var(--dim);">Você já faz parte de <a href="/clan/<?= (int)$my_clan['id'] ?>" style="color:var(--hazard);">[<?= e($my_clan['tag']) ?>] <?= e($my_clan['name']) ?></a>. Saia de lá antes de entrar em outro.</p>
+            <?php elseif ($my_invite): ?>
+                <div style="background:rgba(212,160,23,0.10);border:1px solid var(--hazard);border-radius:6px;padding:1rem 1.1rem;">
+                    <p style="color:var(--bone);margin:0 0 .7rem;">📨 Você foi <strong>convidado</strong> pra entrar nesse clã. Aceita?</p>
+                    <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+                        <form method="POST" action="/clan-invite/accept" style="margin:0;">
+                            <?= \App\Csrf::field() ?><input type="hidden" name="clan_id" value="<?= (int)$clan['id'] ?>">
+                            <button class="btn">Aceitar convite</button>
+                        </form>
+                        <form method="POST" action="/clan-invite/reject" style="margin:0;" onsubmit="return confirm('Recusar o convite do clã [<?= e($clan['tag']) ?>]?');">
+                            <?= \App\Csrf::field() ?><input type="hidden" name="clan_id" value="<?= (int)$clan['id'] ?>">
+                            <button class="btn-mini outline">Recusar</button>
+                        </form>
+                    </div>
+                </div>
             <?php elseif ($requestedThis): ?>
                 <p style="color:var(--hazard);">⏳ Seu pedido pra entrar está pendente — aguarde o dono aceitar.</p>
             <?php elseif (!$is_owner): ?>
@@ -115,7 +130,7 @@ $errMsg = ($_GET['err'] ?? '') !== '' ? \App\Clan::errorMessage($_GET['err']) : 
                 <h3 class="clan-h3">Convidar por SteamID</h3>
                 <form method="POST" action="/clans/<?= (int)$clan['id'] ?>/invite" style="display:flex;gap:.5rem;flex-wrap:wrap;">
                     <?= \App\Csrf::field() ?>
-                    <input type="text" name="steam_id" required pattern="7656119[0-9]{10}" placeholder="7656119..." style="flex:1;min-width:200px;padding:.6rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);font-family:var(--font-mono);">
+                    <input type="text" name="steam_id" required pattern="7656119[0-9]{10}" placeholder="7656119..." class="field mono grow">
                     <button class="btn-mini">Convidar</button>
                 </form>
                 <p style="color:var(--dim);font-size:.76rem;margin:.4rem 0 0;">O convidado precisa <strong>aceitar</strong> no perfil dele.</p>
@@ -137,8 +152,8 @@ $errMsg = ($_GET['err'] ?? '') !== '' ? \App\Clan::errorMessage($_GET['err']) : 
                 <h3 class="clan-h3">Editar clã</h3>
                 <form method="POST" action="/clans/<?= (int)$clan['id'] ?>/edit" enctype="multipart/form-data" style="display:flex;flex-direction:column;gap:.7rem;">
                     <?= \App\Csrf::field() ?>
-                    <textarea name="description" rows="3" maxlength="500" placeholder="Descrição do clã" style="padding:.6rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);resize:vertical;"><?= e($clan['description'] ?? '') ?></textarea>
-                    <input type="url" name="discord_url" value="<?= e($clan['discord_url'] ?? '') ?>" placeholder="https://discord.gg/... (do clã)" style="padding:.6rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);">
+                    <textarea name="description" rows="3" maxlength="500" placeholder="Descrição do clã" class="field"><?= e($clan['description'] ?? '') ?></textarea>
+                    <input type="url" name="discord_url" value="<?= e($clan['discord_url'] ?? '') ?>" placeholder="https://discord.gg/... (do clã)" class="field">
                     <label style="font-size:.8rem;color:var(--dim);">Trocar logo (opcional): <input type="file" name="logo_file" accept="image/png,image/webp,image/jpeg" style="color:var(--bone);"></label>
                     <button class="btn-mini" style="align-self:flex-start;">Salvar</button>
                 </form>
@@ -149,7 +164,7 @@ $errMsg = ($_GET['err'] ?? '') !== '' ? \App\Clan::errorMessage($_GET['err']) : 
                 <h3 class="clan-h3">Passar liderança</h3>
                 <form method="POST" action="/clans/<?= (int)$clan['id'] ?>/transfer" onsubmit="return confirm('Passar a liderança do clã pra esse membro? Você vira membro comum e não dá pra desfazer sozinho.');" style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;">
                     <?= \App\Csrf::field() ?>
-                    <select name="steam_id" required style="flex:1;min-width:200px;padding:.6rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);">
+                    <select name="steam_id" required class="field grow">
                         <option value="">Escolha um membro…</option>
                         <?php foreach ($others as $o): ?>
                             <option value="<?= e($o['steam_id']) ?>"><?= e($o['display_name'] ?: $o['steam_id']) ?></option>

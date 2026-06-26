@@ -62,7 +62,7 @@ VALUES ('rules', 'Regras do Servidor', 'Server Rules', '<h2>Regras do Servidor</
 <li>Bases sem bandeira → raidáveis a qualquer momento. Bandeira baixa não conta como sem bandeira.</li>
 <li>Anti-logout: você não pode deslogar instantaneamente em combate. O sistema pune automaticamente.</li>
 <li>Alianças entre clãs são permitidas. Forme a sua.</li>
-<li>A staff <strong>não interfere</strong> em guerras de clã. Estamos aqui para suportar, não para jogar por você.</li>
+<li>A staff <strong>não interfere</strong> em guerras de clã. Estamos aqui para dar suporte, não para jogar por você.</li>
 </ul>
 
 <h3>5. Anti-Cheat e Limites Técnicos</h3>

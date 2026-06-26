@@ -5,6 +5,19 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.14.2] — 2026-06-26
+
+> Sem migration.
+
+### 🐛 Furo no convite de clã (corrigido)
+- **Jogador convidado via "página do clã":** quem recebia convite, ao abrir a página do clã, via o botão **"Pedir pra entrar"** (errado) em vez do aceite. Ao clicar, batia na constraint única e dava erro confuso ("Você já mandou um pedido"). Agora a página do clã detecta o convite pendente e mostra **"📨 Você foi convidado — Aceitar / Recusar"** ali mesmo (antes o aceite só aparecia no perfil). Aceitar dá feedback "🎉 Você entrou no clã!".
+
+### 🎨 Pente-fino de UI (elementos "legados" → padrão do site)
+- **Campo de formulário padrão (`.field`):** criada classe reutilizável no tema (fundo escuro, borda sutil, foco dourado). Substitui estilos inline soltos que davam cara antiga aos campos. Aplicada nos formulários de **clã** (convidar/editar/passar liderança) e de **apoiar streamer** no perfil.
+- **Checkboxes/radio modernizados:** o accent dourado agora vale em **todo o painel admin** (antes só nos forms dentro de `.admin-form` — os demais apareciam com a caixinha azul padrão do navegador) e há accent global no site público.
+- **Texto:** correção em Regras — "Estamos aqui para *suportar*" → "Estamos aqui para **dar suporte**".
+- **Exemplo genérico:** placeholder do código de streamer trocado pra `MEUSTREAMER` (não usar nome real em exemplo).
+
 ## [2.14.1] — 2026-06-26
 
 > Sem migration.

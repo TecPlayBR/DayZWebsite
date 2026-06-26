@@ -300,7 +300,7 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
                 <?php if (!empty($affiliate_allow_switch)): ?>
                     <form method="POST" action="/apoiar-streamer" style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
                         <?= \App\Csrf::field() ?>
-                        <input type="text" name="affiliate_code" placeholder="Trocar pra outro código" required style="flex:1; min-width:200px; padding:0.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); text-transform:uppercase; font-family:var(--font-mono);">
+                        <input type="text" name="affiliate_code" placeholder="Trocar pra outro código" required class="field mono upper grow">
                         <button type="submit" class="btn btn-sm">Trocar</button>
                     </form>
                 <?php endif; ?>
@@ -308,7 +308,7 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
                 <p style="color: var(--dim); font-size: 0.9rem; margin: 0 0 0.8rem;">Tem um streamer favorito? Digite o código dele pra apoiar — suas compras ajudam ele direto. <strong>Escolha uma vez só.</strong></p>
                 <form method="POST" action="/apoiar-streamer" style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
                     <?= \App\Csrf::field() ?>
-                    <input type="text" name="affiliate_code" placeholder="Código do streamer (ex: FLAINHO)" required style="flex:1; min-width:200px; padding:0.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); text-transform:uppercase; font-family:var(--font-mono);">
+                    <input type="text" name="affiliate_code" placeholder="Código do streamer (ex: MEUSTREAMER)" required class="field mono upper grow">
                     <button type="submit" class="btn btn-sm">Apoiar</button>
                 </form>
             <?php endif; ?>

@@ -1049,3 +1049,32 @@ body:has(.site-header.scrolled) .announcements-strip {
 /* TAG do clã clicável antes do nick (ex: [RVH] Bryan) — pelo site todo. */
 .clan-tag { color: var(--hazard); text-decoration: none; font-family: var(--font-mono); font-weight: 700; }
 .clan-tag:hover { text-decoration: underline; }
+
+/* ── Controle de formulário padrão ─────────────────────────────────────────
+   Campo reutilizável pra inputs/selects/textarea das páginas públicas, no
+   lugar de estilos inline soltos (que ficavam com cara "legada"). Casa com o
+   resto do site: fundo escuro, borda sutil, foco dourado. */
+.field {
+    background: var(--bg-0);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    color: var(--bone);
+    padding: 0.6rem 0.7rem;
+    font-family: inherit;
+    font-size: 0.9rem;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+.field:focus {
+    outline: none;
+    border-color: var(--hazard);
+    box-shadow: 0 0 0 2px var(--hazard-overlay);
+}
+.field::placeholder { color: var(--dim); }
+select.field   { cursor: pointer; }
+textarea.field { resize: vertical; min-height: 80px; }
+.field.mono    { font-family: var(--font-mono); }
+.field.upper   { text-transform: uppercase; }
+.field.grow    { flex: 1; min-width: 200px; }
+
+/* Checkbox / radio modernos em todo o site (controla a cor nativa). */
+input[type=checkbox], input[type=radio] { accent-color: var(--hazard); }

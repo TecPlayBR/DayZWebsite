@@ -127,6 +127,14 @@ class Clan {
         );
     }
 
+    /** O jogador tem convite pendente PRA ESTE clã? (mostra Aceitar/Recusar na página do clã). */
+    public static function hasInvite(int $clanId, string $steamId): bool {
+        return (bool) Database::fetchOne(
+            "SELECT 1 FROM clan_requests WHERE clan_id = ? AND steam_id = ? AND kind = 'invite' LIMIT 1",
+            [$clanId, $steamId]
+        );
+    }
+
     /** Pedido de entrada que o jogador já mandou (pra mostrar "pendente"). */
     public static function outgoingRequest(string $steamId): ?array {
         return Database::fetchOne(

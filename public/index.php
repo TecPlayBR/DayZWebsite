@@ -722,6 +722,7 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
         'config' => $config, 'clan' => $clan, 'members' => \App\Clan::members((int)$id),
         'is_owner' => $isOwner, 'my_clan' => $sid ? \App\Clan::forPlayer($sid) : null,
         'my_request' => $sid ? \App\Clan::outgoingRequest($sid) : null,
+        'my_invite' => $sid ? \App\Clan::hasInvite((int)$id, $sid) : false,
         'pending' => $isOwner ? \App\Clan::pendingRequests((int)$id) : [],
         'sent_invites' => $isOwner ? \App\Clan::sentInvites((int)$id) : [],
         'steam_user' => \App\SteamAuth::user(),
@@ -806,8 +807,8 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     if (!\App\SteamAuth::check()) { header('Location: /auth/steam'); exit; }
     if (!\App\Csrf::check()) { header('Location: /player/' . \App\SteamAuth::steamId()); exit; }
     $cid = (int)($_POST['clan_id'] ?? 0);
-    \App\Clan::accept($cid, \App\SteamAuth::steamId());
-    header('Location: /clan/' . $cid); exit;
+    $err = \App\Clan::accept($cid, \App\SteamAuth::steamId());
+    header('Location: /clan/' . $cid . ($err ? '?err=' . urlencode($err) : '?ok=joined')); exit;
 });
 \App\Router::post('/clan-invite/reject', function() use ($config) {
     if (!\App\SteamAuth::check()) { header('Location: /auth/steam'); exit; }
