@@ -5,6 +5,14 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.14.5] — 2026-06-26
+
+> Sem migration.
+
+### 🔎 SEO — sitemap + dado estruturado
+- **Sitemap.xml** agora inclui **/ajuda + cada artigo da Central de Ajuda** (com lastmod) e **/clans + cada página de clã ativo**. Antes esse conteúdo novo ficava invisível pro Google. (Queries protegidas com try/catch — instalação sem as tabelas novas não quebra o sitemap.)
+- **JSON-LD `Article`** nos artigos de Ajuda (Google entende como guia/tutorial: headline, seção, imagem, data de atualização, autor/publisher) + `og:type=article` no compartilhamento.
+
 ## [2.14.4] — 2026-06-26
 
 > Sem migration.

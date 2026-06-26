@@ -2,6 +2,25 @@
 <?php $hsite = $config['settings']['site_name'] ?? $config['site_name'] ?? 'Servidor'; ?>
 <?php \App\View::with('title', $a['title'] . ' — Ajuda ' . $hsite); ?>
 <?php \App\View::with('description', $a['summary'] ?: ('Guia: ' . $a['title'] . ' no ' . $hsite . ' DayZ.')); ?>
+<?php
+// SEO: dado estruturado Article (Google entende como guia/tutorial).
+$_hbase = rtrim($config['site_url'] ?? '', '/');
+$_hImg  = !empty($a['image']) ? (preg_match('#^https?://#', $a['image']) ? $a['image'] : $_hbase . $a['image']) : null;
+\App\View::with('og_type', 'article');
+\App\View::with('jsonld', array_filter([
+    '@context'         => 'https://schema.org',
+    '@type'            => 'Article',
+    'headline'         => $a['title'],
+    'description'      => $a['summary'] ?: ('Guia: ' . $a['title']),
+    'inLanguage'       => 'pt-BR',
+    'articleSection'   => \App\Help::catLabel($a['category']),
+    'image'            => $_hImg,
+    'dateModified'     => !empty($a['updated_at']) ? date('c', strtotime($a['updated_at'])) : null,
+    'mainEntityOfPage' => $_hbase ? ($_hbase . '/ajuda/' . $a['slug']) : null,
+    'author'           => ['@type' => 'Organization', 'name' => $hsite],
+    'publisher'        => ['@type' => 'Organization', 'name' => $hsite],
+]));
+?>
 <?php \App\View::extend('layouts.main'); ?>
 <?php \App\View::with('hero_image', 'img/background2.png'); ?>
 <?php \App\View::section('content'); ?>

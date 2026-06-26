@@ -279,11 +279,25 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
         ['/galeria',      '0.7', 'weekly'],
         ['/depoimentos',  '0.6', 'weekly'],
         ['/ranking',      '0.6', 'daily'],
+        ['/ajuda',        '0.7', 'weekly'],
+        ['/clans',        '0.6', 'weekly'],
         ['/rules',        '0.5', 'monthly'],
     ];
     if (\App\Servers::isMulti()) {
         $urls[] = ['/servidores', '0.7', 'weekly'];
     }
+    // Artigos da Central de Ajuda (conteúdo de alto valor SEO: guias/tutoriais).
+    try {
+        foreach (\App\Database::fetchAll("SELECT slug, updated_at FROM help_articles WHERE published = 1") as $a) {
+            $urls[] = ['/ajuda/' . $a['slug'], '0.6', 'monthly', $a['updated_at']];
+        }
+    } catch (\Throwable $e) {}
+    // Páginas de clã ativas (cada clã é uma página indexável).
+    try {
+        foreach (\App\Database::fetchAll("SELECT id, updated_at FROM clans WHERE status = 'active'") as $c) {
+            $urls[] = ['/clan/' . $c['id'], '0.4', 'weekly', $c['updated_at']];
+        }
+    } catch (\Throwable $e) {}
     // Páginas dinâmicas publicadas. Pula 'rules' (já listado acima como /rules) pra
     // não duplicar conteúdo (/rules vs /page/rules) — o Google penaliza duplicata.
     foreach (\App\Database::fetchAll("SELECT slug, updated_at FROM pages WHERE published = 1") as $p) {
