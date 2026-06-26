@@ -218,6 +218,26 @@ class Clan {
         return null;
     }
 
+    /** Dono passa a liderança pra outro MEMBRO do clã. O antigo dono vira membro. */
+    public static function transferOwnership(int $clanId, string $actorSteamId, string $targetSteamId): ?string {
+        if (!self::isOwner($clanId, $actorSteamId)) return 'not_owner';
+        if ($actorSteamId === $targetSteamId) return 'cant_self';
+        $isMember = Database::fetchColumn("SELECT 1 FROM clan_members WHERE clan_id = ? AND steam_id = ? LIMIT 1", [$clanId, $targetSteamId]);
+        if (!$isMember) return 'not_member';
+        $pdo = Database::pdo();
+        try {
+            $pdo->beginTransaction();
+            $pdo->prepare("UPDATE clan_members SET role = 'member' WHERE clan_id = ? AND steam_id = ?")->execute([$clanId, $actorSteamId]);
+            $pdo->prepare("UPDATE clan_members SET role = 'owner' WHERE clan_id = ? AND steam_id = ?")->execute([$clanId, $targetSteamId]);
+            $pdo->prepare("UPDATE clans SET owner_steam_id = ? WHERE id = ?")->execute([$targetSteamId, $clanId]);
+            $pdo->commit();
+            return null;
+        } catch (\Throwable $e) {
+            if ($pdo->inTransaction()) $pdo->rollBack();
+            throw $e;
+        }
+    }
+
     /** Dissolve o clã (dono ou admin): remove membros, pedidos e o clã. */
     public static function disband(int $clanId): void {
         Database::query("DELETE FROM clan_members WHERE clan_id = ?", [$clanId]);
@@ -249,7 +269,9 @@ class Clan {
             'already'            => 'Esse jogador já tem convite/pedido pendente.',
             'not_owner'          => 'Só o dono do clã pode fazer isso.',
             'bad_steam'          => 'SteamID inválido (17 dígitos, 7656119...).',
-            'owner_must_disband' => 'O dono não pode sair — transfira ou dissolva o clã.',
+            'owner_must_disband' => 'O dono não pode sair — passe a liderança ou dissolva o clã.',
+            'not_member'         => 'Esse jogador não é membro do clã.',
+            'cant_self'          => 'Você já é o dono do clã.',
             'not_found'          => 'Clã não encontrado.',
             default              => 'Não foi possível concluir a ação.',
         };

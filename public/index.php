@@ -768,6 +768,13 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     header('Location: ' . ($err ? '/clan/' . $id . '?err=' . urlencode($err) : '/clans?ok=left')); exit;
 });
 
+\App\Router::post('/clans/{id}/transfer', function($id) use ($config) {
+    if (!\App\SteamAuth::check()) { header('Location: /auth/steam'); exit; }
+    if (!\App\Csrf::check()) { header('Location: /clan/' . $id); exit; }
+    $err = \App\Clan::transferOwnership((int)$id, \App\SteamAuth::steamId(), trim($_POST['steam_id'] ?? ''));
+    header('Location: /clan/' . $id . ($err ? '?err=' . urlencode($err) : '?ok=transferred')); exit;
+});
+
 \App\Router::post('/clans/{id}/disband', function($id) use ($config) {
     if (!\App\SteamAuth::check()) { header('Location: /auth/steam'); exit; }
     if (!\App\Csrf::check()) { header('Location: /clan/' . $id); exit; }

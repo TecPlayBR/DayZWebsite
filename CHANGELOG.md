@@ -5,6 +5,12 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.13.2] — 2026-06-26
+
+> Sem migration.
+
+- **👑 Passar a liderança do clã:** o dono pode transferir o comando pra outro membro (no painel do clã). O antigo dono vira membro comum (e aí pode sair). Antes o dono ficava "preso" (só dava pra dissolver). Mensagem de confirmação deixada clara (quem passa vira membro).
+
 ## [2.13.1] — 2026-06-26
 
 > Sem migration.

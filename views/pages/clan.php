@@ -12,6 +12,7 @@ $full = (int)$clan['member_count'] >= (int)$clan['member_cap'];
 $okMsg = match($_GET['ok'] ?? '') {
     'requested'=>'Pedido enviado! O dono do clã vai avaliar.', 'invited'=>'Convite enviado.',
     'accepted'=>'Membro aceito.', 'rejected'=>'Pedido recusado.', 'kicked'=>'Membro removido.', 'saved'=>'Clã atualizado.',
+    'transferred'=>'Pronto! Você passou o comando do clã pra outro membro — agora você é membro comum.',
     default=>'',
 };
 $errMsg = ($_GET['err'] ?? '') !== '' ? \App\Clan::errorMessage($_GET['err']) : '';
@@ -126,6 +127,23 @@ $errMsg = ($_GET['err'] ?? '') !== '' ? \App\Clan::errorMessage($_GET['err']) : 
                     <label style="font-size:.8rem;color:var(--dim);">Trocar logo (opcional): <input type="file" name="logo_file" accept="image/png,image/webp,image/jpeg" style="color:var(--bone);"></label>
                     <button class="btn-mini" style="align-self:flex-start;">Salvar</button>
                 </form>
+
+                <!-- Passar liderança -->
+                <?php $others = array_values(array_filter($members, fn($m) => $m['role'] !== 'owner')); ?>
+                <?php if ($others): ?>
+                <h3 class="clan-h3">Passar liderança</h3>
+                <form method="POST" action="/clans/<?= (int)$clan['id'] ?>/transfer" onsubmit="return confirm('Passar a liderança do clã pra esse membro? Você vira membro comum e não dá pra desfazer sozinho.');" style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;">
+                    <?= \App\Csrf::field() ?>
+                    <select name="steam_id" required style="flex:1;min-width:200px;padding:.6rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);">
+                        <option value="">Escolha um membro…</option>
+                        <?php foreach ($others as $o): ?>
+                            <option value="<?= e($o['steam_id']) ?>"><?= e($o['display_name'] ?: $o['steam_id']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <button class="btn-mini outline">Passar liderança</button>
+                </form>
+                <p style="color:var(--dim);font-size:.76rem;margin:.4rem 0 0;">Depois de passar, você vira membro comum (e aí pode sair se quiser).</p>
+                <?php endif; ?>
 
                 <!-- Dissolver -->
                 <h3 class="clan-h3" style="color:var(--rust-2);">Zona de perigo</h3>
