@@ -47,7 +47,7 @@
 <style>
 .help-cat-title { font-family:var(--font-display); color:var(--bone); font-size:1.25rem; letter-spacing:.03em; border-bottom:2px solid var(--rust); padding-bottom:.5rem; margin:2.2rem 0 1.2rem; }
 .help-cat-title:first-of-type { margin-top:0; }
-.help-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:1.1rem; margin-bottom:1rem; }
+.help-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(260px,100%),1fr)); gap:1.1rem; margin-bottom:1rem; }
 .help-card { display:flex; flex-direction:column; background:var(--bg-1); border:1px solid var(--border); border-radius:8px; overflow:hidden; text-decoration:none; transition:transform .2s, border-color .2s; }
 .help-card:hover { transform:translateY(-3px); border-color:var(--hazard); }
 .help-card-img { height:120px; background-size:cover; background-position:center; background-color:var(--bg-2); display:flex; align-items:center; justify-content:center; color:var(--hazard); font-size:2rem; }

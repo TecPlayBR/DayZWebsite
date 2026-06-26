@@ -10,7 +10,6 @@ $errMsg = match($_GET['err'] ?? '') {
     '' => '',
     default => \App\Clan::errorMessage($_GET['err']),
 };
-$fld = 'width:100%;padding:.65rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);';
 ?>
 <section class="hero" style="min-height:26vh;">
     <div class="hero-bg" style="background-image:linear-gradient(180deg,rgba(0,0,0,0.6) 0%,rgba(0,0,0,0.95) 100%),url('<?= asset('img/background2.png') ?>');"></div>
@@ -26,23 +25,23 @@ $fld = 'width:100%;padding:.65rem;background:var(--bg-0);border:1px solid var(--
 
         <form method="POST" action="/clans/create" enctype="multipart/form-data" style="display:flex;flex-direction:column;gap:1rem;">
             <?= \App\Csrf::field() ?>
-            <div style="display:grid;grid-template-columns:1fr 140px;gap:1rem;">
+            <div class="clan-new-namerow">
                 <div>
                     <label style="display:block;font-size:.78rem;color:var(--dim);margin-bottom:.3rem;">Nome do clã</label>
-                    <input type="text" name="name" required minlength="3" maxlength="60" placeholder="Renascer Hardcore" style="<?= $fld ?>">
+                    <input type="text" name="name" required minlength="3" maxlength="60" placeholder="Renascer Hardcore" class="field" style="width:100%;">
                 </div>
                 <div>
                     <label style="display:block;font-size:.78rem;color:var(--dim);margin-bottom:.3rem;">TAG</label>
-                    <input type="text" name="tag" required minlength="2" maxlength="6" placeholder="RVH" oninput="this.value=this.value.replace(/[^A-Za-z0-9]/g,'').toUpperCase()" style="<?= $fld ?> font-family:var(--font-mono);text-align:center;text-transform:uppercase;">
+                    <input type="text" name="tag" required minlength="2" maxlength="6" placeholder="RVH" oninput="this.value=this.value.replace(/[^A-Za-z0-9]/g,'').toUpperCase()" class="field mono upper" style="width:100%;text-align:center;">
                 </div>
             </div>
             <div>
                 <label style="display:block;font-size:.78rem;color:var(--dim);margin-bottom:.3rem;">Descrição <small>(opcional)</small></label>
-                <textarea name="description" rows="3" maxlength="500" placeholder="Estilo do clã, requisitos pra entrar, horários..." style="<?= $fld ?> resize:vertical;"></textarea>
+                <textarea name="description" rows="3" maxlength="500" placeholder="Estilo do clã, requisitos pra entrar, horários..." class="field" style="width:100%;"></textarea>
             </div>
             <div>
                 <label style="display:block;font-size:.78rem;color:var(--dim);margin-bottom:.3rem;">Discord do clã <small>(opcional)</small></label>
-                <input type="url" name="discord_url" placeholder="https://discord.gg/..." style="<?= $fld ?>">
+                <input type="url" name="discord_url" placeholder="https://discord.gg/..." class="field" style="width:100%;">
             </div>
             <div>
                 <label style="display:block;font-size:.78rem;color:var(--dim);margin-bottom:.3rem;">Logo <small>(opcional, PNG/JPG/WEBP)</small></label>
@@ -57,4 +56,8 @@ $fld = 'width:100%;padding:.65rem;background:var(--bg-0);border:1px solid var(--
         </form>
     </div>
 </section>
+<style>
+.clan-new-namerow { display:grid; grid-template-columns:1fr 140px; gap:1rem; }
+@media (max-width:440px) { .clan-new-namerow { grid-template-columns:1fr; } }
+</style>
 <?php \App\View::endSection(); ?>

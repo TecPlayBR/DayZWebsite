@@ -192,7 +192,7 @@ $errMsg = ($_GET['err'] ?? '') !== '' ? \App\Clan::errorMessage($_GET['err']) : 
 .clan-hero-logo img, .clan-hero-fb { width:90px; height:90px; border-radius:10px; object-fit:cover; background:var(--bg-2); border:2px solid var(--rust); display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-size:2rem; color:var(--hazard); }
 .clan-h2 { font-family:var(--font-display); color:var(--bone); font-size:1.2rem; border-bottom:2px solid var(--rust); padding-bottom:.4rem; margin:0 0 1rem; }
 .clan-h3 { font-family:var(--font-display); color:var(--bone); font-size:.98rem; margin:1.4rem 0 .6rem; }
-.clan-members { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:.5rem; }
+.clan-members { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(200px,100%),1fr)); gap:.5rem; }
 .clan-member { display:flex; align-items:center; justify-content:space-between; gap:.5rem; background:var(--bg-1); border:1px solid var(--border); border-radius:5px; padding:.5rem .8rem; }
 .clan-member-name { color:var(--bone); text-decoration:none; font-size:.9rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .clan-member-name:hover { color:var(--hazard); }
@@ -203,6 +203,6 @@ $errMsg = ($_GET['err'] ?? '') !== '' ? \App\Clan::errorMessage($_GET['err']) : 
 .clan-owner > summary { cursor:pointer; list-style:none; padding:1rem 1.2rem; font-family:var(--font-display); color:var(--bone); }
 .clan-owner > summary::-webkit-details-marker { display:none; }
 .clan-owner-body { padding:0 1.2rem 1.2rem; }
-.clan-req { display:flex; align-items:center; justify-content:space-between; gap:.5rem; padding:.5rem .8rem; background:var(--bg-0); border:1px solid var(--border); border-radius:5px; margin-bottom:.4rem; }
+.clan-req { display:flex; align-items:center; justify-content:space-between; gap:.5rem; flex-wrap:wrap; padding:.5rem .8rem; background:var(--bg-0); border:1px solid var(--border); border-radius:5px; margin-bottom:.4rem; }
 </style>
 <?php \App\View::endSection(); ?>

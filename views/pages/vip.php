@@ -133,7 +133,7 @@ if ($vip['battlepass']['enabled'] && $vip['battlepass']['prices']) {
 </section>
 
 <style>
-.vip-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:1.5rem; }
+.vip-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(min(260px,100%), 1fr)); gap:1.5rem; }
 .vip-card { position:relative; background:var(--bg-1); border:1px solid var(--border); border-radius:8px; padding:1.6rem 1.4rem; display:flex; flex-direction:column; }
 .vip-card-active { border-color:var(--moss); box-shadow:0 0 0 1px var(--moss) inset; }
 .vip-badge-active { position:absolute; top:0; right:0; background:var(--moss); color:#0a0a0a; font-size:0.66rem; font-weight:700; letter-spacing:0.05em; padding:0.25rem 0.6rem; border-radius:0 8px 0 8px; }

@@ -5,6 +5,16 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.14.3] — 2026-06-26
+
+> Sem migration.
+
+### 📱 Pente-fino responsivo (telas novas no celular)
+- **Anti-overflow horizontal:** os grids de cards (clãs, membros, Central de Ajuda, VIP) usavam `minmax(260–300px, 1fr)`, que numa tela estreita (≤330px) estourava pro lado. Trocado por `minmax(min(Npx,100%), 1fr)` — a coluna nunca passa de 100% da largura, sem precisar de media query.
+- **Criar clã:** a linha **Nome + TAG** agora **empilha** abaixo de 440px (antes ficava espremida lado a lado). Campos passaram a usar a classe `.field` (consistência com o resto).
+- **Central de Ajuda (artigo):** reforço defensivo no corpo colado pelo admin — `<pre>`/tabelas com rolagem própria e quebra de palavra/URL gigante (não estoura o layout). Vídeo do YouTube já era responsivo (aspect-ratio 16:9).
+- **Listas de clã** (pedidos/convites): nome longo + botões agora quebram linha em vez de brigar por espaço.
+
 ## [2.14.2] — 2026-06-26
 
 > Sem migration.

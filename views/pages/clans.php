@@ -56,7 +56,7 @@ $okMsg = match($_GET['ok'] ?? '') {
 </section>
 
 <style>
-.clan-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:1.2rem; }
+.clan-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(min(300px,100%), 1fr)); gap:1.2rem; }
 .clan-card { display:flex; gap:1rem; align-items:center; background:var(--bg-1); border:1px solid var(--border); border-radius:8px; padding:1.1rem; text-decoration:none; transition:transform .2s, border-color .2s; }
 .clan-card:hover { transform:translateY(-3px); border-color:var(--hazard); }
 .clan-logo { flex:0 0 auto; width:64px; height:64px; }

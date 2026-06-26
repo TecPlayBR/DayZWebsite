@@ -49,7 +49,9 @@
 <style>
 .help-video { position:relative; padding-bottom:56.25%; height:0; margin:0 0 1.5rem; border-radius:8px; overflow:hidden; border:1px solid var(--border); }
 .help-video iframe { position:absolute; top:0; left:0; width:100%; height:100%; }
-.help-body { color:var(--bone); line-height:1.75; font-size:1rem; }
+.help-body { color:var(--bone); line-height:1.75; font-size:1rem; overflow-wrap:break-word; }
+.help-body pre { overflow-x:auto; background:var(--bg-0); padding:.8rem 1rem; border-radius:4px; }
+.help-body table { display:block; overflow-x:auto; max-width:100%; }
 .help-body h2, .help-body h3 { font-family:var(--font-display); color:var(--bone); margin:1.6rem 0 .7rem; letter-spacing:.02em; }
 .help-body p { margin:0 0 1rem; }
 .help-body ul, .help-body ol { margin:0 0 1rem 1.4rem; }
