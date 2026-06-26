@@ -11,6 +11,7 @@ return array (
     'shop' => 'Loja',
     'boxes' => 'Caixas',
     'vip' => 'VIP',
+    'clans' => 'Clãs',
     'events' => 'Eventos',
     'more' => 'Mais',
     'rules' => 'Regras',

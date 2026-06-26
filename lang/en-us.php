@@ -11,6 +11,7 @@ return array (
     'shop' => 'Shop',
     'boxes' => 'Cases',
     'vip' => 'VIP',
+    'clans' => 'Clans',
     'events' => 'Events',
     'more' => 'More',
     'rules' => 'Rules',

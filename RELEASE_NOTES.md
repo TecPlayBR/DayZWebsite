@@ -1,6 +1,16 @@
-# 🏴 DayZ Website Template — Notas da versão (v2.12.0)
+# 🏴 DayZ Website Template — Notas da versão (v2.13.0)
 
 > **Atualizar é seguro e não apaga nada.** Suba os arquivos e rode `php cli/migrate.php` (idempotente). O log completo fica no **[CHANGELOG.md](CHANGELOG.md)**; aqui vão os destaques.
+
+---
+
+## 🆕 v2.13.0 — Clãs (Fase 1)
+
+- **Aba `/clans`:** jogadores registram clã (nome, TAG, logo, Discord), lista pública + página com membros.
+- **Entrada só com aceite** (pedido→dono aceita, ou convite→jogador aceita) — 1 clã por jogador, sai quando quiser. Dono gerencia; admin modera.
+- Aparece no perfil do jogador. **Eventos de clã premiados = Fase 2.**
+
+> ⚠️ **Tem migration** (`clans`, `clan_members`, `clan_requests`): rode `php cli/migrate.php`.
 
 ---
 

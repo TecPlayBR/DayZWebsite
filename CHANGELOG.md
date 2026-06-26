@@ -5,6 +5,18 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.13.0] — 2026-06-26
+
+> **Tem migration** (`v2.13.0_clans.sql` — tabelas `clans`, `clan_members`, `clan_requests`). Rode `php cli/migrate.php`.
+
+### 🛡 Clãs (Fase 1)
+- **Nova aba `/clans`:** jogadores **registram o clã** (nome, TAG, logo, Discord, descrição), a lista é pública e cada clã tem sua página com membros.
+- **Entrada só com aceite (LGPD/consentimento):** o jogador **pede pra entrar** (o dono aceita) **ou** o dono **convida por SteamID** (o jogador aceita no perfil dele). Ninguém é adicionado à força. **1 jogador = 1 clã.** Membro pode **sair** quando quiser.
+- **Dono gerencia:** aceita/recusa pedidos, convida, remove membro, edita (descrição/Discord/logo), dissolve. Teto de membros (padrão 20).
+- **No perfil** (`/player`) aparece o clã do jogador + os convites pendentes pra aceitar.
+- **Admin → 🛡 Clãs:** modera (remove clã com conteúdo impróprio — dissolve e libera os membros). Regras de conteúdo no formulário (sem pornô/ódio/política/marca de terceiro) — proteção via Marco Civil (takedown).
+- **Roadmap (Fase 2):** eventos de clã premiados (moeda dividida/por membro, ou item por membro).
+
 ## [2.12.3] — 2026-06-26
 
 > Sem migration. Consistência interna (pós-auditoria).

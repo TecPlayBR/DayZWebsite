@@ -1390,3 +1390,49 @@ ON DUPLICATE KEY UPDATE
   body_ptbr  = IF(body_ptbr  IS NULL OR body_ptbr  = '', VALUES(body_ptbr),  body_ptbr),
   body_enus  = IF(body_enus  IS NULL OR body_enus  = '', VALUES(body_enus),  body_enus);
 -- ==== /SEED: paginas legais ====
+
+-- ============================================================
+-- TABELAS: clans / clan_members / clan_requests (v2.13.0)
+-- Clãs registrados no site. 1 jogador = 1 clã. Entrada só com aceite.
+-- ============================================================
+DROP TABLE IF EXISTS clans;
+CREATE TABLE clans (
+    id             INT AUTO_INCREMENT PRIMARY KEY,
+    name           VARCHAR(60)  NOT NULL,
+    tag            VARCHAR(8)   NOT NULL,
+    owner_steam_id VARCHAR(20)  NOT NULL,
+    description    VARCHAR(500) NULL,
+    discord_url    VARCHAR(255) NULL,
+    logo           VARCHAR(255) NULL,
+    member_cap     INT          NOT NULL DEFAULT 20,
+    status         VARCHAR(20)  NOT NULL DEFAULT 'active',
+    created_at     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_clan_tag (tag),
+    UNIQUE KEY uq_clan_name (name),
+    KEY idx_clan_owner (owner_steam_id),
+    KEY idx_clan_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+DROP TABLE IF EXISTS clan_members;
+CREATE TABLE clan_members (
+    id        INT AUTO_INCREMENT PRIMARY KEY,
+    clan_id   INT         NOT NULL,
+    steam_id  VARCHAR(20) NOT NULL,
+    role      VARCHAR(10) NOT NULL DEFAULT 'member',
+    joined_at DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_member_steam (steam_id),
+    KEY idx_member_clan (clan_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+DROP TABLE IF EXISTS clan_requests;
+CREATE TABLE clan_requests (
+    id         INT AUTO_INCREMENT PRIMARY KEY,
+    clan_id    INT         NOT NULL,
+    steam_id   VARCHAR(20) NOT NULL,
+    kind       VARCHAR(10) NOT NULL DEFAULT 'request',
+    created_at DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_req (clan_id, steam_id),
+    KEY idx_req_steam (steam_id),
+    KEY idx_req_clan (clan_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

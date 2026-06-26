@@ -69,6 +69,7 @@ require $ROOT . '/src/Servers.php';
 require $ROOT . '/src/Boxes.php';
 require $ROOT . '/src/Rewards.php';
 require $ROOT . '/src/Vip.php';
+require $ROOT . '/src/Clan.php';
 require $ROOT . '/src/Events.php';
 require $ROOT . '/src/Html.php';
 require $ROOT . '/src/helpers.php';
@@ -476,10 +477,12 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
         'is_owner'     => $isOwner,
         'achievements' => $achievementsAll,
         'unlocked'     => $unlockedAch,
+        'clan'         => \App\Clan::forPlayer($steamId),  // público: o clã do jogador
     ];
 
     // Bloco PRIVADO do dono (antigo /my-purchases): compras, caixas, loja, streamer.
     if ($isOwner) {
+        $viewData['clan_invites'] = \App\Clan::invitesForPlayer($steamId); // convites pra ele aceitar
         $viewData['purchases'] = \App\Database::fetchAll(
             "SELECT * FROM purchases
               WHERE steam_id = ?
@@ -678,6 +681,136 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     if (!$res['ok']) { header('Location: /vip?err=' . urlencode($res['error'])); exit; }
     header('Location: /vip?ok=' . ($res['extended'] ? 'renewed' : 'bought'));
     exit;
+});
+
+// ============ CLÃS (Fase 1) ============
+\App\Router::get('/clans', function() use ($config) {
+    $sid = \App\SteamAuth::check() ? \App\SteamAuth::steamId() : null;
+    \App\View::display('pages.clans', [
+        'config' => $config, 'clans' => \App\Clan::all(),
+        'my_clan' => $sid ? \App\Clan::forPlayer($sid) : null,
+        'steam_user' => \App\SteamAuth::user(),
+    ]);
+});
+
+\App\Router::get('/clans/new', function() use ($config) {
+    if (!\App\SteamAuth::check()) { $_SESSION['steam_login_return'] = '/clans/new'; header('Location: /auth/steam'); exit; }
+    $mine = \App\Clan::forPlayer(\App\SteamAuth::steamId());
+    if ($mine) { header('Location: /clan/' . $mine['id']); exit; } // 1 clã por jogador
+    \App\View::display('pages.clan_new', ['config' => $config]);
+});
+
+\App\Router::post('/clans/create', function() use ($config, $ROOT) {
+    if (!\App\SteamAuth::check()) { header('Location: /auth/steam'); exit; }
+    if (!\App\Csrf::check()) { header('Location: /clans/new?err=csrf'); exit; }
+    $steamId = \App\SteamAuth::steamId();
+    $rl = \App\RateLimit::check('clan-create:' . $steamId, 5, 3600);
+    if (empty($rl['allowed'])) { header('Location: /clans/new?err=rate'); exit; }
+    $logo = upload_image($_FILES['logo_file'] ?? [], $ROOT . '/public/assets/img/clans', 'clan', '/assets/img/clans');
+    [$id, $err] = \App\Clan::create($steamId, $_POST['name'] ?? '', $_POST['tag'] ?? '', $_POST['description'] ?? null, $_POST['discord_url'] ?? null, $logo);
+    if ($err) { header('Location: /clans/new?err=' . urlencode($err)); exit; }
+    header('Location: /clan/' . $id); exit;
+});
+
+\App\Router::get('/clan/{id}', function($id) use ($config) {
+    $clan = \App\Clan::get((int)$id);
+    if (!$clan) { header('Location: /clans'); exit; }
+    $sid = \App\SteamAuth::check() ? \App\SteamAuth::steamId() : null;
+    $isOwner = $sid && \App\Clan::isOwner((int)$id, $sid);
+    \App\View::display('pages.clan', [
+        'config' => $config, 'clan' => $clan, 'members' => \App\Clan::members((int)$id),
+        'is_owner' => $isOwner, 'my_clan' => $sid ? \App\Clan::forPlayer($sid) : null,
+        'my_request' => $sid ? \App\Clan::outgoingRequest($sid) : null,
+        'pending' => $isOwner ? \App\Clan::pendingRequests((int)$id) : [],
+        'steam_user' => \App\SteamAuth::user(),
+    ]);
+});
+
+\App\Router::post('/clans/{id}/request', function($id) use ($config) {
+    if (!\App\SteamAuth::check()) { header('Location: /auth/steam'); exit; }
+    if (!\App\Csrf::check()) { header('Location: /clan/' . $id . '?err=csrf'); exit; }
+    $err = \App\Clan::requestJoin((int)$id, \App\SteamAuth::steamId());
+    header('Location: /clan/' . $id . ($err ? '?err=' . urlencode($err) : '?ok=requested')); exit;
+});
+
+\App\Router::post('/clans/{id}/invite', function($id) use ($config) {
+    if (!\App\SteamAuth::check()) { header('Location: /auth/steam'); exit; }
+    if (!\App\Csrf::check()) { header('Location: /clan/' . $id . '?err=csrf'); exit; }
+    $err = \App\Clan::invite((int)$id, \App\SteamAuth::steamId(), preg_replace('/\s+/', '', $_POST['steam_id'] ?? ''));
+    header('Location: /clan/' . $id . ($err ? '?err=' . urlencode($err) : '?ok=invited')); exit;
+});
+
+\App\Router::post('/clans/{id}/requests/accept', function($id) use ($config) {
+    if (!\App\SteamAuth::check()) { header('Location: /auth/steam'); exit; }
+    if (!\App\Csrf::check()) { header('Location: /clan/' . $id); exit; }
+    if (\App\Clan::isOwner((int)$id, \App\SteamAuth::steamId())) \App\Clan::accept((int)$id, trim($_POST['steam_id'] ?? ''));
+    header('Location: /clan/' . $id . '?ok=accepted'); exit;
+});
+
+\App\Router::post('/clans/{id}/requests/reject', function($id) use ($config) {
+    if (!\App\SteamAuth::check()) { header('Location: /auth/steam'); exit; }
+    if (!\App\Csrf::check()) { header('Location: /clan/' . $id); exit; }
+    if (\App\Clan::isOwner((int)$id, \App\SteamAuth::steamId())) \App\Clan::dropRequest((int)$id, trim($_POST['steam_id'] ?? ''));
+    header('Location: /clan/' . $id . '?ok=rejected'); exit;
+});
+
+\App\Router::post('/clans/{id}/kick', function($id) use ($config) {
+    if (!\App\SteamAuth::check()) { header('Location: /auth/steam'); exit; }
+    if (!\App\Csrf::check()) { header('Location: /clan/' . $id); exit; }
+    \App\Clan::removeMember((int)$id, \App\SteamAuth::steamId(), trim($_POST['steam_id'] ?? ''));
+    header('Location: /clan/' . $id . '?ok=kicked'); exit;
+});
+
+\App\Router::post('/clans/{id}/leave', function($id) use ($config) {
+    if (!\App\SteamAuth::check()) { header('Location: /auth/steam'); exit; }
+    if (!\App\Csrf::check()) { header('Location: /clan/' . $id); exit; }
+    $err = \App\Clan::leave(\App\SteamAuth::steamId());
+    header('Location: ' . ($err ? '/clan/' . $id . '?err=' . urlencode($err) : '/clans?ok=left')); exit;
+});
+
+\App\Router::post('/clans/{id}/disband', function($id) use ($config) {
+    if (!\App\SteamAuth::check()) { header('Location: /auth/steam'); exit; }
+    if (!\App\Csrf::check()) { header('Location: /clan/' . $id); exit; }
+    if (\App\Clan::isOwner((int)$id, \App\SteamAuth::steamId())) \App\Clan::disband((int)$id);
+    header('Location: /clans?ok=disbanded'); exit;
+});
+
+\App\Router::post('/clans/{id}/edit', function($id) use ($config, $ROOT) {
+    if (!\App\SteamAuth::check()) { header('Location: /auth/steam'); exit; }
+    if (!\App\Csrf::check()) { header('Location: /clan/' . $id); exit; }
+    if (\App\Clan::isOwner((int)$id, \App\SteamAuth::steamId())) {
+        $logo = upload_image($_FILES['logo_file'] ?? [], $ROOT . '/public/assets/img/clans', 'clan', '/assets/img/clans');
+        \App\Clan::updateInfo((int)$id, $_POST['description'] ?? null, $_POST['discord_url'] ?? null, $logo);
+    }
+    header('Location: /clan/' . $id . '?ok=saved'); exit;
+});
+
+// Convite: o JOGADOR aceita/recusa (consentimento do lado dele) — vindo do /player
+\App\Router::post('/clan-invite/accept', function() use ($config) {
+    if (!\App\SteamAuth::check()) { header('Location: /auth/steam'); exit; }
+    if (!\App\Csrf::check()) { header('Location: /player/' . \App\SteamAuth::steamId()); exit; }
+    $cid = (int)($_POST['clan_id'] ?? 0);
+    \App\Clan::accept($cid, \App\SteamAuth::steamId());
+    header('Location: /clan/' . $cid); exit;
+});
+\App\Router::post('/clan-invite/reject', function() use ($config) {
+    if (!\App\SteamAuth::check()) { header('Location: /auth/steam'); exit; }
+    if (!\App\Csrf::check()) { header('Location: /player/' . \App\SteamAuth::steamId()); exit; }
+    \App\Clan::dropRequest((int)($_POST['clan_id'] ?? 0), \App\SteamAuth::steamId());
+    header('Location: /player/' . \App\SteamAuth::steamId()); exit;
+});
+
+// Admin: moderar clãs (remover abuso). Capability 'coupons' (mesma área de gestão).
+\App\Router::get('/admin/clans', function() use ($config) {
+    \App\Auth::requireCan('coupons');
+    \App\View::display('admin.clans', ['config' => $config, 'clans' => \App\Clan::all()]);
+});
+\App\Router::post('/admin/clans/{id}/remove', function($id) use ($config) {
+    \App\Auth::requireCan('coupons');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
+    \App\Clan::disband((int)$id);
+    \App\AuditLog::record('clan.removed', 'clan', (string)$id);
+    header('Location: /admin/clans?ok=1'); exit;
 });
 
 \App\Router::get('/rules', function() use ($config) {

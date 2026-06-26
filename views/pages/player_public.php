@@ -11,6 +11,8 @@ $box_openings   = $box_openings   ?? [];
 $shop_spends    = $shop_spends    ?? [];
 $reward_payouts = $reward_payouts ?? [];
 $achievement_payouts = $achievement_payouts ?? [];
+$clan           = $clan           ?? null;
+$clan_invites   = $clan_invites   ?? [];
 ?>
 <?php \App\View::extend('layouts.main'); ?>
 <?php \App\View::with('hero_image', 'img/background2.png'); ?>
@@ -207,11 +209,36 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
         </div>
         <?php endif; ?>
 
+        <!-- ===== PÚBLICO: clã ===== -->
+        <?php if ($clan): ?>
+            <a href="/clan/<?= (int)$clan['id'] ?>" class="pp-clan-badge">
+                <?php if (!empty($clan['logo'])): ?><img src="<?= e($clan['logo']) ?>" alt="" onerror="this.remove()"><?php endif; ?>
+                <span>🛡 Clã: <strong>[<?= e($clan['tag']) ?>] <?= e($clan['name']) ?></strong></span>
+            </a>
+        <?php elseif ($is_owner): ?>
+            <a href="/clans" class="pp-clan-badge pp-clan-none"><span>🛡 Você ainda não está em um clã — <strong>ver clãs →</strong></span></a>
+        <?php endif; ?>
+
         <?php if ($is_owner): ?>
         <!-- ============================================================ -->
         <!-- ===== PRIVADO (só o dono): histórico de compras + caixas ==== -->
         <!-- ============================================================ -->
         <?php /* Históricos em dropdown FECHADO por padrão (a página não estica). Mostra até 25. */ $cap = 25; ?>
+
+        <?php if (!empty($clan_invites)): ?>
+        <div class="pp-invites">
+            <strong style="color:var(--bone);">🛡 Convites de clã:</strong>
+            <?php foreach ($clan_invites as $inv): ?>
+                <div class="pp-invite-row">
+                    <span>[<?= e($inv['tag']) ?>] <?= e($inv['name']) ?></span>
+                    <span style="display:flex;gap:.4rem;">
+                        <form method="POST" action="/clan-invite/accept" style="margin:0;"><?= \App\Csrf::field() ?><input type="hidden" name="clan_id" value="<?= (int)$inv['clan_id'] ?>"><button class="btn-mini">Aceitar</button></form>
+                        <form method="POST" action="/clan-invite/reject" style="margin:0;"><?= \App\Csrf::field() ?><input type="hidden" name="clan_id" value="<?= (int)$inv['clan_id'] ?>"><button class="btn-mini outline">Recusar</button></form>
+                    </span>
+                </div>
+            <?php endforeach; ?>
+        </div>
+        <?php endif; ?>
         <?php if (empty($purchases)): ?>
             <h2 class="pp-section-title"><?= $icon('coins') ?> <?= e(__('profile.history')) ?></h2>
             <div style="text-align: center; padding: 2rem 1rem;">
@@ -431,6 +458,14 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
 .pp-value { color:var(--bone); font-family:var(--font-display); font-size:1.5rem; }
 .pp-section-title { display:flex; align-items:center; gap:.5rem; font-family:var(--font-display); color:var(--bone); font-size:1.2rem; margin:2.5rem 0 1rem; border-bottom:2px solid var(--rust); padding-bottom:.5rem; }
 .pp-section-title svg { color:var(--rust); }
+/* Badge do clã no perfil + convites */
+.pp-clan-badge { display:inline-flex; align-items:center; gap:.6rem; margin:1.2rem 0 .5rem; padding:.6rem 1rem; background:var(--bg-1); border:1px solid var(--border); border-left:3px solid var(--hazard); border-radius:6px; color:var(--bone); text-decoration:none; font-size:.92rem; }
+.pp-clan-badge:hover { border-color:var(--hazard); }
+.pp-clan-badge img { width:32px; height:32px; border-radius:5px; object-fit:cover; }
+.pp-clan-badge strong { color:var(--hazard); }
+.pp-clan-none { border-left-color:var(--dim); }
+.pp-invites { background:var(--bg-1); border:1px solid var(--hazard); border-radius:6px; padding:1rem 1.1rem; margin:1rem 0; }
+.pp-invite-row { display:flex; align-items:center; justify-content:space-between; gap:.5rem; padding:.5rem 0; border-top:1px solid var(--border); margin-top:.5rem; color:var(--bone); }
 /* Históricos em dropdown (fechados por padrão) — perfil não estica mais. */
 .pp-acc { border:1px solid var(--border); border-radius:6px; background:var(--bg-1); margin:1rem 0; overflow:hidden; }
 .pp-acc > summary { cursor:pointer; list-style:none; display:flex; align-items:center; gap:.55rem; padding:.95rem 1.1rem; font-family:var(--font-display); color:var(--bone); font-size:1.05rem; letter-spacing:.03em; }

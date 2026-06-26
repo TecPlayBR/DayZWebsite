@@ -22,6 +22,7 @@
                         <svg width="9" height="9" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M6 9 L1 4 h10 z"/></svg>
                     </button>
                     <ul class="nav-drop-menu">
+                        <li><a href="/clans"><?= e(__('nav.clans', [], 'Clãs')) ?></a></li>
                         <li><a href="/eventos"><?= e(__('nav.events')) ?></a></li>
                         <li><a href="/galeria"><?= e(__('nav.gallery')) ?></a></li>
                         <li><a href="/rules"><?= e(__('nav.rules')) ?></a></li>
@@ -110,6 +111,7 @@
         <?php endif; ?>
         <li><a href="/galeria" data-close><?= e(__('nav.gallery') ?: 'Galeria') ?></a></li>
         <li><a href="/ranking" data-close><?= e(__('nav.ranking') ?: 'Ranking') ?></a></li>
+        <li><a href="/clans" data-close><?= e(__('nav.clans', [], 'Clãs')) ?></a></li>
         <li><a href="/rules" data-close><?= e(__('nav.rules')) ?></a></li>
         <?php $discord = ($config['settings']['social_discord'] ?? '') ?: ($config['settings']['discord_invite'] ?? ''); ?>
         <?php if ($discord): ?>
