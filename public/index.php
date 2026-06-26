@@ -3330,17 +3330,9 @@ $BRAND_SLOTS = [
         if ($v > 100000) $v = 100000;
         if ($v > 0) $rewards[$a['slug']] = $v;
     }
-    // Form isolado: grava SÓ as 2 chaves dele (não toca o resto das settings).
-    \App\Database::query(
-        "INSERT INTO settings (`key`,`value`) VALUES ('achievement_rewards', ?)
-         ON DUPLICATE KEY UPDATE `value` = VALUES(`value`)",
-        [json_encode($rewards, JSON_UNESCAPED_UNICODE)]
-    );
-    \App\Database::query(
-        "INSERT INTO settings (`key`,`value`) VALUES ('achievement_rewards_enabled', ?)
-         ON DUPLICATE KEY UPDATE `value` = VALUES(`value`)",
-        [$enabled]
-    );
+    // Grava só as 2 chaves dele (Settings::set já é INSERT...ON DUPLICATE + atualiza o cache).
+    \App\Settings::set('achievement_rewards', json_encode($rewards, JSON_UNESCAPED_UNICODE));
+    \App\Settings::set('achievement_rewards_enabled', $enabled);
     header('Location: /admin/achievements?ok=1');
     exit;
 });

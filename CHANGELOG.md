@@ -5,6 +5,13 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.12.3] — 2026-06-26
+
+> Sem migration. Consistência interna (pós-auditoria).
+
+- **🧹 Settings consistente:** `achievement_rewards` + `achievement_rewards_enabled` entraram no `Settings::SCHEMA` (estavam fora; o /admin/achievements salvava por INSERT direto driblando o whitelist). Agora salva via `Settings::set` (atualiza cache + normaliza), igual aos outros configs JSON. Sem mudança de comportamento pro usuário.
+- Auditoria read-only do PHP confirmou o resto do codebase limpo (sem rota/view/função morta nova; CSRF e auth ok).
+
 ## [2.12.2] — 2026-06-26
 
 > Sem migration. Limpeza de código morto + docs.

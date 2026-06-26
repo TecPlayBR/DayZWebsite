@@ -48,6 +48,9 @@ class Settings {
         'leaderboard_rewards'      => 'json',
         // Config da loja de VIP/Passe paga com moedas (JSON gerenciado em /admin/vip).
         'vip_store'                => 'json',
+        // Bônus por conquista (JSON {slug:moedas}) + master toggle (gerenciado em /admin/achievements).
+        'achievement_rewards'         => 'json',
+        'achievement_rewards_enabled' => 'bool',
         // Seção "O Que Você Vai Encontrar" da home (JSON gerenciado em /admin/home-features).
         'home_features'            => 'json',
         // Restart do servidor: horários (BR) pra mostrar o próximo + blindar o drop.
