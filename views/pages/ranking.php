@@ -100,7 +100,7 @@ if ($mode === 'gameplay') {
                         ?>
                             <tr<?= $prize > 0 ? ' class="rank-prized"' : '' ?>>
                                 <td class="rank-num"><?= $i < 3 ? ['🥇','🥈','🥉'][$i] : '#' . $pos ?></td>
-                                <td><strong><?= e($name) ?></strong></td>
+                                <td><strong><?= clan_tag_cf($p['cftools_id'] ?? '') ?><?= e($name) ?></strong></td>
                                 <td class="rank-spent"><?= e($val) ?></td>
                                 <?php if ($rwOn): ?>
                                     <td><?= $prize > 0 ? '<span class="rank-prize">🪙 ' . number_format($prize, 0, ',', '.') . '</span>' : '<span class="dim">—</span>' ?></td>

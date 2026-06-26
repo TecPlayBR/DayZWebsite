@@ -5,6 +5,12 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.14.1] — 2026-06-26
+
+> Sem migration.
+
+- **🏷 TAG do clã no ranking de gameplay:** o `[TAG]` clicável agora aparece também nas tabelas de kills/zumbis/etc (que vêm do CFTools sem SteamID) — resolvido mapeando `cftools_id`→`player_stats`→clã. Completa o "[TAG] no nome em todo o site".
+
 ## [2.14.0] — 2026-06-26
 
 > **Tem migration** (`v2.14.0_help_center.sql` — tabela `help_articles`). Rode `php cli/migrate.php`.

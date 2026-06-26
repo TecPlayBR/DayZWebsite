@@ -291,3 +291,14 @@ if (!function_exists('clan_tag')) {
         return '<a href="/clan/' . (int)$b['id'] . '" class="clan-tag" title="Ver clã">[' . e($b['tag']) . ']</a> ';
     }
 }
+
+if (!function_exists('clan_tag_cf')) {
+    /** Igual clan_tag(), mas pelo cftools_id (ranking de gameplay). '' se sem clã. */
+    function clan_tag_cf(?string $cftoolsId): string {
+        $cftoolsId = trim((string) $cftoolsId);
+        if ($cftoolsId === '') return '';
+        $b = \App\Clan::badgeByCftools($cftoolsId);
+        if (!$b) return '';
+        return '<a href="/clan/' . (int)$b['id'] . '" class="clan-tag" title="Ver clã">[' . e($b['tag']) . ']</a> ';
+    }
+}

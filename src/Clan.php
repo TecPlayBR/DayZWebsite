@@ -56,6 +56,22 @@ class Clan {
         return $cache[$steamId] = $tag;
     }
 
+    /** [id, tag] do clã pelo cftools_id (ranking de gameplay não tem steam_id direto;
+     *  mapeia via player_stats, como a premiação). null se não achar. Cacheia. */
+    public static function badgeByCftools(string $cftoolsId): ?array {
+        static $cache = [];
+        $cftoolsId = trim($cftoolsId);
+        if ($cftoolsId === '') return null;
+        if (array_key_exists($cftoolsId, $cache)) return $cache[$cftoolsId];
+        $r = Database::fetchOne(
+            "SELECT c.id, c.tag FROM player_stats s
+               JOIN clan_members m ON m.steam_id = s.steam_id
+               JOIN clans c ON c.id = m.clan_id
+              WHERE s.cftools_id = ? AND c.status = 'active' LIMIT 1", [$cftoolsId]
+        );
+        return $cache[$cftoolsId] = ($r ?: null);
+    }
+
     /** Membros do clã (com nick + última atividade do players, se houver). */
     public static function members(int $clanId): array {
         return Database::fetchAll(
