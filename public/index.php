@@ -487,11 +487,6 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
               ORDER BY created_at DESC LIMIT 50",
             [$steamId]
         );
-        $reviewedIds = [];
-        foreach (\App\Database::fetchAll("SELECT purchase_id FROM reviews WHERE steam_id = ?", [$steamId]) as $r) {
-            $reviewedIds[(int)$r['purchase_id']] = true;
-        }
-        $viewData['reviewed_ids'] = $reviewedIds;
         $viewData['box_openings'] = \App\Database::fetchAll(
             "SELECT * FROM box_openings WHERE steam_id = ? ORDER BY id DESC LIMIT 50", [$steamId]
         );
@@ -1252,43 +1247,8 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     exit;
 });
 
-\App\Router::post('/reviews/submit', function() use ($config) {
-    if (!\App\SteamAuth::check()) { header('Location: /auth/steam'); exit; }
-    if (!\App\Csrf::check()) { header('Location: /my-purchases?err=csrf'); exit; }
-    $steamId = \App\SteamAuth::steamId();
-    $purchaseId = (int)($_POST['purchase_id'] ?? 0);
-    $rating = max(1, min(5, (int)($_POST['rating'] ?? 0)));
-    $body = trim($_POST['body'] ?? '');
-
-    $purchase = \App\Database::fetchOne(
-        "SELECT id, steam_id, mp_status, delivered_at FROM purchases WHERE id = ? AND steam_id = ? LIMIT 1",
-        [$purchaseId, $steamId]
-    );
-    if (!$purchase || $purchase['mp_status'] !== 'approved' || empty($purchase['delivered_at'])) {
-        header('Location: /my-purchases?err=invalid_purchase'); exit;
-    }
-    if (strtotime($purchase['delivered_at']) > time() - (7 * 86400)) {
-        header('Location: /my-purchases?err=too_soon'); exit;
-    }
-
-    $user = \App\SteamAuth::user();
-    $avatar = trim((string)($user['avatar'] ?? '')) ?: null;
-    if ($avatar !== null && !preg_match('#^https?://#i', $avatar)) $avatar = null;
-    try {
-        \App\Database::query(
-            "INSERT INTO reviews (purchase_id, steam_id, display_name, avatar, rating, body, approved)
-             VALUES (?, ?, ?, ?, ?, ?, 0)",
-            [$purchaseId, $steamId, $user['display_name'] ?? null, $avatar, $rating, $body ?: null]
-        );
-    } catch (\PDOException $e) {
-        if ($e->getCode() === '23000') {
-            header('Location: /my-purchases?err=already_reviewed'); exit;
-        }
-        throw $e;
-    }
-    header('Location: /my-purchases?ok=review_submitted');
-    exit;
-});
+// (Review por compra foi removida do perfil — avaliar é espontâneo via /depoimentos
+//  → /reviews/public-submit. A antiga rota /reviews/submit saiu junto, sem caller.)
 
 \App\Router::get('/admin/reviews', function() use ($config) {
     \App\Auth::requireCan('reviews');

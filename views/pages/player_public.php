@@ -7,7 +7,6 @@ $is_owner       = $is_owner       ?? false;
 $achievements   = $achievements   ?? [];
 $unlocked       = $unlocked       ?? [];
 $purchases      = $purchases      ?? [];
-$reviewed_ids   = $reviewed_ids   ?? [];
 $box_openings   = $box_openings   ?? [];
 $shop_spends    = $shop_spends    ?? [];
 $reward_payouts = $reward_payouts ?? [];

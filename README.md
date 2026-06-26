@@ -9,7 +9,7 @@ Tema apocalipse · Painel admin completo · Mercado Pago · Login Steam · Multi
 [![MySQL](https://img.shields.io/badge/MySQL-5.7+-4479A1?style=flat-square&logo=mysql&logoColor=white)](https://www.mysql.com)
 [![License](https://img.shields.io/badge/License-Tecplay--NC-a855f7?style=flat-square)](LICENSE.txt)
 [![Status](https://img.shields.io/badge/Status-Produção-16a34a?style=flat-square)]()
-[![Versão](https://img.shields.io/badge/Versão-2.12.1-facc15?style=flat-square)](RELEASE_NOTES.md)
+[![Versão](https://img.shields.io/badge/Versão-2.12.2-facc15?style=flat-square)](RELEASE_NOTES.md)
 
 *Sobreviva. Construa. Domine. Agora também na web.*
 
@@ -64,7 +64,8 @@ O **site é grátis** e faz a loja, o painel, a carteira de moedas e o leaderboa
 - **Galeria** de screenshots com lightbox e setas
 - **Hall da Fama** dos jogadores (top coins + top apoiadores)
 - **Sistema de avaliações** dos jogadores
-- **12 conquistas automáticas** (Primeiro Sangue, Veterano, Lendário, Madrugador, Insone, Tubarão, Colecionador, Persistência, Generoso, Tiro Rápido, Veterano de Guerra) — totalmente i18n, com **recompensa configurável em moedas** (admin define +X por conquista, liga/desliga; pago 1x por jogador "por conta da casa")
+- **15 conquistas automáticas** — 12 de loja/atividade (Primeiro Sangue, Veterano, Padroeiro, Lendário, Tubarão, Madrugador, Insone, Colecionador, Persistência, Generoso, Tiro Rápido, Veterano de Guerra) + **3 de gameplay** via CFTools (🎯 Franco-Atirador, ☣ Exterminador, ⏳ Veterano de Chernarus) — totalmente i18n, com **recompensa configurável em moedas** (admin define +X por conquista, liga/desliga; pago 1x por jogador "por conta da casa")
+- **🪙 Aba VIP** (`/vip`) — venda de **VIP/BattlePass por moedas** (30/60/90 dias, renovação soma dias); o jogador paga com a moeda que tem e o agent aplica no jogo
 - **Reviews públicas** em `/depoimentos` (qualquer visitante envia, admin modera) + `AggregateRating` Schema.org pro Google
 - **Wishlist** de pacotes pros jogadores logados
 - **Perfil do jogador unificado** (`/player/{steamid}`): visitante vê o público (stats de combate + conquistas); o **dono logado** vê também o privado no mesmo lugar (saldo, compras, histórico de caixas, loja in-game, streamer) — sem página separada, sem vazar financeiro pra visitante
@@ -82,6 +83,8 @@ O **site é grátis** e faz a loja, o painel, a carteira de moedas e o leaderboa
 - **👁 Abas do ranking configuráveis** — escolha quais categorias aparecem no `/ranking` público (esconda "Zumbis", "Tempo online" ou "Investimento" se não fizerem sentido pro seu servidor) — independente da premiação
 - **🎮 Entrega Sparda nativa** — gera as URLs pro mod entregar moeda in-game sem o Agent pago
 - **🏅 Bônus por conquista** — define +X moedas por conquista (liga/desliga); credita 1x por jogador automaticamente, com log no painel (idempotente, teto anti-abuso)
+- **🪙 Venda de VIP/Passe por moedas** — liga/desliga + tabela de preço (tier × 30/60/90 dias) em moedas; o jogador compra na aba `/vip` e o agent aplica no Sparda
+- **🏠 Seção da Home editável** — edite os cards de "O Que Você Vai Encontrar" (título, subtítulo, até 12 cards) direto no painel, sem mexer em código
 - **🔑 Log de logins** — quem entrou via Steam (SteamID/nick/IP/navegador), com busca por SteamID (auditoria/privacidade; ranking segue público)
 - **📊 Tabelas ordenáveis + filtráveis** — clique no cabeçalho ordena (número/texto/data); filtro instantâneo multi-termo nas listas grandes (Jogadores, Compras, Pacotes…)
 - **➕ Criar pacote de moeda** e **✏️ editar item de caixa** direto no painel (sem precisar deletar e refazer)

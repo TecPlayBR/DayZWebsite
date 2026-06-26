@@ -5,6 +5,13 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.12.2] — 2026-06-26
+
+> Sem migration. Limpeza de código morto + docs.
+
+- **🧹 Código morto removido:** a query de `reviewed_ids` rodava em **todo** load de perfil sem ser usada (sobra de quando o perfil tinha "Avaliar"); e a rota `POST /reviews/submit` ficou sem caller (o modal de avaliação saiu na v2.12.0). Ambos removidos. Avaliação pública segue em `/depoimentos` (`/reviews/public-submit`).
+- **📚 Docs:** README atualizado (15 conquistas incl. as de gameplay, aba `/vip`, editor da Seção da Home).
+
 ## [2.12.1] — 2026-06-26
 
 > Sem migration.
