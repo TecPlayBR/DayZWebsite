@@ -99,7 +99,7 @@ class Achievements {
                 [$steamId]
             );
             if ($gs) {
-                if ((float)($gs['longest_kill_m']  ?? 0) >= 150)    $unlocked['sharpshooter'] = true;
+                if ((float)($gs['longest_kill_m']  ?? 0) >= 500)    $unlocked['sharpshooter'] = true;
                 if ((int)  ($gs['kills_infected']  ?? 0) >= 500)    $unlocked['exterminator'] = true;
                 if ((int)  ($gs['playtime_seconds']?? 0) >= 360000) $unlocked['survivor']     = true; // 100h
             }

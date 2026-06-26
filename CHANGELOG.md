@@ -5,6 +5,12 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.12.1] — 2026-06-26
+
+> Sem migration.
+
+- Conquista **🎯 Franco-Atirador**: distância da kill ajustada de 150m → **500m** (no PvP a galera acerta tiros longos; 500m é digno do título).
+
 ## [2.12.0] — 2026-06-25
 
 > Sem migration.

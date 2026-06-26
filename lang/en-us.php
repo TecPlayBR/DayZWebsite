@@ -133,7 +133,7 @@ return array (
     'sharpshooter' =>
     array (
       'name' => 'Sharpshooter',
-      'description' => 'A kill from 150m or farther',
+      'description' => 'A kill from 500m or farther',
     ),
     'exterminator' =>
     array (

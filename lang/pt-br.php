@@ -133,7 +133,7 @@ return array (
     'sharpshooter' =>
     array (
       'name' => 'Franco-Atirador',
-      'description' => 'Uma kill a 150m ou mais de distância',
+      'description' => 'Uma kill a 500m ou mais de distância',
     ),
     'exterminator' =>
     array (
