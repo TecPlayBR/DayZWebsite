@@ -116,7 +116,7 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
             </div>
             <div>
                 <span class="hero-kicker">// <?= $is_owner ? e(__('profile.kicker')) : e(__('profile.pub_kicker')) ?></span>
-                <h1 class="hero-title" style="font-size: clamp(1.6rem, 4vw, 2.4rem); margin:.2rem 0;"><?= e($display_name) ?></h1>
+                <h1 class="hero-title" style="font-size: clamp(1.6rem, 4vw, 2.4rem); margin:.2rem 0;"><?= clan_tag($player['steam_id']) ?><?= e($display_name) ?></h1>
                 <div class="pp-steamid" title="<?= e(__('profile.pub_steamid_title')) ?>">🎮 <span style="user-select:all;"><?= e($player['steam_id']) ?></span></div>
                 <a class="pp-steam-link" href="https://steamcommunity.com/profiles/<?= e($player['steam_id']) ?>" target="_blank" rel="noopener"><?= e(__('profile.pub_view_steam')) ?> →</a>
             </div>

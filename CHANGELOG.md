@@ -5,6 +5,14 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.13.1] — 2026-06-26
+
+> Sem migration.
+
+### 🏷 TAG do clã no nome + atividade dos membros
+- A **TAG do clã aparece antes do nick** como **`[RVH]` clicável** (leva pra página do clã) — no perfil do jogador, no ranking de investimento (pódio + tabela) e na lista de players online. (Ranking de gameplay usa o nome do CFTools sem SteamID → fica pra uma fatia futura.)
+- **Última atividade de cada membro** na página do clã (quem anda ativo) — visível **só pros membros do clã** (candidato não vê; é privacidade + serve pro líder saber se o clã está ativo).
+
 ## [2.13.0] — 2026-06-26
 
 > **Tem migration** (`v2.13.0_clans.sql` — tabelas `clans`, `clan_members`, `clan_requests`). Rode `php cli/migrate.php`.

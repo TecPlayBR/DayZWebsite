@@ -67,11 +67,18 @@ $errMsg = ($_GET['err'] ?? '') !== '' ? \App\Clan::errorMessage($_GET['err']) : 
         </div>
 
         <!-- MEMBROS -->
+        <?php $canSeeActivity = $is_owner || $inThisClan; // atividade só pra quem é do clã (candidato não vê) ?>
         <h2 class="clan-h2">Membros (<?= count($members) ?>)</h2>
+        <?php if ($canSeeActivity): ?><p style="color:var(--dim);font-size:.78rem;margin:-.5rem 0 1rem;">🕓 Última atividade visível só pros membros do clã — pra você acompanhar quem anda ativo.</p><?php endif; ?>
         <div class="clan-members">
             <?php foreach ($members as $m): $nm = $m['display_name'] ?: 'Sobrevivente'; ?>
                 <div class="clan-member">
-                    <a href="/player/<?= e($m['steam_id']) ?>" class="clan-member-name"><?php if ($m['role']==='owner'): ?>👑 <?php endif; ?><?= e($nm) ?></a>
+                    <div style="min-width:0;display:flex;flex-direction:column;">
+                        <a href="/player/<?= e($m['steam_id']) ?>" class="clan-member-name"><?php if ($m['role']==='owner'): ?>👑 <?php endif; ?><?= e($nm) ?></a>
+                        <?php if ($canSeeActivity): ?>
+                            <span class="clan-member-seen">🕓 <?= e(time_ago($m['last_seen_at'] ?? null, 'nunca conectou')) ?></span>
+                        <?php endif; ?>
+                    </div>
                     <?php if ($is_owner && $m['role'] !== 'owner'): ?>
                         <form method="POST" action="/clans/<?= (int)$clan['id'] ?>/kick" onsubmit="return confirm('Remover <?= e(addslashes($nm)) ?> do clã?');" style="margin:0;">
                             <?= \App\Csrf::field() ?><input type="hidden" name="steam_id" value="<?= e($m['steam_id']) ?>">
@@ -141,6 +148,7 @@ $errMsg = ($_GET['err'] ?? '') !== '' ? \App\Clan::errorMessage($_GET['err']) : 
 .clan-member { display:flex; align-items:center; justify-content:space-between; gap:.5rem; background:var(--bg-1); border:1px solid var(--border); border-radius:5px; padding:.5rem .8rem; }
 .clan-member-name { color:var(--bone); text-decoration:none; font-size:.9rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .clan-member-name:hover { color:var(--hazard); }
+.clan-member-seen { color:var(--dim); font-size:.7rem; font-family:var(--font-mono); }
 .clan-kick { background:none; border:none; color:var(--rust-2); cursor:pointer; font-size:.95rem; opacity:.7; }
 .clan-kick:hover { opacity:1; }
 .clan-owner { margin-top:2rem; border:1px solid var(--border); border-radius:8px; background:var(--bg-1); }

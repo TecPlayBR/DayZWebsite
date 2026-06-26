@@ -1027,3 +1027,7 @@ body:has(.site-header.scrolled) .announcements-strip {
         -webkit-overflow-scrolling: touch;
     }
 }
+
+/* TAG do clã clicável antes do nick (ex: [RVH] Bryan) — pelo site todo. */
+.clan-tag { color: var(--hazard); text-decoration: none; font-family: var(--font-mono); font-weight: 700; }
+.clan-tag:hover { text-decoration: underline; }

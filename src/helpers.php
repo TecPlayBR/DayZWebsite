@@ -265,3 +265,17 @@ if (!function_exists('home_features')) {
         return ['enabled' => true, 'title' => __('features.title'), 'subtitle' => __('features.subtitle'), 'cards' => $cards];
     }
 }
+
+if (!function_exists('clan_tag')) {
+    /**
+     * HTML do badge [TAG] clicável (leva pra página do clã) pra prefixar o nick
+     * do jogador pelo site. Retorna '' se o jogador não está num clã. Cacheado.
+     * Uso: <?= clan_tag($steamId) ?><?= e($nick) ?>  →  [RVH] Bryan
+     */
+    function clan_tag(string $steamId): string {
+        if ($steamId === '') return '';
+        $b = \App\Clan::badgeForPlayer($steamId);
+        if (!$b) return '';
+        return '<a href="/clan/' . (int)$b['id'] . '" class="clan-tag" title="Ver clã">[' . e($b['tag']) . ']</a> ';
+    }
+}

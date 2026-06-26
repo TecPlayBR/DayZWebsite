@@ -56,14 +56,25 @@ class Clan {
         return $cache[$steamId] = $tag;
     }
 
-    /** Membros do clã (com nick do players, se houver). */
+    /** Membros do clã (com nick + última atividade do players, se houver). */
     public static function members(int $clanId): array {
         return Database::fetchAll(
-            "SELECT m.steam_id, m.role, m.joined_at, p.display_name
+            "SELECT m.steam_id, m.role, m.joined_at, p.display_name, p.last_seen_at
                FROM clan_members m LEFT JOIN players p ON p.steam_id = m.steam_id
               WHERE m.clan_id = ?
               ORDER BY (m.role = 'owner') DESC, m.joined_at ASC", [$clanId]
         );
+    }
+
+    /** [id, tag] do clã do jogador (pro badge clicável [TAG]); null se não tem. Cacheia. */
+    public static function badgeForPlayer(string $steamId): ?array {
+        static $cache = [];
+        if (array_key_exists($steamId, $cache)) return $cache[$steamId];
+        $r = Database::fetchOne(
+            "SELECT c.id, c.tag FROM clan_members m JOIN clans c ON c.id = m.clan_id
+              WHERE m.steam_id = ? AND c.status = 'active' LIMIT 1", [$steamId]
+        );
+        return $cache[$steamId] = ($r ?: null);
     }
 
     public static function isOwner(int $clanId, string $steamId): bool {
