@@ -1,4 +1,5 @@
-<?php /** @var array $config, $clan, $members; @var bool $is_owner; @var ?array $my_clan, $my_request, $steam_user; @var array $pending */ ?>
+<?php /** @var array $config, $clan, $members; @var bool $is_owner; @var ?array $my_clan, $my_request, $steam_user; @var array $pending, $sent_invites */ ?>
+<?php $sent_invites = $sent_invites ?? []; ?>
 <?php \App\View::with('title', '[' . $clan['tag'] . '] ' . $clan['name'] . ' — Clã'); ?>
 <?php \App\View::extend('layouts.main'); ?>
 <?php \App\View::with('hero_image', 'img/background2.png'); ?>
@@ -13,6 +14,7 @@ $okMsg = match($_GET['ok'] ?? '') {
     'requested'=>'Pedido enviado! O dono do clã vai avaliar.', 'invited'=>'Convite enviado.',
     'accepted'=>'Membro aceito.', 'rejected'=>'Pedido recusado.', 'kicked'=>'Membro removido.', 'saved'=>'Clã atualizado.',
     'transferred'=>'Pronto! Você passou o comando do clã pra outro membro — agora você é membro comum.',
+    'invite_cancelled'=>'Convite revogado.',
     default=>'',
 };
 $errMsg = ($_GET['err'] ?? '') !== '' ? \App\Clan::errorMessage($_GET['err']) : '';
@@ -117,6 +119,19 @@ $errMsg = ($_GET['err'] ?? '') !== '' ? \App\Clan::errorMessage($_GET['err']) : 
                     <button class="btn-mini">Convidar</button>
                 </form>
                 <p style="color:var(--dim);font-size:.76rem;margin:.4rem 0 0;">O convidado precisa <strong>aceitar</strong> no perfil dele.</p>
+
+                <?php if (!empty($sent_invites)): ?>
+                <h3 class="clan-h3">Convites enviados (pendentes)</h3>
+                <?php foreach ($sent_invites as $iv): $in = $iv['display_name'] ?: $iv['steam_id']; ?>
+                    <div class="clan-req">
+                        <a href="/player/<?= e($iv['steam_id']) ?>" style="color:var(--bone);"><?= e($in) ?></a>
+                        <form method="POST" action="/clans/<?= (int)$clan['id'] ?>/invite-cancel" style="margin:0;" onsubmit="return confirm('Revogar o convite pra <?= e(addslashes($in)) ?>?');">
+                            <?= \App\Csrf::field() ?><input type="hidden" name="steam_id" value="<?= e($iv['steam_id']) ?>">
+                            <button class="btn-mini outline" style="color:var(--rust-2);border-color:var(--rust-2);">Revogar</button>
+                        </form>
+                    </div>
+                <?php endforeach; ?>
+                <?php endif; ?>
 
                 <!-- Editar -->
                 <h3 class="clan-h3">Editar clã</h3>

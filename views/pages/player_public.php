@@ -119,6 +119,14 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
                 <h1 class="hero-title" style="font-size: clamp(1.6rem, 4vw, 2.4rem); margin:.2rem 0;"><?= clan_tag($player['steam_id']) ?><?= e($display_name) ?></h1>
                 <div class="pp-steamid" title="<?= e(__('profile.pub_steamid_title')) ?>">🎮 <span style="user-select:all;"><?= e($player['steam_id']) ?></span></div>
                 <a class="pp-steam-link" href="https://steamcommunity.com/profiles/<?= e($player['steam_id']) ?>" target="_blank" rel="noopener"><?= e(__('profile.pub_view_steam')) ?> →</a>
+                <?php if ($clan): ?>
+                    <a href="/clan/<?= (int)$clan['id'] ?>" class="pp-clan-head">
+                        <?php if (!empty($clan['logo'])): ?><img src="<?= e($clan['logo']) ?>" alt="" onerror="this.remove()"><?php endif; ?>
+                        <span>🛡 [<?= e($clan['tag']) ?>] <?= e($clan['name']) ?></span>
+                    </a>
+                <?php elseif ($is_owner): ?>
+                    <a href="/clans" class="pp-clan-head pp-clan-head-none">🛡 Entrar num clã →</a>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -207,16 +215,6 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
                 </div>
             <?php endforeach; ?>
         </div>
-        <?php endif; ?>
-
-        <!-- ===== PÚBLICO: clã ===== -->
-        <?php if ($clan): ?>
-            <a href="/clan/<?= (int)$clan['id'] ?>" class="pp-clan-badge">
-                <?php if (!empty($clan['logo'])): ?><img src="<?= e($clan['logo']) ?>" alt="" onerror="this.remove()"><?php endif; ?>
-                <span>🛡 Clã: <strong>[<?= e($clan['tag']) ?>] <?= e($clan['name']) ?></strong></span>
-            </a>
-        <?php elseif ($is_owner): ?>
-            <a href="/clans" class="pp-clan-badge pp-clan-none"><span>🛡 Você ainda não está em um clã — <strong>ver clãs →</strong></span></a>
         <?php endif; ?>
 
         <?php if ($is_owner): ?>
@@ -458,12 +456,12 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
 .pp-value { color:var(--bone); font-family:var(--font-display); font-size:1.5rem; }
 .pp-section-title { display:flex; align-items:center; gap:.5rem; font-family:var(--font-display); color:var(--bone); font-size:1.2rem; margin:2.5rem 0 1rem; border-bottom:2px solid var(--rust); padding-bottom:.5rem; }
 .pp-section-title svg { color:var(--rust); }
-/* Badge do clã no perfil + convites */
-.pp-clan-badge { display:inline-flex; align-items:center; gap:.6rem; margin:1.2rem 0 .5rem; padding:.6rem 1rem; background:var(--bg-1); border:1px solid var(--border); border-left:3px solid var(--hazard); border-radius:6px; color:var(--bone); text-decoration:none; font-size:.92rem; }
-.pp-clan-badge:hover { border-color:var(--hazard); }
-.pp-clan-badge img { width:32px; height:32px; border-radius:5px; object-fit:cover; }
-.pp-clan-badge strong { color:var(--hazard); }
-.pp-clan-none { border-left-color:var(--dim); }
+/* Badge do clã no TOPO do perfil (header) + convites */
+.pp-clan-head { display:inline-flex; align-items:center; gap:.5rem; margin-top:.6rem; padding:.4rem .8rem; background:rgba(0,0,0,.35); border:1px solid var(--hazard); border-radius:20px; color:var(--hazard); text-decoration:none; font-size:.85rem; font-weight:600; }
+.pp-clan-head:hover { background:var(--hazard); color:#0a0a0a; }
+.pp-clan-head img { width:24px; height:24px; border-radius:50%; object-fit:cover; }
+.pp-clan-head-none { color:var(--dim); border-color:var(--border); font-weight:400; }
+.pp-clan-head-none:hover { background:var(--bg-1); color:var(--bone); }
 .pp-invites { background:var(--bg-1); border:1px solid var(--hazard); border-radius:6px; padding:1rem 1.1rem; margin:1rem 0; }
 .pp-invite-row { display:flex; align-items:center; justify-content:space-between; gap:.5rem; padding:.5rem 0; border-top:1px solid var(--border); margin-top:.5rem; color:var(--bone); }
 /* Históricos em dropdown (fechados por padrão) — perfil não estica mais. */

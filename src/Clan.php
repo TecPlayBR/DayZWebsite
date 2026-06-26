@@ -92,6 +92,15 @@ class Clan {
         );
     }
 
+    /** Convites que o clã ENVIOU e ainda estão pendentes (pro dono ver/revogar). Com nick. */
+    public static function sentInvites(int $clanId): array {
+        return Database::fetchAll(
+            "SELECT r.steam_id, r.created_at, p.display_name
+               FROM clan_requests r LEFT JOIN players p ON p.steam_id = r.steam_id
+              WHERE r.clan_id = ? AND r.kind = 'invite' ORDER BY r.created_at ASC", [$clanId]
+        );
+    }
+
     /** Convites pendentes pro jogador (kind=invite) — ele aceita. Com dados do clã. */
     public static function invitesForPlayer(string $steamId): array {
         return Database::fetchAll(

@@ -722,6 +722,7 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
         'is_owner' => $isOwner, 'my_clan' => $sid ? \App\Clan::forPlayer($sid) : null,
         'my_request' => $sid ? \App\Clan::outgoingRequest($sid) : null,
         'pending' => $isOwner ? \App\Clan::pendingRequests((int)$id) : [],
+        'sent_invites' => $isOwner ? \App\Clan::sentInvites((int)$id) : [],
         'steam_user' => \App\SteamAuth::user(),
     ]);
 });
@@ -738,6 +739,13 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     if (!\App\Csrf::check()) { header('Location: /clan/' . $id . '?err=csrf'); exit; }
     $err = \App\Clan::invite((int)$id, \App\SteamAuth::steamId(), preg_replace('/\s+/', '', $_POST['steam_id'] ?? ''));
     header('Location: /clan/' . $id . ($err ? '?err=' . urlencode($err) : '?ok=invited')); exit;
+});
+
+\App\Router::post('/clans/{id}/invite-cancel', function($id) use ($config) {
+    if (!\App\SteamAuth::check()) { header('Location: /auth/steam'); exit; }
+    if (!\App\Csrf::check()) { header('Location: /clan/' . $id); exit; }
+    if (\App\Clan::isOwner((int)$id, \App\SteamAuth::steamId())) \App\Clan::dropRequest((int)$id, trim($_POST['steam_id'] ?? ''));
+    header('Location: /clan/' . $id . '?ok=invite_cancelled'); exit;
 });
 
 \App\Router::post('/clans/{id}/requests/accept', function($id) use ($config) {

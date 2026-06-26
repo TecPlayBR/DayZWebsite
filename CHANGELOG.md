@@ -5,6 +5,13 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.13.3] — 2026-06-26
+
+> Sem migration.
+
+- **📩 Convites enviados (dono):** o dono vê a lista de convites que mandou e ainda estão pendentes, e pode **revogar** cada um.
+- **🛡 Clã no topo do perfil:** o badge do clã ([TAG] nome + logo) subiu pro cabeçalho do `/player`, logo abaixo do nome — bem visível.
+
 ## [2.13.2] — 2026-06-26
 
 > Sem migration.
