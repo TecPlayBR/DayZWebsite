@@ -5,6 +5,12 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.13.4] — 2026-06-26
+
+> Sem migration.
+
+- **🎨 Botões públicos no estilo do site:** o `.btn-mini` (Revogar, Convidar, Aceitar, Sair, etc.) só existia no CSS do admin — nas páginas públicas (clã, perfil) ficava **sem estilo** (botão cinza "legado"). Definido no `theme.css` no visual do site (corte chanfrado, fonte display, rust/outline/danger). Conserta os botões do clã e do perfil de uma vez.
+
 ## [2.13.3] — 2026-06-26
 
 > Sem migration.

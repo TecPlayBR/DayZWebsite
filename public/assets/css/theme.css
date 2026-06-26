@@ -374,6 +374,24 @@ h1, h2, h3, h4 {
     box-shadow: 0 0 20px rgba(212,197,169,0.3);
 }
 
+/* Botão PEQUENO no estilo do site (público). O admin tem o seu próprio em admin.css;
+   antes o .btn-mini ficava sem estilo nas páginas públicas (cara "legada"). */
+.btn-mini {
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+    padding: 0.5rem 1rem; font-family: var(--font-display); font-size: 0.74rem;
+    text-transform: uppercase; letter-spacing: 0.08em; line-height: 1;
+    color: var(--bone); background: var(--rust); border: 2px solid var(--rust);
+    border-radius: 2px; cursor: pointer; text-decoration: none;
+    transition: transform .15s, box-shadow .25s, background .2s, color .2s;
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+}
+.btn-mini:hover { background: var(--rust-2); box-shadow: 0 0 16px rgba(231,76,60,0.45); transform: translateY(-1px); color: var(--bone); }
+.btn-mini:active { transform: translateY(0); }
+.btn-mini.outline { background: transparent; border-color: var(--bone); color: var(--bone); }
+.btn-mini.outline:hover { background: var(--bone); color: var(--bg-0); }
+.btn-mini.danger { background: transparent; border-color: var(--rust-2); color: var(--rust-2); }
+.btn-mini.danger:hover { background: var(--rust-2); color: var(--bone); box-shadow: 0 0 16px rgba(231,76,60,0.45); }
+
 /* ============ Announcements (banner topo da home) ============ */
 .announcements-strip {
     position: relative;
