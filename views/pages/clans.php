@@ -1,5 +1,6 @@
 <?php /** @var array $config, $clans; @var ?array $my_clan, $steam_user */ ?>
 <?php \App\View::with('title', 'Clãs — ' . ($config['settings']['site_name'] ?? $config['site_name'] ?? 'Servidor')); ?>
+<?php \App\View::with('description', 'Conheça os clãs e facções do ' . ($config['settings']['site_name'] ?? $config['site_name'] ?? 'servidor') . ' — encontre seu grupo, peça pra entrar e domine Chernarus em equipe no DayZ.'); ?>
 <?php \App\View::extend('layouts.main'); ?>
 <?php \App\View::with('hero_image', 'img/background2.png'); ?>
 <?php \App\View::section('content'); ?>

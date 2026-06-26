@@ -5,6 +5,18 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.14.4] — 2026-06-26
+
+> Sem migration.
+
+### 👥 Clã: descrição + Discord visíveis pro membro
+- **Bloco "Sobre o clã":** a descrição e o **Discord do clã** agora aparecem num cartão claro, visível pra **todos** (membros e candidatos) — antes o Discord era só um link miúdo escondido no subtítulo (e o membro não tinha como achar o convite do Discord). Discord virou **botão** ("💬 Entrar no Discord do clã"). Editar continua só com o dono.
+
+### 🔎 SEO + acessibilidade
+- **Meta description** própria em **Clãs, página de clã (dinâmica por clã), VIP e Caixas** (antes caíam no texto genérico). A da página de clã usa TAG, nome, nº de membros e a descrição.
+- **Fallback da meta description corrigido** no layout: páginas sem description específica pegavam `site_tagline` da raiz do config (que podia estar vazio) → agora cai no de `settings` e, por fim, num texto padrão. Removido um `theme-color` inválido duplicado (`var(--bg-0)`).
+- **a11y:** botão de remover membro (só ícone ✕) ganhou `aria-label` (leitor de tela).
+
 ## [2.14.3] — 2026-06-26
 
 > Sem migration.

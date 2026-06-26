@@ -4,9 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="var(--bg-0)">
     <title><?= e($title ?? ($config['site_name'] ?? 'DayZ Server')) ?></title>
-    <meta name="description" content="<?= e($description ?? ($config['site_tagline'] ?? '')) ?>">
+    <meta name="description" content="<?= e($description ?? ($config['settings']['site_tagline'] ?? $config['site_tagline'] ?? 'Sobreviva. Construa. Domine. A apocalipse não espera.')) ?>">
 
     <link rel="icon" type="image/png" href="<?= asset('img/logo.png') ?>">
 

@@ -2,6 +2,7 @@
 /** @var array $config, $vip; @var array $durations; @var ?array $steam_user; @var int $coins; @var array $active */
 ?>
 <?php \App\View::with('title', 'VIP — ' . ($config['settings']['site_name'] ?? $config['site_name'] ?? 'Loja')); ?>
+<?php \App\View::with('description', 'VIP e Passe de Batalha do ' . ($config['settings']['site_name'] ?? $config['site_name'] ?? 'servidor') . ' — vantagens exclusivas no DayZ, ativadas com as moedas do servidor.'); ?>
 <?php \App\View::extend('layouts.main'); ?>
 <?php \App\View::with('hero_image', 'img/background3.png'); ?>
 <?php \App\View::section('content'); ?>

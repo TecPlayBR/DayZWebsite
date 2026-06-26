@@ -1,6 +1,7 @@
 <?php /** @var array $config, $clan, $members; @var bool $is_owner; @var ?array $my_clan, $my_request, $steam_user; @var array $pending, $sent_invites */ ?>
 <?php $sent_invites = $sent_invites ?? []; $my_invite = $my_invite ?? false; ?>
 <?php \App\View::with('title', '[' . $clan['tag'] . '] ' . $clan['name'] . ' — Clã'); ?>
+<?php \App\View::with('description', '[' . $clan['tag'] . '] ' . $clan['name'] . ' — clã do ' . ($config['settings']['site_name'] ?? $config['site_name'] ?? 'servidor') . ' com ' . (int)$clan['member_count'] . ' membro(s) no DayZ. ' . mb_strimwidth(trim(strip_tags($clan['description'] ?? '')), 0, 110, '…')); ?>
 <?php \App\View::extend('layouts.main'); ?>
 <?php \App\View::with('hero_image', 'img/background2.png'); ?>
 <?php \App\View::section('content'); ?>
@@ -33,7 +34,7 @@ $errMsg = ($_GET['err'] ?? '') !== '' ? \App\Clan::errorMessage($_GET['err']) : 
         <div style="min-width:0;">
             <span class="hero-kicker">// CLÃ</span>
             <h1 class="hero-title" style="font-size:clamp(1.8rem,5vw,3rem);">[<?= e($clan['tag']) ?>] <?= e($clan['name']) ?></h1>
-            <p style="color:var(--dim);margin:.2rem 0;">👥 <?= (int)$clan['member_count'] ?>/<?= (int)$clan['member_cap'] ?> membros<?php if (!empty($clan['discord_url'])): ?> · <a href="<?= e($clan['discord_url']) ?>" target="_blank" rel="noopener" style="color:var(--hazard);">Discord do clã →</a><?php endif; ?></p>
+            <p style="color:var(--dim);margin:.2rem 0;">👥 <?= (int)$clan['member_count'] ?>/<?= (int)$clan['member_cap'] ?> membros</p>
         </div>
     </div>
 </section>
@@ -43,8 +44,15 @@ $errMsg = ($_GET['err'] ?? '') !== '' ? \App\Clan::errorMessage($_GET['err']) : 
         <?php if ($okMsg): ?><div style="background:rgba(90,108,78,0.18);border-left:3px solid var(--moss);color:var(--text-success);padding:.8rem 1.1rem;margin-bottom:1.2rem;border-radius:4px;"><?= e($okMsg) ?></div><?php endif; ?>
         <?php if ($errMsg): ?><div style="background:rgba(231,76,60,0.18);border-left:3px solid var(--rust-2);color:var(--text-danger);padding:.8rem 1.1rem;margin-bottom:1.2rem;border-radius:4px;"><?= e($errMsg) ?></div><?php endif; ?>
 
-        <?php if (!empty($clan['description'])): ?>
-            <p style="color:var(--bone);line-height:1.6;margin-bottom:1.5rem;"><?= nl2br(e($clan['description'])) ?></p>
+        <?php if (!empty($clan['description']) || !empty($clan['discord_url'])): ?>
+        <div class="clan-about">
+            <?php if (!empty($clan['description'])): ?>
+                <p class="clan-about-desc"><?= nl2br(e($clan['description'])) ?></p>
+            <?php endif; ?>
+            <?php if (!empty($clan['discord_url'])): ?>
+                <a href="<?= e($clan['discord_url']) ?>" target="_blank" rel="noopener" class="btn btn-outline clan-discord-btn">💬 Entrar no Discord do clã</a>
+            <?php endif; ?>
+        </div>
         <?php endif; ?>
 
         <!-- AÇÃO do visitante -->
@@ -100,7 +108,7 @@ $errMsg = ($_GET['err'] ?? '') !== '' ? \App\Clan::errorMessage($_GET['err']) : 
                     <?php if ($is_owner && $m['role'] !== 'owner'): ?>
                         <form method="POST" action="/clans/<?= (int)$clan['id'] ?>/kick" onsubmit="return confirm('Remover <?= e(addslashes($nm)) ?> do clã?');" style="margin:0;">
                             <?= \App\Csrf::field() ?><input type="hidden" name="steam_id" value="<?= e($m['steam_id']) ?>">
-                            <button class="clan-kick" title="Remover">✕</button>
+                            <button class="clan-kick" title="Remover" aria-label="Remover <?= e($nm) ?> do clã">✕</button>
                         </form>
                     <?php endif; ?>
                 </div>
@@ -190,6 +198,10 @@ $errMsg = ($_GET['err'] ?? '') !== '' ? \App\Clan::errorMessage($_GET['err']) : 
 
 <style>
 .clan-hero-logo img, .clan-hero-fb { width:90px; height:90px; border-radius:10px; object-fit:cover; background:var(--bg-2); border:2px solid var(--rust); display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-size:2rem; color:var(--hazard); }
+.clan-about { background:var(--bg-1); border:1px solid var(--border); border-left:3px solid var(--hazard); border-radius:6px; padding:1.1rem 1.3rem; margin-bottom:1.8rem; }
+.clan-about-desc { color:var(--bone); line-height:1.6; margin:0; }
+.clan-about-desc + .clan-discord-btn { margin-top:1rem; }
+.clan-discord-btn { display:inline-flex; align-items:center; gap:.4rem; }
 .clan-h2 { font-family:var(--font-display); color:var(--bone); font-size:1.2rem; border-bottom:2px solid var(--rust); padding-bottom:.4rem; margin:0 0 1rem; }
 .clan-h3 { font-family:var(--font-display); color:var(--bone); font-size:.98rem; margin:1.4rem 0 .6rem; }
 .clan-members { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(200px,100%),1fr)); gap:.5rem; }

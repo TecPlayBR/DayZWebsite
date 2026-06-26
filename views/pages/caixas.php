@@ -2,6 +2,7 @@
 /** @var array $config, $boxes; @var ?array $steam_user; @var int $coins */
 ?>
 <?php \App\View::with('title', 'Caixas — ' . ($config['settings']['site_name'] ?? $config['site_name'] ?? 'Loja')); ?>
+<?php \App\View::with('description', 'Caixas e lootboxes do ' . ($config['settings']['site_name'] ?? $config['site_name'] ?? 'servidor') . ' — abra e ganhe itens in-game entregues direto no seu personagem no DayZ.'); ?>
 <?php \App\View::extend('layouts.main'); ?>
 <?php \App\View::with('hero_image', 'img/background3.png'); ?>
 <?php \App\View::section('content'); ?>
