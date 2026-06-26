@@ -5,6 +5,16 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.14.0] — 2026-06-26
+
+> **Tem migration** (`v2.14.0_help_center.sql` — tabela `help_articles`). Rode `php cli/migrate.php`.
+
+### 📚 Central de Ajuda (`/ajuda`)
+- **Guia/tutoriais por categoria** (Começando · Mecânicas · Eventos & Áreas · Economia & Comércio · Suporte & Políticas). Cada artigo tem título, resumo (SEO), corpo HTML, **vídeo do YouTube embutido** (cola o link, ele embuti sozinho) e imagem.
+- **Admin → 📚 Central de Ajuda:** criar/editar/excluir artigo, escolher categoria, publicar/ocultar, ordenar. Slug automático.
+- Pensado pra **migrar o canal "Começo" do Discord pro site** (SEO + onboarding permanente). Template nasce vazio ("em breve"); o servidor preenche os artigos.
+- CSP já libera `youtube-nocookie.com` no `frame-src`.
+
 ## [2.13.4] — 2026-06-26
 
 > Sem migration.

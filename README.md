@@ -9,7 +9,7 @@ Tema apocalipse · Painel admin completo · Mercado Pago · Login Steam · Multi
 [![MySQL](https://img.shields.io/badge/MySQL-5.7+-4479A1?style=flat-square&logo=mysql&logoColor=white)](https://www.mysql.com)
 [![License](https://img.shields.io/badge/License-Tecplay--NC-a855f7?style=flat-square)](LICENSE.txt)
 [![Status](https://img.shields.io/badge/Status-Produção-16a34a?style=flat-square)]()
-[![Versão](https://img.shields.io/badge/Versão-2.13.4-facc15?style=flat-square)](RELEASE_NOTES.md)
+[![Versão](https://img.shields.io/badge/Versão-2.14.0-facc15?style=flat-square)](RELEASE_NOTES.md)
 
 *Sobreviva. Construa. Domine. Agora também na web.*
 
@@ -67,6 +67,7 @@ O **site é grátis** e faz a loja, o painel, a carteira de moedas e o leaderboa
 - **15 conquistas automáticas** — 12 de loja/atividade (Primeiro Sangue, Veterano, Padroeiro, Lendário, Tubarão, Madrugador, Insone, Colecionador, Persistência, Generoso, Tiro Rápido, Veterano de Guerra) + **3 de gameplay** via CFTools (🎯 Franco-Atirador, ☣ Exterminador, ⏳ Veterano de Chernarus) — totalmente i18n, com **recompensa configurável em moedas** (admin define +X por conquista, liga/desliga; pago 1x por jogador "por conta da casa")
 - **🪙 Aba VIP** (`/vip`) — venda de **VIP/BattlePass por moedas** (30/60/90 dias, renovação soma dias); o jogador paga com a moeda que tem e o agent aplica no jogo
 - **🛡 Clãs** (`/clans`) — jogadores registram clã (nome, TAG, logo, Discord), entram por **pedido ou convite com aceite** (consentimento/LGPD), 1 clã por jogador, dono gerencia membros; aparece no perfil; admin modera
+- **📚 Central de Ajuda** (`/ajuda`) — guia/tutoriais por categoria, com **vídeo do YouTube embutido** + imagem por artigo; editável no painel (SEO + onboarding)
 - **Reviews públicas** em `/depoimentos` (qualquer visitante envia, admin modera) + `AggregateRating` Schema.org pro Google
 - **Wishlist** de pacotes pros jogadores logados
 - **Perfil do jogador unificado** (`/player/{steamid}`): visitante vê o público (stats de combate + conquistas); o **dono logado** vê também o privado no mesmo lugar (saldo, compras, histórico de caixas, loja in-game, streamer) — sem página separada, sem vazar financeiro pra visitante

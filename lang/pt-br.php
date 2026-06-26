@@ -12,6 +12,7 @@ return array (
     'boxes' => 'Caixas',
     'vip' => 'VIP',
     'clans' => 'Clãs',
+    'help' => 'Ajuda',
     'events' => 'Eventos',
     'more' => 'Mais',
     'rules' => 'Regras',

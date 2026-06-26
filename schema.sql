@@ -1436,3 +1436,24 @@ CREATE TABLE clan_requests (
     KEY idx_req_steam (steam_id),
     KEY idx_req_clan (clan_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ============================================================
+-- TABELA: help_articles (v2.14.0) — Central de Ajuda / Guia
+-- ============================================================
+DROP TABLE IF EXISTS help_articles;
+CREATE TABLE help_articles (
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    category    VARCHAR(30)  NOT NULL,
+    slug        VARCHAR(120) NOT NULL,
+    title       VARCHAR(160) NOT NULL,
+    summary     VARCHAR(300) NULL,
+    body        MEDIUMTEXT   NULL,
+    video_url   VARCHAR(255) NULL,
+    image       VARCHAR(255) NULL,
+    sort_order  INT          NOT NULL DEFAULT 0,
+    published   TINYINT(1)   NOT NULL DEFAULT 1,
+    created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_help_slug (slug),
+    KEY idx_help_cat (category, published, sort_order)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

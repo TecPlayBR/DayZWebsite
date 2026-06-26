@@ -266,6 +266,18 @@ if (!function_exists('home_features')) {
     }
 }
 
+if (!function_exists('youtube_embed_url')) {
+    /** Converte um link do YouTube (watch/youtu.be/shorts/embed) em URL de embed. null se inválido. */
+    function youtube_embed_url(?string $url): ?string {
+        $url = trim((string) $url);
+        if ($url === '') return null;
+        if (preg_match('#(?:youtu\.be/|youtube\.com/(?:watch\?v=|embed/|shorts/|v/))([A-Za-z0-9_-]{11})#', $url, $m)) {
+            return 'https://www.youtube-nocookie.com/embed/' . $m[1];
+        }
+        return null;
+    }
+}
+
 if (!function_exists('clan_tag')) {
     /**
      * HTML do badge [TAG] clicável (leva pra página do clã) pra prefixar o nick

@@ -70,6 +70,7 @@ require $ROOT . '/src/Boxes.php';
 require $ROOT . '/src/Rewards.php';
 require $ROOT . '/src/Vip.php';
 require $ROOT . '/src/Clan.php';
+require $ROOT . '/src/Help.php';
 require $ROOT . '/src/Events.php';
 require $ROOT . '/src/Html.php';
 require $ROOT . '/src/helpers.php';
@@ -826,6 +827,16 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     \App\Clan::disband((int)$id);
     \App\AuditLog::record('clan.removed', 'clan', (string)$id);
     header('Location: /admin/clans?ok=1'); exit;
+});
+
+// ============ CENTRAL DE AJUDA (guia) ============
+\App\Router::get('/ajuda', function() use ($config) {
+    \App\View::display('pages.help_index', ['config' => $config, 'by_cat' => \App\Help::publishedByCategory()]);
+});
+\App\Router::get('/ajuda/{slug}', function($slug) use ($config) {
+    $a = \App\Help::getBySlug($slug);
+    if (!$a) { header('Location: /ajuda'); exit; }
+    \App\View::display('pages.help_article', ['config' => $config, 'a' => $a, 'siblings' => \App\Help::siblings($a['category'], (int)$a['id'])]);
 });
 
 \App\Router::get('/rules', function() use ($config) {
@@ -2596,6 +2607,60 @@ $REWARD_CATEGORIES = [
     \App\Settings::set('home_features', json_encode($cfg, JSON_UNESCAPED_UNICODE));
     \App\AuditLog::record('home_features.saved', 'settings', null, ['cards' => count($cards)]);
     header('Location: /admin/home-features?ok=1');
+    exit;
+});
+
+// ============ ADMIN: CENTRAL DE AJUDA ============
+\App\Router::get('/admin/help', function() use ($config) {
+    \App\Auth::requireCan('pages');
+    \App\View::display('admin.help', ['config' => $config, 'articles' => \App\Help::all()]);
+});
+\App\Router::get('/admin/help/new', function() use ($config) {
+    \App\Auth::requireCan('pages');
+    \App\View::display('admin.help_edit', ['config' => $config, 'a' => null]);
+});
+\App\Router::get('/admin/help/{id}/edit', function($id) use ($config) {
+    \App\Auth::requireCan('pages');
+    $a = \App\Help::get((int)$id);
+    if (!$a) { http_response_code(404); echo 'Artigo não encontrado'; exit; }
+    \App\View::display('admin.help_edit', ['config' => $config, 'a' => $a]);
+});
+\App\Router::post('/admin/help/save', function() use ($config, $ROOT) {
+    \App\Auth::requireCan('pages');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
+    $id    = (int)($_POST['id'] ?? 0);
+    $cat   = array_key_exists($_POST['category'] ?? '', \App\Help::CATEGORIES) ? $_POST['category'] : 'comecando';
+    $title = trim($_POST['title'] ?? '');
+    if ($title === '') { header('Location: /admin/help' . ($id ? '/' . $id . '/edit' : '/new') . '?err=title'); exit; }
+    $summary   = mb_substr(trim($_POST['summary'] ?? ''), 0, 300) ?: null;
+    $body      = \App\Html::sanitize((string)($_POST['body'] ?? ''));
+    $video     = trim($_POST['video_url'] ?? '') ?: null;
+    $published = isset($_POST['published']) ? 1 : 0;
+    $sort      = (int)($_POST['sort_order'] ?? 0);
+    $img       = upload_image($_FILES['image_file'] ?? [], $ROOT . '/public/assets/img/help', 'help', '/assets/img/help');
+    if ($id > 0) {
+        $slug = \App\Help::makeSlug($title, $id);
+        if ($img !== null) {
+            \App\Database::query("UPDATE help_articles SET category=?,slug=?,title=?,summary=?,body=?,video_url=?,image=?,published=?,sort_order=? WHERE id=?",
+                [$cat, $slug, $title, $summary, $body, $video, $img, $published, $sort, $id]);
+        } else {
+            \App\Database::query("UPDATE help_articles SET category=?,slug=?,title=?,summary=?,body=?,video_url=?,published=?,sort_order=? WHERE id=?",
+                [$cat, $slug, $title, $summary, $body, $video, $published, $sort, $id]);
+        }
+    } else {
+        $slug = \App\Help::makeSlug($title);
+        \App\Database::query("INSERT INTO help_articles (category,slug,title,summary,body,video_url,image,published,sort_order) VALUES (?,?,?,?,?,?,?,?,?)",
+            [$cat, $slug, $title, $summary, $body, $video, $img, $published, $sort]);
+    }
+    \App\AuditLog::record('help.saved', 'help', $slug ?? null);
+    header('Location: /admin/help?ok=1');
+    exit;
+});
+\App\Router::post('/admin/help/{id}/delete', function($id) use ($config) {
+    \App\Auth::requireCan('pages');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
+    \App\Database::query("DELETE FROM help_articles WHERE id = ?", [(int)$id]);
+    header('Location: /admin/help?ok=1');
     exit;
 });
 

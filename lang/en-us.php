@@ -12,6 +12,7 @@ return array (
     'boxes' => 'Cases',
     'vip' => 'VIP',
     'clans' => 'Clans',
+    'help' => 'Help',
     'events' => 'Events',
     'more' => 'More',
     'rules' => 'Rules',

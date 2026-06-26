@@ -50,6 +50,7 @@
             ['purchases',           '/admin/purchases',          '💰 Compras',             str_starts_with($current, '/admin/purchases')],
             ['pages',               '/admin/pages',              '📄 Páginas',             str_starts_with($current, '/admin/pages')],
             ['pages',               '/admin/home-features',      '🏠 Seção da Home',       str_starts_with($current, '/admin/home-features')],
+            ['pages',               '/admin/help',               '📚 Central de Ajuda',    str_starts_with($current, '/admin/help')],
             ['announcements',       '/admin/announcements',      '📢 Anúncios',            str_starts_with($current, '/admin/announcements')],
             ['coupons',             '/admin/coupons',            '🎟 Cupons',              str_starts_with($current, '/admin/coupons')],
             ['coupons',             '/admin/streamers',          '🎮 Streamers',           str_starts_with($current, '/admin/streamers')],

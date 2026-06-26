@@ -1,6 +1,19 @@
-# 🏴 DayZ Website Template — Notas da versão (v2.13.0)
+# 🏴 DayZ Website Template — Notas da versão (v2.14.0)
 
 > **Atualizar é seguro e não apaga nada.** Suba os arquivos e rode `php cli/migrate.php` (idempotente). O log completo fica no **[CHANGELOG.md](CHANGELOG.md)**; aqui vão os destaques.
+
+---
+
+## 🆕 v2.14.0 — Central de Ajuda (`/ajuda`)
+
+- **Guia/tutoriais por categoria** com **vídeo do YouTube embutido** + imagem por artigo, tudo editável no painel (Admin → 📚 Central de Ajuda).
+- Pra migrar o "Começo" do Discord pro site (SEO + onboarding). Template nasce vazio; o servidor preenche.
+
+> ⚠️ **Tem migration** (`help_articles`): rode `php cli/migrate.php`.
+
+## 🆕 v2.13.x — Clãs
+
+- Registro de clãs no site (`/clans`): criar, entrar por pedido/convite com aceite, dono gerencia, passar liderança, admin modera, TAG no nome.
 
 ---
 
