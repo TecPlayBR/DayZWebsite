@@ -215,6 +215,60 @@ class ClanEvent
         return $rows;
     }
 
+    // ---------- Premiação (igual ao individual: botão Premiar credita moedas) ----------
+
+    /** Dá pra premiar? Congelado + tem vencedor + tem prêmio em moedas + ainda não pago. */
+    public static function canReward(array $ev): bool {
+        return !empty($ev['frozen_at'])
+            && (int)($ev['winner_clan_id'] ?? 0) > 0
+            && (int)($ev['prize_coins'] ?? 0) > 0
+            && empty($ev['rewarded_at']);
+    }
+
+    /**
+     * Credita prize_coins a CADA membro que participou do clã vencedor.
+     * Idempotente (rewarded_at). Loga em balance_log. Retorna null no sucesso.
+     */
+    public static function reward(int $eventId): ?string {
+        $ev = self::get($eventId);
+        if (!$ev) return 'not_found';
+        if (empty($ev['frozen_at']))        return 'not_frozen';
+        if (!empty($ev['rewarded_at']))     return 'already';
+        $coins  = (int)($ev['prize_coins'] ?? 0);
+        $clanId = (int)($ev['winner_clan_id'] ?? 0);
+        if ($coins <= 0)  return 'no_prize';
+        if ($clanId <= 0) return 'no_winner';
+
+        // Quem participou de verdade (ativos no fim do evento). Fallback: membros atuais.
+        $members = Database::fetchAll(
+            "SELECT steam_id FROM clan_event_members WHERE event_id = ? AND clan_id = ? AND active = 1",
+            [$eventId, $clanId]
+        );
+        if (!$members) {
+            $members = Database::fetchAll("SELECT steam_id FROM clan_members WHERE clan_id = ?", [$clanId]);
+        }
+        foreach ($members as $m) {
+            $sid = (string)$m['steam_id'];
+            $p = Database::fetchOne("SELECT id, coins FROM players WHERE steam_id = ? LIMIT 1", [$sid]);
+            if ($p) {
+                $old = (int)$p['coins']; $pid = (int)$p['id'];
+                Database::query("UPDATE players SET coins = coins + ? WHERE id = ?", [$coins, $pid]);
+            } else {
+                Database::query(
+                    "INSERT INTO players (steam_id, coins, origin, last_seen_at) VALUES (?, ?, 'reward', NOW())",
+                    [$sid, $coins]
+                );
+                $pid = (int)Database::pdo()->lastInsertId(); $old = 0;
+            }
+            try {
+                BalanceLog::record($pid, $sid, $old, $old + $coins, 'reward', 'clan_event', $eventId,
+                    'Prêmio evento de clã: ' . $ev['title']);
+            } catch (\Throwable $e) { /* não derruba o resto */ }
+        }
+        Database::query("UPDATE clan_events SET rewarded_at = NOW() WHERE id = ? AND rewarded_at IS NULL", [$eventId]);
+        return null;
+    }
+
     // ---------- Ganchos de roster (chamados pelo Clan) ----------
 
     /** Eventos ATIVOS (baseline tirado, não congelado) em que o clã está inscrito. */

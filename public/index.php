@@ -2595,6 +2595,7 @@ $REWARD_CATEGORIES = [
     $slug   = \App\ClanEvent::slugify($_POST['slug'] ?? $title);
     $desc   = trim($_POST['description'] ?? '') ?: null;
     $prize  = trim($_POST['prize'] ?? '') ?: null;
+    $prizeCoins = max(0, (int)($_POST['prize_coins'] ?? 0));
     $fixDt  = static fn($v) => $v ? (date('Y-m-d H:i:s', strtotime(str_replace('T', ' ', $v))) ?: null) : null;
     $starts = $fixDt($_POST['starts_at'] ?? '');
     $ends   = $fixDt($_POST['ends_at'] ?? '');
@@ -2604,13 +2605,13 @@ $REWARD_CATEGORIES = [
     try {
         if ($id) {
             \App\Database::query(
-                "UPDATE clan_events SET title=?, slug=?, description=?, metric=?, prize=?, starts_at=?, ends_at=?, enabled=?, sort_order=? WHERE id=?",
-                [$title, $slug, $desc, $metric, $prize, $starts, $ends, $enabled, $sort, $id]
+                "UPDATE clan_events SET title=?, slug=?, description=?, metric=?, prize=?, prize_coins=?, starts_at=?, ends_at=?, enabled=?, sort_order=? WHERE id=?",
+                [$title, $slug, $desc, $metric, $prize, $prizeCoins, $starts, $ends, $enabled, $sort, $id]
             );
         } else {
             \App\Database::query(
-                "INSERT INTO clan_events (title, slug, description, metric, prize, starts_at, ends_at, enabled, sort_order) VALUES (?,?,?,?,?,?,?,?,?)",
-                [$title, $slug, $desc, $metric, $prize, $starts, $ends, $enabled, $sort]
+                "INSERT INTO clan_events (title, slug, description, metric, prize, prize_coins, starts_at, ends_at, enabled, sort_order) VALUES (?,?,?,?,?,?,?,?,?,?)",
+                [$title, $slug, $desc, $metric, $prize, $prizeCoins, $starts, $ends, $enabled, $sort]
             );
             $id = (int)\App\Database::pdo()->lastInsertId();
         }
@@ -2629,6 +2630,13 @@ $REWARD_CATEGORIES = [
     \App\Database::query("DELETE FROM clan_events WHERE id = ?", [(int)$id]);
     \App\AuditLog::record('clan_event.delete', 'clan_event', (int)$id);
     header('Location: /admin/clan-events?ok=deleted'); exit;
+});
+\App\Router::post('/admin/clan-events/{id}/reward', function($id) use ($config) {
+    \App\Auth::requireCan('pages');
+    if (!\App\Csrf::check()) { header('Location: /admin/clan-events?err=csrf'); exit; }
+    $err = \App\ClanEvent::reward((int)$id);
+    \App\AuditLog::record('clan_event.reward', 'clan_event', (int)$id);
+    header('Location: /admin/clan-events/' . (int)$id . ($err ? '?err=' . urlencode($err) : '?ok=rewarded')); exit;
 });
 
 // ============ EVENTOS & SORTEIOS (público) ============

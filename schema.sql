@@ -1468,6 +1468,7 @@ CREATE TABLE clan_events (
     description    TEXT         NULL,
     metric         VARCHAR(30)  NOT NULL DEFAULT 'kills_infected',
     prize          VARCHAR(255) NULL,
+    prize_coins    INT          NOT NULL DEFAULT 0,
     starts_at      DATETIME     NOT NULL,
     ends_at        DATETIME     NOT NULL,
     baseline_taken TINYINT(1)   NOT NULL DEFAULT 0,

@@ -16,9 +16,9 @@ $inp = 'width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--
     </div>
 </div>
 
-<?php if (!empty($_GET['ok'])): ?><div class="alert-toast">Salvo!</div><?php endif; ?>
+<?php if (($_GET['ok'] ?? '') !== ''): ?><div class="alert-toast"><?= ($_GET['ok']==='rewarded') ? '🏆 Premiação creditada aos membros do clã vencedor!' : 'Salvo!' ?></div><?php endif; ?>
 <?php if (($_GET['err'] ?? '') !== ''): ?>
-    <div class="alert-toast" style="background:var(--danger-overlay);color:var(--text-danger);"><?= e(match($_GET['err']){'title'=>'Informe o título.','dates'=>'Datas inválidas (o fim tem que ser depois do início).','slug'=>'Já existe um evento com esse slug.','csrf'=>'Sessão expirada.',default=>'Erro.'}) ?></div>
+    <div class="alert-toast" style="background:var(--danger-overlay);color:var(--text-danger);"><?= e(match($_GET['err']){'title'=>'Informe o título.','dates'=>'Datas inválidas (o fim tem que ser depois do início).','slug'=>'Já existe um evento com esse slug.','csrf'=>'Sessão expirada.','already'=>'Esse evento já foi premiado.','not_frozen'=>'O evento ainda não terminou (precisa congelar primeiro).','no_prize'=>'Defina as moedas de prêmio antes de premiar.','no_winner'=>'Esse evento não tem vencedor.',default=>'Erro.'}) ?></div>
 <?php endif; ?>
 
 <div class="stat-card" style="margin-bottom:1.5rem;">
@@ -35,7 +35,8 @@ $inp = 'width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--
                 <?php endforeach; ?>
             </select>
         </label>
-        <label>Prêmio<input type="text" name="prize" value="<?= $val('prize') ?>" placeholder="ex: 10.000 moedas pro clã" style="<?= $inp ?>"></label>
+        <label>Prêmio (texto/descrição)<input type="text" name="prize" value="<?= $val('prize') ?>" placeholder="ex: 10.000 moedas + destaque" style="<?= $inp ?>"></label>
+        <label>Moedas por membro <small style="color:var(--dim);">(o botão Premiar credita isso a CADA membro do clã vencedor)</small><input type="number" name="prize_coins" min="0" value="<?= (int)($e['prize_coins'] ?? 0) ?>" style="<?= $inp ?>"></label>
         <label style="grid-column:1/3;">Descrição<textarea name="description" rows="3" style="<?= $inp ?>"><?= $val('description') ?></textarea></label>
         <label>Começa em<input type="datetime-local" name="starts_at" value="<?= $dt('starts_at') ?>" required style="<?= $inp ?>"></label>
         <label>Termina em<input type="datetime-local" name="ends_at" value="<?= $dt('ends_at') ?>" required style="<?= $inp ?>"></label>
@@ -57,7 +58,16 @@ $inp = 'width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--
         </div>
         <?php if (!empty($edit['winner_name'])): ?>
             <p style="color:var(--hazard);margin:.5rem 0;">🏆 Vencedor: <strong><?= e($edit['winner_name']) ?></strong></p>
-            <p style="color:var(--dim);font-size:.82rem;">Premiação (creditar moedas aos membros) vem na próxima atualização — por enquanto, entregue manualmente.</p>
+            <?php if (!empty($edit['rewarded_at'])): ?>
+                <p style="color:var(--text-success);font-size:.9rem;">✓ Premiação já entregue em <?= e(date('d/m H:i', strtotime($edit['rewarded_at']))) ?> (<?= (int)$edit['prize_coins'] ?> moedas por membro).</p>
+            <?php elseif (\App\ClanEvent::canReward($edit)): ?>
+                <form method="POST" action="/admin/clan-events/<?= (int)$edit['id'] ?>/reward" onsubmit="return confirm('Creditar <?= (int)$edit['prize_coins'] ?> moedas pra CADA membro do clã <?= e(addslashes($edit['winner_name'])) ?>? Não dá pra desfazer.');" style="margin:.6rem 0;">
+                    <?= \App\Csrf::field() ?>
+                    <button type="submit" class="btn">🏆 Premiar clã vencedor (<?= (int)$edit['prize_coins'] ?> moedas/membro)</button>
+                </form>
+            <?php elseif ((int)($edit['prize_coins'] ?? 0) <= 0): ?>
+                <p style="color:var(--dim);font-size:.82rem;">Defina as <strong>moedas por membro</strong> no form acima pra liberar o botão Premiar.</p>
+            <?php endif; ?>
         <?php endif; ?>
         <?php if (!empty($scores)): ?>
             <table class="admin-table" data-nofilter style="margin-top:.6rem;">

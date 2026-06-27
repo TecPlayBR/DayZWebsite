@@ -5,6 +5,14 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.15.5] — 2026-06-27
+
+> **Tem migration** (`v2.15.5_clan_event_prize_coins.sql` — coluna `prize_coins`). Rode `php cli/migrate.php`.
+
+### 🏆 Eventos de Clã — botão "Premiar" (Fase 2 parte 2)
+- Igual ao ranking individual: no admin do evento de clã (já congelado), o botão **Premiar** credita as moedas a **cada membro** do clã vencedor (campo "Moedas por membro" no form). Idempotente (`rewarded_at` — não paga 2×), com registro em `balance_log` (aparece no histórico de saldo do jogador). Premia quem **participou** de fato (membros ativos no fim do evento).
+- Com isso a feature de Eventos de Clã fica completa: criar → líder inscreve → placar por delta → congela → premiar.
+
 ## [2.15.4] — 2026-06-27
 
 > Sem migration.
