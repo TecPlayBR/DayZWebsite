@@ -5,6 +5,14 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.15.2] — 2026-06-27
+
+> Sem migration.
+
+### 🎨 Polimento dark do tema
+- **Scrollbar no estilo do site** (trilho escuro, polegar ferrugem → dourado no hover) no lugar da barra cinza padrão do navegador — Chrome/Edge/Safari + Firefox.
+- **Seleção de texto dourada** (em vez do azul padrão) — combina com o tema.
+
 ## [2.15.1] — 2026-06-27
 
 > Sem migration.
