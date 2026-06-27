@@ -1,6 +1,16 @@
-# 🏴 DayZ Website Template — Notas da versão (v2.14.0)
+# 🏴 DayZ Website Template — Notas da versão (v2.15.5)
 
 > **Atualizar é seguro e não apaga nada.** Suba os arquivos e rode `php cli/migrate.php` (idempotente). O log completo fica no **[CHANGELOG.md](CHANGELOG.md)**; aqui vão os destaques.
+
+---
+
+## 🆕 v2.15.0–2.15.5 — ⚔️ Eventos de Clã (Fase 2) + pente-fino de design
+
+- **Eventos de Clã** na aba **Clãs** do `/ranking` (só aparece pra quem tem clã): competição entre clãs por período (ex: "Mate o máximo de zumbis"), **placar por delta** (conta só o que rolar dentro do evento — foto no início, congela no fim), **inscrição pelo líder**, e **botão Premiar** que credita moedas a cada membro do clã vencedor. Entra/sai do clã no meio é tratado (quem entra começa em 0, quem sai sai da soma).
+- **Pente-fino de design:** campos de formulário, checkboxes, file inputs, scrollbar e seleção de texto padronizados no tema dark; 10 tabelas do admin unificadas no estilo `.admin-table` (header/hover/ordenação).
+- **SEO:** sitemap inclui clãs e artigos da Ajuda; JSON-LD `Article` nos guias.
+
+> ⚠️ **Tem migrations** (`clan_events`+2 tabelas, e `prize_coins`): rode `php cli/migrate.php`.
 
 ---
 
