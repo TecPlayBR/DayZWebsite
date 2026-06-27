@@ -69,6 +69,7 @@ require $ROOT . '/src/Servers.php';
 require $ROOT . '/src/Boxes.php';
 require $ROOT . '/src/Rewards.php';
 require $ROOT . '/src/Vip.php';
+require $ROOT . '/src/ClanEvent.php';
 require $ROOT . '/src/Clan.php';
 require $ROOT . '/src/Help.php';
 require $ROOT . '/src/Events.php';
@@ -382,6 +383,9 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     $rewards = $rewardsRaw ? (json_decode($rewardsRaw, true) ?: []) : [];
     $cfOn = \App\CFTools::isConfigured();
     $online = $cfOn ? (\App\CFTools::onlinePlayers() ?: []) : [];
+    // Aba "Clãs" só aparece pra quem tem clã (a página em si também é gated).
+    $rkSid    = \App\SteamAuth::check() ? \App\SteamAuth::steamId() : null;
+    $rkInClan = $rkSid ? (bool) \App\Clan::forPlayer($rkSid) : false;
 
     // Visibilidade das abas (admin escolhe quais aparecem em /admin/rewards). Default: todas.
     $tabsCfg = is_array($rewards['tabs'] ?? null) ? $rewards['tabs'] : [];
@@ -405,6 +409,7 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
             'config' => $config, 'mode' => 'gameplay', 'stat' => $stat,
             'gameplay_stats' => $visGameplay, 'cftools_on' => true, 'lb' => $lb,
             'rewards' => $rewards, 'online' => $online, 'invest_visible' => $investVisible,
+            'in_clan' => $rkInClan,
         ]);
         return;
     }
@@ -419,7 +424,7 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     \App\View::display('pages.ranking', [
         'config' => $config, 'mode' => 'invest', 'top' => $top,
         'gameplay_stats' => $visGameplay, 'cftools_on' => $cfOn, 'rewards' => $rewards,
-        'online' => $online, 'invest_visible' => $investVisible,
+        'online' => $online, 'invest_visible' => $investVisible, 'in_clan' => $rkInClan,
     ]);
 });
 
@@ -829,6 +834,51 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     if (!\App\Csrf::check()) { header('Location: /player/' . \App\SteamAuth::steamId()); exit; }
     \App\Clan::dropRequest((int)($_POST['clan_id'] ?? 0), \App\SteamAuth::steamId());
     header('Location: /player/' . \App\SteamAuth::steamId()); exit;
+});
+
+// ============ EVENTOS DE CLÃ (aba "Clãs" do ranking — GATED: só quem tem clã) ============
+\App\Router::get('/ranking/clans', function() use ($config) {
+    $sid    = \App\SteamAuth::check() ? \App\SteamAuth::steamId() : null;
+    $myClan = $sid ? \App\Clan::forPlayer($sid) : null;
+    // TRAVA DURA: sem clã registrado, não vê eventos de clã. Volta pro ranking normal.
+    if (!$myClan) { header('Location: /ranking'); exit; }
+    \App\ClanEvent::tick(); // backup do ciclo (caso o Bot não tenha batido ainda)
+    $events = [];
+    foreach (\App\ClanEvent::publicEvents() as $ev) {
+        $events[] = [
+            'ev'         => $ev,
+            'phase'      => \App\ClanEvent::phase($ev),
+            'scores'     => \App\ClanEvent::liveScores((int)$ev['id'], $ev),
+            'registered' => \App\ClanEvent::isRegistered((int)$ev['id'], (int)$myClan['id']),
+        ];
+    }
+    \App\View::display('pages.clan_events', [
+        'config'     => $config,
+        'my_clan'    => $myClan,
+        'is_leader'  => \App\Clan::isOwner((int)$myClan['id'], $sid),
+        'events'     => $events,
+        'steam_user' => \App\SteamAuth::user(),
+    ]);
+});
+
+\App\Router::post('/clan-events/{id}/register', function($id) use ($config) {
+    if (!\App\SteamAuth::check()) { header('Location: /auth/steam'); exit; }
+    if (!\App\Csrf::check()) { header('Location: /ranking/clans?err=csrf'); exit; }
+    $sid  = \App\SteamAuth::steamId();
+    $clan = \App\Clan::forPlayer($sid);
+    if (!$clan || !\App\Clan::isOwner((int)$clan['id'], $sid)) { header('Location: /ranking/clans?err=not_owner'); exit; }
+    $err = \App\ClanEvent::register((int)$id, (int)$clan['id'], $sid);
+    header('Location: /ranking/clans' . ($err ? '?err=' . urlencode($err) : '?ok=registered')); exit;
+});
+
+\App\Router::post('/clan-events/{id}/unregister', function($id) use ($config) {
+    if (!\App\SteamAuth::check()) { header('Location: /auth/steam'); exit; }
+    if (!\App\Csrf::check()) { header('Location: /ranking/clans?err=csrf'); exit; }
+    $sid  = \App\SteamAuth::steamId();
+    $clan = \App\Clan::forPlayer($sid);
+    if (!$clan || !\App\Clan::isOwner((int)$clan['id'], $sid)) { header('Location: /ranking/clans?err=not_owner'); exit; }
+    $err = \App\ClanEvent::unregister((int)$id, (int)$clan['id']);
+    header('Location: /ranking/clans' . ($err ? '?err=' . urlencode($err) : '?ok=unregistered')); exit;
 });
 
 // Admin: moderar clãs (remover abuso). Capability 'coupons' (mesma área de gestão).
@@ -2520,6 +2570,65 @@ $REWARD_CATEGORIES = [
     \App\AuditLog::record('event.delete', 'event', (int)$id);
     header('Location: /admin/eventos?ok=deleted');
     exit;
+});
+
+// ============ ADMIN: EVENTOS DE CLÃ ============
+\App\Router::get('/admin/clan-events', function() use ($config) {
+    \App\Auth::requireCan('pages');
+    \App\ClanEvent::tick();
+    \App\View::display('admin.clan_events', ['config' => $config, 'events' => \App\ClanEvent::all(), 'edit' => null, 'scores' => []]);
+});
+\App\Router::get('/admin/clan-events/{id}', function($id) use ($config) {
+    \App\Auth::requireCan('pages');
+    \App\ClanEvent::tick();
+    $edit = \App\ClanEvent::get((int)$id);
+    $scores = $edit ? \App\ClanEvent::liveScores((int)$id, $edit) : [];
+    \App\View::display('admin.clan_events', ['config' => $config, 'events' => \App\ClanEvent::all(), 'edit' => $edit, 'scores' => $scores]);
+});
+\App\Router::post('/admin/clan-events/save', function() use ($config) {
+    \App\Auth::requireCan('pages');
+    if (!\App\Csrf::check()) { header('Location: /admin/clan-events?err=csrf'); exit; }
+    $id     = (int)($_POST['id'] ?? 0);
+    $title  = trim($_POST['title'] ?? '');
+    if ($title === '') { header('Location: /admin/clan-events' . ($id ? '/' . $id : '') . '?err=title'); exit; }
+    $metric = in_array($_POST['metric'] ?? '', array_keys(\App\ClanEvent::METRICS), true) ? $_POST['metric'] : 'kills_infected';
+    $slug   = \App\ClanEvent::slugify($_POST['slug'] ?? $title);
+    $desc   = trim($_POST['description'] ?? '') ?: null;
+    $prize  = trim($_POST['prize'] ?? '') ?: null;
+    $fixDt  = static fn($v) => $v ? (date('Y-m-d H:i:s', strtotime(str_replace('T', ' ', $v))) ?: null) : null;
+    $starts = $fixDt($_POST['starts_at'] ?? '');
+    $ends   = $fixDt($_POST['ends_at'] ?? '');
+    if (!$starts || !$ends || strtotime($ends) <= strtotime($starts)) { header('Location: /admin/clan-events' . ($id ? '/' . $id : '') . '?err=dates'); exit; }
+    $enabled = isset($_POST['enabled']) ? 1 : 0;
+    $sort    = (int)($_POST['sort_order'] ?? 0);
+    try {
+        if ($id) {
+            \App\Database::query(
+                "UPDATE clan_events SET title=?, slug=?, description=?, metric=?, prize=?, starts_at=?, ends_at=?, enabled=?, sort_order=? WHERE id=?",
+                [$title, $slug, $desc, $metric, $prize, $starts, $ends, $enabled, $sort, $id]
+            );
+        } else {
+            \App\Database::query(
+                "INSERT INTO clan_events (title, slug, description, metric, prize, starts_at, ends_at, enabled, sort_order) VALUES (?,?,?,?,?,?,?,?,?)",
+                [$title, $slug, $desc, $metric, $prize, $starts, $ends, $enabled, $sort]
+            );
+            $id = (int)\App\Database::pdo()->lastInsertId();
+        }
+    } catch (\PDOException $e) {
+        if ($e->getCode() === '23000') { header('Location: /admin/clan-events' . ($id ? '/' . $id : '') . '?err=slug'); exit; }
+        throw $e;
+    }
+    \App\AuditLog::record('clan_event.save', 'clan_event', $id);
+    header('Location: /admin/clan-events/' . $id . '?ok=1'); exit;
+});
+\App\Router::post('/admin/clan-events/{id}/delete', function($id) use ($config) {
+    \App\Auth::requireCan('pages');
+    if (!\App\Csrf::check()) { header('Location: /admin/clan-events?err=csrf'); exit; }
+    \App\Database::query("DELETE FROM clan_event_members WHERE event_id = ?", [(int)$id]);
+    \App\Database::query("DELETE FROM clan_event_entries WHERE event_id = ?", [(int)$id]);
+    \App\Database::query("DELETE FROM clan_events WHERE id = ?", [(int)$id]);
+    \App\AuditLog::record('clan_event.delete', 'clan_event', (int)$id);
+    header('Location: /admin/clan-events?ok=deleted'); exit;
 });
 
 // ============ EVENTOS & SORTEIOS (público) ============

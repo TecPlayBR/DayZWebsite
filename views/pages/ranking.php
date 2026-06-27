@@ -61,8 +61,8 @@ if ($mode === 'gameplay') {
         <?php endif; ?>
 
         <!-- Abas (só as visíveis — admin escolhe em /admin/rewards) -->
-        <?php $invest_visible = $invest_visible ?? true; ?>
-        <?php if ($cftools_on && ($invest_visible || !empty($gameplay_stats))): ?>
+        <?php $invest_visible = $invest_visible ?? true; $in_clan = $in_clan ?? false; ?>
+        <?php if (($cftools_on && ($invest_visible || !empty($gameplay_stats))) || $in_clan): ?>
             <div class="rank-tabs">
                 <?php if ($invest_visible): ?>
                     <a class="rank-tab <?= $mode === 'invest' ? 'active' : '' ?>" href="/ranking">Investimento</a>
@@ -70,6 +70,9 @@ if ($mode === 'gameplay') {
                 <?php foreach ($gameplay_stats as $sk => $sl): ?>
                     <a class="rank-tab <?= ($mode === 'gameplay' && $stat === $sk) ? 'active' : '' ?>" href="/ranking?stat=<?= e($sk) ?>"><?= e($sl) ?></a>
                 <?php endforeach; ?>
+                <?php if ($in_clan): ?>
+                    <a class="rank-tab" href="/ranking/clans">🛡 Clãs</a>
+                <?php endif; ?>
             </div>
         <?php endif; ?>
 

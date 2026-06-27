@@ -5,6 +5,21 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.15.0] — 2026-06-27
+
+> **Tem migration** (`v2.15.0_clan_events.sql` — 3 tabelas). Rode `php cli/migrate.php`.
+
+### ⚔️ Eventos de Clã (Fase 2 — parte 1: o placar)
+Competição entre clãs num período, na aba **Clãs** do `/ranking` (só aparece pra quem tem clã — trava dura).
+
+- **Placar por DELTA:** conta só o que rolar **dentro** do evento. Tira-se um *baseline* (foto do contador) no início; o placar = `atual − baseline`, somado pelos membros **ativos** do clã. No fim, **congela** pra premiação.
+- **Métricas seguras (PVE):** Zumbis mortos e Tempo jogado (sem PVP/kill-mais-longe, que bugam ou dá pra burlar).
+- **Inscrição só do líder**, e só **antes** de começar.
+- **Roster no meio do evento:** quem **entra** começa em 0 (baseline = valor atual); quem **sai/é kickado** sai da soma (o clã perde a contribuição dele). Sem vantagem por trocar jogador.
+- **Sem cron:** o ciclo (tirar baseline no início / congelar no fim) roda na própria batida de stats do Bot + backup ao abrir a página.
+- **Admin** (`/admin/clan-events`): criar/editar evento (título, métrica, datas, prêmio), ver o placar ao vivo e o vencedor.
+- ⏳ *Próxima parte:* botão **Premiar** (creditar moedas aos membros do clã vencedor).
+
 ## [2.14.5] — 2026-06-26
 
 > Sem migration.

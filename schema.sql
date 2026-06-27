@@ -1457,3 +1457,54 @@ CREATE TABLE help_articles (
     UNIQUE KEY uq_help_slug (slug),
     KEY idx_help_cat (category, published, sort_order)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ============================================================
+-- TABELAS: eventos de clã (migration v2.15.0) — placar por delta
+-- ============================================================
+CREATE TABLE clan_events (
+    id             INT AUTO_INCREMENT PRIMARY KEY,
+    title          VARCHAR(120) NOT NULL,
+    slug           VARCHAR(140) NOT NULL,
+    description    TEXT         NULL,
+    metric         VARCHAR(30)  NOT NULL DEFAULT 'kills_infected',
+    prize          VARCHAR(255) NULL,
+    starts_at      DATETIME     NOT NULL,
+    ends_at        DATETIME     NOT NULL,
+    baseline_taken TINYINT(1)   NOT NULL DEFAULT 0,
+    frozen_at      DATETIME     NULL,
+    winner_clan_id INT          NULL,
+    winner_name    VARCHAR(120) NULL,
+    rewarded_at    DATETIME     NULL,
+    enabled        TINYINT(1)   NOT NULL DEFAULT 1,
+    sort_order     INT          NOT NULL DEFAULT 0,
+    created_at     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_cevt_slug (slug),
+    KEY idx_cevt_dates (starts_at, ends_at),
+    KEY idx_cevt_enabled (enabled)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE clan_event_entries (
+    id            INT AUTO_INCREMENT PRIMARY KEY,
+    event_id      INT          NOT NULL,
+    clan_id       INT          NOT NULL,
+    registered_by VARCHAR(20)  NULL,
+    final_score   BIGINT       NULL,
+    final_rank    INT          NULL,
+    created_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_centry (event_id, clan_id),
+    KEY idx_centry_event (event_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE clan_event_members (
+    id             INT          AUTO_INCREMENT PRIMARY KEY,
+    event_id       INT          NOT NULL,
+    clan_id        INT          NOT NULL,
+    steam_id       VARCHAR(20)  NOT NULL,
+    baseline       BIGINT       NOT NULL DEFAULT 0,
+    active         TINYINT(1)   NOT NULL DEFAULT 1,
+    created_at     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deactivated_at DATETIME     NULL,
+    UNIQUE KEY uq_cmem (event_id, steam_id),
+    KEY idx_cmem_clan (event_id, clan_id, active)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

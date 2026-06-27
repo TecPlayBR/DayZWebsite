@@ -221,6 +221,7 @@ class Clan {
             $pdo->prepare("INSERT INTO clan_members (clan_id, steam_id, role) VALUES (?, ?, 'member')")->execute([$clanId, $steamId]);
             $pdo->prepare("DELETE FROM clan_requests WHERE clan_id = ? AND steam_id = ?")->execute([$clanId, $steamId]);
             $pdo->commit();
+            ClanEvent::onMemberJoin($clanId, $steamId); // entra em eventos ativos com baseline = atual (0 de delta)
             return null;
         } catch (\PDOException $e) {
             if ($pdo->inTransaction()) $pdo->rollBack();
@@ -240,6 +241,7 @@ class Clan {
         if (!$m) return 'not_member';
         if ($m['role'] === 'owner') return 'owner_must_disband';
         Database::query("DELETE FROM clan_members WHERE steam_id = ?", [$steamId]);
+        ClanEvent::onMemberLeave((int)$m['clan_id'], $steamId); // sai dos eventos ativos (clã perde a contribuição)
         return null;
     }
 
@@ -248,6 +250,7 @@ class Clan {
         if (!self::isOwner($clanId, $actorSteamId)) return 'not_owner';
         if ($actorSteamId === $targetSteamId) return 'cant_self';
         Database::query("DELETE FROM clan_members WHERE clan_id = ? AND steam_id = ? AND role <> 'owner'", [$clanId, $targetSteamId]);
+        ClanEvent::onMemberLeave($clanId, $targetSteamId); // idem ao sair
         return null;
     }
 
@@ -273,6 +276,7 @@ class Clan {
 
     /** Dissolve o clã (dono ou admin): remove membros, pedidos e o clã. */
     public static function disband(int $clanId): void {
+        ClanEvent::onClanDisband($clanId); // tira os membros da soma dos eventos não congelados
         Database::query("DELETE FROM clan_members WHERE clan_id = ?", [$clanId]);
         Database::query("DELETE FROM clan_requests WHERE clan_id = ?", [$clanId]);
         Database::query("DELETE FROM clans WHERE id = ?", [$clanId]);

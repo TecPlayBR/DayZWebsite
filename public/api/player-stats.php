@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 $ROOT = dirname(__DIR__, 2);
 require $ROOT . '/src/Database.php';
+require $ROOT . '/src/ClanEvent.php';   // ciclo dos eventos de clã (baseline/congela) roda na batida de stats
 
 $configFile = $ROOT . '/config/config.php';
 if (!file_exists($configFile)) {
@@ -117,6 +118,9 @@ if ($method === 'POST') {
             $skipped++;
         }
     }
+    // Stats acabaram de atualizar -> avança o ciclo dos eventos de clã (tira baseline
+    // no início / congela no fim) usando os números mais frescos. Não derruba a resposta.
+    \App\ClanEvent::tick();
     echo json_encode(['ok' => true, 'upserted' => $upserted, 'skipped' => $skipped]);
     exit;
 }
