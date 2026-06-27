@@ -25,16 +25,16 @@
     </div>
 
     <div class="stat-card" style="padding:0; overflow-x:auto; margin-bottom:1.2rem;">
-        <table style="width:100%; border-collapse:collapse; font-size:.88rem;">
-            <thead><tr style="text-align:left; color:var(--dim); border-bottom:1px solid var(--border);">
-                <th style="padding:.7rem 1rem;">Conquista</th><th>Descrição</th><th style="width:150px;">Moedas (0 = nada)</th>
+        <table class="admin-table" data-nofilter>
+            <thead><tr>
+                <th data-nosort>Conquista</th><th data-nosort>Descrição</th><th data-nosort style="width:150px;">Moedas (0 = nada)</th>
             </tr></thead>
             <tbody>
             <?php foreach ($list as $a): ?>
-                <tr style="border-bottom:1px solid var(--border);">
-                    <td style="padding:.6rem 1rem; white-space:nowrap;"><?= e($a['icon']) ?> <strong><?= e($a['name']) ?></strong></td>
-                    <td style="color:var(--dim);"><?= e($a['description']) ?></td>
-                    <td><input type="number" name="reward[<?= e($a['slug']) ?>]" min="0" max="100000" value="<?= (int)($rewards[$a['slug']] ?? 0) ?>" style="width:110px; padding:.45rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone);"></td>
+                <tr>
+                    <td style="white-space:nowrap;"><?= e($a['icon']) ?> <strong><?= e($a['name']) ?></strong></td>
+                    <td class="dim"><?= e($a['description']) ?></td>
+                    <td><input type="number" name="reward[<?= e($a['slug']) ?>]" min="0" max="100000" value="<?= (int)($rewards[$a['slug']] ?? 0) ?>" style="width:110px;"></td>
                 </tr>
             <?php endforeach; ?>
             </tbody>
@@ -48,15 +48,15 @@
     <div class="stat-card" style="text-align:center; padding:2rem 1rem; color:var(--dim);">Nada pago ainda.</div>
 <?php else: ?>
     <div class="stat-card" style="padding:0; overflow-x:auto;">
-        <table style="width:100%; border-collapse:collapse; font-size:.85rem;">
-            <thead><tr style="text-align:left; color:var(--dim); border-bottom:1px solid var(--border);">
-                <th style="padding:.7rem 1rem;">Quando</th><th>SteamID</th><th>Conquista</th><th>Moedas</th>
+        <table class="admin-table">
+            <thead><tr>
+                <th>Quando</th><th>SteamID</th><th>Conquista</th><th>Moedas</th>
             </tr></thead>
             <tbody>
             <?php foreach ($recent as $r): ?>
-                <tr style="border-bottom:1px solid var(--border);">
-                    <td style="padding:.6rem 1rem; color:var(--dim);"><?= e(fmt_dt($r['created_at'])) ?></td>
-                    <td style="font-family:var(--font-mono);"><a href="/player/<?= e($r['steam_id']) ?>" style="color:var(--rust-2);"><?= e($r['steam_id']) ?></a></td>
+                <tr>
+                    <td class="dim"><?= e(fmt_dt($r['created_at'])) ?></td>
+                    <td class="mono"><a href="/player/<?= e($r['steam_id']) ?>" style="color:var(--rust-2);"><?= e($r['steam_id']) ?></a></td>
                     <td><?= e($r['slug']) ?></td>
                     <td style="color:var(--moss); font-weight:600;">+<?= (int)$r['coins'] ?></td>
                 </tr>

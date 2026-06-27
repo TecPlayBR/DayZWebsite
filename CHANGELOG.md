@@ -5,6 +5,14 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.15.4] — 2026-06-27
+
+> Sem migration.
+
+### 🎨 Tabelas do admin padronizadas
+- **10 tabelas** que usavam estilo inline (eventos, eventos de clã ×2, conquistas ×2, caixas, itens da caixa, entitlements/VIP, premiações, equipe, integração Discord, integração Sparda) passaram a usar a classe **`.admin-table`** — header com barra (uppercase + borda dourada), hover de linha e visual consistente com o resto do painel. Onde fazia sentido ganham **ordenar por coluna** (clique no cabeçalho) e **filtro**; formulários e logs ficam com `data-nofilter`/`data-nosort` pra não bagunçar.
+- Telas de **log** (caixa/logins) mantêm o estilo compacto próprio de propósito (só ordenar).
+
 ## [2.15.3] — 2026-06-27
 
 > Sem migration.

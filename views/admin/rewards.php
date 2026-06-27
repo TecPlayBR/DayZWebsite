@@ -137,14 +137,14 @@ function _rw($cats, $key, $place) { return (int)($cats[$key]['coins'][(string)$p
 <?php if (!empty($history)): ?>
 <div class="stat-card" style="margin-top:1.5rem;">
     <div class="label">Histórico de premiações (últimas 20)</div>
-    <table style="width:100%;border-collapse:collapse;font-size:.85rem;margin-top:.8rem;">
-        <thead><tr style="text-align:left;color:var(--dim);border-bottom:1px solid var(--border);">
-            <th style="padding:.5rem .4rem;">Quando</th><th>Período</th><th>Categoria</th><th>Posição</th><th>Jogador</th><th>Moedas</th>
+    <table class="admin-table" data-nofilter style="margin-top:.8rem;">
+        <thead><tr>
+            <th>Quando</th><th>Período</th><th>Categoria</th><th>Posição</th><th>Jogador</th><th>Moedas</th>
         </tr></thead>
         <tbody>
         <?php foreach ($history as $h): ?>
-            <tr style="border-bottom:1px solid var(--border);">
-                <td style="padding:.5rem .4rem;font-family:var(--font-mono);"><?= e(date('d/m H:i', strtotime((string)$h['created_at']))) ?></td>
+            <tr>
+                <td class="mono dim"><?= e(date('d/m H:i', strtotime((string)$h['created_at']))) ?></td>
                 <td><code style="font-size:.75rem;"><?= e($h['period_label']) ?></code></td>
                 <td><?= e($categories[$h['category']] ?? $h['category']) ?></td>
                 <td><?= (int)$h['place'] ?>º</td>

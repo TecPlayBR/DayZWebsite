@@ -60,11 +60,11 @@ $inp = 'width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--
             <p style="color:var(--dim);font-size:.82rem;">Premiação (creditar moedas aos membros) vem na próxima atualização — por enquanto, entregue manualmente.</p>
         <?php endif; ?>
         <?php if (!empty($scores)): ?>
-            <table style="width:100%;border-collapse:collapse;font-size:0.88rem;margin-top:.6rem;">
-                <thead><tr style="text-align:left;color:var(--dim);border-bottom:1px solid var(--border);"><th style="padding:.5rem .4rem;">#</th><th>Clã</th><th style="text-align:right;"><?= e(\App\ClanEvent::metricLabel($edit['metric'])) ?></th></tr></thead>
+            <table class="admin-table" data-nofilter style="margin-top:.6rem;">
+                <thead><tr><th>#</th><th>Clã</th><th style="text-align:right;"><?= e(\App\ClanEvent::metricLabel($edit['metric'])) ?></th></tr></thead>
                 <tbody>
                 <?php foreach ($scores as $i => $s): ?>
-                    <tr style="border-bottom:1px solid var(--border);"><td style="padding:.5rem .4rem;"><?= $i+1 ?>º</td><td><a href="/clan/<?= (int)$s['clan_id'] ?>" style="color:var(--bone);">[<?= e($s['tag']) ?>] <?= e($s['name']) ?></a></td><td style="text-align:right;font-family:var(--font-mono);color:var(--hazard);"><?= number_format((int)$s['score'],0,',','.') ?></td></tr>
+                    <tr><td><?= $i+1 ?>º</td><td><a href="/clan/<?= (int)$s['clan_id'] ?>" style="color:var(--bone);">[<?= e($s['tag']) ?>] <?= e($s['name']) ?></a></td><td class="mono" style="text-align:right;"><?= number_format((int)$s['score'],0,',','.') ?></td></tr>
                 <?php endforeach; ?>
                 </tbody>
             </table>
@@ -75,17 +75,17 @@ $inp = 'width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--
 <?php endif; ?>
 
 <?php if (!empty($events)): ?>
-    <table style="width:100%;border-collapse:collapse;font-size:0.88rem;">
-        <thead><tr style="text-align:left;color:var(--dim);border-bottom:1px solid var(--border);">
-            <th style="padding:0.6rem 0.4rem;">Evento</th><th>Métrica</th><th>Quando</th><th>Status</th><th></th>
+    <table class="admin-table">
+        <thead><tr>
+            <th>Evento</th><th>Métrica</th><th>Quando</th><th>Status</th><th></th>
         </tr></thead>
         <tbody>
         <?php foreach ($events as $ev): $st = \App\ClanEvent::phase($ev);
             $stTxt = ['active'=>'🟢 Acontecendo','scheduled'=>'🔵 Em breve','ended'=>'⚫ Encerrado'][$st] ?? $st; ?>
-            <tr style="border-bottom:1px solid var(--border);<?= (int)$ev['enabled']?'':'opacity:0.5;' ?>">
-                <td style="padding:0.6rem 0.4rem;"><strong style="color:var(--bone);"><?= e($ev['title']) ?></strong> <code style="color:var(--dim);font-size:0.72rem;">/<?= e($ev['slug']) ?></code></td>
-                <td style="font-size:.82rem;"><?= e(\App\ClanEvent::metricLabel($ev['metric'])) ?></td>
-                <td style="font-size:0.8rem;color:var(--dim);"><?= e(date('d/m H:i',strtotime((string)$ev['starts_at']))) ?> → <?= e(date('d/m H:i',strtotime((string)$ev['ends_at']))) ?></td>
+            <tr<?= (int)$ev['enabled']?'':' style="opacity:0.5;"' ?>>
+                <td><strong style="color:var(--bone);"><?= e($ev['title']) ?></strong> <code style="color:var(--dim);font-size:0.72rem;">/<?= e($ev['slug']) ?></code></td>
+                <td><?= e(\App\ClanEvent::metricLabel($ev['metric'])) ?></td>
+                <td class="dim"><?= e(date('d/m H:i',strtotime((string)$ev['starts_at']))) ?> → <?= e(date('d/m H:i',strtotime((string)$ev['ends_at']))) ?></td>
                 <td><?= $stTxt ?></td>
                 <td style="text-align:right;white-space:nowrap;">
                     <a href="/admin/clan-events/<?= (int)$ev['id'] ?>" class="btn btn-sm">Editar</a>

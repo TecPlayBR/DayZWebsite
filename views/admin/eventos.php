@@ -47,17 +47,17 @@ $dt  = fn($k) => !empty($e[$k]) ? e(date('Y-m-d\TH:i', strtotime((string)$e[$k])
 </div>
 
 <?php if (!empty($events)): ?>
-    <table style="width:100%;border-collapse:collapse;font-size:0.88rem;">
-        <thead><tr style="text-align:left;color:var(--dim);border-bottom:1px solid var(--border);">
-            <th style="padding:0.6rem 0.4rem;">Evento</th><th>Tipo</th><th>Quando</th><th>Status</th><th></th>
+    <table class="admin-table">
+        <thead><tr>
+            <th>Evento</th><th>Tipo</th><th>Quando</th><th>Status</th><th></th>
         </tr></thead>
         <tbody>
         <?php foreach ($events as $ev): $st = \App\Events::status($ev);
             $stTxt = ['active'=>'🟢 Ativo','upcoming'=>'🔵 Em breve','ended'=>'⚫ Encerrado'][$st]; ?>
-            <tr style="border-bottom:1px solid var(--border);<?= (int)$ev['enabled']?'':'opacity:0.5;' ?>">
-                <td style="padding:0.6rem 0.4rem;"><strong style="color:var(--bone);"><?= e($ev['title']) ?></strong> <code style="color:var(--dim);font-size:0.72rem;">/<?= e($ev['slug']) ?></code></td>
+            <tr<?= (int)$ev['enabled']?'':' style="opacity:0.5;"' ?>>
+                <td><strong style="color:var(--bone);"><?= e($ev['title']) ?></strong> <code style="color:var(--dim);font-size:0.72rem;">/<?= e($ev['slug']) ?></code></td>
                 <td><?= $ev['type']==='raffle'?'🎟 Sorteio':'🗓 Evento' ?></td>
-                <td style="font-size:0.8rem;color:var(--dim);"><?= !empty($ev['starts_at'])?e(date('d/m H:i',strtotime((string)$ev['starts_at']))):'—' ?><?= !empty($ev['ends_at'])?' → '.e(date('d/m H:i',strtotime((string)$ev['ends_at']))):'' ?></td>
+                <td class="dim"><?= !empty($ev['starts_at'])?e(date('d/m H:i',strtotime((string)$ev['starts_at']))):'—' ?><?= !empty($ev['ends_at'])?' → '.e(date('d/m H:i',strtotime((string)$ev['ends_at']))):'' ?></td>
                 <td><?= $stTxt ?></td>
                 <td style="text-align:right;white-space:nowrap;">
                     <a href="/admin/eventos/<?= (int)$ev['id'] ?>" class="btn btn-sm">Editar</a>

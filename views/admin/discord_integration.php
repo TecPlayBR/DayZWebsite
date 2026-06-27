@@ -85,13 +85,13 @@
             Nenhuma chamada registrada ainda. Quando o bot for testar, aparece aqui.
         </p>
     <?php else: ?>
-        <table style="width:100%; margin-top:0.8rem; border-collapse:collapse; font-size:0.85rem;">
+        <table class="admin-table" data-nofilter style="margin-top:0.8rem;">
             <thead>
-                <tr style="text-align:left; color:var(--dim); border-bottom:1px solid var(--border);">
-                    <th style="padding:0.5rem 0.4rem;">Quando</th>
-                    <th style="padding:0.5rem 0.4rem;">IP</th>
-                    <th style="padding:0.5rem 0.4rem;">Action</th>
-                    <th style="padding:0.5rem 0.4rem;">HTTP</th>
+                <tr>
+                    <th>Quando</th>
+                    <th>IP</th>
+                    <th>Action</th>
+                    <th>HTTP</th>
                 </tr>
             </thead>
             <tbody>
@@ -100,17 +100,17 @@
                     $code = (int)($row['status_code'] ?? 0);
                     $codeColor = $code === 200 ? 'var(--moss)' : ($code >= 400 && $code < 500 ? 'var(--hazard)' : 'var(--rust-2)');
                     ?>
-                    <tr style="border-bottom:1px solid var(--border);">
-                        <td style="padding:0.5rem 0.4rem; font-family:var(--font-mono);">
+                    <tr>
+                        <td class="mono">
                             <?= e(date('d/m H:i:s', strtotime((string)$row['called_at']))) ?>
                         </td>
-                        <td style="padding:0.5rem 0.4rem; font-family:var(--font-mono); color:var(--dim);">
+                        <td class="mono dim">
                             <?= e((string)$row['ip']) ?>
                         </td>
-                        <td style="padding:0.5rem 0.4rem;">
+                        <td>
                             <code><?= e((string)($row['action'] ?: '—')) ?></code>
                         </td>
-                        <td style="padding:0.5rem 0.4rem;">
+                        <td>
                             <span style="color:<?= e($codeColor) ?>; font-weight:600; font-family:var(--font-mono);">
                                 <?= $code ?>
                             </span>

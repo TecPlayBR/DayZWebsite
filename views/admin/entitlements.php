@@ -71,21 +71,21 @@ $badge = [
     <div class="stat-card" style="text-align:center; padding:2.5rem 1rem; color:var(--dim);">Nenhum VIP/Passe concedido ainda.</div>
 <?php else: ?>
     <div class="stat-card" style="padding:0; overflow-x:auto;">
-        <table style="width:100%; border-collapse:collapse; font-size:.86rem;">
-            <thead><tr style="text-align:left; color:var(--dim); border-bottom:1px solid var(--border);">
-                <th style="padding:.7rem 1rem;">SteamID</th><th>Nick</th><th>Tipo</th><th>Tier</th><th>Expira</th><th>Status</th><th></th>
+        <table class="admin-table">
+            <thead><tr>
+                <th>SteamID</th><th>Nick</th><th>Tipo</th><th>Tier</th><th>Expira</th><th>Status</th><th></th>
             </tr></thead>
             <tbody>
             <?php foreach ($grants as $g): ?>
                 <?php [$lbl, $cor] = $badge[$g['status']] ?? [$g['status'], 'var(--dim)']; ?>
-                <tr style="border-bottom:1px solid var(--border);">
-                    <td style="padding:.6rem 1rem; font-family:var(--font-mono);"><?= e($g['steam_id']) ?></td>
+                <tr>
+                    <td class="mono"><?= e($g['steam_id']) ?></td>
                     <td><?= e($g['nickname'] ?? '—') ?></td>
                     <td><?= e($g['type']) ?></td>
                     <td><?= e($g['tier'] ?? '—') ?></td>
                     <td><?= e($g['expiration_date'] ?? '—') ?></td>
                     <td><span style="color:<?= $cor ?>; font-weight:600;"><?= e($lbl) ?></span></td>
-                    <td style="text-align:right; padding-right:1rem;">
+                    <td style="text-align:right;">
                         <?php if (in_array($g['status'], ['pending','applied'], true)): ?>
                             <form method="POST" action="/admin/entitlements/revoke" style="display:inline;" onsubmit="return confirm('Revogar este VIP/Passe?');">
                                 <?= \App\Csrf::field() ?>

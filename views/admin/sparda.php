@@ -109,28 +109,28 @@
             Nenhuma gravação do mod ainda. Quando um jogador gastar moeda in-game, aparece aqui.
         </p>
     <?php else: ?>
-        <table style="width:100%; margin-top:0.8rem; border-collapse:collapse; font-size:0.85rem;">
+        <table class="admin-table" data-nofilter style="margin-top:0.8rem;">
             <thead>
-                <tr style="text-align:left; color:var(--dim); border-bottom:1px solid var(--border);">
-                    <th style="padding:0.5rem 0.4rem;">Quando</th>
-                    <th style="padding:0.5rem 0.4rem;">SteamID</th>
-                    <th style="padding:0.5rem 0.4rem;">Antes</th>
-                    <th style="padding:0.5rem 0.4rem;">Depois</th>
+                <tr>
+                    <th>Quando</th>
+                    <th>SteamID</th>
+                    <th>Antes</th>
+                    <th>Depois</th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($log as $row): ?>
-                    <tr style="border-bottom:1px solid var(--border);">
-                        <td style="padding:0.5rem 0.4rem; font-family:var(--font-mono);">
+                    <tr>
+                        <td class="mono">
                             <?= e(date('d/m H:i:s', strtotime((string)$row['created_at']))) ?>
                         </td>
-                        <td style="padding:0.5rem 0.4rem; font-family:var(--font-mono); color:var(--dim);">
+                        <td class="mono dim">
                             <?= e((string)$row['steam_id']) ?>
                         </td>
-                        <td style="padding:0.5rem 0.4rem; font-family:var(--font-mono);">
+                        <td class="mono">
                             <?= (int)$row['balance_before'] ?>
                         </td>
-                        <td style="padding:0.5rem 0.4rem; font-family:var(--font-mono); color:var(--hazard); font-weight:600;">
+                        <td class="mono" style="color:var(--hazard); font-weight:600;">
                             <?= (int)$row['balance_after'] ?>
                         </td>
                     </tr>

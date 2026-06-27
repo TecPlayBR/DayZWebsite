@@ -145,14 +145,14 @@
     <?php if (empty($items)): ?>
         <p style="color:var(--dim);margin-top:0.8rem;">Nenhum item ainda. Adicione acima — a caixa só abre com itens.</p>
     <?php else: ?>
-        <table style="width:100%;border-collapse:collapse;font-size:0.85rem;margin-top:0.8rem;">
-            <thead><tr style="text-align:left;color:var(--dim);border-bottom:1px solid var(--border);">
-                <th style="padding:0.5rem 0.4rem;">Item</th><th>Classname</th><th>Qtd</th><th>Chance</th><th>Raridade</th><th></th>
+        <table class="admin-table" data-nofilter style="margin-top:0.8rem;">
+            <thead><tr>
+                <th>Item</th><th>Classname</th><th>Qtd</th><th>Chance</th><th>Raridade</th><th></th>
             </tr></thead>
             <tbody>
             <?php foreach ($items as $it): $pct = $total_weight > 0 ? round((int)$it['weight']/$total_weight*100, 2) : 0; ?>
-                <tr style="border-bottom:1px solid var(--border);<?= (int)$it['enabled']?'':'opacity:0.5;' ?>">
-                    <td style="padding:0.5rem 0.4rem;color:var(--bone);">
+                <tr<?= (int)$it['enabled']?'':' style="opacity:0.5;"' ?>>
+                    <td>
                         <?php if (!empty($it['image'])): ?><img src="<?= e($it['image']) ?>" alt="" style="width:28px;height:28px;object-fit:contain;vertical-align:middle;margin-right:6px;"><?php endif; ?>
                         <?= ($it['type'] ?? 'item') === 'coins' ? '💰 ' : '' ?><?= e($it['name']) ?>
                     </td>

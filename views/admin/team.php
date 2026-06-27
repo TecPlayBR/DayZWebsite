@@ -158,29 +158,29 @@ $roles = \App\Auth::availableRoles();
 
 <div class="stat-card" style="margin-top: 1rem; padding: 1.2rem;">
     <div class="label">Matriz de permissões</div>
-    <table style="width: 100%; margin-top: 1rem; font-size: 0.85rem; border-collapse: collapse;">
+    <table class="admin-table" data-nofilter style="margin-top: 1rem;">
         <thead>
-            <tr style="border-bottom: 1px solid var(--border); color: var(--dim);">
-                <th style="text-align: left; padding: 0.4rem;">Papel</th>
-                <th style="text-align: left; padding: 0.4rem;">Acessa</th>
+            <tr>
+                <th>Papel</th>
+                <th>Acessa</th>
             </tr>
         </thead>
-        <tbody style="color: var(--bone);">
-            <tr style="border-bottom: 1px solid var(--border);">
-                <td style="padding: 0.6rem 0.4rem;"><strong>super_admin</strong></td>
-                <td style="padding: 0.6rem 0.4rem; color: var(--dim);">Tudo — gerencia equipe, settings, integrações e dados sensíveis</td>
-            </tr>
-            <tr style="border-bottom: 1px solid var(--border);">
-                <td style="padding: 0.6rem 0.4rem;"><strong>finance</strong></td>
-                <td style="padding: 0.6rem 0.4rem; color: var(--dim);">Dashboard, Pacotes, Combos, Compras, Cupons (tudo financeiro)</td>
-            </tr>
-            <tr style="border-bottom: 1px solid var(--border);">
-                <td style="padding: 0.6rem 0.4rem;"><strong>support</strong></td>
-                <td style="padding: 0.6rem 0.4rem; color: var(--dim);">Só Jogadores e Avaliações — atende player, ajusta moedas. <strong style="color: var(--text-danger);">Não vê valor financeiro</strong></td>
+        <tbody>
+            <tr>
+                <td><strong>super_admin</strong></td>
+                <td class="dim">Tudo — gerencia equipe, settings, integrações e dados sensíveis</td>
             </tr>
             <tr>
-                <td style="padding: 0.6rem 0.4rem;"><strong>editor</strong></td>
-                <td style="padding: 0.6rem 0.4rem; color: var(--dim);">Páginas, Galeria, Anúncios, Visual (conteúdo do site)</td>
+                <td><strong>finance</strong></td>
+                <td class="dim">Dashboard, Pacotes, Combos, Compras, Cupons (tudo financeiro)</td>
+            </tr>
+            <tr>
+                <td><strong>support</strong></td>
+                <td class="dim">Só Jogadores e Avaliações — atende player, ajusta moedas. <strong style="color: var(--text-danger);">Não vê valor financeiro</strong></td>
+            </tr>
+            <tr>
+                <td><strong>editor</strong></td>
+                <td class="dim">Páginas, Galeria, Anúncios, Visual (conteúdo do site)</td>
             </tr>
         </tbody>
     </table>
