@@ -5,6 +5,14 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.15.1] — 2026-06-27
+
+> Sem migration.
+
+### 🎨 Pente-fino de design (legado → padrão)
+- **Upload de arquivo modernizado:** o botão cinza nativo "Escolher arquivo" (que aparecia no upload de logo de clã, e em vários forms do admin — caixas, galeria, pacotes, ajuda, customização) foi trocado por um botão no estilo do site (mono, borda sutil, hover dourado) via `::file-selector-button`. Vale no site inteiro de uma vez.
+- Varredura ampla de "legado" no público (controles de form, botões, selects, cores hardcoded) — **nada mais fora do padrão** (os campos já usam `.field`, botões têm classe, e tudo usa as variáveis do tema).
+
 ## [2.15.0] — 2026-06-27
 
 > **Tem migration** (`v2.15.0_clan_events.sql` — 3 tabelas). Rode `php cli/migrate.php`.
