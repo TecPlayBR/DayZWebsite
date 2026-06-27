@@ -333,6 +333,36 @@
 .admin-form input:disabled,
 .admin-form textarea:disabled { opacity: 0.5; cursor: not-allowed; }
 
+/* ── Inputs do admin FORA de .admin-form ────────────────────────────────────
+   Muitas telas usam style inline em vez de .admin-form. Isso dá a base dark +
+   cantos + ESTADO DE FOCO (que faltava) pra TODO input do painel, sem forçar
+   width (campos inline pequenos como ordem/quantidade continuam do tamanho deles).
+   O inline existente sobrescreve bg/border; o :focus e o radius valem sempre. */
+.admin-main input[type=text],
+.admin-main input[type=number],
+.admin-main input[type=email],
+.admin-main input[type=password],
+.admin-main input[type=url],
+.admin-main input[type=date],
+.admin-main input[type=datetime-local],
+.admin-main input[type=search],
+.admin-main textarea,
+.admin-main select {
+    background: var(--bg-0);
+    border: 1px solid var(--border);
+    color: var(--bone);
+    border-radius: 2px;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+.admin-main input:focus,
+.admin-main textarea:focus,
+.admin-main select:focus {
+    outline: none;
+    border-color: var(--hazard);
+    box-shadow: 0 0 0 3px rgba(212,160,23,0.15);
+}
+.admin-main textarea { resize: vertical; }
+
 /* Checkbox custom */
 .admin-form label.checkbox,
 .admin-card label.checkbox {

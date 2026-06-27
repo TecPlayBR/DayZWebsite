@@ -5,6 +5,13 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.15.3] — 2026-06-27
+
+> Sem migration.
+
+### 🎨 Pente-fino do admin
+- **Estado de foco em todos os campos do painel:** as telas que usam estilo inline (em vez de `.admin-form`) não tinham feedback de foco. Agora **todo** input/select/textarea do admin ganha borda dourada + cantos arredondados ao focar, e uma base dark garantida (sem campo "branco" perdido). Sem forçar largura — campos inline pequenos (ordem, quantidade) seguem do tamanho certo. Cobre também `datetime-local`, que faltava.
+
 ## [2.15.2] — 2026-06-27
 
 > Sem migration.
