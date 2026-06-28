@@ -5,6 +5,15 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.18.0] — 2026-06-28
+
+> **Tem migration** (`v2.18.0_remove_points.sql` — dropa as tabelas/colunas de pontos). Rode `php cli/migrate.php`.
+
+### ♻️ Removido: Sistema de Pontos (reverte 2.16.0 + 2.17.0)
+- A **loja de pontos foi descontinuada**: as **caixas já entregam item in-game** via CFTools, então a loja de pontos era redundante e gerava cadastro de itens demais pra manter.
+- Removido: `/pontos` (loja pública), admin da loja de pontos, a 2ª moeda "pontos" (`players.points`), o "pontos por abrir" das caixas (`boxes.points_reward`), o crédito ao abrir caixa, os cards de saldo de pontos (Caixas + perfil) e as tabelas `points_log`/`point_shop_items`/`point_shop_item_attachments`/`point_purchases`.
+- A migration dropa tudo isso nos deploys que rodaram 2.16/2.17 (idempotente — não toca em coins, caixas nem players).
+
 ## [2.17.0] — 2026-06-28
 
 > **Tem migration** (`v2.17.0_point_shop.sql` — `point_shop_items`, `point_shop_item_attachments`, `point_purchases`). Rode `php cli/migrate.php`.
