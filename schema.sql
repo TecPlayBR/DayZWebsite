@@ -813,7 +813,20 @@ Dúvidas: <a href="https://discord.gg/SEU-CONVITE">Discord oficial [NOME DO SERV
 <li>If we detect cheat usage, the whole clan can be banned, and info shared with other BR servers.</li>
 <li>You may be asked to install an <strong>anti-cheat validator</strong> under team supervision if reported. Refusing = ban.</li>
 </ul>
-<h3>6. Discord (Community)</h3>
+<h3>6. Rewards, Achievements, and Economy (Anti-Abuse)</h3>
+<p>Achievements, events, rankings, crates, and rewards exist to reward players who actually play. Gaming these systems is taken seriously — some rewards have real value:</p>
+<ul>
+<li><strong>No kill-trading</strong> — killing (or deliberately dying to) a partner to farm kills, shot distance, or any achievement, event, or ranking metric.</li>
+<li><strong>No collusion</strong> between players or accounts to inflate event results (including clan events), rankings, or rewards.</li>
+<li><strong>No alternate accounts</strong> to farm achievements, rewards, referrals, or advantages. Alt accounts are already banned (§1); using them to farm is an aggravating factor.</li>
+<li><strong>No automation</strong> (macros, scripts, bots) of actions that generate rewards — playtime farming, kills, crate opening, etc.</li>
+<li><strong>No exploiting bugs</strong> in a reward system (duplicating a prize, repeating a claim, event loopholes). Found a loophole? <strong>Report it</strong> — don''t abuse it.</li>
+</ul>
+<div class="legal-callout warn">
+<p><strong>Consequence:</strong> once abuse is identified (through logs, reports, or investigation), the staff may <strong>void the rewards and Coins obtained improperly</strong>, apply a <strong>ban</strong> (individual or the entire clan/group involved), and treat the case as attempted fraud. The analysis considers the overall evidence and behavior pattern. <strong>Coins you purchased in the Shop are not affected by this rule</strong> — only rewards obtained by gaming the system.</p>
+</div>
+
+<h3>7. Discord (Community)</h3>
 <ul>
 <li>Minimum age: <strong>13 years</strong> (Discord TOS). Under 18 requires guardian consent.</li>
 <li>No channel spam, DM ads (private messages with ads), or promotion of other DayZ servers.</li>
@@ -821,7 +834,7 @@ Dúvidas: <a href="https://discord.gg/SEU-CONVITE">Discord oficial [NOME DO SERV
 <li>Use channels for proper purpose: tickets at <code>#support</code>, reports at <code>#report</code>, questions at <code>#general</code>.</li>
 <li>Respect moderation work. Discussion with mod via private ticket, not in public.</li>
 </ul>
-<h3>7. Shop and Coins (Terms of Acceptance)</h3>
+<h3>8. Shop and Coins (Terms of Acceptance)</h3>
 <ul>
 <li>By purchasing coins at the <a href=''/shop''>Shop</a>, you agree with <a href=''/page/terms''>Terms of Use</a> and <a href=''/page/refund''>Refund Policy</a>.</li>
 <li>Purchased coins can only be used within the server - no refund after partial or total use.</li>
@@ -831,7 +844,7 @@ Dúvidas: <a href="https://discord.gg/SEU-CONVITE">Discord oficial [NOME DO SERV
 <li>Banned = cannot play anymore. Bans are irrevocable. Refund only in cases provided in <a href=''/page/refund''>Refund Policy</a>.</li>
 <li>Staff <strong>never</strong> transfers goods between players or interferes in gameplay. If any staff member offered to do so, report to server owners immediately.</li>
 </ul>
-<h3>8. Wipes (Periodic Reset)</h3>
+<h3>9. Wipes (Periodic Reset)</h3>
 <ul>
 <li>The server may have scheduled wipes. The date will be announced on the <a href=''https://discord.gg/SEU-CONVITE''>official Discord</a> and on the site banner.</li>
 <li>On wipe, your progression (base, inventory) is lost - like vanilla DayZ. Your <strong>coins purchased in the shop are preserved</strong>.</li>
@@ -840,7 +853,7 @@ Dúvidas: <a href="https://discord.gg/SEU-CONVITE">Discord oficial [NOME DO SERV
 <li>Wipe caused by Bohemia (game patch) -> replacement via in-game shop; no refund for external reason.</li>
 <li>The team must announce wipes in advance. If you weren''t notified, claim your rights.</li>
 </ul>
-<h3>9. Penalties</h3>
+<h3>10. Penalties</h3>
 <p>Penalties vary by severity and recurrence:</p>
 <ul>
 <li><strong>Warning</strong> verbal/written - first minor infraction.</li>
@@ -849,7 +862,7 @@ Dúvidas: <a href="https://discord.gg/SEU-CONVITE">Discord oficial [NOME DO SERV
 <li><strong>Permanent ban</strong> - no return. Only in serious or repeated cases.</li>
 </ul>
 <p>Staff logs all actions in audit log. Decisions may be questioned via ticket - not in public chat.</p>
-<h3>10. Acceptance and Updates</h3>
+<h3>11. Acceptance and Updates</h3>
 <p>By connecting to the server or joining Discord, you accept these rules in full. Updates to this page will be announced with up to 7 days advance notice, except in urgent cases (security, serious exploit).</p>
 <p style=''font-size:0.85rem;color:#8aa0b5;margin-top:1.5rem;''>
 <strong>Legal entity:</strong> [RAZAO SOCIAL DA SUA EMPRESA], CNPJ [00.000.000/0000-00]. <strong>[NOME DO SERVIDOR]</strong> is a registered trademark.<br>
@@ -947,6 +960,7 @@ VALUES ('terms', 'Termos de Uso', 'Terms of Use', '<h2>Termos de Uso</h2>
 <li>Coins are linked <strong>exclusively</strong> to the Player''s SteamID and may only be used inside the Server.</li>
 <li>Coins <strong>have no monetary value</strong>, cannot be converted to money, transferred to another player, or exchanged for other goods.</li>
 <li>The Platform may, at any time, change the in-game economy (item prices, mechanics, etc).</li>
+<li><strong>Coins and rewards granted for free</strong> by internal systems (achievements, events, crates, bonuses) are <strong>revocable courtesies</strong>: if obtained through abuse, fraud, or exploitation of these systems, the Platform may <strong>void or reverse them</strong>, without this constituting any loss to the Player. <strong>Coins acquired through payment</strong> follow the Refund Policy and are not affected by this clause, except in cases of proven payment fraud.</li>
 </ul>
 <h3>6. Player Conduct</h3>
 <p>The Player is forbidden from:</p>
@@ -956,6 +970,7 @@ VALUES ('terms', 'Termos de Uso', 'Terms of Use', '<h2>Termos de Uso</h2>
 <li>Attempting to <strong>defraud</strong> the payment system (abusive chargebacks, cloned cards, etc).</li>
 <li>Performing <strong>reverse engineering</strong>, automation, or bug exploitation on the Platform.</li>
 <li>Reselling Coins, accounts, or server items to third parties.</li>
+<li>Manipulating, automating, or defrauding <strong>reward, achievement, event, ranking, or in-game economy systems</strong> — including collusion between players or accounts, kill-trading, coordinated farming, and exploiting bugs — to obtain Coins, items, or advantages improperly.</li>
 </ul>
 <div class=''legal-callout''>
 <p><strong>Ban:</strong> infringing any of the above prohibitions results in a ban (temporary or permanent, at administration discretion) <strong>without right to refund</strong> of unused or in-use Coins.</p>
