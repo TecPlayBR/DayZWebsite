@@ -847,9 +847,12 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     $events = [];
     if ($myClan) {
         foreach (\App\ClanEvent::publicEvents() as $ev) {
+            $ph = \App\ClanEvent::phase($ev);
+            // Evento ativo: refresca os stats dos membros no CFTools antes de montar o placar (ao vivo).
+            if ($ph === 'active') { try { \App\ClanEvent::refreshActiveMembers((int)$ev['id'], $ev); } catch (\Throwable $e) {} }
             $events[] = [
                 'ev'         => $ev,
-                'phase'      => \App\ClanEvent::phase($ev),
+                'phase'      => $ph,
                 'scores'     => \App\ClanEvent::liveScores((int)$ev['id'], $ev),
                 'registered' => \App\ClanEvent::isRegistered((int)$ev['id'], (int)$myClan['id']),
             ];

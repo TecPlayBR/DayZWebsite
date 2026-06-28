@@ -138,11 +138,50 @@ class ClanEvent
         }
     }
 
+    /**
+     * Força sync do CFTools dos stats de uma lista de steam_ids (pra baseline/freeze/ao vivo).
+     * O `player_stats` só atualiza em view de perfil; sem isto o evento de clã pega número velho.
+     * Throttle natural: CFTools::player tem cache de 5min e o lookup steam->cftools cacheia 7 dias,
+     * então recarregar a página seguidamente NÃO martela a API. No-op seguro se o CFTools não está
+     * carregado (ex.: chamado pelo /api/player-stats do Bot) ou não está configurado.
+     */
+    private static function syncMembers(array $steamIds, int $cap = 80): int {
+        if (!class_exists('App\\CFTools', false) || !CFTools::isConfigured()) return 0;
+        $seen = []; $done = 0;
+        foreach ($steamIds as $sid) {
+            $sid = (string)$sid;
+            if ($sid === '' || isset($seen[$sid])) continue;
+            $seen[$sid] = true;
+            if ($done >= $cap) break;
+            try { CFTools::syncSteam($sid); } catch (\Throwable $e) { /* não derruba o ciclo */ }
+            $done++;
+        }
+        return $done;
+    }
+
+    /** Ao vivo: força refresh dos stats dos membros ativos de um evento ATIVO (placar atualiza). */
+    public static function refreshActiveMembers(int $eventId, ?array $ev = null): int {
+        $ev = $ev ?: self::get($eventId);
+        if (!$ev || self::phase($ev) !== 'active') return 0;
+        $ids = Database::fetchAll(
+            "SELECT DISTINCT steam_id FROM clan_event_members WHERE event_id = ? AND active = 1", [$eventId]
+        );
+        return self::syncMembers(array_column($ids, 'steam_id'), 30);
+    }
+
     /** Foto do início: snapshot do contador de cada membro dos clãs inscritos. */
     private static function takeBaseline(array $ev): void {
         $col = self::col($ev['metric']);
         $eventId = (int)$ev['id'];
         $entries = Database::fetchAll("SELECT clan_id FROM clan_event_entries WHERE event_id = ?", [$eventId]);
+        // Antes do snapshot: refresh dos stats dos membros no CFTools (senão baseline pega valor velho).
+        $all = [];
+        foreach ($entries as $en) {
+            foreach (Database::fetchAll("SELECT steam_id FROM clan_members WHERE clan_id = ?", [(int)$en['clan_id']]) as $m) {
+                $all[] = $m['steam_id'];
+            }
+        }
+        self::syncMembers($all);
         foreach ($entries as $en) {
             $clanId = (int)$en['clan_id'];
             $members = Database::fetchAll("SELECT steam_id FROM clan_members WHERE clan_id = ?", [$clanId]);
@@ -164,6 +203,11 @@ class ClanEvent
     /** Congela o resultado final no fim do evento. */
     private static function freeze(array $ev): void {
         $eventId = (int)$ev['id'];
+        // Antes de fechar: refresh final dos stats dos membros ativos (resultado certo, não 0).
+        $ids = Database::fetchAll(
+            "SELECT DISTINCT steam_id FROM clan_event_members WHERE event_id = ? AND active = 1", [$eventId]
+        );
+        self::syncMembers(array_column($ids, 'steam_id'));
         $scores = self::liveScores($eventId, $ev); // ja ordenado desc
         $rank = 0; $winnerClan = null; $winnerName = null;
         foreach ($scores as $s) {
