@@ -144,11 +144,6 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
                 <div class="profile-card-suffix"><?= e(__('profile.coins')) ?></div>
             </div>
             <div class="profile-card">
-                <div class="profile-card-label">⭐ Pontos</div>
-                <div class="profile-card-value" style="color: var(--moss);"><?= number_format((int)($player['points'] ?? 0), 0, ',', '.') ?></div>
-                <div class="profile-card-suffix">pra loja de pontos</div>
-            </div>
-            <div class="profile-card">
                 <div class="profile-card-label"><?= e(__('profile.invested')) ?></div>
                 <div class="profile-card-value" style="color: var(--moss);">R$ <?= number_format((float)($player['total_spent_brl'] ?? 0), 2, ',', '.') ?></div>
             </div>

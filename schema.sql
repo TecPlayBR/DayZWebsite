@@ -37,7 +37,6 @@ CREATE TABLE players (
     display_name    VARCHAR(100) NULL,
     server_id       INT          NULL DEFAULT 1,
     coins           INT          NOT NULL DEFAULT 0,
-    points          INT          NOT NULL DEFAULT 0,
     total_spent_brl DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     last_seen_at    DATETIME NULL,
     origin          ENUM('agent','panel','payment','manual','bot','reward','box') NOT NULL DEFAULT 'agent',
@@ -448,7 +447,6 @@ CREATE TABLE boxes (
     image           VARCHAR(255) DEFAULT NULL,
     description     TEXT         DEFAULT NULL,
     cost_coins      INT          NOT NULL DEFAULT 0,
-    points_reward   INT          NOT NULL DEFAULT 0,
     is_daily        TINYINT(1)   NOT NULL DEFAULT 0,
     cooldown_hours  INT          NOT NULL DEFAULT 24,
     enabled         TINYINT(1)   NOT NULL DEFAULT 1,
@@ -1510,67 +1508,4 @@ CREATE TABLE clan_event_members (
     deactivated_at DATETIME     NULL,
     UNIQUE KEY uq_cmem (event_id, steam_id),
     KEY idx_cmem_clan (event_id, clan_id, active)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- ============================================================
--- TABELA: points_log (migration v2.16.0) — histórico da 2ª moeda (pontos)
--- ============================================================
-CREATE TABLE points_log (
-    id            INT AUTO_INCREMENT PRIMARY KEY,
-    player_id     INT          NULL,
-    steam_id      VARCHAR(20)  NOT NULL,
-    delta         INT          NOT NULL,
-    balance_after INT          NOT NULL,
-    source        VARCHAR(30)  NOT NULL,
-    ref_type      VARCHAR(30)  NULL,
-    ref_id        VARCHAR(40)  NULL,
-    note          VARCHAR(255) NULL,
-    created_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    KEY idx_pl_steam (steam_id),
-    KEY idx_pl_created (created_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- ============================================================
--- TABELAS: loja de pontos (migration v2.17.0)
--- ============================================================
-CREATE TABLE point_shop_items (
-    id          INT AUTO_INCREMENT PRIMARY KEY,
-    name        VARCHAR(120) NOT NULL,
-    description TEXT         NULL,
-    image       VARCHAR(255) NULL,
-    category    VARCHAR(60)  NOT NULL DEFAULT 'Geral',
-    classname   VARCHAR(120) NOT NULL,
-    quantity    INT          NOT NULL DEFAULT 1,
-    point_cost  INT          NOT NULL DEFAULT 0,
-    vip_only    TINYINT(1)   NOT NULL DEFAULT 0,
-    enabled     TINYINT(1)   NOT NULL DEFAULT 1,
-    sort_order  INT          NOT NULL DEFAULT 0,
-    created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    KEY idx_psi_cat (category, enabled, sort_order)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE point_shop_item_attachments (
-    id         INT AUTO_INCREMENT PRIMARY KEY,
-    item_id    INT          NOT NULL,
-    classname  VARCHAR(120) NOT NULL,
-    quantity   INT          NOT NULL DEFAULT 1,
-    sort_order INT          NOT NULL DEFAULT 0,
-    KEY idx_psa_item (item_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE point_purchases (
-    id              INT AUTO_INCREMENT PRIMARY KEY,
-    steam_id        VARCHAR(20) NOT NULL,
-    item_id         INT         NULL,
-    item_name       VARCHAR(120) NOT NULL,
-    classname       VARCHAR(120) NOT NULL,
-    quantity        INT         NOT NULL DEFAULT 1,
-    attachments_json TEXT       NULL,
-    point_cost      INT         NOT NULL DEFAULT 0,
-    status          ENUM('pending','delivered','failed') NOT NULL DEFAULT 'pending',
-    created_at      DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    delivered_at    DATETIME    NULL,
-    KEY idx_pp_steam (steam_id),
-    KEY idx_pp_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

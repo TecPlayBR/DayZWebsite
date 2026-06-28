@@ -26,7 +26,7 @@ $rarityLabel = [
         <span class="hero-kicker">// <?= e(__('caixas.kicker')) ?></span>
         <h1 class="hero-title"><?= e(__('caixas.title_1')) ?> <span class="accent"><?= e(__('caixas.title_2')) ?></span></h1>
         <?php if ($steam_user): ?>
-            <p style="color:var(--dim);"><?= e(__('caixas.logged_as')) ?> <strong style="color:var(--bone);"><?= e($steam_user['display_name'] ?? __('profile.fallback_name')) ?></strong> · <?= e(__('caixas.balance_label')) ?> <strong style="color:var(--hazard);" id="coins-balance"><?= number_format($coins,0,',','.') ?></strong> <?= e(__('caixas.coins_word')) ?> · <span title="Pontos pra gastar na loja de pontos">⭐ <strong style="color:var(--moss);" id="points-balance"><?= number_format($points ?? 0,0,',','.') ?></strong> pts</span></p>
+            <p style="color:var(--dim);"><?= e(__('caixas.logged_as')) ?> <strong style="color:var(--bone);"><?= e($steam_user['display_name'] ?? __('profile.fallback_name')) ?></strong> · <?= e(__('caixas.balance_label')) ?> <strong style="color:var(--hazard);" id="coins-balance"><?= number_format($coins,0,',','.') ?></strong> <?= e(__('caixas.coins_word')) ?></p>
         <?php else: ?>
             <p style="color:var(--dim);"><?= e(__('caixas.login_prompt')) ?></p>
             <a href="/auth/steam" class="btn btn-steam"><?= e(__('caixas.login_steam')) ?></a>
@@ -307,7 +307,6 @@ $rarityLabel = [
             result.appendChild(st);
             result.hidden=false; closeBtn.hidden=false;
             if (typeof data.coins==='number'){ const cb=document.getElementById('coins-balance'); if(cb) cb.textContent = data.coins.toLocaleString('pt-BR'); }
-            if (typeof data.points==='number'){ const pb=document.getElementById('points-balance'); if(pb){ pb.textContent = data.points.toLocaleString('pt-BR'); if(data.points_earned>0){ pb.style.transition='none'; pb.style.color='#fff'; setTimeout(()=>{pb.style.transition='color .8s'; pb.style.color='var(--moss)';},50); } } }
             busy=false;
         }, 5200);
     }

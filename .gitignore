@@ -55,3 +55,6 @@ desktop.ini
 # PHP
 vendor/
 composer.lock
+
+# CLAUDE.md = arquivo operacional interno do Claude (caminhos/infra) — repo e PUBLICO, nunca versionar
+CLAUDE.md
