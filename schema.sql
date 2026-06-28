@@ -589,7 +589,7 @@ INSERT INTO settings (`key`, `value`) VALUES
 ('server_port', '2302'),
 ('battlemetrics_id', ''),
 ('next_wipe_at', ''),
-('wipe_label', 'Proximo wipe'),
+('wipe_label', 'Próximo wipe'),
 ('discord_invite', ''),
 ('social_discord', ''),
 ('social_instagram', ''),
