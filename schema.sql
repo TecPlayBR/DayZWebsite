@@ -691,7 +691,20 @@ VALUES ('rules', 'Regras do Servidor', 'Server Rules', '<h2>Regras do Servidor</
 <li>Você pode ser convidado a instalar um <strong>validador anti-cheat</strong> sob supervisão da equipe se denunciado. Recusar = banimento.</li>
 </ul>
 
-<h3>6. Discord (Comunidade)</h3>
+<h3>6. Recompensas, Conquistas e Economia (Anti-Burla)</h3>
+<p>Conquistas, eventos, ranking, caixas e recompensas existem pra premiar quem joga de verdade. Burlar esses sistemas é levado a sério — algumas recompensas têm valor real:</p>
+<ul>
+<li><strong>Proibido combinar mortes ("kill-trading")</strong> — matar (ou morrer de propósito pra) um parceiro pra farmar abates, distância de tiro ou qualquer métrica de conquista, evento ou ranking.</li>
+<li><strong>Proibido conluio</strong> entre jogadores ou contas pra inflar resultado de evento (inclusive evento de clã), ranking ou recompensa.</li>
+<li><strong>Proibido usar conta alternativa</strong> pra farmar conquistas, recompensas, indicações ou vantagens. Alt account já é proibida (§1); usar pra farmar é agravante.</li>
+<li><strong>Proibido automatizar</strong> (macro, script, bot) ações que geram recompensa — farm de tempo online, abates, abertura de caixa, etc.</li>
+<li><strong>Proibido explorar bug</strong> de um sistema de recompensa (duplicar prêmio, repetir resgate, brecha de evento). Achou a brecha? <strong>Reporte</strong> — não abuse.</li>
+</ul>
+<div class="legal-callout warn">
+<p><strong>Consequência:</strong> identificado o abuso (por logs, denúncia ou investigação), a staff pode <strong>anular as recompensas e Moedas ganhas de forma indevida</strong>, aplicar <strong>banimento</strong> (individual ou do clã/grupo envolvido) e tratar o caso como tentativa de fraude. A análise considera o conjunto de evidências e o padrão de comportamento. <strong>Moedas que você comprou na Loja não são afetadas por esta regra</strong> — só as recompensas obtidas burlando o sistema.</p>
+</div>
+
+<h3>7. Discord (Comunidade)</h3>
 <ul>
 <li>Idade mínima: <strong>13 anos</strong> (TOS Discord). Menores de 18 requerem consentimento dos responsáveis.</li>
 <li>Proibido spam em canais, DM ads (mensagens privadas com propaganda), divulgação de outros servidores DayZ.</li>
@@ -700,7 +713,7 @@ VALUES ('rules', 'Regras do Servidor', 'Server Rules', '<h2>Regras do Servidor</
 <li>Respeite o trabalho da moderação. Discussão com mod via ticket privado, não em público.</li>
 </ul>
 
-<h3>7. Loja e Moedas (Termo de Aceite)</h3>
+<h3>8. Loja e Moedas (Termo de Aceite)</h3>
 <ul>
 <li>Ao comprar moedas na <a href="/shop">Loja</a>, você concorda com os <a href="/page/terms">Termos de Uso</a> e <a href="/page/refund">Política de Reembolso</a>.</li>
 <li>Moedas compradas só podem ser usadas dentro do servidor — não há reembolso após uso parcial ou total.</li>
@@ -711,7 +724,7 @@ VALUES ('rules', 'Regras do Servidor', 'Server Rules', '<h2>Regras do Servidor</
 <li>A staff <strong>nunca</strong> faz transferência de bens entre players ou interfere em gameplay. Se alguém da staff se ofereceu a fazer isso, denuncie aos donos do servidor imediatamente.</li>
 </ul>
 
-<h3>8. Wipes (Reset Periódico)</h3>
+<h3>9. Wipes (Reset Periódico)</h3>
 <ul>
 <li>O servidor pode ter wipes programados. A data será anunciada no <a href="https://discord.gg/SEU-CONVITE">Discord oficial</a> e no banner do site.</li>
 <li>No wipe, sua progressão (base, inventário) é perdida — como no DayZ vanilla. Suas <strong>moedas compradas na loja são preservadas</strong>.</li>
@@ -721,7 +734,7 @@ VALUES ('rules', 'Regras do Servidor', 'Server Rules', '<h2>Regras do Servidor</
 <li>A equipe é obrigada a comunicar wipes com antecedência. Se você não foi avisado, exija seus direitos.</li>
 </ul>
 
-<h3>9. Penalidades</h3>
+<h3>10. Penalidades</h3>
 <p>As penalidades variam conforme gravidade e reincidência:</p>
 <ul>
 <li><strong>Advertência</strong> verbal/escrita — primeira infração leve.</li>
@@ -731,7 +744,7 @@ VALUES ('rules', 'Regras do Servidor', 'Server Rules', '<h2>Regras do Servidor</
 </ul>
 <p>A staff registra todas as ações em audit log. Decisões podem ser questionadas via ticket — não em chat público.</p>
 
-<h3>10. Aceite e Atualizações</h3>
+<h3>11. Aceite e Atualizações</h3>
 <p>Ao conectar no servidor ou entrar no Discord, você aceita estas regras integralmente. Atualizações desta página serão anunciadas com até 7 dias de antecedência, exceto em casos urgentes (segurança, exploit grave).</p>
 
 <p style="font-size:0.85rem;color:#8aa0b5;margin-top:1.5rem;">
@@ -876,6 +889,7 @@ VALUES ('terms', 'Termos de Uso', 'Terms of Use', '<h2>Termos de Uso</h2>
 <li>As Moedas são vinculadas <strong>exclusivamente</strong> ao SteamID do Jogador e somente podem ser utilizadas dentro do Servidor.</li>
 <li>As Moedas <strong>não possuem valor monetário</strong>, não podem ser convertidas em dinheiro, transferidas para outro jogador ou trocadas por outros bens.</li>
 <li>A Plataforma pode, a qualquer tempo, alterar a economia interna do jogo (preços de itens in-game, mecânicas, etc).</li>
+<li>As <strong>Moedas e recompensas concedidas gratuitamente</strong> por sistemas internos (conquistas, eventos, caixas, bônus) são <strong>cortesias revogáveis</strong>: se obtidas mediante abuso, fraude ou exploração desses sistemas, a Plataforma poderá <strong>anulá-las ou estorná-las</strong>, sem que isso configure prejuízo ao Jogador. As <strong>Moedas adquiridas mediante pagamento</strong> seguem a Política de Reembolso e não são afetadas por esta cláusula, salvo comprovada fraude no pagamento.</li>
 </ul>
 <h3>6. Conduta do Jogador</h3>
 <p>É vedado ao Jogador:</p>
@@ -885,6 +899,7 @@ VALUES ('terms', 'Termos de Uso', 'Terms of Use', '<h2>Termos de Uso</h2>
 <li>Tentar <strong>fraudar</strong> o sistema de pagamento (chargeback abusivo, cartões clonados, etc).</li>
 <li>Realizar <strong>engenharia reversa</strong>, automatização ou exploração de bugs na Plataforma.</li>
 <li>Revender Moedas, contas ou itens do servidor para terceiros.</li>
+<li>Manipular, automatizar ou fraudar sistemas de <strong>recompensa, conquistas, eventos, ranking ou economia in-game</strong> — incluindo conluio entre jogadores ou contas, combinação de mortes ("kill-trading"), farm coordenado e exploração de falhas — para obter Moedas, itens ou vantagens de forma indevida.</li>
 </ul>
 <div class="legal-callout">
 <p><strong>Banimento:</strong> infringir qualquer das proibições acima implica em banimento (temporário ou permanente, a critério da administração) <strong>sem direito a reembolso</strong> das Moedas não utilizadas ou em uso.</p>
