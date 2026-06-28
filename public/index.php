@@ -70,6 +70,7 @@ require $ROOT . '/src/Boxes.php';
 require $ROOT . '/src/Rewards.php';
 require $ROOT . '/src/Vip.php';
 require $ROOT . '/src/Points.php';
+require $ROOT . '/src/PointShop.php';
 require $ROOT . '/src/ClanEvent.php';
 require $ROOT . '/src/Clan.php';
 require $ROOT . '/src/Help.php';
@@ -671,6 +672,37 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     if (!hash_equals((string)($config['agent_token'] ?? ''), (string)$token)) { http_response_code(401); echo json_encode(['error' => 'unauthorized']); return; }
     $n = \App\Boxes::deliverPending(100);
     echo json_encode(['ok' => true, 'delivered' => $n]);
+});
+
+// ============ LOJA DE PONTOS (gasta pontos em itens in-game) ============
+\App\Router::get('/pontos', function() use ($config) {
+    try { \App\PointShop::deliverPending(20); } catch (\Throwable $e) {}
+    $steamUser = \App\SteamAuth::user();
+    $sid = $steamUser['steam_id'] ?? null;
+    $points = $sid ? \App\Points::balance($sid) : 0;
+    $isVip = $sid ? \App\PointShop::isVip($sid) : false;
+    // agrupa itens por categoria + anexa os attachments de cada
+    $byCat = [];
+    foreach (\App\PointShop::items() as $it) {
+        $it['attachments'] = \App\PointShop::attachments((int)$it['id']);
+        $byCat[$it['category']][] = $it;
+    }
+    \App\View::display('pages.point_shop', [
+        'config' => $config, 'steam_user' => $steamUser, 'points' => $points,
+        'is_vip' => $isVip, 'by_cat' => $byCat,
+    ]);
+});
+
+\App\Router::post('/pontos/comprar', function() use ($config) {
+    if (!\App\SteamAuth::check()) { header('Location: /auth/steam'); exit; }
+    if (!\App\Csrf::check()) { header('Location: /pontos?err=csrf'); exit; }
+    $sid = \App\SteamAuth::steamId();
+    $rl = \App\RateLimit::check('point-buy:' . $sid, 20, 60);
+    if (empty($rl['allowed'])) { header('Location: /pontos?err=rate'); exit; }
+    $itemId = (int)($_POST['item_id'] ?? 0);
+    $res = \App\PointShop::buy($itemId, $sid, \App\PointShop::isVip($sid));
+    if (!$res['ok']) { header('Location: /pontos?err=' . urlencode($res['error'])); exit; }
+    header('Location: /pontos?ok=' . ($res['status'] === 'delivered' ? 'entregue' : 'fila')); exit;
 });
 
 // ============ VIP / BATTLEPASS (loja paga com moedas) ============
@@ -2379,6 +2411,68 @@ $collectDashboardData = function() {
     \App\AuditLog::record('box.delete', 'box', (int)$id);
     header('Location: /admin/caixas?ok=deleted');
     exit;
+});
+
+// ============ ADMIN: LOJA DE PONTOS ============
+\App\Router::get('/admin/point-shop', function() use ($config) {
+    \App\Auth::requireCan('packages');
+    \App\View::display('admin.point_shop', ['config' => $config, 'items' => \App\PointShop::allItems(), 'edit' => null, 'attachments' => []]);
+});
+\App\Router::get('/admin/point-shop/{id}', function($id) use ($config) {
+    \App\Auth::requireCan('packages');
+    $edit = \App\PointShop::get((int)$id);
+    $atts = $edit ? \App\Database::fetchAll("SELECT * FROM point_shop_item_attachments WHERE item_id = ? ORDER BY sort_order ASC, id ASC", [(int)$id]) : [];
+    \App\View::display('admin.point_shop', ['config' => $config, 'items' => \App\PointShop::allItems(), 'edit' => $edit ?: null, 'attachments' => $atts]);
+});
+\App\Router::post('/admin/point-shop/save', function() use ($config, $ROOT) {
+    \App\Auth::requireCan('packages');
+    if (!\App\Csrf::check()) { header('Location: /admin/point-shop?err=csrf'); exit; }
+    $id = (int)($_POST['id'] ?? 0);
+    $name = trim($_POST['name'] ?? '');
+    $classname = trim($_POST['classname'] ?? '');
+    if ($name === '' || $classname === '') { header('Location: /admin/point-shop' . ($id ? '/' . $id : '') . '?err=req'); exit; }
+    $img = upload_image($_FILES['image_file'] ?? [], $ROOT . '/public/assets/img/pointshop', 'psi', '/assets/img/pointshop');
+    $f = [
+        $name,
+        trim($_POST['description'] ?? '') ?: null,
+        trim($_POST['category'] ?? '') ?: 'Geral',
+        $classname,
+        max(1, (int)($_POST['quantity'] ?? 1)),
+        max(0, (int)($_POST['point_cost'] ?? 0)),
+        isset($_POST['vip_only']) ? 1 : 0,
+        $id > 0 ? (isset($_POST['enabled']) ? 1 : 0) : 1,
+        (int)($_POST['sort_order'] ?? 0),
+    ];
+    if ($id) {
+        if ($img) \App\Database::query("UPDATE point_shop_items SET name=?,description=?,category=?,classname=?,quantity=?,point_cost=?,vip_only=?,enabled=?,sort_order=?,image=? WHERE id=?", array_merge($f, [$img, $id]));
+        else      \App\Database::query("UPDATE point_shop_items SET name=?,description=?,category=?,classname=?,quantity=?,point_cost=?,vip_only=?,enabled=?,sort_order=? WHERE id=?", array_merge($f, [$id]));
+    } else {
+        \App\Database::query("INSERT INTO point_shop_items (name,description,category,classname,quantity,point_cost,vip_only,enabled,sort_order,image) VALUES (?,?,?,?,?,?,?,?,?,?)", array_merge($f, [$img]));
+        $id = (int)\App\Database::pdo()->lastInsertId();
+    }
+    \App\AuditLog::record('pointshop.save', 'point_shop_item', $id);
+    header('Location: /admin/point-shop/' . $id . '?ok=1'); exit;
+});
+\App\Router::post('/admin/point-shop/{id}/delete', function($id) use ($config) {
+    \App\Auth::requireCan('packages');
+    if (!\App\Csrf::check()) { header('Location: /admin/point-shop?err=csrf'); exit; }
+    \App\Database::query("DELETE FROM point_shop_item_attachments WHERE item_id = ?", [(int)$id]);
+    \App\Database::query("DELETE FROM point_shop_items WHERE id = ?", [(int)$id]);
+    \App\AuditLog::record('pointshop.delete', 'point_shop_item', (int)$id);
+    header('Location: /admin/point-shop?ok=deleted'); exit;
+});
+\App\Router::post('/admin/point-shop/{id}/attachments/add', function($id) use ($config) {
+    \App\Auth::requireCan('packages');
+    if (!\App\Csrf::check()) { header('Location: /admin/point-shop/' . $id); exit; }
+    $cn = trim($_POST['classname'] ?? '');
+    if ($cn !== '') \App\Database::query("INSERT INTO point_shop_item_attachments (item_id, classname, quantity, sort_order) VALUES (?,?,?,?)", [(int)$id, $cn, max(1, (int)($_POST['quantity'] ?? 1)), (int)($_POST['sort_order'] ?? 0)]);
+    header('Location: /admin/point-shop/' . $id . '?ok=att'); exit;
+});
+\App\Router::post('/admin/point-shop/attachments/{aid}/delete', function($aid) use ($config) {
+    \App\Auth::requireCan('packages');
+    $row = \App\Database::fetchOne("SELECT item_id FROM point_shop_item_attachments WHERE id = ?", [(int)$aid]);
+    if (\App\Csrf::check()) \App\Database::query("DELETE FROM point_shop_item_attachments WHERE id = ?", [(int)$aid]);
+    header('Location: /admin/point-shop/' . ($row['item_id'] ?? '') . '?ok=att'); exit;
 });
 
 \App\Router::post('/admin/caixas/{id}/items/save', function($id) use ($config, $ROOT) {

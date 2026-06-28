@@ -5,6 +5,15 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.17.0] — 2026-06-28
+
+> **Tem migration** (`v2.17.0_point_shop.sql` — `point_shop_items`, `point_shop_item_attachments`, `point_purchases`). Rode `php cli/migrate.php`.
+
+### ⭐ Loja de Pontos (Fase 2 — gastar pontos em itens in-game)
+- **`/pontos`:** o jogador troca os pontos (ganhos abrindo caixa) por **itens entregues in-game** via CFTools (mesmo mecanismo das caixas). Itens por **categoria**, com **anexos/kit** (arma + mira + carregador…), **só-VIP** opcional, e card de saldo + FAQ embutido. Online = entrega na hora; offline = fila (entrega ao logar).
+- **Admin → ⭐ Loja de Pontos:** CRUD de itens (nome, classname, categoria, custo em pontos, imagem, só-VIP) + **builder de anexos/kit**. Link na nav aparece só quando há item cadastrado.
+- **Template nasce vazio** — o servidor cadastra os itens (classnames têm que existir nos types do servidor).
+
 ## [2.16.0] — 2026-06-28
 
 > **Tem migration** (`v2.16.0_points_system.sql` — `players.points`, `boxes.points_reward`, `points_log`). Rode `php cli/migrate.php`.

@@ -40,6 +40,7 @@
             ['packages',            '/admin/packages',           '📦 Pacotes',             str_starts_with($current, '/admin/packages')],
             ['packages',            '/admin/shop',               '🛒 Loja in-game',        str_starts_with($current, '/admin/shop')],
             ['packages',            '/admin/caixas',             '🎁 Caixas',              str_starts_with($current, '/admin/caixas')],
+            ['packages',            '/admin/point-shop',         '⭐ Loja de Pontos',      str_starts_with($current, '/admin/point-shop')],
             ['pages',               '/admin/eventos',            '🗓 Eventos',             str_starts_with($current, '/admin/eventos')],
             ['servers',             '/admin/servers',            '🛰 Integração Agent',    str_starts_with($current, '/admin/servers')],
             ['servers',             '/admin/sparda',             '🎮 Integração Sparda',   str_starts_with($current, '/admin/sparda')],
