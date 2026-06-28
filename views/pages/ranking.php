@@ -60,21 +60,19 @@ if ($mode === 'gameplay') {
             </div>
         <?php endif; ?>
 
-        <!-- Abas (só as visíveis — admin escolhe em /admin/rewards) -->
-        <?php $invest_visible = $invest_visible ?? true; $in_clan = $in_clan ?? false; ?>
-        <?php if (($cftools_on && ($invest_visible || !empty($gameplay_stats))) || $in_clan): ?>
-            <div class="rank-tabs">
-                <?php if ($invest_visible): ?>
-                    <a class="rank-tab <?= $mode === 'invest' ? 'active' : '' ?>" href="/ranking">Investimento</a>
-                <?php endif; ?>
-                <?php foreach ($gameplay_stats as $sk => $sl): ?>
-                    <a class="rank-tab <?= ($mode === 'gameplay' && $stat === $sk) ? 'active' : '' ?>" href="/ranking?stat=<?= e($sk) ?>"><?= e($sl) ?></a>
-                <?php endforeach; ?>
-                <?php if ($in_clan): ?>
-                    <a class="rank-tab" href="/ranking/clans">🛡 Clãs</a>
-                <?php endif; ?>
-            </div>
-        <?php endif; ?>
+        <!-- Abas (só as visíveis — admin escolhe em /admin/rewards). A aba Clãs é
+             SEMPRE visível pra descoberta; a página /ranking/clans é que gateia os
+             eventos (só quem tem clã vê o placar). -->
+        <?php $invest_visible = $invest_visible ?? true; ?>
+        <div class="rank-tabs">
+            <?php if ($invest_visible): ?>
+                <a class="rank-tab <?= $mode === 'invest' ? 'active' : '' ?>" href="/ranking">Investimento</a>
+            <?php endif; ?>
+            <?php foreach ($gameplay_stats as $sk => $sl): ?>
+                <a class="rank-tab <?= ($mode === 'gameplay' && $stat === $sk) ? 'active' : '' ?>" href="/ranking?stat=<?= e($sk) ?>"><?= e($sl) ?></a>
+            <?php endforeach; ?>
+            <a class="rank-tab" href="/ranking/clans">🛡 Clãs</a>
+        </div>
 
         <div id="rank-results">
         <?php if ($mode === 'gameplay'): ?>

@@ -69,6 +69,7 @@ require $ROOT . '/src/Servers.php';
 require $ROOT . '/src/Boxes.php';
 require $ROOT . '/src/Rewards.php';
 require $ROOT . '/src/Vip.php';
+require $ROOT . '/src/Points.php';
 require $ROOT . '/src/ClanEvent.php';
 require $ROOT . '/src/Clan.php';
 require $ROOT . '/src/Help.php';
@@ -596,10 +597,11 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
 
     $boxes = \App\Boxes::all();
     $steamUser = \App\SteamAuth::user();
-    $coins = 0;
+    $coins = 0; $points = 0;
     $dailyReady = [];
     if ($steamUser) {
         $coins = (int)(\App\Database::fetchColumn("SELECT coins FROM players WHERE steam_id = ?", [$steamUser['steam_id']]) ?: 0);
+        $points = \App\Points::balance($steamUser['steam_id']);
     }
     foreach ($boxes as &$b) {
         $b['items'] = \App\Boxes::items((int)$b['id']);
@@ -612,7 +614,7 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     unset($b);
     \App\View::display('pages.caixas', [
         'config' => $config, 'boxes' => $boxes,
-        'steam_user' => $steamUser, 'coins' => $coins,
+        'steam_user' => $steamUser, 'coins' => $coins, 'points' => $points,
     ]);
 });
 
@@ -652,6 +654,8 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
         'ok' => true,
         'status' => $res['status'],
         'coins' => $coins,
+        'points' => isset($res['points']) ? (int)$res['points'] : (int)\App\Points::balance($steamId),
+        'points_earned' => (int)($res['points_reward'] ?? 0),
         'won' => [
             'name' => $won['name'], 'image' => $won['image'], 'rarity' => $won['rarity'],
             'quantity' => (int)$won['quantity'], 'classname' => $won['classname'],
@@ -836,26 +840,29 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     header('Location: /player/' . \App\SteamAuth::steamId()); exit;
 });
 
-// ============ EVENTOS DE CLÃ (aba "Clãs" do ranking — GATED: só quem tem clã) ============
+// ============ EVENTOS DE CLÃ (aba "Clãs" do ranking) ============
+// A aba é sempre visível (discoverability), mas os EVENTOS só pra quem tem clã
+// (trava de privacidade do Bryan): sem clã, a página mostra "entre num clã" e
+// NÃO carrega evento nenhum (zero vazamento).
 \App\Router::get('/ranking/clans', function() use ($config) {
     $sid    = \App\SteamAuth::check() ? \App\SteamAuth::steamId() : null;
     $myClan = $sid ? \App\Clan::forPlayer($sid) : null;
-    // TRAVA DURA: sem clã registrado, não vê eventos de clã. Volta pro ranking normal.
-    if (!$myClan) { header('Location: /ranking'); exit; }
-    \App\ClanEvent::tick(); // backup do ciclo (caso o Bot não tenha batido ainda)
     $events = [];
-    foreach (\App\ClanEvent::publicEvents() as $ev) {
-        $events[] = [
-            'ev'         => $ev,
-            'phase'      => \App\ClanEvent::phase($ev),
-            'scores'     => \App\ClanEvent::liveScores((int)$ev['id'], $ev),
-            'registered' => \App\ClanEvent::isRegistered((int)$ev['id'], (int)$myClan['id']),
-        ];
+    if ($myClan) {
+        \App\ClanEvent::tick(); // backup do ciclo (caso o Bot não tenha batido ainda)
+        foreach (\App\ClanEvent::publicEvents() as $ev) {
+            $events[] = [
+                'ev'         => $ev,
+                'phase'      => \App\ClanEvent::phase($ev),
+                'scores'     => \App\ClanEvent::liveScores((int)$ev['id'], $ev),
+                'registered' => \App\ClanEvent::isRegistered((int)$ev['id'], (int)$myClan['id']),
+            ];
+        }
     }
     \App\View::display('pages.clan_events', [
         'config'     => $config,
         'my_clan'    => $myClan,
-        'is_leader'  => \App\Clan::isOwner((int)$myClan['id'], $sid),
+        'is_leader'  => $myClan ? \App\Clan::isOwner((int)$myClan['id'], $sid) : false,
         'events'     => $events,
         'steam_user' => \App\SteamAuth::user(),
     ]);
@@ -2331,6 +2338,7 @@ $collectDashboardData = function() {
         $image,
         trim((string)($_POST['description'] ?? '')) ?: null,
         $isDaily ? 0 : max(0, (int)($_POST['cost_coins'] ?? 0)),
+        max(0, (int)($_POST['points_reward'] ?? 0)),
         $isDaily,
         max(0, (int)($_POST['cooldown_hours'] ?? 24)),
         // Caixa NOVA nasce sempre ativa; na edição respeita o checkbox.
@@ -2339,12 +2347,12 @@ $collectDashboardData = function() {
     ];
     if ($id > 0) {
         \App\Database::query(
-            "UPDATE boxes SET name=?, slug=?, image=?, description=?, cost_coins=?, is_daily=?, cooldown_hours=?, enabled=?, sort_order=? WHERE id=?",
+            "UPDATE boxes SET name=?, slug=?, image=?, description=?, cost_coins=?, points_reward=?, is_daily=?, cooldown_hours=?, enabled=?, sort_order=? WHERE id=?",
             array_merge($fields, [$id])
         );
     } else {
         \App\Database::query(
-            "INSERT INTO boxes (name, slug, image, description, cost_coins, is_daily, cooldown_hours, enabled, sort_order) VALUES (?,?,?,?,?,?,?,?,?)",
+            "INSERT INTO boxes (name, slug, image, description, cost_coins, points_reward, is_daily, cooldown_hours, enabled, sort_order) VALUES (?,?,?,?,?,?,?,?,?,?)",
             $fields
         );
         $id = (int)\App\Database::pdo()->lastInsertId();

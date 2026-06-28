@@ -27,7 +27,8 @@ $ceFmt = static function (int $v, string $metric): string {
     }
     return number_format($v, 0, ',', '.');
 };
-$myId = (int)$my_clan['id'];
+$my_clan = $my_clan ?? null;
+$myId = $my_clan ? (int)$my_clan['id'] : 0;
 ?>
 
 <section class="hero" style="min-height:34vh;padding-bottom:1.5rem;">
@@ -35,7 +36,11 @@ $myId = (int)$my_clan['id'];
     <div class="container hero-content">
         <span class="hero-kicker">// GUERRA DE FACÇÕES</span>
         <h1 class="hero-title">Eventos de <span class="accent">Clã</span></h1>
-        <p class="hero-subtitle">Seu clã: <strong style="color:var(--hazard);">[<?= e($my_clan['tag']) ?>] <?= e($my_clan['name']) ?></strong>. Os contadores só somam o que rolar <strong>durante</strong> cada evento.</p>
+        <?php if ($my_clan): ?>
+            <p class="hero-subtitle">Seu clã: <strong style="color:var(--hazard);">[<?= e($my_clan['tag']) ?>] <?= e($my_clan['name']) ?></strong>. Os contadores só somam o que rolar <strong>durante</strong> cada evento.</p>
+        <?php else: ?>
+            <p class="hero-subtitle">Competições entre facções. <strong>Entre num clã</strong> pra disputar e ver o placar.</p>
+        <?php endif; ?>
     </div>
 </section>
 
@@ -49,7 +54,14 @@ $myId = (int)$my_clan['id'];
         <?php if ($okMsg): ?><div class="ce-flash ok"><?= e($okMsg) ?></div><?php endif; ?>
         <?php if ($errMsg): ?><div class="ce-flash err"><?= e($errMsg) ?></div><?php endif; ?>
 
-        <?php if (empty($events)): ?>
+        <?php if (!$my_clan): ?>
+            <div style="text-align:center;color:var(--bone);padding:3rem 1.2rem;background:var(--bg-1);border:1px solid var(--hazard);border-radius:8px;">
+                <div style="font-size:2.2rem;margin-bottom:.6rem;">🛡</div>
+                <h2 style="font-family:var(--font-display);color:var(--bone);margin:0 0 .6rem;">Eventos são só pra clãs</h2>
+                <p style="color:var(--dim);max-width:480px;margin:0 auto 1.2rem;">As competições de clã (placar, prêmios) só aparecem pra quem faz parte de um clã. Entre ou crie o seu pra disputar.</p>
+                <a href="/clans" class="btn">Ver clãs / criar o meu →</a>
+            </div>
+        <?php elseif (empty($events)): ?>
             <div style="text-align:center;color:var(--dim);padding:3rem 1rem;background:var(--bg-1);border:1px dashed var(--border);border-radius:6px;">
                 Nenhum evento de clã no momento. Fica de olho — quando rolar, aparece aqui e o <strong>líder</strong> inscreve a facção. 🛡
             </div>
@@ -114,7 +126,7 @@ $myId = (int)$my_clan['id'];
             <?php endforeach; ?>
         <?php endif; ?>
 
-        <p style="text-align:center;margin-top:2rem;"><a href="/clan/<?= $myId ?>" class="btn btn-outline">← Meu clã</a></p>
+        <p style="text-align:center;margin-top:2rem;"><a href="<?= $my_clan ? '/clan/'.$myId : '/clans' ?>" class="btn btn-outline"><?= $my_clan ? '← Meu clã' : '← Todos os clãs' ?></a></p>
     </div>
 </section>
 

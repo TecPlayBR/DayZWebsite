@@ -144,6 +144,14 @@ class Boxes {
         );
         $openingId = (int)Database::pdo()->lastInsertId();
 
+        // Pontos por abrir (Fase 1): cada caixa concede points_reward (admin define).
+        $pointsReward  = (int)($box['points_reward'] ?? 0);
+        $pointsBalance = null;
+        if ($pointsReward > 0) {
+            try { $pointsBalance = Points::award($steamId, $pointsReward, 'box', 'box', $boxId, 'Abertura: ' . $box['name']); }
+            catch (\Throwable $e) { /* não derruba a abertura */ }
+        }
+
         // Entrega.
         if (($won['type'] ?? 'item') === 'coins') {
             // Recompensa em MOEDAS: credita no saldo na hora (quantity = qtd de moedas).
@@ -165,7 +173,8 @@ class Boxes {
             $status = self::deliver($openingId, $steamId, $won['classname'], (int)$won['quantity']);
         }
 
-        return ['ok' => true, 'won' => $won, 'status' => $status, 'opening_id' => $openingId];
+        return ['ok' => true, 'won' => $won, 'status' => $status, 'opening_id' => $openingId,
+                'points_reward' => $pointsReward, 'points' => $pointsBalance];
     }
 
     /**

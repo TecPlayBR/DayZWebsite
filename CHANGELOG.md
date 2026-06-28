@@ -5,6 +5,18 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.16.0] — 2026-06-28
+
+> **Tem migration** (`v2.16.0_points_system.sql` — `players.points`, `boxes.points_reward`, `points_log`). Rode `php cli/migrate.php`.
+
+### ⭐ Sistema de Pontos (Fase 1 — ganhar abrindo caixa)
+- **2ª moeda "pontos"** (separada de coins), pra futura loja de pontos. Cada caixa define **quantos pontos dá ao abrir** (campo "⭐ Pontos por abrir" no admin de caixas — você tuna a economia sem código). Creditado no momento da abertura, com histórico em `points_log`.
+- **Card de saldo de pontos** na página de Caixas (atualiza ao abrir) e no perfil do jogador.
+- *(Fase 2 = a loja de pontos com itens in-game, depois.)*
+
+### 🐛 Aba "Clãs" do ranking — discoverability
+- A aba **"🛡 Clãs"** agora é **sempre visível** no `/ranking` (antes só aparecia logado via Steam + em clã, então passava despercebida). A **trava de privacidade continua**: os eventos/placar só aparecem pra quem está num clã; quem não está vê "entre num clã pra participar" (sem vazar nada). `/ranking/clans` não redireciona mais — mostra o aviso.
+
 ## [2.15.5] — 2026-06-27
 
 > **Tem migration** (`v2.15.5_clan_event_prize_coins.sql` — coluna `prize_coins`). Rode `php cli/migrate.php`.
