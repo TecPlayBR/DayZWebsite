@@ -71,7 +71,7 @@ if ($mode === 'gameplay') {
             <?php foreach ($gameplay_stats as $sk => $sl): ?>
                 <a class="rank-tab <?= ($mode === 'gameplay' && $stat === $sk) ? 'active' : '' ?>" href="/ranking?stat=<?= e($sk) ?>"><?= e($sl) ?></a>
             <?php endforeach; ?>
-            <a class="rank-tab" href="/ranking/clans">🛡 Clãs</a>
+            <a class="rank-tab" href="/ranking/clans" data-full="1">🛡 Clãs</a>
         </div>
 
         <div id="rank-results">
@@ -207,6 +207,7 @@ if ($mode === 'gameplay') {
   document.addEventListener('click', function(e){
     var a = e.target.closest('.rank-tab');
     if (!a) return;
+    if (a.dataset.full) return; // aba que leva a OUTRA página (ex.: Clãs) → navega normal, sem AJAX
     e.preventDefault();
     load(a.getAttribute('href'), true);
   });

@@ -843,9 +843,9 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
 \App\Router::get('/ranking/clans', function() use ($config) {
     $sid    = \App\SteamAuth::check() ? \App\SteamAuth::steamId() : null;
     $myClan = $sid ? \App\Clan::forPlayer($sid) : null;
+    \App\ClanEvent::tick(); // congela/baseline eventos vencidos mesmo se o visitante não tem clã
     $events = [];
     if ($myClan) {
-        \App\ClanEvent::tick(); // backup do ciclo (caso o Bot não tenha batido ainda)
         foreach (\App\ClanEvent::publicEvents() as $ev) {
             $events[] = [
                 'ev'         => $ev,
