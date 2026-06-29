@@ -169,6 +169,27 @@ class ClanEvent
         return self::syncMembers(array_column($ids, 'steam_id'), 30);
     }
 
+    /**
+     * Tick OPORTUNISTA throttled — pra páginas de tráfego (ex.: home) tocarem o ciclo
+     * (baseline/congela) na hora SEM precisar de cron. Roda no máx 1x a cada $minSecs
+     * (flag por mtime de arquivo). Zero-config: funciona em qualquer host do template.
+     */
+    public static function tickThrottled(string $cacheDir, int $minSecs = 120): void {
+        $flag = rtrim($cacheDir, "/\\") . '/ce_tick.flag';
+        if (is_file($flag) && (time() - (int)@filemtime($flag)) < max(30, $minSecs)) return;
+        @touch($flag);
+        self::tick();
+    }
+
+    /** Cron: refresca os participantes de TODOS os eventos ativos. Retorna nº de membros sincronizados. */
+    public static function refreshAllActive(): int {
+        $n = 0;
+        foreach (self::publicEvents() as $ev) {
+            if (self::phase($ev) === 'active') $n += self::refreshActiveMembers((int)$ev['id'], $ev);
+        }
+        return $n;
+    }
+
     /** Foto do início: snapshot do contador de cada membro dos clãs inscritos. */
     private static function takeBaseline(array $ev): void {
         $col = self::col($ev['metric']);

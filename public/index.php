@@ -322,7 +322,10 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     echo '</urlset>' . "\n";
 });
 
-\App\Router::get('/', function() use ($config) {
+\App\Router::get('/', function() use ($config, $ROOT) {
+    // Toca o ciclo dos eventos de clã no tráfego da home (throttled, máx 1x/2min) — assim
+    // baseline/congelamento acontecem na hora SEM depender de cron (zero-config no template).
+    try { \App\ClanEvent::tickThrottled($ROOT . '/storage/cache'); } catch (\Throwable $e) {}
     // Mesma ordem da loja: featured primeiro, depois sort_order — assim o teaser bate.
     $packages = \App\Database::fetchAll(
         "SELECT * FROM packages WHERE enabled = 1 ORDER BY featured DESC, sort_order ASC"
@@ -667,6 +670,24 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     if (!hash_equals((string)($config['agent_token'] ?? ''), (string)$token)) { http_response_code(401); echo json_encode(['error' => 'unauthorized']); return; }
     $n = \App\Boxes::deliverPending(100);
     echo json_encode(['ok' => true, 'delivered' => $n]);
+});
+
+// Cron CONSOLIDADO (opcional) — UM cron só pro template: pendências de caixa + ciclo de eventos
+// de clã + refresh de stats dos participantes + premiação automática. Token = agent_token.
+// Aponte o cron do host aqui a cada ~2min. SEM cron o site funciona igual (dispara no tráfego);
+// o cron só deixa o placar de clã mais ao vivo e o congelamento/premiação mais pontuais.
+\App\Router::get('/api/cron.php', function() use ($config) {
+    header('Content-Type: application/json; charset=utf-8');
+    if (!hash_equals((string)($config['agent_token'] ?? ''), (string)($_GET['token'] ?? ''))) { http_response_code(401); echo json_encode(['error' => 'unauthorized']); return; }
+    $out = ['ok' => true];
+    try { \App\ClanEvent::tick(); } catch (\Throwable $e) {}
+    try { $out['clan_stats_synced'] = \App\ClanEvent::refreshAllActive(); } catch (\Throwable $e) { $out['clan_stats_synced'] = null; }
+    try { $out['boxes_delivered']   = \App\Boxes::deliverPending(100); } catch (\Throwable $e) { $out['boxes_delivered'] = null; }
+    try {
+        if (\App\Rewards::shouldAutoAward()) { $r = \App\Rewards::award(); $out['rewards_paid'] = count($r['paid'] ?? []); }
+        else { $out['rewards_paid'] = 0; }
+    } catch (\Throwable $e) { $out['rewards_paid'] = null; }
+    echo json_encode($out);
 });
 
 // ============ VIP / BATTLEPASS (loja paga com moedas) ============

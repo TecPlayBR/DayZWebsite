@@ -297,16 +297,17 @@ As **Caixas** dropam o item no jogo usando a **API GameLabs do CFTools** — ent
 - **Caixas:** Admin → **🎁 Caixas** → cria a caixa + adiciona itens (classname DayZ, quantidade, peso). Ative quando estiver pronta.
 - **Restart (blindagem do drop):** Admin → **Configurações** → ligue e informe os horários de restart (ex: `00:00, 04:00, ...`). Perto do restart o drop vira pendente pra não cair no limbo.
 
-### ⏱ Crons opcionais (Painel → Cron Jobs)
-Pra automatizar entregas pendentes e premiação do ranking:
+### ⏱ Cron opcional (Painel → Cron Jobs)
+**Não é obrigatório** — sem cron o site funciona (entrega pendente cai ao abrir `/caixas`, placar de evento de clã atualiza no tráfego, premiação pelo botão **"Premiar agora"**). O cron só deixa tudo mais **pontual**. Recomendado: **UM cron** a cada **2 min** que cobre tudo (caixas + eventos de clã + premiação):
 ```
-# entrega pendências de caixa (a cada 2 min)
-curl -s "https://SEUSITE/api/deliver-boxes.php?token=SEU_AGENT_TOKEN"
-
-# premiação automática do leaderboard (de hora em hora)
-curl -s "https://SEUSITE/api/award-rewards.php?token=SEU_AGENT_TOKEN"
+curl -s "https://SEUSITE/api/cron.php?token=SEU_AGENT_TOKEN"
 ```
-> `SEU_AGENT_TOKEN` = o `agent_token` do `config.php` (o mesmo que aparece em Admin → 🎮 Integração Sparda). Sem cron, use o botão **"Premiar agora"** e a entrega pendente cai sozinha quando alguém abre `/caixas`.
+Endpoints individuais (ainda funcionam, se preferir separar):
+```
+curl -s "https://SEUSITE/api/deliver-boxes.php?token=SEU_AGENT_TOKEN"   # caixas (2 min)
+curl -s "https://SEUSITE/api/award-rewards.php?token=SEU_AGENT_TOKEN"   # premiação (1 h)
+```
+> `SEU_AGENT_TOKEN` = o `agent_token` do `config.php` (o mesmo que aparece em Admin → 🎮 Integração Sparda).
 
 ---
 

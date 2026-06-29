@@ -89,16 +89,19 @@ Acabou. 🎉
 
 ---
 
-## Passo 6 (opcional) — Automações novas (caixas e recompensas)
+## Passo 6 (opcional) — Automação (UM cron só)
 
-Só se você usa as **🎁 Caixas** ou as **🏆 Recompensas** do ranking. **Não é obrigatório** — sem cron, a entrega pendente de caixa cai sozinha quando alguém abre `/caixas`, e a premiação você roda no botão **"Premiar agora"**. Pra automatizar, **Painel → Cron Jobs**:
+**Não é obrigatório.** O site funciona sem cron: a entrega pendente de caixa cai quando alguém abre `/caixas`, o **placar dos eventos de clã** atualiza no tráfego da página, e a premiação você roda no botão **"Premiar agora"**. O cron só deixa tudo mais **pontual** (placar de clã mais ao vivo, congelamento e premiação na hora certa). **Painel → Cron Jobs**, a cada **2 minutos**:
 
 ```
-# entrega pendências de caixa (a cada 2 min)
-curl -s "https://seusite.com/api/deliver-boxes.php?token=SEU_AGENT_TOKEN"
+curl -s "https://seusite.com/api/cron.php?token=SEU_AGENT_TOKEN"
+```
+Esse **único cron** já cobre tudo: pendências de caixa + ciclo/placar dos eventos de clã + premiação do ranking.
 
-# premiação automática do ranking (de hora em hora)
-curl -s "https://seusite.com/api/award-rewards.php?token=SEU_AGENT_TOKEN"
+Prefere separar (endpoints individuais, ainda funcionam)?
+```
+curl -s "https://seusite.com/api/deliver-boxes.php?token=SEU_AGENT_TOKEN"   # só caixas (2 min)
+curl -s "https://seusite.com/api/award-rewards.php?token=SEU_AGENT_TOKEN"   # só premiação (1 h)
 ```
 > `SEU_AGENT_TOKEN` é o que está no seu `config/config.php` (e aparece em **Admin → 🎮 Entrega Sparda**).
 
