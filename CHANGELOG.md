@@ -5,6 +5,15 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.19.0] — 2026-07-01
+
+> **Tem migration** (`v2.19.0_releases.sql` — tabela `site_releases`). Rode `php cli/migrate.php`.
+
+### 📢 Novidades / Notas de Atualização
+- Nova página **`/novidades`** — o jogador vê o que mudou em cada release (update de mod, correção, novidade), mais recente primeiro, com selo de categoria + versão + data.
+- Admin → **📢 Novidades** (`/admin/releases`): publica com **título + versão + categoria** (Novidade/Atualização/Correção/Hotfix) + **data** + corpo (HTML sanitizado) + rascunho/publicado.
+- Link na nav (menu Mais + drawer mobile) aparece **só quando há release publicada** — **template nasce vazio**.
+
 ## [2.18.0] — 2026-06-28
 
 > **Tem migration** (`v2.18.0_remove_points.sql` — dropa as tabelas/colunas de pontos). Rode `php cli/migrate.php`.
