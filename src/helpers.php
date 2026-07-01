@@ -19,6 +19,44 @@ if (!function_exists('e')) {
     }
 }
 
+if (!function_exists('notify_bot_vip')) {
+    /**
+     * Avisa o BOT que um VIP foi concedido/revogado (sync OPCIONAL site->bot).
+     * Best-effort (não bloqueia/quebra se o bot estiver fora). Mesmo padrão do mp-webhook.
+     * Só dispara se: sync ligado (setting vip_sync_bot != '0', default ON) E bot configurado.
+     * O bot resolve steam_id->discord_id no próprio discord_links e dá/tira o cargo VIP.
+     * @param string $action 'grant' | 'revoke'
+     * @param array  $info   ['tier'=>?, 'expiration_date'=>?, 'nickname'=>?, 'site_grant_id'=>?]
+     */
+    function notify_bot_vip(array $config, string $steamId, string $action, array $info = []): void {
+        try {
+            if (\App\Settings::get('vip_sync_bot', '1') === '0') return; // desligado pelo dono
+        } catch (\Throwable $e) { /* setting ausente = default on */ }
+        $endpoint = trim($config['bot']['endpoint'] ?? ($config['settings']['bot_endpoint'] ?? ''));
+        $tokenB   = trim($config['bot']['token']    ?? ($config['settings']['bot_token']    ?? ''));
+        if ($endpoint === '' || $tokenB === '') return; // bot não integrado -> nada a sincronizar
+        $payload = json_encode([
+            'steam_id'        => $steamId,
+            'action'          => $action,
+            'tier'            => $info['tier']            ?? null,
+            'expiration_date' => $info['expiration_date'] ?? null,
+            'nickname'        => $info['nickname']        ?? null,
+            'site_grant_id'   => $info['site_grant_id']   ?? null,
+        ]);
+        $ch = curl_init(rtrim($endpoint, '/') . '/notify/grant-vip');
+        curl_setopt_array($ch, [
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => $payload,
+            CURLOPT_HTTPHEADER     => ['Content-Type: application/json', 'X-Tecplay-Token: ' . $tokenB],
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 3,
+            CURLOPT_CONNECTTIMEOUT => 2,
+        ]);
+        @curl_exec($ch); // best-effort
+        curl_close($ch);
+    }
+}
+
 if (!function_exists('pending_migrations')) {
     /**
      * Migrations em /migrations que ainda NÃO foram aplicadas (não estão na tabela

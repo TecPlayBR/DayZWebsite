@@ -722,6 +722,13 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     $nick = $user['display_name'] ?? null;
     $res  = \App\Vip::purchase(\App\Servers::defaultId(), $steamId, $nick, $type, $tier, $days);
     if (!$res['ok']) { header('Location: /vip?err=' . urlencode($res['error'])); exit; }
+    if ($type === 'vip') {
+        $g = \App\Database::fetchOne(
+            "SELECT id, tier, DATE_FORMAT(expiration_date,'%Y-%m-%d') AS exp FROM player_grants WHERE steam_id=? AND type='vip' ORDER BY id DESC LIMIT 1",
+            [$steamId]
+        );
+        if ($g) notify_bot_vip($config, $steamId, 'grant', ['tier' => $g['tier'], 'expiration_date' => $g['exp'], 'nickname' => $nick, 'site_grant_id' => (int)$g['id']]);
+    }
     header('Location: /vip?ok=' . ($res['extended'] ? 'renewed' : 'bought'));
     exit;
 });
@@ -3665,6 +3672,10 @@ $BRAND_SLOTS = [
          VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')",
         [$sid, $steam, $nick, $type, $tier, $days, $exp]
     );
+    if ($type === 'vip') {
+        $gid = (int)\App\Database::pdo()->lastInsertId();
+        notify_bot_vip($config, $steam, 'grant', ['tier' => $tier, 'expiration_date' => $exp, 'nickname' => $nick, 'site_grant_id' => $gid]);
+    }
     header('Location: /admin/entitlements?ok=1');
     exit;
 });
@@ -3674,11 +3685,15 @@ $BRAND_SLOTS = [
     if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     $sid = \App\Servers::defaultId();
     $id  = (int)($_POST['id'] ?? 0);
+    $g   = \App\Database::fetchOne("SELECT steam_id, type FROM player_grants WHERE id=? AND server_id=? LIMIT 1", [$id, $sid]);
     // applied/pending -> revoked (o agent remove do jogo + ack -> removed)
     \App\Database::query(
         "UPDATE player_grants SET status = 'revoked' WHERE id = ? AND server_id = ? AND status IN ('applied','pending')",
         [$id, $sid]
     );
+    if ($g && ($g['type'] ?? '') === 'vip') {
+        notify_bot_vip($config, (string)$g['steam_id'], 'revoke', ['site_grant_id' => $id]);
+    }
     header('Location: /admin/entitlements?ok=2');
     exit;
 });
