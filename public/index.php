@@ -72,6 +72,7 @@ require $ROOT . '/src/Vip.php';
 require $ROOT . '/src/ClanEvent.php';
 require $ROOT . '/src/Clan.php';
 require $ROOT . '/src/Help.php';
+require $ROOT . '/src/Releases.php';
 require $ROOT . '/src/Events.php';
 require $ROOT . '/src/Html.php';
 require $ROOT . '/src/helpers.php';
@@ -281,6 +282,7 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
         ['/depoimentos',  '0.6', 'weekly'],
         ['/ranking',      '0.6', 'daily'],
         ['/ajuda',        '0.7', 'weekly'],
+        ['/novidades',    '0.6', 'weekly'],
         ['/clans',        '0.6', 'weekly'],
         ['/rules',        '0.5', 'monthly'],
     ];
@@ -929,6 +931,11 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     $a = \App\Help::getBySlug($slug);
     if (!$a) { header('Location: /ajuda'); exit; }
     \App\View::display('pages.help_article', ['config' => $config, 'a' => $a, 'siblings' => \App\Help::siblings($a['category'], (int)$a['id'])]);
+});
+
+// Novidades / Notas de Atualização (patch notes pro player).
+\App\Router::get('/novidades', function() use ($config) {
+    \App\View::display('pages.releases', ['config' => $config, 'releases' => \App\Releases::published()]);
 });
 
 \App\Router::get('/rules', function() use ($config) {
@@ -2820,6 +2827,53 @@ $REWARD_CATEGORIES = [
     if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     \App\Database::query("DELETE FROM help_articles WHERE id = ?", [(int)$id]);
     header('Location: /admin/help?ok=1');
+    exit;
+});
+
+// ============ ADMIN: NOVIDADES / NOTAS DE ATUALIZAÇÃO ============
+\App\Router::get('/admin/releases', function() use ($config) {
+    \App\Auth::requireCan('pages');
+    \App\View::display('admin.releases', ['config' => $config, 'releases' => \App\Releases::all()]);
+});
+\App\Router::get('/admin/releases/new', function() use ($config) {
+    \App\Auth::requireCan('pages');
+    \App\View::display('admin.release_edit', ['config' => $config, 'r' => null]);
+});
+\App\Router::get('/admin/releases/{id}/edit', function($id) use ($config) {
+    \App\Auth::requireCan('pages');
+    $r = \App\Releases::get((int)$id);
+    if (!$r) { header('Location: /admin/releases'); exit; }
+    \App\View::display('admin.release_edit', ['config' => $config, 'r' => $r]);
+});
+\App\Router::post('/admin/releases/save', function() use ($config) {
+    \App\Auth::requireCan('pages');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
+    $id    = (int)($_POST['id'] ?? 0);
+    $title = trim($_POST['title'] ?? '');
+    if ($title === '') { header('Location: /admin/releases' . ($id ? '/' . $id . '/edit' : '/new') . '?err=title'); exit; }
+    $cat   = \App\Releases::validCat($_POST['category'] ?? '');
+    $ver   = mb_substr(trim($_POST['version'] ?? ''), 0, 40) ?: null;
+    $body  = \App\Html::sanitize((string)($_POST['body'] ?? ''));
+    $rel   = trim($_POST['released_at'] ?? '');
+    $rel   = preg_match('/^\d{4}-\d{2}-\d{2}$/', $rel) ? $rel : null;
+    $pub   = isset($_POST['published']) ? 1 : 0;
+    $sort  = (int)($_POST['sort_order'] ?? 0);
+    if ($id > 0) {
+        \App\Database::query("UPDATE site_releases SET version=?,category=?,title=?,body=?,released_at=?,published=?,sort_order=? WHERE id=?",
+            [$ver, $cat, $title, $body, $rel, $pub, $sort, $id]);
+    } else {
+        \App\Database::query("INSERT INTO site_releases (version,category,title,body,released_at,published,sort_order) VALUES (?,?,?,?,?,?,?)",
+            [$ver, $cat, $title, $body, $rel, $pub, $sort]);
+    }
+    \App\AuditLog::record('release.saved', 'release', $id ?: null);
+    header('Location: /admin/releases?ok=1');
+    exit;
+});
+\App\Router::post('/admin/releases/{id}/delete', function($id) use ($config) {
+    \App\Auth::requireCan('pages');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
+    \App\Database::query("DELETE FROM site_releases WHERE id = ?", [(int)$id]);
+    header('Location: /admin/releases?ok=1');
     exit;
 });
 

@@ -1489,6 +1489,23 @@ CREATE TABLE help_articles (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================================
+-- TABELA: site_releases (migration v2.19.0) — Novidades / Notas de Atualização
+-- ============================================================
+CREATE TABLE site_releases (
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    version     VARCHAR(40)  NULL,
+    category    VARCHAR(20)  NOT NULL DEFAULT 'atualizacao',
+    title       VARCHAR(160) NOT NULL,
+    body        MEDIUMTEXT   NULL,
+    released_at DATE         NULL,
+    published   TINYINT(1)   NOT NULL DEFAULT 1,
+    sort_order  INT          NOT NULL DEFAULT 0,
+    created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    KEY idx_rel_pub (published, released_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ============================================================
 -- TABELAS: eventos de clã (migration v2.15.0) — placar por delta
 -- ============================================================
 CREATE TABLE clan_events (
