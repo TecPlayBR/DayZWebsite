@@ -29,6 +29,9 @@
 //                               Coins creditados pelo mp-webhook.php na aprovação (ambos).
 //   GET  ?action=shop_items   → catálogo de itens gastáveis (pro bot /loja):
 //                               {items:[{sku,name,icon,coins_cost,enabled,deliver:[...]}]}
+//   GET  ?action=list_active_vips → VIPs ativos (autoridade) pro bot reconciliar o
+//                               cargo VIP no Discord: {ok, vips:[{steam_id, nickname,
+//                               expiration_date|null}]} (1 por steam, exp efetiva).
 //   POST ?action=spend        → gasta moeda num item. Body: {steam_id, sku,
 //                               server_id?, spend_ref}. Debita players.coins ATÔMICO
 //                               (402 se insuficiente), idempotente por spend_ref →
@@ -708,6 +711,34 @@ case 'spend':
         'new_balance' => $newBalance,
         'deliver'     => json_decode((string) $item['deliver_json'], true) ?: [],
     ]));
+
+case 'list_active_vips':
+    // Lista os VIPs ATIVOS (autoridade = site) pro bot reconciliar o cargo VIP no
+    // Discord (rede de seguranca do sync, alem do webhook por evento).
+    // Agrupa por steam: 1 por jogador. Exp efetiva: se qualquer grant e vitalicio
+    // (expiration_date NULL) -> null; senao a MAIOR data. Ativo = nao encerrado
+    // (exclui removed/revoked/expired/cancelled) e nao vencido.
+    $rows = \App\Database::fetchAll(
+        "SELECT steam_id,
+                MAX(nickname) AS nickname,
+                CASE WHEN SUM(expiration_date IS NULL) > 0 THEN NULL
+                     ELSE MAX(expiration_date) END AS expiration_date
+           FROM player_grants
+          WHERE type = 'vip'
+            AND status NOT IN ('removed','revoked','expired','cancelled')
+            AND (expiration_date IS NULL OR expiration_date >= CURDATE())
+          GROUP BY steam_id"
+    );
+    $vips = array_map(static function (array $r): array {
+        return [
+            'steam_id'        => (string) $r['steam_id'],
+            'nickname'        => $r['nickname'],
+            'expiration_date' => $r['expiration_date'], // 'YYYY-MM-DD' | null (vitalicio)
+        ];
+    }, $rows);
+    _mark_last_ok();
+    _log_call('list_active_vips', 200);
+    die(json_encode(['ok' => true, 'vips' => $vips]));
 
 default:
     _bail(400, 'unknown_action', 'unknown');
