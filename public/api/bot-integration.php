@@ -231,6 +231,38 @@ case '':
         'version' => '1.1.0',
     ]));
 
+case 'grants':
+    // Entitlements ATIVOS de um player (pro bot exibir /passe e /vip status).
+    // Read-only. Ativo = nao encerrado (exclui removed/revoked/expired/cancelled) e
+    // nao vencido. 1 registro efetivo por tipo (VIP: maior exp/vitalicio; Passe idem).
+    $steamId = trim((string) ($_GET['steam_id'] ?? ''));
+    if (!preg_match('/^7656119\d{10}$/', $steamId)) {
+        _bail(400, 'invalid_steam_id', 'grants');
+    }
+    $rows = \App\Database::fetchAll(
+        "SELECT type,
+                MAX(tier) AS tier,
+                CASE WHEN SUM(expiration_date IS NULL) > 0 THEN NULL
+                     ELSE DATE_FORMAT(MAX(expiration_date), '%Y-%m-%d') END AS expiration_date
+           FROM player_grants
+          WHERE steam_id = ?
+            AND status NOT IN ('removed','revoked','expired','cancelled')
+            AND (expiration_date IS NULL OR expiration_date >= CURDATE())
+          GROUP BY type",
+        [$steamId]
+    );
+    $vip = null; $battlepass = null;
+    foreach ($rows as $r) {
+        if ($r['type'] === 'vip') {
+            $vip = ['active' => true, 'tier' => $r['tier'], 'expiration_date' => $r['expiration_date']];
+        } elseif ($r['type'] === 'battlepass') {
+            $battlepass = ['active' => true, 'expiration_date' => $r['expiration_date']];
+        }
+    }
+    _mark_last_ok();
+    _log_call('grants', 200);
+    die(json_encode(['ok' => true, 'steam_id' => $steamId, 'vip' => $vip, 'battlepass' => $battlepass]));
+
 case 'player':
     $steamId = trim((string) ($_GET['steam_id'] ?? ''));
     if (!preg_match('/^7656119\d{10}$/', $steamId)) {
@@ -330,13 +362,42 @@ case 'stats':
            WHERE mp_status = 'approved'
              AND created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)"
     ) ?: 0);
+    // Extras do mês (pro /stats-mes do bot em modo site): qtd, ticket médio,
+    // novos jogadores e top 3 pacotes.
+    $monthRow = \App\Database::fetchOne(
+        "SELECT COUNT(*) AS qtd, COALESCE(AVG(price_brl),0) AS media
+           FROM purchases
+          WHERE mp_status = 'approved'
+            AND created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01')"
+    ) ?: ['qtd' => 0, 'media' => 0];
+    $newPlayersMonth = (int) (\App\Database::fetchColumn(
+        "SELECT COUNT(*) FROM players WHERE created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01')"
+    ) ?: 0);
+    $topPkg = \App\Database::fetchAll(
+        "SELECT pk.name, pk.icon, COUNT(*) AS qtd, COALESCE(SUM(p.price_brl),0) AS valor
+           FROM purchases p JOIN packages pk ON pk.id = p.package_id
+          WHERE p.mp_status = 'approved'
+            AND p.created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01')
+          GROUP BY p.package_id ORDER BY qtd DESC LIMIT 3"
+    );
     _mark_last_ok();
     _log_call('stats', 200);
     die(json_encode([
-        'players_total'     => $playersTotal,
-        'sales_today'       => $salesToday,
-        'revenue_month_brl' => round($revenueMonth, 2),
-        'vip_active'        => $vipActive,
+        'players_total'      => $playersTotal,
+        'sales_today'        => $salesToday,
+        'revenue_month_brl'  => round($revenueMonth, 2),
+        'vip_active'         => $vipActive,
+        'month_sales'        => (int) $monthRow['qtd'],
+        'month_avg_brl'      => round((float) $monthRow['media'], 2),
+        'new_players_month'  => $newPlayersMonth,
+        'top_packages'       => array_map(static function (array $r): array {
+            return [
+                'name'  => $r['name'],
+                'icon'  => $r['icon'],
+                'qtd'   => (int) $r['qtd'],
+                'valor' => round((float) $r['valor'], 2),
+            ];
+        }, $topPkg),
     ]));
 
 case 'packages':

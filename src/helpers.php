@@ -57,6 +57,48 @@ if (!function_exists('notify_bot_vip')) {
     }
 }
 
+if (!function_exists('notify_bot_release')) {
+    /**
+     * Avisa o bot que uma NOVIDADE (release/patch note) foi publicada -> o bot posta
+     * no canal channel.novidades. Gated por Settings novidades_bot (default on) +
+     * bot_endpoint/token. Retorna TRUE só se o bot confirmou que POSTOU (pra o site
+     * marcar announced_at e não re-postar). Best-effort: qualquer falha -> false.
+     */
+    function notify_bot_release(array $config, array $info = []): bool {
+        try {
+            if (\App\Settings::get('novidades_bot', '1') === '0') return false; // desligado pelo dono
+        } catch (\Throwable $e) { /* setting ausente = default on */ }
+        $endpoint = trim($config['bot']['endpoint'] ?? ($config['settings']['bot_endpoint'] ?? ''));
+        $tokenB   = trim($config['bot']['token']    ?? ($config['settings']['bot_token']    ?? ''));
+        if ($endpoint === '' || $tokenB === '') return false; // bot não integrado
+        $payload = json_encode([
+            'release_id'   => $info['release_id']   ?? null,
+            'title'        => $info['title']        ?? '',
+            'category'     => $info['category']     ?? '',
+            'cat_label'    => $info['cat_label']    ?? '',
+            'cat_emoji'    => $info['cat_emoji']    ?? '',
+            'version'      => $info['version']      ?? '',
+            'body_excerpt' => $info['body_excerpt'] ?? '',
+            'url'          => $info['url']          ?? '',
+        ]);
+        $ch = curl_init(rtrim($endpoint, '/') . '/notify/release');
+        curl_setopt_array($ch, [
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => $payload,
+            CURLOPT_HTTPHEADER     => ['Content-Type: application/json', 'X-Tecplay-Token: ' . $tokenB],
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 4,
+            CURLOPT_CONNECTTIMEOUT => 2,
+        ]);
+        $resp = @curl_exec($ch);
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        if ($code !== 200) return false;
+        $j = json_decode((string) $resp, true);
+        return is_array($j) && !empty($j['posted']); // só marca announced se REALMENTE postou
+    }
+}
+
 if (!function_exists('pending_migrations')) {
     /**
      * Migrations em /migrations que ainda NÃO foram aplicadas (não estão na tabela

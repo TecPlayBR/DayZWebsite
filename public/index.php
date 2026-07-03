@@ -2871,8 +2871,36 @@ $REWARD_CATEGORIES = [
     } else {
         \App\Database::query("INSERT INTO site_releases (version,category,title,body,released_at,published,sort_order) VALUES (?,?,?,?,?,?,?)",
             [$ver, $cat, $title, $body, $rel, $pub, $sort]);
+        $id = (int)\App\Database::pdo()->lastInsertId();
     }
     \App\AuditLog::record('release.saved', 'release', $id ?: null);
+
+    // Cross-post no Discord (novidades): 1x por release. Só quando publicada e ainda
+    // não anunciada; marca announced_at só se o bot confirmar que postou.
+    if ($pub === 1 && $id > 0) {
+        try {
+            $announced = \App\Database::fetchColumn("SELECT announced_at FROM site_releases WHERE id=?", [$id]);
+            if ($announced === null) {
+                $excerpt = trim(html_entity_decode(strip_tags((string)$body), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+                if (mb_strlen($excerpt) > 500) $excerpt = mb_substr($excerpt, 0, 500) . '…';
+                $posted = notify_bot_release($config, [
+                    'release_id'   => $id,
+                    'title'        => $title,
+                    'category'     => $cat,
+                    'cat_label'    => \App\Releases::catLabel($cat),
+                    'cat_emoji'    => \App\Releases::catEmoji($cat),
+                    'version'      => $ver ?? '',
+                    'body_excerpt' => $excerpt,
+                    'url'          => rtrim($config['site_url'] ?? '', '/') . '/novidades',
+                ]);
+                if ($posted) {
+                    \App\Database::query("UPDATE site_releases SET announced_at = NOW() WHERE id=?", [$id]);
+                }
+            }
+        } catch (\Throwable $e) {
+            error_log('[releases] notify bot falhou: ' . $e->getMessage());
+        }
+    }
     header('Location: /admin/releases?ok=1');
     exit;
 });
