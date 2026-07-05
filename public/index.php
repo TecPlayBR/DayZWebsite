@@ -767,9 +767,13 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     if (!$clan) { header('Location: /clans'); exit; }
     $sid = \App\SteamAuth::check() ? \App\SteamAuth::steamId() : null;
     $isOwner = $sid && \App\Clan::isOwner((int)$id, $sid);
+    $myClan  = $sid ? \App\Clan::forPlayer($sid) : null;
+    $isMember = $myClan && (int)($myClan['id'] ?? 0) === (int)$id;
     \App\View::display('pages.clan', [
         'config' => $config, 'clan' => $clan, 'members' => \App\Clan::members((int)$id),
-        'is_owner' => $isOwner, 'my_clan' => $sid ? \App\Clan::forPlayer($sid) : null,
+        // Log de atividade só pra quem é do clã (membro/líder) — privacidade.
+        'activity' => $isMember ? \App\Clan::activity((int)$id, 15) : [],
+        'is_owner' => $isOwner, 'my_clan' => $myClan,
         'my_request' => $sid ? \App\Clan::outgoingRequest($sid) : null,
         'my_invite' => $sid ? \App\Clan::hasInvite((int)$id, $sid) : false,
         'pending' => $isOwner ? \App\Clan::pendingRequests((int)$id) : [],
@@ -2675,8 +2679,19 @@ $REWARD_CATEGORIES = [
 \App\Router::post('/admin/clan-events/{id}/reward', function($id) use ($config) {
     \App\Auth::requireCan('pages');
     if (!\App\Csrf::check()) { header('Location: /admin/clan-events?err=csrf'); exit; }
+    $ev  = \App\ClanEvent::get((int)$id);
     $err = \App\ClanEvent::reward((int)$id);
-    \App\AuditLog::record('clan_event.reward', 'clan_event', (int)$id);
+    // Log de premiação (quem premiou é capturado automático pelo AuditLog): registra
+    // vencedor + prêmio no sucesso, ou o motivo no erro. Visível em /admin/audit.
+    if (!$err) {
+        \App\AuditLog::record('clan_event.reward', 'clan_event', (int)$id, [
+            'evento'      => $ev['title']       ?? null,
+            'vencedor'    => $ev['winner_name'] ?? null,
+            'moedas_cada' => (int)($ev['prize_coins'] ?? 0),
+        ]);
+    } else {
+        \App\AuditLog::record('clan_event.reward_fail', 'clan_event', (int)$id, ['erro' => $err]);
+    }
     header('Location: /admin/clan-events/' . (int)$id . ($err ? '?err=' . urlencode($err) : '?ok=rewarded')); exit;
 });
 

@@ -93,6 +93,32 @@ class Clan {
         return $cache[$steamId] = ($r ?: null);
     }
 
+    /** Registra atividade do clã (join|leave|kick|lead). Best-effort (não derruba a ação). */
+    public static function logActivity(int $clanId, string $steamId, string $action, ?string $actor = null): void {
+        try {
+            Database::query(
+                "INSERT INTO clan_activity_log (clan_id, steam_id, action, actor_steam_id) VALUES (?, ?, ?, ?)",
+                [$clanId, $steamId, $action, $actor]
+            );
+        } catch (\Throwable $e) { /* tabela pode nao existir (migration atrasada) -> ignora */ }
+    }
+
+    /** Últimas atividades do clã (com nick), pra mostrar aos membros/líder. */
+    public static function activity(int $clanId, int $limit = 15): array {
+        try {
+            return Database::fetchAll(
+                "SELECT a.steam_id, a.action, a.actor_steam_id, a.created_at,
+                        p.display_name AS name, pa.display_name AS actor_name
+                   FROM clan_activity_log a
+                   LEFT JOIN players p  ON p.steam_id = a.steam_id
+                   LEFT JOIN players pa ON pa.steam_id = a.actor_steam_id
+                  WHERE a.clan_id = ?
+                  ORDER BY a.id DESC LIMIT " . max(1, min(50, $limit)),
+                [$clanId]
+            );
+        } catch (\Throwable $e) { return []; }
+    }
+
     public static function isOwner(int $clanId, string $steamId): bool {
         return (string) (Database::fetchColumn(
             "SELECT role FROM clan_members WHERE clan_id = ? AND steam_id = ? LIMIT 1", [$clanId, $steamId]
@@ -222,6 +248,7 @@ class Clan {
             $pdo->prepare("DELETE FROM clan_requests WHERE clan_id = ? AND steam_id = ?")->execute([$clanId, $steamId]);
             $pdo->commit();
             ClanEvent::onMemberJoin($clanId, $steamId); // entra em eventos ativos com baseline = atual (0 de delta)
+            self::logActivity($clanId, $steamId, 'join');
             return null;
         } catch (\PDOException $e) {
             if ($pdo->inTransaction()) $pdo->rollBack();
@@ -242,6 +269,7 @@ class Clan {
         if ($m['role'] === 'owner') return 'owner_must_disband';
         Database::query("DELETE FROM clan_members WHERE steam_id = ?", [$steamId]);
         ClanEvent::onMemberLeave((int)$m['clan_id'], $steamId); // sai dos eventos ativos (clã perde a contribuição)
+        self::logActivity((int)$m['clan_id'], $steamId, 'leave');
         return null;
     }
 
@@ -251,6 +279,7 @@ class Clan {
         if ($actorSteamId === $targetSteamId) return 'cant_self';
         Database::query("DELETE FROM clan_members WHERE clan_id = ? AND steam_id = ? AND role <> 'owner'", [$clanId, $targetSteamId]);
         ClanEvent::onMemberLeave($clanId, $targetSteamId); // idem ao sair
+        self::logActivity($clanId, $targetSteamId, 'kick', $actorSteamId);
         return null;
     }
 
@@ -267,6 +296,7 @@ class Clan {
             $pdo->prepare("UPDATE clan_members SET role = 'owner' WHERE clan_id = ? AND steam_id = ?")->execute([$clanId, $targetSteamId]);
             $pdo->prepare("UPDATE clans SET owner_steam_id = ? WHERE id = ?")->execute([$targetSteamId, $clanId]);
             $pdo->commit();
+            self::logActivity($clanId, $targetSteamId, 'lead', $actorSteamId);
             return null;
         } catch (\Throwable $e) {
             if ($pdo->inTransaction()) $pdo->rollBack();

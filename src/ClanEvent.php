@@ -345,18 +345,38 @@ class ClanEvent
         );
     }
 
-    /** Entrou no clã durante evento ativo -> entra com baseline = valor atual (0 de delta). */
+    /**
+     * Entrou no clã durante evento ativo. Baseline = valor atual (0 de delta) SÓ pra
+     * membro novo ou quem trocou de clã. Se é REJOIN no MESMO clã (saiu e voltou), NÃO
+     * reseta o baseline — só reativa, pra não zerar os pontos que ele já tinha feito
+     * (ex.: clicou sair sem querer e voltou). Anti-acidente pedido pelo Bryan.
+     */
     public static function onMemberJoin(int $clanId, string $steamId): void {
         try {
             foreach (self::activeEventsForClan($clanId) as $ev) {
-                $col = self::col($ev['metric']);
-                $val = (int) (Database::fetchColumn("SELECT `$col` FROM player_stats WHERE steam_id = ?", [$steamId]) ?? 0);
-                Database::query(
-                    "INSERT INTO clan_event_members (event_id, clan_id, steam_id, baseline, active)
-                     VALUES (?, ?, ?, ?, 1)
-                     ON DUPLICATE KEY UPDATE baseline = VALUES(baseline), clan_id = VALUES(clan_id), active = 1, deactivated_at = NULL",
-                    [(int)$ev['id'], $clanId, $steamId, $val]
+                $eventId = (int)$ev['id'];
+                $existing = Database::fetchOne(
+                    "SELECT clan_id FROM clan_event_members WHERE event_id = ? AND steam_id = ? LIMIT 1",
+                    [$eventId, $steamId]
                 );
+                if ($existing && (int)$existing['clan_id'] === $clanId) {
+                    // Rejoin no MESMO clã -> reativa mantendo o baseline (não perde pontos).
+                    Database::query(
+                        "UPDATE clan_event_members SET active = 1, deactivated_at = NULL
+                          WHERE event_id = ? AND steam_id = ?",
+                        [$eventId, $steamId]
+                    );
+                } else {
+                    // Membro novo OU trocou de clã -> baseline = valor atual (começa em 0).
+                    $col = self::col($ev['metric']);
+                    $val = (int) (Database::fetchColumn("SELECT `$col` FROM player_stats WHERE steam_id = ?", [$steamId]) ?? 0);
+                    Database::query(
+                        "INSERT INTO clan_event_members (event_id, clan_id, steam_id, baseline, active)
+                         VALUES (?, ?, ?, ?, 1)
+                         ON DUPLICATE KEY UPDATE baseline = VALUES(baseline), clan_id = VALUES(clan_id), active = 1, deactivated_at = NULL",
+                        [$eventId, $clanId, $steamId, $val]
+                    );
+                }
             }
         } catch (\Throwable $e) { /* nunca derruba a operação do clã */ }
     }

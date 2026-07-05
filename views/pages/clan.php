@@ -115,6 +115,30 @@ $errMsg = ($_GET['err'] ?? '') !== '' ? \App\Clan::errorMessage($_GET['err']) : 
             <?php endforeach; ?>
         </div>
 
+        <!-- ATIVIDADE DO CLÃ (só membros/líder) -->
+        <?php $activity = $activity ?? []; if ($canSeeActivity && $activity): ?>
+        <h2 class="clan-h2" style="margin-top:2rem;">Atividade recente</h2>
+        <div class="clan-members">
+            <?php foreach ($activity as $a):
+                $an  = $a['name'] ?: $a['steam_id'];
+                $who = $a['actor_name'] ?: ($a['actor_steam_id'] ?: '');
+                [$ic, $txt] = match($a['action']) {
+                    'join'  => ['➕', e($an) . ' entrou no clã'],
+                    'leave' => ['➖', e($an) . ' saiu do clã'],
+                    'kick'  => ['✕', e($an) . ' foi removido' . ($who ? ' por ' . e($who) : '')],
+                    'lead'  => ['👑', e($an) . ' virou líder' . ($who ? ' (por ' . e($who) . ')' : '')],
+                    default => ['•', e($an) . ' — ' . e($a['action'])],
+                }; ?>
+                <div class="clan-member">
+                    <div style="min-width:0;display:flex;flex-direction:column;">
+                        <span class="clan-member-name"><?= $ic ?> <?= $txt ?></span>
+                        <span class="clan-member-seen">🕓 <?= e(time_ago($a['created_at'] ?? null, 'agora')) ?></span>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+        <?php endif; ?>
+
         <!-- PAINEL DO DONO -->
         <?php if ($is_owner): ?>
         <details class="clan-owner" open>
