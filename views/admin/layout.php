@@ -16,6 +16,14 @@
 <!-- Hamburger (mobile only — CSS esconde em desktop) -->
 <button type="button" class="admin-hamburger" id="admin-hamburger" aria-label="Abrir menu" aria-controls="admin-shell" aria-expanded="false">☰</button>
 
+<!-- Botão de atualizar (a nav do admin é SPA e não recarrega sozinha; isto força o
+     recarregamento dos dados da tela atual sem precisar de F5). Vale em toda tela. -->
+<button type="button" id="admin-refresh" onclick="location.reload()"
+        title="Atualizar os dados desta tela" aria-label="Atualizar"
+        style="position:fixed;right:18px;bottom:18px;z-index:60;width:46px;height:46px;border-radius:50%;
+               border:1px solid var(--hazard,#c9a961);background:var(--panel,#15130f);color:var(--hazard,#c9a961);
+               font-size:20px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.45);line-height:1;">↻</button>
+
 <div class="admin-shell" id="admin-shell">
 
     <!-- Backdrop pra fechar drawer ao clicar fora -->

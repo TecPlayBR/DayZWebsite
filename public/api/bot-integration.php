@@ -341,6 +341,9 @@ case 'link_player':
     ]));
 
 case 'stats':
+    // Mes alvo (YYYY-MM); default = mes atual. O bot manda ?month= no /stats-mes.
+    $ym = (isset($_GET['month']) && preg_match('/^\d{4}-\d{2}$/', (string) $_GET['month']))
+        ? (string) $_GET['month'] : date('Y-m');
     $playersTotal = (int) (\App\Database::fetchColumn(
         "SELECT COUNT(*) FROM players"
     ) ?: 0);
@@ -352,7 +355,8 @@ case 'stats':
     $revenueMonth = (float) (\App\Database::fetchColumn(
         "SELECT COALESCE(SUM(price_brl), 0) FROM purchases
            WHERE mp_status = 'approved'
-             AND created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01')"
+             AND DATE_FORMAT(created_at, '%Y-%m') = ?",
+        [$ym]
     ) ?: 0);
     // "VIP ativo" = comprou nos últimos 30 dias (heurística simples;
     // DayZWebsite não tem tabela de VIP, bot tem). Pra contar VIPs
@@ -368,17 +372,20 @@ case 'stats':
         "SELECT COUNT(*) AS qtd, COALESCE(AVG(price_brl),0) AS media
            FROM purchases
           WHERE mp_status = 'approved'
-            AND created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01')"
+            AND DATE_FORMAT(created_at, '%Y-%m') = ?",
+        [$ym]
     ) ?: ['qtd' => 0, 'media' => 0];
     $newPlayersMonth = (int) (\App\Database::fetchColumn(
-        "SELECT COUNT(*) FROM players WHERE created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01')"
+        "SELECT COUNT(*) FROM players WHERE DATE_FORMAT(created_at, '%Y-%m') = ?",
+        [$ym]
     ) ?: 0);
     $topPkg = \App\Database::fetchAll(
         "SELECT pk.name, pk.icon, COUNT(*) AS qtd, COALESCE(SUM(p.price_brl),0) AS valor
            FROM purchases p JOIN packages pk ON pk.id = p.package_id
           WHERE p.mp_status = 'approved'
-            AND p.created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01')
-          GROUP BY p.package_id ORDER BY qtd DESC LIMIT 3"
+            AND DATE_FORMAT(p.created_at, '%Y-%m') = ?
+          GROUP BY p.package_id ORDER BY qtd DESC LIMIT 3",
+        [$ym]
     );
     _mark_last_ok();
     _log_call('stats', 200);
