@@ -32,8 +32,8 @@ if (!function_exists('notify_bot_vip')) {
         try {
             if (\App\Settings::get('vip_sync_bot', '1') === '0') return; // desligado pelo dono
         } catch (\Throwable $e) { /* setting ausente = default on */ }
-        $endpoint = trim($config['bot']['endpoint'] ?? ($config['settings']['bot_endpoint'] ?? ''));
-        $tokenB   = trim($config['bot']['token']    ?? ($config['settings']['bot_token']    ?? ''));
+        $endpoint = trim(($config['bot']['endpoint'] ?? '') ?: ($config['settings']['bot_endpoint'] ?? ''));
+        $tokenB   = trim(($config['bot']['token']    ?? '') ?: ($config['settings']['bot_token']    ?? ''));
         if ($endpoint === '' || $tokenB === '') return; // bot não integrado -> nada a sincronizar
         $payload = json_encode([
             'steam_id'        => $steamId,
@@ -68,8 +68,8 @@ if (!function_exists('notify_bot_release')) {
         try {
             if (\App\Settings::get('novidades_bot', '1') === '0') return false; // desligado pelo dono
         } catch (\Throwable $e) { /* setting ausente = default on */ }
-        $endpoint = trim($config['bot']['endpoint'] ?? ($config['settings']['bot_endpoint'] ?? ''));
-        $tokenB   = trim($config['bot']['token']    ?? ($config['settings']['bot_token']    ?? ''));
+        $endpoint = trim(($config['bot']['endpoint'] ?? '') ?: ($config['settings']['bot_endpoint'] ?? ''));
+        $tokenB   = trim(($config['bot']['token']    ?? '') ?: ($config['settings']['bot_token']    ?? ''));
         if ($endpoint === '' || $tokenB === '') return false; // bot não integrado
         $payload = json_encode([
             'release_id'   => $info['release_id']   ?? null,

@@ -260,8 +260,8 @@ if ($status === 'approved' && empty($purchase['delivered_at'])) {
     // Notifica o bot Tecplay (se rodando no mesmo host). Bot embeleza e posta em #vendas.
     // Configure em config.php: 'bot' => ['endpoint' => 'http://127.0.0.1:8765', 'token' => '...']
     // ou em settings: bot_endpoint + bot_token.
-    $botEndpoint = trim($config['bot']['endpoint'] ?? ($config['settings']['bot_endpoint'] ?? ''));
-    $botToken    = trim($config['bot']['token']    ?? ($config['settings']['bot_token']    ?? ''));
+    $botEndpoint = trim(($config['bot']['endpoint'] ?? '') ?: ($config['settings']['bot_endpoint'] ?? ''));
+    $botToken    = trim(($config['bot']['token']    ?? '') ?: ($config['settings']['bot_token']    ?? ''));
     if ($botEndpoint && $botToken) {
         $playerRow = \App\Database::fetchOne(
             "SELECT display_name FROM players WHERE steam_id = ? LIMIT 1",
