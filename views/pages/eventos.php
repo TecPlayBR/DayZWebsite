@@ -1,7 +1,7 @@
 <?php
 /** @var array $config, $groups */
 ?>
-<?php \App\View::with('title', 'Eventos & Sorteios — ' . ($config['settings']['site_name'] ?? $config['site_name'] ?? 'Servidor')); ?>
+<?php \App\View::with('title', 'Eventos & Sorteios - ' . ($config['settings']['site_name'] ?? $config['site_name'] ?? 'Servidor')); ?>
 <?php \App\View::extend('layouts.main'); ?>
 <?php \App\View::with('hero_image', 'img/background2.png'); ?>
 <?php \App\View::section('content'); ?>

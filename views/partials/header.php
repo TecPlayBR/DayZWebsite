@@ -130,7 +130,7 @@
 
     <!-- Footer compacto do drawer mobile: links rápidos + copyright.
          O seletor de idiomas já está no header (dropdown PT-BR ao lado do hambúrguer),
-         então não duplica aqui — usa o espaço pra info útil. -->
+         então não duplica aqui - usa o espaço pra info útil. -->
     <div class="mobile-drawer-foot">
         <nav class="mobile-drawer-links">
             <a href="/page/terms" data-close><?= e(__('footer.terms')) ?></a>

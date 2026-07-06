@@ -6,7 +6,7 @@
 <div class="admin-page-head">
     <div>
         <h1>🔑 Logins no site</h1>
-        <p>Registro de quem entrou via Steam (auditoria/privacidade). O ranking segue público — isto é só o log de acesso. Total: <strong><?= (int)$total ?></strong> · Jogadores únicos: <strong><?= (int)$uniq ?></strong>.</p>
+        <p>Registro de quem entrou via Steam (auditoria/privacidade). O ranking segue público - isto é só o log de acesso. Total: <strong><?= (int)$total ?></strong> · Jogadores únicos: <strong><?= (int)$uniq ?></strong>.</p>
     </div>
 </div>
 
@@ -28,10 +28,10 @@
             <?php foreach ($rows as $r): ?>
                 <tr style="border-bottom:1px solid var(--border);">
                     <td style="padding:.6rem 1rem; color:var(--dim); white-space:nowrap;"><?= e(fmt_dt($r['created_at'])) ?></td>
-                    <td><?= e($r['display_name'] ?? '—') ?></td>
+                    <td><?= e($r['display_name'] ?? '-') ?></td>
                     <td style="font-family:var(--font-mono);"><a href="/player/<?= e($r['steam_id']) ?>" style="color:var(--rust-2);"><?= e($r['steam_id']) ?></a></td>
-                    <td style="font-family:var(--font-mono); color:var(--dim);"><?= e($r['ip'] ?? '—') ?></td>
-                    <td class="hide-mobile" style="color:var(--dim); font-size:.78rem; max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"><?= e($r['user_agent'] ?? '—') ?></td>
+                    <td style="font-family:var(--font-mono); color:var(--dim);"><?= e($r['ip'] ?? '-') ?></td>
+                    <td class="hide-mobile" style="color:var(--dim); font-size:.78rem; max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"><?= e($r['user_agent'] ?? '-') ?></td>
                 </tr>
             <?php endforeach; ?>
             </tbody>

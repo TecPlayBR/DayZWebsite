@@ -6,7 +6,7 @@
 <div class="admin-page-head">
     <div>
         <h1>🏆 Recompensa por Conquista</h1>
-        <p>Dá <strong>moedas bônus por conta da casa</strong> quando o jogador desbloqueia uma conquista. Paga <strong>1x por conquista por jogador</strong> (creditado automaticamente quando ele vê o próprio perfil/loga). Não aparece na loja — só credita e registra aqui.</p>
+        <p>Dá <strong>moedas bônus por conta da casa</strong> quando o jogador desbloqueia uma conquista. Paga <strong>1x por conquista por jogador</strong> (creditado automaticamente quando ele vê o próprio perfil/loga). Não aparece na loja - só credita e registra aqui.</p>
     </div>
 </div>
 

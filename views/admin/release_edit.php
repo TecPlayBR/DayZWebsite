@@ -41,7 +41,7 @@ $relDate = !empty($r['released_at']) ? substr((string)$r['released_at'], 0, 10) 
             </div>
         </div>
         <div style="margin-top:1rem;">
-            <label style="display:block;font-size:.8rem;color:var(--dim);margin-bottom:.3rem;">Versão (opcional) — ex: v2.5.2</label>
+            <label style="display:block;font-size:.8rem;color:var(--dim);margin-bottom:.3rem;">Versão (opcional) - ex: v2.5.2</label>
             <input type="text" name="version" maxlength="40" value="<?= e($r['version']) ?>" style="max-width:220px;<?= $fld ?>">
         </div>
     </div>

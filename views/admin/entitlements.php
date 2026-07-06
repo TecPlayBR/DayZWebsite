@@ -21,7 +21,7 @@ $badge = [
 
 <?php if (isset($_GET['ok'])): ?>
     <div class="stat-card" style="margin-bottom:1rem; border-left:3px solid var(--moss);">
-        ✓ <?= $_GET['ok'] === '2' ? 'Revogado — o agent remove no próximo ciclo.' : 'Concedido — o agent aplica no próximo ciclo.' ?>
+        ✓ <?= $_GET['ok'] === '2' ? 'Revogado - o agent remove no próximo ciclo.' : 'Concedido - o agent aplica no próximo ciclo.' ?>
     </div>
 <?php endif; ?>
 <?php if (isset($_GET['err'])): ?>
@@ -80,10 +80,10 @@ $badge = [
                 <?php [$lbl, $cor] = $badge[$g['status']] ?? [$g['status'], 'var(--dim)']; ?>
                 <tr>
                     <td class="mono"><?= e($g['steam_id']) ?></td>
-                    <td><?= e($g['nickname'] ?? '—') ?></td>
+                    <td><?= e($g['nickname'] ?? '-') ?></td>
                     <td><?= e($g['type']) ?></td>
-                    <td><?= e($g['tier'] ?? '—') ?></td>
-                    <td><?= e($g['expiration_date'] ?? '—') ?></td>
+                    <td><?= e($g['tier'] ?? '-') ?></td>
+                    <td><?= e($g['expiration_date'] ?? '-') ?></td>
                     <td><span style="color:<?= $cor ?>; font-weight:600;"><?= e($lbl) ?></span></td>
                     <td style="text-align:right;">
                         <?php if (in_array($g['status'], ['pending','applied'], true)): ?>

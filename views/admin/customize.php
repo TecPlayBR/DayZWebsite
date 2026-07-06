@@ -6,7 +6,7 @@
 <div class="admin-page-head">
     <div>
         <h1>Personalização Visual</h1>
-        <p>Troque logo, favicon e backgrounds direto por aqui — sem FTP. Suas imagens ficam isoladas e <strong>não são perdidas quando você atualiza o template</strong>.</p>
+        <p>Troque logo, favicon e backgrounds direto por aqui - sem FTP. Suas imagens ficam isoladas e <strong>não são perdidas quando você atualiza o template</strong>.</p>
     </div>
 </div>
 
@@ -24,9 +24,9 @@ $czErrMsg = [
     'upload'      => 'Falha no envio do arquivo. Tente de novo.',
     'size'        => 'Arquivo grande demais pro limite desse item.',
     'type'        => 'Formato não suportado. Use PNG, JPG, WEBP ou GIF.',
-    'move'        => 'Não consegui salvar — dê permissão de escrita à pasta public/assets/img/custom/ (chmod 755; se o seu host roda o PHP em usuário separado, use 775).',
+    'move'        => 'Não consegui salvar - dê permissão de escrita à pasta public/assets/img/custom/ (chmod 755; se o seu host roda o PHP em usuário separado, use 775).',
     'theme'       => 'Nenhuma cor válida pra salvar.',
-    'theme_write' => 'Não consegui gravar o tema — dê permissão de escrita à pasta public/assets/css/ (chmod 755; se não resolver, 775).',
+    'theme_write' => 'Não consegui gravar o tema - dê permissão de escrita à pasta public/assets/css/ (chmod 755; se não resolver, 775).',
 ];
 ?>
 <?php if (isset($czOkMsg[$czOk])): ?>
@@ -94,7 +94,7 @@ $brandCard = function(string $slot, string $label, string $help, string $type = 
     <h2>Backgrounds</h2>
     <p style="color: var(--dim); font-size: 0.9rem; margin-bottom: 1rem;">
         Pano de fundo das seções. Resolução recomendada: <strong>1920×1080</strong> ou maior.
-        <span style="color: var(--hazard);">⚠ Otimize com TinyPNG/Squoosh antes de subir — backgrounds grandes deixam o site lento.</span>
+        <span style="color: var(--hazard);">⚠ Otimize com TinyPNG/Squoosh antes de subir - backgrounds grandes deixam o site lento.</span>
     </p>
     <div class="customize-grid">
         <?php
@@ -163,7 +163,7 @@ $brandCard = function(string $slot, string $label, string $help, string $type = 
 <div class="stat-card" style="border-left-color: var(--moss); padding: 1.2rem;">
     <div class="label" style="color: var(--moss);">✓ Suas imagens são à prova de update</div>
     <p style="color: var(--bone); margin-top: 0.5rem; font-size: 0.9rem;">
-        O que você envia aqui fica guardado em <code>assets/img/custom/</code> — uma pasta isolada que
+        O que você envia aqui fica guardado em <code>assets/img/custom/</code> - uma pasta isolada que
         <strong>não é tocada quando você atualiza o template</strong>. O site usa a sua imagem no lugar da padrão
         automaticamente, e o cache é invalidado sozinho a cada novo envio (sem precisar renomear nada).
         Quiser voltar atrás, é só clicar em <strong>"Voltar ao padrão"</strong>.

@@ -1,6 +1,6 @@
 <?php /** @var array $config, $a, $siblings */ ?>
 <?php $hsite = $config['settings']['site_name'] ?? $config['site_name'] ?? 'Servidor'; ?>
-<?php \App\View::with('title', $a['title'] . ' — Ajuda ' . $hsite); ?>
+<?php \App\View::with('title', $a['title'] . ' - Ajuda ' . $hsite); ?>
 <?php \App\View::with('description', $a['summary'] ?: ('Guia: ' . $a['title'] . ' no ' . $hsite . ' DayZ.')); ?>
 <?php
 // SEO: dado estruturado Article (Google entende como guia/tutorial).

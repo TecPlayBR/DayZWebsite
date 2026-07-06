@@ -15,9 +15,9 @@
             <?= \App\Csrf::field() ?>
             <button type="submit" class="<?= $bonus_enabled ? 'btn-mini' : 'btn-mini outline' ?>">
                 <?php if ($bonus_enabled): ?>
-                    ✓ Bônus LIGADO — clique pra desligar
+                    ✓ Bônus LIGADO - clique pra desligar
                 <?php else: ?>
-                    ✗ Bônus DESLIGADO — clique pra ligar
+                    ✗ Bônus DESLIGADO - clique pra ligar
                 <?php endif; ?>
             </button>
         </form>
@@ -29,7 +29,7 @@
 <?php endif; ?>
 <?php if (($_GET['err'] ?? '') === 'inuse'): ?>
     <div class="alert-toast" style="background:rgba(231,76,60,0.15); border-left:3px solid var(--rust-2); color:var(--text-danger);">
-        Esse pacote já tem compras registradas, então não pode ser apagado (o histórico/recibo do jogador depende dele). <strong>Desative</strong> em vez de excluir — ele some da loja e o histórico fica intacto.
+        Esse pacote já tem compras registradas, então não pode ser apagado (o histórico/recibo do jogador depende dele). <strong>Desative</strong> em vez de excluir - ele some da loja e o histórico fica intacto.
     </div>
 <?php endif; ?>
 
@@ -59,7 +59,7 @@
                     <?php if ((int)$p['bonus_coins'] > 0): ?>
                         <span class="badge <?= $bonus_enabled ? 'success' : 'info' ?>">+<?= (int)$p['bonus_coins'] ?></span>
                     <?php else: ?>
-                        <span class="dim">—</span>
+                        <span class="dim">-</span>
                     <?php endif; ?>
                 </td>
                 <td><strong>R$ <?= number_format($p['price_brl'], 2, ',', '.') ?></strong></td>
@@ -67,7 +67,7 @@
                     <?php if ((int)$p['featured']): ?>
                         <span class="badge warning"><?= e($p['ribbon'] ?: 'destaque') ?></span>
                     <?php else: ?>
-                        <span class="dim">—</span>
+                        <span class="dim">-</span>
                     <?php endif; ?>
                 </td>
                 <td>
@@ -86,7 +86,7 @@
                         </button>
                     </form>
                     <form method="POST" action="/admin/packages/<?= e($p['id']) ?>/delete" style="display: inline;"
-                          onsubmit="return confirm('Excluir o pacote &quot;<?= e(addslashes($p['name'])) ?>&quot;? Isso é permanente. (Pacotes com compras não são apagados — desative-os.)');">
+                          onsubmit="return confirm('Excluir o pacote &quot;<?= e(addslashes($p['name'])) ?>&quot;? Isso é permanente. (Pacotes com compras não são apagados - desative-os.)');">
                         <?= \App\Csrf::field() ?>
                         <button type="submit" class="btn-mini outline" style="color:var(--rust-2); border-color:var(--rust-2);">Excluir</button>
                     </form>

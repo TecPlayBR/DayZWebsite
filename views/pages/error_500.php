@@ -8,7 +8,7 @@ $discord = ($config['settings']['social_discord'] ?? '') ?: ($config['settings']
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Erro 500 — <?= htmlspecialchars($siteName) ?></title>
+    <title>Erro 500 - <?= htmlspecialchars($siteName) ?></title>
     <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Inter:wght@400;600;700&family=VT323&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/theme.css">
     <?= function_exists('theme_override_tag') ? theme_override_tag() : '' ?>

@@ -5,7 +5,7 @@
 <section class="hero" style="min-height: 70vh;">
     <div class="hero-bg" style="background-image: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.95) 100%), url('<?= asset('img/background3.png') ?>');"></div>
     <div class="container hero-content">
-        <span class="hero-kicker" style="border-left-color: var(--hazard); color: var(--hazard);">// MODO DEV — MP NÃO CONFIGURADO</span>
+        <span class="hero-kicker" style="border-left-color: var(--hazard); color: var(--hazard);">// MODO DEV - MP NÃO CONFIGURADO</span>
         <h1 class="hero-title"><span class="accent">Pedido</span><br>Registrado.</h1>
         <p class="hero-subtitle">
             Sua compra foi criada como <code>pending</code> no banco (id #<?= (int)$purchase_id ?>). Em <strong>produção</strong>, o cliente seria redirecionado pro Mercado Pago aqui.
@@ -26,7 +26,7 @@
 
         <div class="hero-actions">
             <a href="/shop" class="btn">Voltar pra loja</a>
-            <?php if (\App\Auth::check()): // só pro admin logado (atalho de teste) — visitante não vê ?>
+            <?php if (\App\Auth::check()): // só pro admin logado (atalho de teste) - visitante não vê ?>
                 <a href="/admin/purchases" class="btn btn-outline">Ver no admin</a>
             <?php endif; ?>
         </div>

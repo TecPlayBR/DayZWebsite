@@ -3,12 +3,12 @@
 
 <?php
 // SEO: title/description otimizados pra home (keywords BR DayZ). Settings podem
-// override (seo_home_title / seo_home_description) — senão monta default com
+// override (seo_home_title / seo_home_description) - senão monta default com
 // nome do servidor + tagline. View::with() propaga pro layout main.php.
 $siteName    = $config['settings']['site_name'] ?? $config['site_name'] ?? 'DayZ';
 $tagline     = $config['settings']['site_tagline'] ?? $config['site_tagline'] ?? '';
 $seoTitle    = ($config['settings']['seo_home_title'] ?? '')
-    ?: "Servidor DayZ BR — {$siteName} | PVP Hardcore, Loja & Comunidade";
+    ?: "Servidor DayZ BR - {$siteName} | PVP Hardcore, Loja & Comunidade";
 $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
     ?: ($tagline ?: "Servidor DayZ brasileiro com PVP hardcore, loja de moedas via PIX, eventos semanais e comunidade ativa. Entre no {$siteName}.");
 \App\View::with('title',       $seoTitle);
@@ -82,14 +82,14 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
     ?>
         <div class="hero-wipe" data-wipe-target="<?= $wipeTs ?>" aria-live="polite">
             <span class="wipe-label"><?= e($wipeLabel) ?></span>
-            <span class="wipe-time" data-wipe-countdown>—</span>
+            <span class="wipe-time" data-wipe-countdown>-</span>
         </div>
     <?php endif; ?>
 
     <!-- Status do servidor (live via BattleMetrics API)
          quando offline, mostra "voltando em breve"
          em vez de Offline cru + CTA Discord. Rank BM só aparece se <= bm_rank_threshold
-         (default 500) — não queima credibilidade com rank ruim. -->
+         (default 500) - não queima credibilidade com rank ruim. -->
     <?php
     $ss = $server_status ?? ['configured' => false];
     $bmRankMax    = (int)($config['settings']['bm_rank_threshold'] ?? 500);
@@ -146,7 +146,7 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
     <style>
     /* Status do servidor + Próximo restart EMPILHADOS num container flex no canto.
        Antes eram 2 absolutos com offsets fixos (bottom:2rem e 5.6rem) e se sobrepunham
-       quando o conteúdo crescia. Agora o flex cuida do empilhamento — nunca colidem. */
+       quando o conteúdo crescia. Agora o flex cuida do empilhamento - nunca colidem. */
     .hero-chips { position:absolute; bottom:2rem; right:2rem; z-index:2; display:flex; flex-direction:column; gap:0.7rem; align-items:stretch; }
     .hero-chips .hero-status { position:static; bottom:auto; right:auto; flex-wrap:wrap; }
     .hero-status, .hero-restart { min-width:360px; box-sizing:border-box; border-radius:5px; box-shadow:0 8px 24px rgba(0,0,0,0.5); }
@@ -313,7 +313,7 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
         if (s < 86400)return Math.floor(s / 3600) + 'h atrás';
         return Math.floor(s / 86400) + 'd atrás';
     }
-    // Cria um <span class> com texto seguro (textContent escapa — evita XSS:
+    // Cria um <span class> com texto seguro (textContent escapa - evita XSS:
     // it.name/it.package vêm do nome Steam do jogador, que é controlável).
     function span(cls, text) {
         const s = document.createElement('span');
@@ -334,7 +334,7 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
         el.appendChild(txt(' '));
         el.appendChild(span('live-purchase-meta', '(' + (it.package || '') + ')'));
         if (it.price) {
-            el.appendChild(span('live-purchase-meta', ' — R$ ' + (Number(it.price) || 0).toFixed(2).replace('.', ',')));
+            el.appendChild(span('live-purchase-meta', ' - R$ ' + (Number(it.price) || 0).toFixed(2).replace('.', ',')));
         }
         el.appendChild(span('live-purchase-ago', fmtAgo(it.ago_secs)));
         return el;
@@ -373,7 +373,7 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
 </script>
 <?php endif; ?>
 
-<!-- ============ TESTIMONIALS (Social Proof) — reviews REAIS aprovadas ============
+<!-- ============ TESTIMONIALS (Social Proof) - reviews REAIS aprovadas ============
      Vem de /admin/reviews (rating >= 4 + approved=1). Esconde sozinho se vazio. -->
 <?php if (!empty($home_reviews)): ?>
 <section class="section section-testimonials" id="testimonials">
@@ -544,7 +544,7 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
 
         <div class="features-grid" style="margin-bottom: 2rem;">
             <?php
-            // Teaser: 3 pacotes — controller já entrega featured primeiro.
+            // Teaser: 3 pacotes - controller já entrega featured primeiro.
             $teaser = array_slice($packages ?? [], 0, 3);
             foreach ($teaser as $pkg):
                 $coinsBase  = (int)$pkg['coins'];
@@ -612,7 +612,7 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
             display: flex;
             flex-direction: column;
             padding: 2.5rem 1.5rem 2rem;
-            overflow: visible !important; /* override .feature overflow:hidden — ribbon precisa estourar */
+            overflow: visible !important; /* override .feature overflow:hidden - ribbon precisa estourar */
         }
         .home-pack-featured { border-color: var(--hazard); }
         .home-pack-ribbon {

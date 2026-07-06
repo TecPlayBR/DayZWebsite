@@ -1,8 +1,8 @@
 <?php
 /** @var array $config, $boxes; @var ?array $steam_user; @var int $coins */
 ?>
-<?php \App\View::with('title', 'Caixas — ' . ($config['settings']['site_name'] ?? $config['site_name'] ?? 'Loja')); ?>
-<?php \App\View::with('description', 'Caixas e lootboxes do ' . ($config['settings']['site_name'] ?? $config['site_name'] ?? 'servidor') . ' — abra e ganhe itens in-game entregues direto no seu personagem no DayZ.'); ?>
+<?php \App\View::with('title', 'Caixas - ' . ($config['settings']['site_name'] ?? $config['site_name'] ?? 'Loja')); ?>
+<?php \App\View::with('description', 'Caixas e lootboxes do ' . ($config['settings']['site_name'] ?? $config['site_name'] ?? 'servidor') . ' - abra e ganhe itens in-game entregues direto no seu personagem no DayZ.'); ?>
 <?php \App\View::extend('layouts.main'); ?>
 <?php \App\View::with('hero_image', 'img/background3.png'); ?>
 <?php \App\View::section('content'); ?>
@@ -51,7 +51,7 @@ $rarityLabel = [
                     <?php if ($daily): ?><div class="caixa-tag caixa-tag-free"><?= e(__('caixas.tag_daily')) ?></div><?php endif; ?>
                     <div class="caixa-img">
                         <?php if (!empty($b['image'])): ?>
-                            <img src="<?= e($b['image']) ?>" alt="Caixa <?= e($b['name']) ?> — loot DayZ" width="280" height="280" loading="lazy" decoding="async">
+                            <img src="<?= e($b['image']) ?>" alt="Caixa <?= e($b['name']) ?> - loot DayZ" width="280" height="280" loading="lazy" decoding="async">
                         <?php else: ?>
                             <div class="caixa-img-ph">🎁</div>
                         <?php endif; ?>
@@ -113,7 +113,7 @@ $rarityLabel = [
                             ⏳ <span class="cd-time">--:--</span>
                         </button>
                     <?php else: ?>
-                        <button class="btn caixa-open" data-slug="<?= e($b['slug']) ?>" data-name="<?= e($b['name']) ?>" data-cost="<?= $daily?0:(int)$b['cost_coins'] ?>" aria-label="<?= e(__('caixas.open_box')) ?> <?= e($b['name']) ?><?= $daily ? '' : ' — ' . (int)$b['cost_coins'] . ' moedas' ?>"><?= e(__('caixas.open_box')) ?></button>
+                        <button class="btn caixa-open" data-slug="<?= e($b['slug']) ?>" data-name="<?= e($b['name']) ?>" data-cost="<?= $daily?0:(int)$b['cost_coins'] ?>" aria-label="<?= e(__('caixas.open_box')) ?> <?= e($b['name']) ?><?= $daily ? '' : ' - ' . (int)$b['cost_coins'] . ' moedas' ?>"><?= e(__('caixas.open_box')) ?></button>
                     <?php endif; ?>
                 </div>
             <?php endforeach; ?>
@@ -231,10 +231,10 @@ $rarityLabel = [
     let busy = false;
 
     // SEGURO contra XSS: nome/imagem do item vêm do banco (admin-editável). NUNCA via
-    // innerHTML/concatenação — usa createElement + textContent + .src por propriedade.
+    // innerHTML/concatenação - usa createElement + textContent + .src por propriedade.
     function safeImg(url){
         const im = document.createElement('img');
-        // aceita http(s) OU caminho relativo do próprio site (/assets/...) — nada de javascript:
+        // aceita http(s) OU caminho relativo do próprio site (/assets/...) - nada de javascript:
         if (typeof url === 'string' && (/^https?:\/\//i.test(url) || /^\/[\w./-]+$/.test(url))) im.src = url;
         im.alt = '';
         return im;

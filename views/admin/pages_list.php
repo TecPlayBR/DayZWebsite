@@ -35,7 +35,7 @@
                 <td class="dim"><?= (int)$p['sort_order'] ?></td>
                 <td class="mono"><?= e($p['slug']) ?> &nbsp; <a href="/page/<?= e($p['slug']) ?>" target="_blank" style="color: var(--dim); font-size: 0.75rem;">↗</a></td>
                 <td><strong><?= e($p['title_ptbr']) ?></strong></td>
-                <td class="dim"><?= e($p['title_enus'] ?? '—') ?></td>
+                <td class="dim"><?= e($p['title_enus'] ?? '-') ?></td>
                 <td>
                     <?php if ((int)$p['published']): ?>
                         <span class="badge success">publicada</span>

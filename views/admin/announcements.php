@@ -42,7 +42,7 @@ $dtL  = fn($v) => $v ? e(date('Y-m-d\TH:i', strtotime((string)$v))) : '';
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 0.8rem;">
-            <input type="text" name="cta_label" placeholder='Texto do botão (opcional — padrão "Saiba mais")' value="<?= $ed('cta_label') ?>"
+            <input type="text" name="cta_label" placeholder='Texto do botão (opcional - padrão "Saiba mais")' value="<?= $ed('cta_label') ?>"
                    style="padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone);">
             <input type="text" name="cta_url" placeholder="URL do botão (ex: /shop, https://discord.gg/...)" value="<?= $ed('cta_url') ?>"
                    style="padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone);">

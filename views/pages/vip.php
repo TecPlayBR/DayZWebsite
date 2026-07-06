@@ -1,8 +1,8 @@
 <?php
 /** @var array $config, $vip; @var array $durations; @var ?array $steam_user; @var int $coins; @var array $active */
 ?>
-<?php \App\View::with('title', 'VIP — ' . ($config['settings']['site_name'] ?? $config['site_name'] ?? 'Loja')); ?>
-<?php \App\View::with('description', 'VIP e Passe de Batalha do ' . ($config['settings']['site_name'] ?? $config['site_name'] ?? 'servidor') . ' — vantagens exclusivas no DayZ, ativadas com as moedas do servidor.'); ?>
+<?php \App\View::with('title', 'VIP - ' . ($config['settings']['site_name'] ?? $config['site_name'] ?? 'Loja')); ?>
+<?php \App\View::with('description', 'VIP e Passe de Batalha do ' . ($config['settings']['site_name'] ?? $config['site_name'] ?? 'servidor') . ' - vantagens exclusivas no DayZ, ativadas com as moedas do servidor.'); ?>
 <?php \App\View::extend('layouts.main'); ?>
 <?php \App\View::with('hero_image', 'img/background3.png'); ?>
 <?php \App\View::section('content'); ?>
@@ -22,7 +22,7 @@ $flashOk = ['bought' => '✓ Compra concluída! O VIP/Passe vai ser aplicado no 
             'renewed' => '✓ Renovado! Os dias novos foram somados ao que você já tinha. Aplica no próximo ciclo do agent.'];
 $err = $_GET['err'] ?? '';
 $errMsg = $err === 'csrf' ? 'Sessão expirada, tente de novo.'
-        : ($err === 'rate' ? 'Calma — muitas compras seguidas. Aguarde um instante.'
+        : ($err === 'rate' ? 'Calma - muitas compras seguidas. Aguarde um instante.'
         : ($err !== '' ? \App\Vip::errorMessage($err) : ''));
 
 // Monta a lista de cards: VIP tiers habilitados + battlepass.
@@ -81,7 +81,7 @@ if ($vip['battlepass']['enabled'] && $vip['battlepass']['prices']) {
 
         <p style="color:var(--dim);font-size:0.9rem;margin-bottom:1.5rem;">
             🪙 Pague com as moedas que você já tem. Sem moedas? <a href="/shop" style="color:var(--hazard);">Compre na Loja →</a><br>
-            Renovar antes de expirar <strong>soma</strong> os dias — você nunca perde o que pagou.
+            Renovar antes de expirar <strong>soma</strong> os dias - você nunca perde o que pagou.
         </p>
 
         <?php if (empty($cards)): ?>

@@ -6,7 +6,7 @@
 <div class="admin-page-head">
     <div>
         <h1>📜 Logs de Caixas</h1>
-        <p><a href="/admin/caixas" style="color:var(--dim);">← Caixas</a> · Conferência de entregas — quando o player reclamar, busque pelo SteamID e confira o <strong>horário do drop</strong>.</p>
+        <p><a href="/admin/caixas" style="color:var(--dim);">← Caixas</a> · Conferência de entregas - quando o player reclamar, busque pelo SteamID e confira o <strong>horário do drop</strong>.</p>
     </div>
 </div>
 
@@ -39,11 +39,11 @@
                 <td><?= e(fmt_dt($l['created_at'])) ?></td>
                 <td><a href="/admin/caixas/logs?steam=<?= e($l['steam_id']) ?>" style="color:var(--rust-2);font-family:var(--font-mono);font-size:0.78rem;"><?= e($l['steam_id']) ?></a></td>
                 <td><?= e($l['box_name'] ?? ('#' . $l['box_id'])) ?></td>
-                <td style="color:var(--bone);"><?= e($l['item_name'] ?: '—') ?></td>
-                <td><code style="font-size:0.75rem;"><?= e($l['classname'] ?: '—') ?></code></td>
+                <td style="color:var(--bone);"><?= e($l['item_name'] ?: '-') ?></td>
+                <td><code style="font-size:0.75rem;"><?= e($l['classname'] ?: '-') ?></code></td>
                 <td><?= (int)$l['quantity'] ?>x</td>
                 <td><?= $delivered ? '<span style="color:var(--moss);">✓ entregue</span>' : '<span style="color:var(--hazard);">⏳ pendente</span>' ?></td>
-                <td style="color:var(--dim);"><?= !empty($l['delivered_at']) ? e(fmt_dt($l['delivered_at'])) : '—' ?></td>
+                <td style="color:var(--dim);"><?= !empty($l['delivered_at']) ? e(fmt_dt($l['delivered_at'])) : '-' ?></td>
             </tr>
         <?php endforeach; ?>
         </tbody>

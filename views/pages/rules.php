@@ -15,7 +15,7 @@
 <section class="section">
     <div class="container" style="max-width: 800px;">
         <p style="color: var(--dim); font-family: var(--font-mono); font-size: 1.1rem;">
-            (Conteúdo das regras vai aqui — admin edita pelo painel quando estiver pronto.)
+            (Conteúdo das regras vai aqui - admin edita pelo painel quando estiver pronto.)
         </p>
     </div>
 </section>

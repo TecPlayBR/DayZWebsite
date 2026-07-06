@@ -12,10 +12,10 @@
 
 <?php if (($_GET['ok'] ?? '') === 'award'): $n = (int)($_GET['n'] ?? 0); $sk = (int)($_GET['sk'] ?? 0); ?>
     <?php if ($n > 0): ?>
-        <div class="alert-toast">✓ Premiação rodada — <?= $n ?> colocação(ões) premiada(s). As moedas já caíram no saldo dos vencedores (aparece no perfil de cada um, em "🏆 Premiações do ranking").<?= $sk > 0 ? ' ⚠ ' . $sk . ' vencedor(es) NÃO recebeu(ram): a conta dele ainda não está vinculada (ele precisa abrir o site/perfil 1x logado pra vincular a Steam ao CFTools).' : '' ?></div>
+        <div class="alert-toast">✓ Premiação rodada - <?= $n ?> colocação(ões) premiada(s). As moedas já caíram no saldo dos vencedores (aparece no perfil de cada um, em "🏆 Premiações do ranking").<?= $sk > 0 ? ' ⚠ ' . $sk . ' vencedor(es) NÃO recebeu(ram): a conta dele ainda não está vinculada (ele precisa abrir o site/perfil 1x logado pra vincular a Steam ao CFTools).' : '' ?></div>
     <?php else: ?>
         <div class="alert-toast" style="background:var(--bg-1);border-left:3px solid var(--hazard);color:var(--bone);">
-            Premiação rodada, mas <strong>nada novo foi creditado</strong> — ou o período <code><?= e($period_label) ?></code> já tinha sido premiado (não paga 2x no mesmo período)<?= $sk > 0 ? ', ou os ' . $sk . ' vencedor(es) do leaderboard ainda não vincularam a conta no site (precisam abrir o perfil 1x logado pra mapear a Steam↔CFTools)' : ', ou o leaderboard CFTools ainda não tem vencedor elegível' ?>. Quem já recebeu vê no próprio perfil.
+            Premiação rodada, mas <strong>nada novo foi creditado</strong> - ou o período <code><?= e($period_label) ?></code> já tinha sido premiado (não paga 2x no mesmo período)<?= $sk > 0 ? ', ou os ' . $sk . ' vencedor(es) do leaderboard ainda não vincularam a conta no site (precisam abrir o perfil 1x logado pra mapear a Steam↔CFTools)' : ', ou o leaderboard CFTools ainda não tem vencedor elegível' ?>. Quem já recebeu vê no próprio perfil.
         </div>
     <?php endif; ?>
 <?php elseif (($_GET['ok'] ?? '') !== ''): ?>
@@ -26,7 +26,7 @@
 
 <?php if (!$cftools_on): ?>
     <div style="background:var(--hazard-overlay,rgba(217,164,65,.12));border-left:3px solid var(--hazard);padding:.9rem 1.1rem;margin-bottom:1.5rem;color:var(--bone);font-size:.9rem;">
-        ⚠ O <strong>CFTools</strong> ainda não está configurado (veja o README → "Ativar leaderboard"). Você pode configurar as recompensas agora — elas aparecem no ranking assim que o leaderboard estiver ligado.
+        ⚠ O <strong>CFTools</strong> ainda não está configurado (veja o README → "Ativar leaderboard"). Você pode configurar as recompensas agora - elas aparecem no ranking assim que o leaderboard estiver ligado.
     </div>
 <?php endif; ?>
 
@@ -126,7 +126,7 @@ function _rw($cats, $key, $place) { return (int)($cats[$key]['coins'][(string)$p
     <p style="color:var(--dim); font-size:.85rem; margin:.6rem 0 1rem;">
         Credita o top atual de cada categoria habilitada <strong>imediatamente</strong>, no período <code><?= e($period_label) ?></code>.
         É seguro clicar mais de uma vez: cada posição/período só é paga <strong>uma vez</strong> (sem crédito duplo).
-        <?php if ($awarded_period): ?><br>⚠ O período <code><?= e($period_label) ?></code> já teve premiação — clicar de novo não credita de novo (só posições ainda não pagas).<?php endif; ?>
+        <?php if ($awarded_period): ?><br>⚠ O período <code><?= e($period_label) ?></code> já teve premiação - clicar de novo não credita de novo (só posições ainda não pagas).<?php endif; ?>
     </p>
     <form method="POST" action="/admin/rewards/award-now" onsubmit="return confirm('Creditar as moedas do top atual agora? As posições já pagas neste período são ignoradas.');">
         <?= \App\Csrf::field() ?>

@@ -46,7 +46,7 @@
                     <span class="dim">= <?= (int)$p['coins_total'] ?></span>
                 </td>
                 <td><strong>R$ <?= number_format($p['price_brl'], 2, ',', '.') ?></strong></td>
-                <td class="dim"><?= e($p['payment_method'] ?? '—') ?></td>
+                <td class="dim"><?= e($p['payment_method'] ?? '-') ?></td>
                 <td>
                     <?php
                     $status = $p['mp_status'] ?? 'pending';
@@ -59,9 +59,9 @@
                     ?>
                     <span class="badge <?= $cls ?>"><?= e($status) ?></span>
                 </td>
-                <td class="mono dim" style="font-size: 0.75rem;"><?= e($p['mp_payment_id'] ?? '—') ?></td>
+                <td class="mono dim" style="font-size: 0.75rem;"><?= e($p['mp_payment_id'] ?? '-') ?></td>
                 <td class="dim"><?= e($p['created_at']) ?></td>
-                <td class="dim"><?= e($p['delivered_at'] ?? '—') ?></td>
+                <td class="dim"><?= e($p['delivered_at'] ?? '-') ?></td>
             </tr>
         <?php endforeach; endif; ?>
     </tbody>

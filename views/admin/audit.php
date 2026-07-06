@@ -33,12 +33,12 @@
         <?php else: foreach ($logs as $l): ?>
             <tr>
                 <td class="dim mono" style="font-size:0.78rem; white-space: nowrap;"><?= e($l['created_at']) ?></td>
-                <td><strong style="font-family: var(--font-mono); color: var(--bone);"><?= e($l['admin_username'] ?? '—') ?></strong></td>
+                <td><strong style="font-family: var(--font-mono); color: var(--bone);"><?= e($l['admin_username'] ?? '-') ?></strong></td>
                 <td><span class="badge info" style="font-family: var(--font-mono);"><?= e($l['action']) ?></span></td>
                 <td class="mono" style="font-size: 0.8rem;">
                     <?php if ($l['target_type']): ?>
-                        <span class="dim"><?= e($l['target_type']) ?>:</span><?= e($l['target_id'] ?? '—') ?>
-                    <?php else: ?>—<?php endif; ?>
+                        <span class="dim"><?= e($l['target_type']) ?>:</span><?= e($l['target_id'] ?? '-') ?>
+                    <?php else: ?>-<?php endif; ?>
                 </td>
                 <td>
                     <?php if (!empty($l['payload'])): ?>
@@ -47,10 +47,10 @@
                             <pre style="background: var(--bg-0); padding: 0.4rem 0.6rem; margin-top: 0.3rem; font-size: 0.75rem; color: var(--bone); border-left: 2px solid var(--rust); overflow-x: auto;"><?= e(json_encode(json_decode($l['payload']), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)) ?></pre>
                         </details>
                     <?php else: ?>
-                        <span class="dim">—</span>
+                        <span class="dim">-</span>
                     <?php endif; ?>
                 </td>
-                <td class="dim mono" style="font-size: 0.75rem;"><?= e($l['ip'] ?? '—') ?></td>
+                <td class="dim mono" style="font-size: 0.75rem;"><?= e($l['ip'] ?? '-') ?></td>
             </tr>
         <?php endforeach; endif; ?>
     </tbody>

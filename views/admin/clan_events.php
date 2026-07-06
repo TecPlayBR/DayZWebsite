@@ -12,7 +12,7 @@ $inp = 'width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--
 <div class="admin-page-head">
     <div>
         <h1>🛡 Eventos de Clã</h1>
-        <p>Competições entre clãs (ex: "Mate o máximo de zumbis"). O placar conta só o que rolar <strong>dentro</strong> do evento — foto no início, congela no fim. Aparece na aba <code>/ranking → Clãs</code> (só pra quem tem clã). Só o <strong>líder</strong> inscreve.</p>
+        <p>Competições entre clãs (ex: "Mate o máximo de zumbis"). O placar conta só o que rolar <strong>dentro</strong> do evento - foto no início, congela no fim. Aparece na aba <code>/ranking → Clãs</code> (só pra quem tem clã). Só o <strong>líder</strong> inscreve.</p>
     </div>
 </div>
 
@@ -52,7 +52,7 @@ $inp = 'width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--
 <?php if ($edit): ?>
     <?php $ph = \App\ClanEvent::phase($edit); ?>
     <div class="stat-card" style="margin-bottom:1.5rem;">
-        <div class="label">Placar — <?= e(\App\ClanEvent::phaseLabel($ph)) ?>
+        <div class="label">Placar - <?= e(\App\ClanEvent::phaseLabel($ph)) ?>
             <?php if ($edit['baseline_taken']): ?> · <span style="color:var(--text-success);">baseline tirado ✓</span><?php endif; ?>
             <?php if (!empty($edit['frozen_at'])): ?> · <span style="color:var(--dim);">congelado em <?= e(date('d/m H:i', strtotime($edit['frozen_at']))) ?></span><?php endif; ?>
         </div>

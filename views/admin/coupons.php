@@ -69,7 +69,7 @@ $pkgMap = array_column($packages ?? [], 'name', 'id');
     <p style="font-size:0.72rem; color:var(--dim); margin:0 0 0.8rem;">💡 <strong>Máx. TOTAL</strong> = usos somando todos os jogadores. <strong>Máx. p/ jogador</strong> = quantas vezes cada pessoa pode usar (coloque <strong>1</strong> pra um cupom de aniversário, um por pessoa). Vazio = ilimitado.</p>
     <?php if (!empty($packages)): ?>
     <div style="margin-bottom: 0.8rem;">
-        <label style="display:block; font-size:0.75rem; color:var(--dim); margin-bottom:0.4rem; text-transform: uppercase;">Vale só pra estes pacotes <small>(opcional — nada marcado = todos)</small></label>
+        <label style="display:block; font-size:0.75rem; color:var(--dim); margin-bottom:0.4rem; text-transform: uppercase;">Vale só pra estes pacotes <small>(opcional - nada marcado = todos)</small></label>
         <div style="display:flex; flex-wrap:wrap; gap:0.9rem;">
             <?php foreach ($packages as $pk): ?>
                 <label style="display:flex; align-items:center; gap:0.35rem; font-size:0.85rem; color:var(--bone); cursor:pointer;">
@@ -82,7 +82,7 @@ $pkgMap = array_column($packages ?? [], 'name', 'id');
     <p style="font-size:0.74rem; color:var(--dim); margin:-0.2rem 0 0.8rem;">💡 No tipo <strong>🪙 Moedas bônus</strong>, o campo <strong>Valor</strong> é a quantidade de moedas que o cliente ganha (sem desconto no preço).</p>
 
     <details style="margin-bottom: 0.8rem; border:1px solid var(--border); border-radius:4px; padding:0.6rem 0.9rem;">
-        <summary style="cursor:pointer; font-size:0.85rem; color:var(--bone);">🎮 Programa de afiliado / streamer <span style="color:var(--dim);">(opcional — paga cachê por venda)</span></summary>
+        <summary style="cursor:pointer; font-size:0.85rem; color:var(--bone);">🎮 Programa de afiliado / streamer <span style="color:var(--dim);">(opcional - paga cachê por venda)</span></summary>
         <p style="font-size:0.78rem; color:var(--dim); margin:0.6rem 0;">
             O cliente se atrela a este streamer ao usar o cupom (1 streamer por vez). O cachê é calculado
             sobre o <strong>valor cheio</strong>, só em compra <strong>paga</strong>, escalonado pela recorrência do cliente.
@@ -191,7 +191,7 @@ $pkgMap = array_column($packages ?? [], 'name', 'id');
                         <span class="badge info">desativado</span>
                     <?php endif; ?>
                 </td>
-                <td class="dim" style="font-size: 0.8rem;"><?= e($c['notes'] ?? '—') ?></td>
+                <td class="dim" style="font-size: 0.8rem;"><?= e($c['notes'] ?? '-') ?></td>
                 <td style="white-space: nowrap;">
                     <a href="/admin/coupons/<?= (int)$c['id'] ?>/edit" class="btn-mini outline">Editar</a>
                     <form method="POST" action="/admin/coupons/<?= (int)$c['id'] ?>/toggle" style="display: inline;">

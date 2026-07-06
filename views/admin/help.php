@@ -27,7 +27,7 @@
                     <div class="dim" style="font-size:.72rem;font-family:var(--font-mono);"><?= e($a['slug']) ?></div>
                 </td>
                 <td style="font-size:.8rem;">
-                    <?= !empty($a['video_url']) ? '🎥' : '' ?><?= !empty($a['image']) ? ' 🖼' : '' ?><?= empty($a['video_url']) && empty($a['image']) ? '<span class="dim">—</span>' : '' ?>
+                    <?= !empty($a['video_url']) ? '🎥' : '' ?><?= !empty($a['image']) ? ' 🖼' : '' ?><?= empty($a['video_url']) && empty($a['image']) ? '<span class="dim">-</span>' : '' ?>
                 </td>
                 <td class="mono"><?= (int)$a['sort_order'] ?></td>
                 <td><?= (int)$a['published'] ? '<span class="badge success">visível</span>' : '<span class="badge danger">oculto</span>' ?></td>

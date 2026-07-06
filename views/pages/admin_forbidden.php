@@ -1,5 +1,5 @@
 <?php
-// Página 403 do admin — renderizada quando user logado tenta acessar área sem permissão.
+// Página 403 do admin - renderizada quando user logado tenta acessar área sem permissão.
 $u = \App\Auth::user();
 $role = $u['role'] ?? '?';
 $path = htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/', ENT_QUOTES);
@@ -9,7 +9,7 @@ $path = htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/', ENT_QUOTES);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acesso negado — Admin</title>
+    <title>Acesso negado - Admin</title>
     <link rel="stylesheet" href="/assets/css/theme.css">
     <link rel="stylesheet" href="/assets/css/admin.css">
     <style>

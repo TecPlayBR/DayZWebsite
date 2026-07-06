@@ -33,8 +33,8 @@
         </div>
         <label style="grid-column:1/3;">Descrição<textarea name="description" rows="2" style="width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);"><?= e($box['description'] ?? '') ?></textarea></label>
         <label>Custo (moedas)<input type="number" name="cost_coins" value="<?= (int)$box['cost_coins'] ?>" min="0" style="width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);"></label>
-        <label>Ordem na vitrine <span style="color:var(--dim);font-weight:400;">— menor = aparece primeiro</span><input type="number" name="sort_order" value="<?= (int)($box['sort_order'] ?? 0) ?>" min="0" style="width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);"></label>
-        <label>Cooldown diária (horas) <span style="color:var(--dim);font-weight:400;">— 0 = sem espera</span><input type="number" name="cooldown_hours" value="<?= (int)$box['cooldown_hours'] ?>" min="0" style="width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);"><small style="color:var(--dim);">Só vale pra caixa diária grátis. Caixa paga nunca tem cooldown.</small></label>
+        <label>Ordem na vitrine <span style="color:var(--dim);font-weight:400;">- menor = aparece primeiro</span><input type="number" name="sort_order" value="<?= (int)($box['sort_order'] ?? 0) ?>" min="0" style="width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);"></label>
+        <label>Cooldown diária (horas) <span style="color:var(--dim);font-weight:400;">- 0 = sem espera</span><input type="number" name="cooldown_hours" value="<?= (int)$box['cooldown_hours'] ?>" min="0" style="width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);"><small style="color:var(--dim);">Só vale pra caixa diária grátis. Caixa paga nunca tem cooldown.</small></label>
         <label style="display:flex;align-items:center;gap:0.4rem;"><input type="checkbox" name="is_daily" value="1" <?= (int)$box['is_daily']?'checked':'' ?>> Diária grátis (ignora custo)</label>
         <label style="display:flex;align-items:center;gap:0.4rem;"><input type="checkbox" name="enabled" value="1" <?= (int)$box['enabled']?'checked':'' ?>> Ativa</label>
         <div style="grid-column:1/3;"><button type="submit" class="btn">Salvar caixa</button></div>
@@ -72,7 +72,7 @@
                 <a href="#" id="bi-cancel" style="display:none;color:var(--rust-2);font-size:0.8rem;">cancelar</a>
             </div>
         </div>
-        <p style="font-size:0.78rem;color:var(--dim);margin-top:0.5rem;" id="bi-hint">A <strong>raridade</strong> define a chance — lendário cai bem menos que comum, automático. <span id="bi-chance" style="color:var(--hazard);"></span></p>
+        <p style="font-size:0.78rem;color:var(--dim);margin-top:0.5rem;" id="bi-hint">A <strong>raridade</strong> define a chance - lendário cai bem menos que comum, automático. <span id="bi-chance" style="color:var(--hazard);"></span></p>
     </form>
 </div>
 <style>
@@ -106,7 +106,7 @@
 /* Editar item do pool: clica no ✎ → preenche o form com os dados + manda item_id (o
    backend faz UPDATE; imagem vazia = mantém a atual). Usa EVENT DELEGATION no document
    porque a tabela dos botões vem DEPOIS deste script no HTML (querySelector direto
-   pegaria zero botões) — e assim sobrevive ao PJAX (anexa uma vez só). */
+   pegaria zero botões) - e assim sobrevive ao PJAX (anexa uma vez só). */
 (function(){
     if (window.__biEditBound) return; window.__biEditBound = true;
     var g = function(id){ return document.getElementById(id); };
@@ -116,7 +116,7 @@
         var s=g('bi-submit'), c=g('bi-cancel'), t=g('bi-form-title');
         if(s) s.textContent = editing ? '💾 Salvar alterações' : '+ Add';
         if(c) c.style.display = editing ? '' : 'none';
-        if(t) t.textContent = editing ? ('Editando: '+name+' — imagem: deixe vazio pra manter a atual') : 'Adicionar item ao pool';
+        if(t) t.textContent = editing ? ('Editando: '+name+' - imagem: deixe vazio pra manter a atual') : 'Adicionar item ao pool';
     }
     document.addEventListener('click', function(e){
         var b = e.target.closest ? e.target.closest('.bi-edit') : null;
@@ -141,9 +141,9 @@
 </script>
 
 <div class="stat-card">
-    <div class="label">Pool de itens (<?= count($items) ?>) — soma dos pesos: <?= (int)$total_weight ?></div>
+    <div class="label">Pool de itens (<?= count($items) ?>) - soma dos pesos: <?= (int)$total_weight ?></div>
     <?php if (empty($items)): ?>
-        <p style="color:var(--dim);margin-top:0.8rem;">Nenhum item ainda. Adicione acima — a caixa só abre com itens.</p>
+        <p style="color:var(--dim);margin-top:0.8rem;">Nenhum item ainda. Adicione acima - a caixa só abre com itens.</p>
     <?php else: ?>
         <table class="admin-table" data-nofilter style="margin-top:0.8rem;">
             <thead><tr>

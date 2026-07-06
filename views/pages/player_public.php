@@ -38,7 +38,7 @@ $fmtTime = function ($s): string {
 };
 $ex = is_array($stats['extra'] ?? null) ? $stats['extra'] : [];
 
-// Flash (só relevante pro dono — vêm dos redirects de review/caixa/streamer).
+// Flash (só relevante pro dono - vêm dos redirects de review/caixa/streamer).
 // Mostrado em banner no TOPO (visível na hora), não enterrado nas seções.
 $flash = null;
 if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
@@ -48,7 +48,7 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
         'ok'          => ['success', '✓ Item liberado! Vai cair no chão perto de você no servidor em instantes.'],
         'wait'        => ['danger',  '⚠ Pra receber agora você precisa estar ONLINE no servidor (e fora da janela de restart). Entra no jogo e clica Receber de novo.'],
         'already'     => ['success', 'Esse item já tinha sido entregue.'],
-        'ratelimited' => ['danger',  'Calma — muitos resgates seguidos. Tenta de novo em instantes.'],
+        'ratelimited' => ['danger',  'Calma - muitos resgates seguidos. Tenta de novo em instantes.'],
         'invalid'     => ['danger',  'Item inválido.'],
         default       => ['danger',  'Não consegui resgatar esse item agora.'],
     };
@@ -186,7 +186,7 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
                     <?php foreach (array_slice($ex['top_weapons'], 0, 5) as $i => $w): ?>
                         <div class="pp-weapon">
                             <span class="pp-weapon-rank">#<?= $i + 1 ?></span>
-                            <span class="pp-weapon-name"><?= e($w['name'] ?? $w['classname'] ?? '—') ?></span>
+                            <span class="pp-weapon-name"><?= e($w['name'] ?? $w['classname'] ?? '-') ?></span>
                             <span class="pp-weapon-meta"><?= e(__('profile.pub_weapon_kills')) ?> <strong><?= (int)($w['kills'] ?? 0) ?></strong><?php if (isset($w['damage'])): ?> · <?= e(__('profile.pub_weapon_damage')) ?> <strong><?= (int)$w['damage'] ?></strong><?php endif; ?></span>
                         </div>
                     <?php endforeach; ?>
@@ -256,7 +256,7 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
                                     <td><strong><?= e($p['package_id']) ?></strong></td>
                                     <td class="mono"><?= (int)$p['coins_total'] ?><?php if ((int)$p['coins_bonus'] > 0): ?> <small style="color: var(--moss);">(+<?= (int)$p['coins_bonus'] ?>)</small><?php endif; ?></td>
                                     <td>R$ <?= number_format((float)$p['price_brl'], 2, ',', '.') ?></td>
-                                    <td class="hide-mobile dim"><?= e($p['payment_method'] ?? '—') ?></td>
+                                    <td class="hide-mobile dim"><?= e($p['payment_method'] ?? '-') ?></td>
                                     <td>
                                         <?php
                                         $cls = match($p['mp_status']) {
@@ -267,7 +267,7 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
                                         };
                                         $statusKey = 'purchase_status.' . ($p['mp_status'] ?? 'unknown');
                                         $statusTr  = __($statusKey);
-                                        $label = ($statusTr === $statusKey) ? ($p['mp_status'] ?? '—') : $statusTr;
+                                        $label = ($statusTr === $statusKey) ? ($p['mp_status'] ?? '-') : $statusTr;
                                         ?>
                                         <span class="purchase-badge <?= $cls ?>"><?= $label ?></span>
                                     </td>
@@ -296,7 +296,7 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
             <?php if ($affMsg): ?><p style="color: <?= $affMsg[1] ?>; font-size: 0.85rem; margin: 0 0 0.8rem;"><?= e($affMsg[0]) ?></p><?php endif; ?>
             <?php if (!empty($my_streamer_name)): ?>
                 <p style="color: var(--dim); font-size: 0.9rem; margin: 0 0 0.8rem;">Você apoia <strong style="color: var(--moss);">🎮 <?= e($my_streamer_name) ?></strong>. Suas compras ajudam ele.
-                    <?php if (empty($affiliate_allow_switch)): ?><br><span style="font-size: 0.8rem;">(vínculo fixo — fale com a staff pra trocar)</span><?php endif; ?></p>
+                    <?php if (empty($affiliate_allow_switch)): ?><br><span style="font-size: 0.8rem;">(vínculo fixo - fale com a staff pra trocar)</span><?php endif; ?></p>
                 <?php if (!empty($affiliate_allow_switch)): ?>
                     <form method="POST" action="/apoiar-streamer" style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
                         <?= \App\Csrf::field() ?>
@@ -305,7 +305,7 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
                     </form>
                 <?php endif; ?>
             <?php else: ?>
-                <p style="color: var(--dim); font-size: 0.9rem; margin: 0 0 0.8rem;">Tem um streamer favorito? Digite o código dele pra apoiar — suas compras ajudam ele direto. <strong>Escolha uma vez só.</strong></p>
+                <p style="color: var(--dim); font-size: 0.9rem; margin: 0 0 0.8rem;">Tem um streamer favorito? Digite o código dele pra apoiar - suas compras ajudam ele direto. <strong>Escolha uma vez só.</strong></p>
                 <form method="POST" action="/apoiar-streamer" style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
                     <?= \App\Csrf::field() ?>
                     <input type="text" name="affiliate_code" placeholder="Código do streamer (ex: MEUSTREAMER)" required class="field mono upper grow">
@@ -334,7 +334,7 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
                 ?>
                     <tr>
                         <td class="dim"><?= e(fmt_dt($o['created_at'])) ?></td>
-                        <td><strong><?= e($o['item_name'] ?: ($o['classname'] ?: '—')) ?></strong><?php if (!empty($o['classname'])): ?><code class="dim" style="font-size:0.72rem; display:block;"><?= e($o['classname']) ?></code><?php endif; ?></td>
+                        <td><strong><?= e($o['item_name'] ?: ($o['classname'] ?: '-')) ?></strong><?php if (!empty($o['classname'])): ?><code class="dim" style="font-size:0.72rem; display:block;"><?= e($o['classname']) ?></code><?php endif; ?></td>
                         <td class="hide-mobile"><span style="color:<?= $rarColor[$rk] ?? 'var(--dim)' ?>; font-weight:600; font-size:0.8rem;"><?= e($rarPt[$rk] ?? $rk) ?></span></td>
                         <td class="mono"><?= (int)$o['quantity'] ?>x</td>
                         <td>
@@ -403,7 +403,7 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
                 <?php endforeach; ?>
             </tbody>
         </table>
-        <p style="color: var(--dim); font-size: 0.8rem; margin-top: 0.6rem;">🏆 Moedas que você ganhou ficando no topo do ranking — caem direto no seu saldo.</p>
+        <p style="color: var(--dim); font-size: 0.8rem; margin-top: 0.6rem;">🏆 Moedas que você ganhou ficando no topo do ranking - caem direto no seu saldo.</p>
         <?php if (count($reward_payouts) > $cap): ?><p class="pp-acc-more">Mostrando as <?= $cap ?> mais recentes.</p><?php endif; ?>
             </div>
         </details>
@@ -425,7 +425,7 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
                 <?php endforeach; ?>
             </tbody>
         </table>
-        <p style="color: var(--dim); font-size: 0.8rem; margin-top: 0.6rem;">🏅 Moedas que você ganhou desbloqueando conquistas — creditadas uma vez por conquista.</p>
+        <p style="color: var(--dim); font-size: 0.8rem; margin-top: 0.6rem;">🏅 Moedas que você ganhou desbloqueando conquistas - creditadas uma vez por conquista.</p>
         <?php if (count($achievement_payouts) > $cap): ?><p class="pp-acc-more">Mostrando os <?= $cap ?> mais recentes.</p><?php endif; ?>
             </div>
         </details>
@@ -464,7 +464,7 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
 .pp-clan-head-none:hover { background:var(--bg-1); color:var(--bone); }
 .pp-invites { background:var(--bg-1); border:1px solid var(--hazard); border-radius:6px; padding:1rem 1.1rem; margin:1rem 0; }
 .pp-invite-row { display:flex; align-items:center; justify-content:space-between; gap:.5rem; padding:.5rem 0; border-top:1px solid var(--border); margin-top:.5rem; color:var(--bone); }
-/* Históricos em dropdown (fechados por padrão) — perfil não estica mais. */
+/* Históricos em dropdown (fechados por padrão) - perfil não estica mais. */
 .pp-acc { border:1px solid var(--border); border-radius:6px; background:var(--bg-1); margin:1rem 0; overflow:hidden; }
 .pp-acc > summary { cursor:pointer; list-style:none; display:flex; align-items:center; gap:.55rem; padding:.95rem 1.1rem; font-family:var(--font-display); color:var(--bone); font-size:1.05rem; letter-spacing:.03em; }
 .pp-acc > summary::-webkit-details-marker { display:none; }

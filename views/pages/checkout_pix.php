@@ -1,7 +1,7 @@
 <?php
 /** @var array $config, $pkg; @var int $purchase_id, $coins_total, $server_id; @var string $steam_id, $qr_code, $qr_base64, $ticket_url, $expires_at; @var float $price_brl, $discount; @var ?string $coupon_code */
 ?>
-<?php \App\View::with('title', 'Pagamento PIX — ' . ($config['settings']['site_name'] ?? $config['site_name'] ?? 'Loja')); ?>
+<?php \App\View::with('title', 'Pagamento PIX - ' . ($config['settings']['site_name'] ?? $config['site_name'] ?? 'Loja')); ?>
 <?php \App\View::extend('layouts.main'); ?>
 <?php \App\View::section('content'); ?>
 <?php
@@ -104,7 +104,7 @@ $activeTab = ((($active_tab ?? 'pix') === 'card') && $cardAvailable) ? 'card' : 
         <div id="tab-card" class="pay-panel" <?= $activeTab==='card'?'':'hidden' ?>>
             <form id="card-form" class="card-form">
                 <?php if (empty($coupon_code)): ?>
-                <div class="cf-coupon-warn">💡 Tem cupom? <strong>Aplique o cupom ali em cima antes</strong> de preencher o cartão — ao aplicar, a página recarrega e limpa os campos.</div>
+                <div class="cf-coupon-warn">💡 Tem cupom? <strong>Aplique o cupom ali em cima antes</strong> de preencher o cartão - ao aplicar, a página recarrega e limpa os campos.</div>
                 <?php endif; ?>
                 <div class="cf-row">
                     <label>Número do cartão</label>
@@ -119,7 +119,7 @@ $activeTab = ((($active_tab ?? 'pix') === 'card') && $cardAvailable) ? 'card' : 
                     <div><label>Documento</label><input type="text" class="cf-input" value="CPF" readonly style="opacity:0.7;cursor:default;"></div>
                     <div><label>CPF do titular</label><input type="text" id="cf-docnumber" class="cf-input" inputmode="numeric" placeholder="000.000.000-00" maxlength="14"></div>
                 </div>
-                <!-- Tipo de documento fixo em CPF (pessoa física) — não mapeado no cardForm pra o MP não trocar -->
+                <!-- Tipo de documento fixo em CPF (pessoa física) - não mapeado no cardForm pra o MP não trocar -->
                 <select id="cf-doctype" style="display:none;"><option value="CPF" selected>CPF</option></select>
                 <div class="cf-row"><label>E-mail (recibo)</label><input type="email" id="cf-email" class="cf-input" autocomplete="email" placeholder="voce@email.com"></div>
                 <!-- Banco emissor é detectado automaticamente pelo MP (pelo nº do cartão); escondido pra não confundir -->
@@ -136,7 +136,7 @@ $activeTab = ((($active_tab ?? 'pix') === 'card') && $cardAvailable) ? 'card' : 
                 <div class="cf-amount">Total: <strong>R$ <?= number_format($price_brl, 2, ',', '.') ?></strong></div>
                 <button type="submit" id="cf-submit" class="btn" style="width:100%;" disabled>💳 Pagar com cartão</button>
                 <div class="cf-status" id="cf-status"></div>
-                <p class="cf-secure">🔒 Os dados do cartão são processados direto pelo Mercado Pago — não passam pelo nosso servidor.</p>
+                <p class="cf-secure">🔒 Os dados do cartão são processados direto pelo Mercado Pago - não passam pelo nosso servidor.</p>
             </form>
         </div>
         <?php endif; ?>

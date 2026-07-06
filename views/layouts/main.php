@@ -28,7 +28,7 @@
     <meta name="theme-color" content="#0a0405">
 
     <?php
-    // SEO keywords — admin pode override via settings.seo_keywords; senão usa default rico do nicho DayZ BR
+    // SEO keywords - admin pode override via settings.seo_keywords; senão usa default rico do nicho DayZ BR
     $seoKeywords = $config['settings']['seo_keywords'] ?? '';
     if (empty($seoKeywords)) {
         $seoKeywords = 'servidor dayz brasileiro, servidor dayz br, dayz pvp, dayz hardcore, '

@@ -1,7 +1,7 @@
 <?php /** @var array $config, $my_clan, $events; @var bool $is_leader; @var ?array $steam_user */ ?>
 <?php $ceSite = $config['settings']['site_name'] ?? $config['site_name'] ?? 'Servidor'; ?>
-<?php \App\View::with('title', 'Eventos de Clã — ' . $ceSite); ?>
-<?php \App\View::with('description', 'Competições entre clãs do ' . $ceSite . ' — placar ao vivo dos eventos de clã no DayZ.'); ?>
+<?php \App\View::with('title', 'Eventos de Clã - ' . $ceSite); ?>
+<?php \App\View::with('description', 'Competições entre clãs do ' . $ceSite . ' - placar ao vivo dos eventos de clã no DayZ.'); ?>
 <?php \App\View::extend('layouts.main'); ?>
 <?php \App\View::with('hero_image', 'img/background5.png'); ?>
 <?php \App\View::section('content'); ?>
@@ -14,7 +14,7 @@ $okMsg = match($_GET['ok'] ?? '') {
 $errMsg = match($_GET['err'] ?? '') {
     'not_owner' => 'Só o líder do clã pode inscrever no evento.',
     'already'   => 'Seu clã já está inscrito nesse evento.',
-    'started'   => 'O evento já começou — não dá mais pra mexer na inscrição.',
+    'started'   => 'O evento já começou - não dá mais pra mexer na inscrição.',
     'not_found' => 'Evento não encontrado.',
     'csrf'      => 'Sessão expirada, tente de novo.',
     default => '',
@@ -63,7 +63,7 @@ $myId = $my_clan ? (int)$my_clan['id'] : 0;
             </div>
         <?php elseif (empty($events)): ?>
             <div style="text-align:center;color:var(--dim);padding:3rem 1rem;background:var(--bg-1);border:1px dashed var(--border);border-radius:6px;">
-                Nenhum evento de clã no momento. Fica de olho — quando rolar, aparece aqui e o <strong>líder</strong> inscreve a facção. 🛡
+                Nenhum evento de clã no momento. Fica de olho - quando rolar, aparece aqui e o <strong>líder</strong> inscreve a facção. 🛡
             </div>
         <?php else: ?>
             <?php foreach ($events as $row): $ev = $row['ev']; $phase = $row['phase']; $scores = $row['scores']; $metric = $ev['metric']; ?>
@@ -94,7 +94,7 @@ $myId = $my_clan ? (int)$my_clan['id'] : 0;
                                     <?= \App\Csrf::field() ?><button class="btn">Inscrever meu clã</button>
                                 </form>
                             <?php else: ?>
-                                <span class="ce-reg-off">Seu clã ainda não está inscrito — <strong>avise o líder</strong> pra inscrever.</span>
+                                <span class="ce-reg-off">Seu clã ainda não está inscrito - <strong>avise o líder</strong> pra inscrever.</span>
                             <?php endif; ?>
                         <?php else: ?>
                             <span class="ce-reg-off">Seu clã não participou deste evento.</span>
@@ -115,7 +115,7 @@ $myId = $my_clan ? (int)$my_clan['id'] : 0;
                             <?php endforeach; ?>
                             </tbody>
                         </table>
-                        <?php if ($phase === 'active'): ?><p class="ce-live">● Placar ao vivo — atualiza conforme o jogo é jogado.</p><?php endif; ?>
+                        <?php if ($phase === 'active'): ?><p class="ce-live">● Placar ao vivo - atualiza conforme o jogo é jogado.</p><?php endif; ?>
                         <?php if ($phase === 'ended'): ?><p class="ce-live" style="color:var(--dim);">Resultado final (congelado).</p><?php endif; ?>
                     <?php elseif ($phase === 'scheduled'): ?>
                         <p class="ce-empty">Clãs inscritos vão aparecer aqui. O placar começa a contar quando o evento iniciar.</p>

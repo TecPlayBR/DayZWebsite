@@ -1,6 +1,6 @@
 <?php /** @var array $config, $by_cat */ ?>
 <?php $hsite = $config['settings']['site_name'] ?? $config['site_name'] ?? 'Servidor'; ?>
-<?php \App\View::with('title', 'Central de Ajuda — ' . $hsite . ' DayZ'); ?>
+<?php \App\View::with('title', 'Central de Ajuda - ' . $hsite . ' DayZ'); ?>
 <?php \App\View::with('description', 'Guias, tutoriais e tudo que você precisa saber pra jogar no ' . $hsite . ': como conectar, mecânicas, eventos, economia e mais.'); ?>
 <?php \App\View::extend('layouts.main'); ?>
 <?php \App\View::with('hero_image', 'img/background2.png'); ?>
@@ -19,7 +19,7 @@
 <section class="section section-bg-2">
     <div class="container" style="max-width:1000px;">
         <?php if ($total === 0): ?>
-            <p style="text-align:center;color:var(--dim);padding:3rem 0;">Os guias estão sendo preparados — volte em breve. 🚧</p>
+            <p style="text-align:center;color:var(--dim);padding:3rem 0;">Os guias estão sendo preparados - volte em breve. 🚧</p>
         <?php else: ?>
             <?php foreach (\App\Help::CATEGORIES as $catKey => $catLabel): $arts = $by_cat[$catKey] ?? []; if (empty($arts)) continue; ?>
                 <h2 class="help-cat-title"><?= e($catLabel) ?></h2>

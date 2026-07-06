@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= e($title ?? 'Admin') ?> — <?= e($config['site_name'] ?? 'DayZ') ?></title>
+    <title><?= e($title ?? 'Admin') ?> - <?= e($config['site_name'] ?? 'DayZ') ?></title>
     <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Inter:wght@400;600;700&family=VT323&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="<?= asset('css/theme.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/admin.css') ?>">
@@ -13,7 +13,7 @@
 </head>
 <body class="admin-body">
 
-<!-- Hamburger (mobile only — CSS esconde em desktop) -->
+<!-- Hamburger (mobile only - CSS esconde em desktop) -->
 <button type="button" class="admin-hamburger" id="admin-hamburger" aria-label="Abrir menu" aria-controls="admin-shell" aria-expanded="false">☰</button>
 
 <!-- Botão de atualizar (a nav do admin é SPA e não recarrega sozinha; isto força o
@@ -91,7 +91,7 @@
             <?php $u = \App\Auth::user(); ?>
             <div class="admin-user">
                 <span class="admin-user-dot"></span>
-                <span><?= e($u['username'] ?? '—') ?></span>
+                <span><?= e($u['username'] ?? '-') ?></span>
             </div>
             <a href="/admin/logout" class="admin-logout">Sair →</a>
             <a href="/" class="admin-back">↩ Ver site</a>
@@ -162,7 +162,7 @@
 
     // ============ HIDE-ON-SCROLL DO HAMBÚRGUER ============
     // Quando user rola pra baixo, esconde (libera viewport). Volta ao rolar pra cima.
-    // Não esconde nos primeiros 100px (área do título — hambúrguer ainda relevante).
+    // Não esconde nos primeiros 100px (área do título - hambúrguer ainda relevante).
     let lastY = 0, ticking = false;
     window.addEventListener('scroll', () => {
         if (shell.classList.contains('drawer-open')) return; // não esconde com drawer aberto
@@ -180,7 +180,7 @@
 </script>
 <script>
 // ============ PJAX-lite admin ============
-// Intercepta clicks na sidebar e troca só o <main> via fetch — sem refresh.
+// Intercepta clicks na sidebar e troca só o <main> via fetch - sem refresh.
 // Mantém scroll por path no sessionStorage, restaura ao revisitar.
 (function() {
     const main = document.querySelector('.admin-main');
@@ -206,7 +206,7 @@
     function setActive(href) {
         nav.querySelectorAll('a').forEach(a => {
             const h = a.getAttribute('href') || '';
-            // Mesma regra do PHP: str_starts_with($current, h) — exato pra /admin
+            // Mesma regra do PHP: str_starts_with($current, h) - exato pra /admin
             const active = (h === '/admin') ? (href === '/admin') : href.startsWith(h);
             a.classList.toggle('active', active);
         });

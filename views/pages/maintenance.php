@@ -11,7 +11,7 @@ $discord = ($config['settings']['social_discord'] ?? '') ?: ($config['settings']
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Em manutenção — <?= e($siteName) ?></title>
+    <title>Em manutenção - <?= e($siteName) ?></title>
     <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Inter:wght@400;600;700&family=VT323&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="<?= asset('css/theme.css') ?>">
     <?= theme_override_tag() ?>
@@ -34,7 +34,7 @@ $discord = ($config['settings']['social_discord'] ?? '') ?: ($config['settings']
         <?php if ($etaTs && $etaTs > time()): ?>
             <div class="hero-wipe" data-wipe-target="<?= $etaTs ?>" style="position: static; display: inline-flex; flex-direction: column; margin: 0 auto 2rem; align-items: center;">
                 <span class="wipe-label">Previsão de retorno em</span>
-                <span class="wipe-time" data-wipe-countdown>—</span>
+                <span class="wipe-time" data-wipe-countdown>-</span>
             </div>
         <?php endif; ?>
 

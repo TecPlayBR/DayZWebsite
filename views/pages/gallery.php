@@ -2,12 +2,12 @@
 <?php $title = 'Galeria'; ?>
 <?php \App\View::extend('layouts.main'); ?>
 <?php $gSite = $config['settings']['site_name'] ?? $config['site_name'] ?? 'Servidor'; ?>
-<?php \App\View::with('title', 'Galeria — ' . $gSite . ' DayZ BR'); ?>
+<?php \App\View::with('title', 'Galeria - ' . $gSite . ' DayZ BR'); ?>
 <?php \App\View::with('description', 'Bases, raids e momentos da comunidade do ' . $gSite . '. Galeria do servidor DayZ brasileiro.'); ?>
 <?php \App\View::section('content'); ?>
 
 <style>
-/* A navbar é fixa — dá folga no topo pra ela não cobrir o título/subtítulo. */
+/* A navbar é fixa - dá folga no topo pra ela não cobrir o título/subtítulo. */
 .page-section { padding-top: clamp(110px, 13vh, 150px); }
 </style>
 
@@ -21,7 +21,7 @@
         </div>
 
         <?php if (!empty($items)): ?>
-            <p class="gallery-intro"><?= e(__('gallery.intro', ['site' => $gSite], 'Screenshots capturados pelos jogadores do ' . $gSite . ' — servidor DayZ BR no mapa Chernarus. Bases construídas, raids noturnas, veículos, zonas quentes e a comunidade em ação.')) ?></p>
+            <p class="gallery-intro"><?= e(__('gallery.intro', ['site' => $gSite], 'Screenshots capturados pelos jogadores do ' . $gSite . ' - servidor DayZ BR no mapa Chernarus. Bases construídas, raids noturnas, veículos, zonas quentes e a comunidade em ação.')) ?></p>
         <?php endif; ?>
 
         <?php if (empty($items)): ?>
@@ -33,7 +33,7 @@
             <div class="gallery-grid">
                 <?php foreach ($items as $i => $it):
                     $cap = trim((string)($it['caption'] ?? ''));
-                    $alt = ($cap !== '' ? $cap : 'Screenshot') . ' — ' . $gSite . ' DayZ Chernarus';
+                    $alt = ($cap !== '' ? $cap : 'Screenshot') . ' - ' . $gSite . ' DayZ Chernarus';
                 ?>
                     <a href="<?= asset('img/gallery/' . $it['filename']) ?>" class="gallery-item"
                        data-caption="<?= e($cap) ?>" data-alt="<?= e($alt) ?>">

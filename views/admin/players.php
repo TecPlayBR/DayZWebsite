@@ -77,7 +77,7 @@
         <?php else: foreach ($players as $p): ?>
             <tr>
                 <td class="mono"><?= e($p['steam_id']) ?></td>
-                <td><?= e($p['display_name'] ?? '—') ?></td>
+                <td><?= e($p['display_name'] ?? '-') ?></td>
                 <td>
                     <form method="POST" action="/admin/players/<?= (int)$p['id'] ?>/coins" class="inline-form">
                         <?= \App\Csrf::field() ?>

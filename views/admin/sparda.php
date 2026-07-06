@@ -12,7 +12,7 @@
 <div class="admin-page-head">
     <div>
         <h1>🎮 Integração Sparda (nativa, sem Agent)</h1>
-        <p>Entrega de moedas <strong>in-game pelo próprio mod Sparda</strong> — sem precisar do Agent pago nem do Bot. O site vende a moeda (Mercado Pago) e credita o saldo; o mod lê/grava esse saldo direto aqui.</p>
+        <p>Entrega de moedas <strong>in-game pelo próprio mod Sparda</strong> - sem precisar do Agent pago nem do Bot. O site vende a moeda (Mercado Pago) e credita o saldo; o mod lê/grava esse saldo direto aqui.</p>
     </div>
 </div>
 
@@ -29,7 +29,7 @@
         <span style="color:var(--dim); font-size:0.85rem;">
             Última leitura/gravação do mod:
             <strong style="color:var(--bone);">
-                <?= $lastSync > 0 ? e(date('d/m/Y H:i:s', $lastSync)) : '— nunca —' ?>
+                <?= $lastSync > 0 ? e(date('d/m/Y H:i:s', $lastSync)) : '- nunca -' ?>
             </strong>
         </span>
     </div>
@@ -53,7 +53,7 @@
 <div class="stat-card" style="margin-bottom: 1rem;">
     <div class="label">Token de acesso (mesmo do Agent)</div>
     <p style="color:var(--dim); font-size:0.85rem; margin: 0.7rem 0;">
-        É o <code>agent_token</code> do seu <code>config.php</code>. Já vai embutido nas URLs abaixo — você não precisa copiá-lo separado.
+        É o <code>agent_token</code> do seu <code>config.php</code>. Já vai embutido nas URLs abaixo - você não precisa copiá-lo separado.
     </p>
     <div style="display:flex; gap:0.5rem; align-items:center;">
         <code style="background:var(--bg-0); padding:0.6rem 0.9rem; border-radius:6px; flex:1; font-family:var(--font-mono); font-size:0.95rem; user-select:all;">
@@ -66,7 +66,7 @@
 <div class="stat-card" style="margin-bottom: 1rem;">
     <div class="label">URLs pro mod (Api_Get / Api_Post)</div>
     <p style="color:var(--dim); font-size:0.85rem; margin: 0.7rem 0;">
-        Cola cada uma no campo correspondente da config do mod Sparda. <strong>Já vêm com o token e terminam em <code>&amp;steamid=</code></strong> — o mod cola o SteamID do jogador no final automaticamente. Não remova o final.
+        Cola cada uma no campo correspondente da config do mod Sparda. <strong>Já vêm com o token e terminam em <code>&amp;steamid=</code></strong> - o mod cola o SteamID do jogador no final automaticamente. Não remova o final.
     </p>
 
     <div style="margin-bottom:0.9rem;">

@@ -16,7 +16,7 @@ $rows[] = ['cfg' => $vip['battlepass'], 'badge' => 'BattlePass', 'en' => 'en_bp'
 <div class="admin-page-head">
     <div>
         <h1>🪙 Venda de VIP / Passe</h1>
-        <p>Preço <strong>em moedas</strong> de cada plano por duração. O jogador compra na aba <a href="/vip" target="_blank" style="color:var(--hazard);">/vip</a> e o agent aplica no Sparda — igual à concessão em <a href="/admin/entitlements" style="color:var(--hazard);">VIP/Passe</a>.</p>
+        <p>Preço <strong>em moedas</strong> de cada plano por duração. O jogador compra na aba <a href="/vip" target="_blank" style="color:var(--hazard);">/vip</a> e o agent aplica no Sparda - igual à concessão em <a href="/admin/entitlements" style="color:var(--hazard);">VIP/Passe</a>.</p>
     </div>
     <a href="/admin/entitlements" class="btn-mini outline">Conceder manual →</a>
 </div>

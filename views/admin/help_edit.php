@@ -37,7 +37,7 @@ $fld = 'width:100%;padding:.65rem;background:var(--bg-0);border:1px solid var(--
             </div>
         </div>
         <div style="margin-top:1rem;">
-            <label style="display:block;font-size:.8rem;color:var(--dim);margin-bottom:.3rem;">Resumo (1 linha — aparece no card e no Google)</label>
+            <label style="display:block;font-size:.8rem;color:var(--dim);margin-bottom:.3rem;">Resumo (1 linha - aparece no card e no Google)</label>
             <input type="text" name="summary" maxlength="300" value="<?= e($a['summary']) ?>" style="<?= $fld ?>">
         </div>
     </div>
@@ -51,7 +51,7 @@ $fld = 'width:100%;padding:.65rem;background:var(--bg-0);border:1px solid var(--
     <div class="stat-card" style="margin-bottom:1rem;">
         <div class="label">Mídia</div>
         <div style="margin-top:1rem;">
-            <label style="display:block;font-size:.8rem;color:var(--dim);margin-bottom:.3rem;">Vídeo do YouTube (link) <small>— embuto automático</small></label>
+            <label style="display:block;font-size:.8rem;color:var(--dim);margin-bottom:.3rem;">Vídeo do YouTube (link) <small>- embuto automático</small></label>
             <input type="url" name="video_url" value="<?= e($a['video_url']) ?>" placeholder="https://youtu.be/..." style="<?= $fld ?>">
         </div>
         <div style="margin-top:1rem;display:flex;align-items:center;gap:1rem;">

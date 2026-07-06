@@ -29,7 +29,7 @@
                 <input type="text" name="site_tagline" value="<?= e($settings['site_tagline'] ?? '') ?>" placeholder="O melhor servidor..." style="width:100%; padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:inherit;">
             </div>
             <div>
-                <label style="display:block; font-size:0.85rem; color:var(--bone); margin-bottom:0.3rem;">Tagline / subtitle (EN-US) <small style="color:var(--dim);">— mostrado quando visitante escolhe English</small></label>
+                <label style="display:block; font-size:0.85rem; color:var(--bone); margin-bottom:0.3rem;">Tagline / subtitle (EN-US) <small style="color:var(--dim);">- mostrado quando visitante escolhe English</small></label>
                 <input type="text" name="site_tagline_enus" value="<?= e($settings['site_tagline_enus'] ?? '') ?>" placeholder="The best..." style="width:100%; padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:inherit;">
             </div>
         </div>
@@ -70,7 +70,7 @@
         <div style="margin-top: 1rem;">
             <label style="display:block; font-size:0.85rem; color:var(--bone); margin-bottom:0.3rem;">
                 BattleMetrics Server ID
-                <small style="color: var(--dim); font-weight: 400;">— pra mostrar status online/players em tempo real no hero</small>
+                <small style="color: var(--dim); font-weight: 400;">- pra mostrar status online/players em tempo real no hero</small>
             </label>
             <input type="text" name="battlemetrics_id" value="<?= e($settings['battlemetrics_id'] ?? '') ?>" placeholder="ex: 12345678" pattern="[0-9]+" style="width:100%; padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:var(--font-mono);">
             <p style="margin-top: 0.4rem; font-size: 0.8rem; color: var(--dim);">
@@ -80,11 +80,11 @@
 
         <div style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.2rem;">
             <label style="display:block; font-size:0.9rem; color:var(--bone); margin-bottom:0.3rem;">
-                🎮 Integração CFTools <small style="color: var(--dim); font-weight: 400;">— habilita o <strong>ranking de gameplay</strong> (kills, zumbis, K/D, tempo online) <strong>e a entrega das caixas no jogo</strong></small>
+                🎮 Integração CFTools <small style="color: var(--dim); font-weight: 400;">- habilita o <strong>ranking de gameplay</strong> (kills, zumbis, K/D, tempo online) <strong>e a entrega das caixas no jogo</strong></small>
             </label>
             <?php if (!empty($cftools_via_config)): ?>
                 <p style="margin:0.2rem 0 0.8rem; font-size:0.8rem; color:var(--hazard);">
-                    ⚙️ O CFTools está configurado pelo <code>config.php</code> — esses campos do painel ficam ignorados enquanto o arquivo tiver as credenciais.
+                    ⚙️ O CFTools está configurado pelo <code>config.php</code> - esses campos do painel ficam ignorados enquanto o arquivo tiver as credenciais.
                 </p>
             <?php endif; ?>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.8rem;">
@@ -99,7 +99,7 @@
             </div>
             <div style="margin-top:0.8rem;">
                 <label style="display:block; font-size:0.82rem; color:var(--dim); margin-bottom:0.25rem;">
-                    Application Secret <?= !empty($cftools_secret_set) ? '<span style="color:var(--moss);">— já salvo (deixe vazio pra manter)</span>' : '' ?>
+                    Application Secret <?= !empty($cftools_secret_set) ? '<span style="color:var(--moss);">- já salvo (deixe vazio pra manter)</span>' : '' ?>
                 </label>
                 <input type="password" name="cftools_secret" value="" placeholder="<?= !empty($cftools_secret_set) ? '•••••••••• (salvo)' : 'cole o Secret aqui' ?>" autocomplete="new-password" style="width:100%; padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:var(--font-mono);">
             </div>
@@ -110,7 +110,7 @@
 
         <div style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.2rem;">
             <label style="display:block; font-size:0.9rem; color:var(--bone); margin-bottom:0.5rem;">
-                🛡️ Privacidade do ranking <small style="color: var(--dim); font-weight: 400;">— controla a lista de quem está online</small>
+                🛡️ Privacidade do ranking <small style="color: var(--dim); font-weight: 400;">- controla a lista de quem está online</small>
             </label>
             <label style="display:flex; align-items:flex-start; gap:0.5rem; font-size:0.9rem; color:var(--bone);">
                 <input type="checkbox" name="hide_online_players" value="1" <?= !empty($settings['hide_online_players']) ? 'checked' : '' ?> style="width:18px;height:18px;margin-top:0.15rem;">
@@ -120,7 +120,7 @@
 
         <div style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.2rem;">
             <label style="display:block; font-size:0.9rem; color:var(--bone); margin-bottom:0.5rem;">
-                🎮 Programa de afiliado / streamer <small style="color: var(--dim); font-weight: 400;">— paga cachê pros streamers por venda feita com o cupom deles (o cliente se atrela ao streamer)</small>
+                🎮 Programa de afiliado / streamer <small style="color: var(--dim); font-weight: 400;">- paga cachê pros streamers por venda feita com o cupom deles (o cliente se atrela ao streamer)</small>
             </label>
             <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.9rem; color:var(--bone); margin-bottom:0.6rem;">
                 <input type="checkbox" name="affiliate_enabled" value="1" <?= !empty($settings['affiliate_enabled']) ? 'checked' : '' ?> style="width:18px;height:18px;">
@@ -137,11 +137,11 @@
 
         <div style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.2rem;">
             <label style="display:block; font-size:0.9rem; color:var(--bone); margin-bottom:0.5rem;">
-                📥 Entrega das caixas <small style="color: var(--dim); font-weight: 400;">— como o item sorteado chega no jogo</small>
+                📥 Entrega das caixas <small style="color: var(--dim); font-weight: 400;">- como o item sorteado chega no jogo</small>
             </label>
             <label style="display:flex; align-items:flex-start; gap:0.5rem; font-size:0.9rem; color:var(--bone);">
                 <input type="checkbox" name="box_claim_enabled" value="1" <?= !empty($settings['box_claim_enabled']) ? 'checked' : '' ?> style="width:18px;height:18px;margin-top:0.15rem;">
-                <span>Resgate <strong>manual</strong> — segura o item até o jogador clicar <strong>"Receber"</strong> (no painel) ou resgatar in-game, num momento/lugar seguro. <strong>Desligado</strong> = entrega automática (cai sozinho quando ele está online).</span>
+                <span>Resgate <strong>manual</strong> - segura o item até o jogador clicar <strong>"Receber"</strong> (no painel) ou resgatar in-game, num momento/lugar seguro. <strong>Desligado</strong> = entrega automática (cai sozinho quando ele está online).</span>
             </label>
             <p style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--dim);">
                 💡 O resgate manual evita o item cair em hora ruim (inimigo perto, recém-logado). Requer CFTools configurado pra cair no jogo (igual a entrega automática).
@@ -170,7 +170,7 @@
         </div>
 
         <div style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.2rem;">
-            <label style="display:block; font-size:0.85rem; color:var(--bone); margin-bottom:0.3rem;">💳 Parcelamento no cartão — valor mínimo (R$)</label>
+            <label style="display:block; font-size:0.85rem; color:var(--bone); margin-bottom:0.3rem;">💳 Parcelamento no cartão - valor mínimo (R$)</label>
             <input type="number" name="card_installments_min" value="<?= e($settings['card_installments_min'] ?? '30') ?>" min="0" step="1" style="width:200px; padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:var(--font-mono);">
             <p style="margin-top: 0.4rem; font-size: 0.8rem; color: var(--dim); max-width:640px;">
                 Abaixo desse valor, o checkout trava o cartão em <strong>1x (à vista)</strong> e o campo de parcelas fica cinza. Acima, libera as parcelas que sua conta Mercado Pago oferece. <strong>0</strong> = sempre liberar parcelamento.
@@ -252,7 +252,7 @@
                 <label style="display:block; font-size:0.85rem; color:var(--bone); margin-bottom:0.3rem;">Texto do banner promo</label>
                 <input type="text" name="promo_label"
                        value="<?= e($settings['promo_label'] ?? '') ?>"
-                       placeholder="ex: 🔥 Black Friday — todos os pacotes com 20% OFF"
+                       placeholder="ex: 🔥 Black Friday - todos os pacotes com 20% OFF"
                        style="width:100%; padding:0.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone);">
             </div>
         </div>
@@ -261,7 +261,7 @@
     <div class="stat-card" style="margin-bottom: 1rem;">
         <div class="label">Mural de Vendas Ao Vivo</div>
         <p style="font-size: 0.85rem; color: var(--dim); margin-top: 0.3rem;">
-            Strip na home mostrando últimas compras aprovadas. Funciona como <strong>prova social</strong> — quem entra
+            Strip na home mostrando últimas compras aprovadas. Funciona como <strong>prova social</strong> - quem entra
             vê o servidor "vivo". Você decide se aparece e quão privado é.
         </p>
 
@@ -275,7 +275,7 @@
         <div style="margin-top: 0.8rem; padding-left: 1.7rem;">
             <label style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--bone); cursor: pointer; font-size: 0.9rem;">
                 <input type="checkbox" name="live_purchases_anonymize" value="1" <?= ((int)($settings['live_purchases_anonymize'] ?? 1)) ? 'checked' : '' ?> style="width: 18px; height: 18px;">
-                Anonimizar nome dos jogadores (recomendado — LGPD)
+                Anonimizar nome dos jogadores (recomendado - LGPD)
             </label>
             <p style="font-size: 0.78rem; color: var(--dim); margin: 0.3rem 0 0;">
                 Liga: <code>B*****m comprou 100 moedas</code>. Desliga: <code>BryanPaim comprou 100 moedas</code>.
@@ -288,13 +288,13 @@
                 Mostrar o valor em R$ junto da compra
             </label>
             <p style="font-size: 0.78rem; color: var(--dim); margin: 0.3rem 0 0;">
-                Por padrão desligado — mostra só "X moedas". Se ligar, vai aparecer "X moedas — R$ Y,YY".
+                Por padrão desligado - mostra só "X moedas". Se ligar, vai aparecer "X moedas - R$ Y,YY".
             </p>
         </div>
     </div>
 
     <div class="stat-card" style="margin-bottom: 1.5rem;">
-        <div class="label">Webhook Discord — Notificação de Vendas</div>
+        <div class="label">Webhook Discord - Notificação de Vendas</div>
         <div style="margin-top: 1rem;">
             <label style="display:block; font-size:0.85rem; color:var(--bone); margin-bottom:0.3rem;">URL do Webhook</label>
             <input type="url" name="discord_sales_webhook"
@@ -322,7 +322,7 @@
     <form method="POST" action="/admin/packages/toggle-bonus" style="display: inline;">
         <?= \App\Csrf::field() ?>
         <button type="submit" class="<?= $bonus ? 'btn-mini' : 'btn-mini outline' ?>">
-            <?= $bonus ? '✓ BÔNUS LIGADO — desligar' : '✗ BÔNUS DESLIGADO — ligar' ?>
+            <?= $bonus ? '✓ BÔNUS LIGADO - desligar' : '✗ BÔNUS DESLIGADO - ligar' ?>
         </button>
     </form>
 </div>
@@ -330,7 +330,7 @@
 <div style="margin-top: 2.5rem;">
     <h2 style="font-family: var(--font-display); color: var(--bone); font-size: 1.1rem; margin-bottom: 1rem;">🧹 Cache</h2>
     <p style="color: var(--dim); margin-bottom: 1rem; max-width: 640px;">
-        Trocou as credenciais do <strong>CFTools</strong> ou o servidor e a integração "não pegou"? Limpe o cache aqui (o site reconstrói no próximo acesso). <em>Normalmente isso já acontece sozinho ao salvar as configurações</em> — este botão é um reforço.
+        Trocou as credenciais do <strong>CFTools</strong> ou o servidor e a integração "não pegou"? Limpe o cache aqui (o site reconstrói no próximo acesso). <em>Normalmente isso já acontece sozinho ao salvar as configurações</em> - este botão é um reforço.
     </p>
     <?php if (isset($_GET['cache'])): ?>
         <p style="color: var(--moss); margin-bottom: 1rem; font-size: 0.9rem;">✓ Cache limpo (<?= (int)$_GET['cache'] ?> arquivo(s)). A integração reconstrói no próximo acesso.</p>

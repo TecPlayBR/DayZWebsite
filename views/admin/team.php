@@ -18,10 +18,10 @@ $errMsg = match($err) {
     'password'    => 'Senha precisa de pelo menos 8 caracteres',
     'duplicate'   => 'Já existe usuário com esse nome',
     'self'        => 'Você não pode deletar sua própria conta. Peça pra outro admin fazer.',
-    'last'        => 'Não dá pra deletar o último admin — você ficaria sem acesso.',
+    'last'        => 'Não dá pra deletar o último admin - você ficaria sem acesso.',
     'invalid_role'=> 'Papel inválido.',
     'self_demote' => 'Você não pode rebaixar seu próprio papel. Peça pra outro super admin fazer.',
-    'last_super'  => 'Não dá pra rebaixar — você é o último super admin.',
+    'last_super'  => 'Não dá pra rebaixar - você é o último super admin.',
     default => null,
 };
 $okMsg = match($ok) {
@@ -104,7 +104,7 @@ $roles = \App\Auth::availableRoles();
                     <span class="badge <?= $userRole === 'super_admin' ? 'danger' : 'info' ?>"
                           title="<?= e($roleLabel) ?>"><?= e($userRole) ?></span>
                 </td>
-                <td class="dim"><?= e($a['email'] ?? '—') ?></td>
+                <td class="dim"><?= e($a['email'] ?? '-') ?></td>
                 <td class="dim"><?= e($a['created_at']) ?></td>
                 <td class="dim"><?= e($a['last_login_at'] ?? 'nunca') ?></td>
                 <td style="white-space: nowrap;">
@@ -168,7 +168,7 @@ $roles = \App\Auth::availableRoles();
         <tbody>
             <tr>
                 <td><strong>super_admin</strong></td>
-                <td class="dim">Tudo — gerencia equipe, settings, integrações e dados sensíveis</td>
+                <td class="dim">Tudo - gerencia equipe, settings, integrações e dados sensíveis</td>
             </tr>
             <tr>
                 <td><strong>finance</strong></td>
@@ -176,7 +176,7 @@ $roles = \App\Auth::availableRoles();
             </tr>
             <tr>
                 <td><strong>support</strong></td>
-                <td class="dim">Só Jogadores e Avaliações — atende player, ajusta moedas. <strong style="color: var(--text-danger);">Não vê valor financeiro</strong></td>
+                <td class="dim">Só Jogadores e Avaliações - atende player, ajusta moedas. <strong style="color: var(--text-danger);">Não vê valor financeiro</strong></td>
             </tr>
             <tr>
                 <td><strong>editor</strong></td>

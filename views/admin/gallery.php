@@ -42,10 +42,10 @@ $nextSort = ($existingOrders ? max($existingOrders) : 0) + 1;
         <label>Legenda (opcional)
             <input type="text" name="caption" maxlength="200" placeholder="Ex: Nascer do sol em Chernarus">
         </label>
-        <label>Ordem (menor = primeiro) <small style="color:var(--dim);">— já vem na próxima livre</small>
+        <label>Ordem (menor = primeiro) <small style="color:var(--dim);">- já vem na próxima livre</small>
             <input type="number" id="g-sort" name="sort_order" value="<?= (int)$nextSort ?>" data-orders="<?= e(implode(',', $existingOrders)) ?>">
         </label>
-        <p id="g-sort-warn" style="display:none; color:var(--hazard); font-size:0.78rem; margin:0.2rem 0 0;">⚠ Já existe uma imagem com essa ordem — elas vão empatar (ordena por id como desempate). Use um número livre se quiser posição garantida.</p>
+        <p id="g-sort-warn" style="display:none; color:var(--hazard); font-size:0.78rem; margin:0.2rem 0 0;">⚠ Já existe uma imagem com essa ordem - elas vão empatar (ordena por id como desempate). Use um número livre se quiser posição garantida.</p>
         <button type="submit" class="btn-mini">↑ Enviar</button>
     </form>
 </div>

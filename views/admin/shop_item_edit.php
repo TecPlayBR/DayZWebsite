@@ -27,7 +27,7 @@
     <div style="background:var(--danger-overlay);border-left:3px solid var(--rust-2);padding:0.7rem 1rem;margin-bottom:1.5rem;color:var(--text-danger);font-size:0.9rem;">
         <?php $errMsgs = [
             'invalid'      => 'Verifique: SKU e nome obrigatórios, custo ≥ 0.',
-            'sku_taken'    => 'Esse SKU já existe — escolha outro.',
+            'sku_taken'    => 'Esse SKU já existe - escolha outro.',
             'bad_deliver'  => 'Entrega (deliver) inválida: precisa ser uma lista JSON com pelo menos um objeto contendo "classname".',
         ]; echo e($errMsgs[$_GET['err']] ?? 'Erro ao salvar.'); ?>
     </div>
@@ -73,9 +73,9 @@
     <div class="stat-card" style="margin-bottom: 1rem;">
         <div class="label">Entrega in-game (o que o servidor dropa)</div>
         <p style="margin-top:0.5rem; font-size:0.82rem; color:var(--dim);">
-            Monte os itens abaixo — <strong>o JSON é gerado sozinho</strong>, você não escreve código.
+            Monte os itens abaixo - <strong>o JSON é gerado sozinho</strong>, você não escreve código.
             Um kit pode entregar vários itens. <strong>Anexos</strong> = peças da arma (mira, pente…).
-            <strong>Cargo</strong> = itens DENTRO (só roupa/mochila — <em>arma com cargo dá erro no jogo</em>).
+            <strong>Cargo</strong> = itens DENTRO (só roupa/mochila - <em>arma com cargo dá erro no jogo</em>).
         </p>
         <div id="deliver-rows" style="margin-top:0.8rem; display:flex; flex-direction:column; gap:0.6rem;"></div>
         <button type="button" id="add-deliver" class="btn-mini outline" style="margin-top:0.7rem;">+ Adicionar item</button>

@@ -10,17 +10,17 @@ $siteName = $config['settings']['site_name'] ?? $config['site_name'] ?? 'DayZ';
 \App\View::with(
     'title',
     ($config['settings']['seo_shop_title'] ?? '')
-        ?: "Comprar Moedas DayZ — Loja {$siteName} | PIX, Cartão & Boleto"
+        ?: "Comprar Moedas DayZ - Loja {$siteName} | PIX, Cartão & Boleto"
 );
 \App\View::with(
     'description',
     ($config['settings']['seo_shop_description'] ?? '')
         ?: "Compre moedas DayZ pra usar no servidor {$siteName}. Pagamento via PIX, cartão ou boleto."
 );
-// Hero usa background3 — sinaliza pro layout preloadar o certo (LCP fix)
+// Hero usa background3 - sinaliza pro layout preloadar o certo (LCP fix)
 \App\View::with('hero_image', 'img/background3.png');
 
-// SEO: Schema.org ItemList de Product/Offer pros pacotes — rich snippet de preço no Google.
+// SEO: Schema.org ItemList de Product/Offer pros pacotes - rich snippet de preço no Google.
 $shopUrl = rtrim($config['site_url'] ?? (($_SERVER['REQUEST_SCHEME'] ?? 'https') . '://' . ($_SERVER['HTTP_HOST'] ?? '')), '/');
 $bonusOn = \App\Settings::getInt('bonus_enabled');
 $prodItems = [];
@@ -31,7 +31,7 @@ foreach ($packages as $i => $pkg) {
         'position' => $i + 1,
         'item'     => [
             '@type'       => 'Product',
-            'name'        => $pkg['name'] . ' — ' . $coinsTotal . ' moedas',
+            'name'        => $pkg['name'] . ' - ' . $coinsTotal . ' moedas',
             'description' => 'Pacote de ' . $coinsTotal . ' moedas para o servidor ' . $siteName . ' (DayZ). Entrega automática após o pagamento.',
             'category'    => 'Virtual Game Currency',
             'brand'       => ['@type' => 'Brand', 'name' => $siteName],
@@ -49,7 +49,7 @@ if ($prodItems) {
     \App\View::with('jsonld', [
         '@context'        => 'https://schema.org',
         '@type'           => 'ItemList',
-        'name'            => 'Pacotes de moedas — ' . $siteName,
+        'name'            => 'Pacotes de moedas - ' . $siteName,
         'itemListElement' => $prodItems,
     ]);
 }
@@ -129,7 +129,7 @@ if ($prodItems) {
 
                 <div class="pack-icon">
                     <?php if (!empty($pkg['image'])): ?>
-                        <img class="pack-img" src="<?= preg_match('#^https?://#i', $pkg['image']) ? e($pkg['image']) : asset('img/packages/' . $pkg['image']) ?>" alt="<?= e($pkg['name']) ?> — pacote de moedas DayZ" width="200" height="200" loading="lazy" decoding="async">
+                        <img class="pack-img" src="<?= preg_match('#^https?://#i', $pkg['image']) ? e($pkg['image']) : asset('img/packages/' . $pkg['image']) ?>" alt="<?= e($pkg['name']) ?> - pacote de moedas DayZ" width="200" height="200" loading="lazy" decoding="async">
                     <?php else: ?>
                         <?= e($pkg['icon'] ?? '🪙') ?>
                     <?php endif; ?>
@@ -191,7 +191,7 @@ if ($prodItems) {
                     <?php else: ?>
                         <input type="text" name="steam_id" placeholder="SteamID64 (17 dígitos) *" pattern="7656119[0-9]{10}" required aria-required="true" maxlength="17" class="pack-input">
                     <?php endif; ?>
-                    <button type="submit" class="btn pack-buy" aria-label="<?= e(__('shop.buy')) ?> <?= e($pkg['name']) ?> — <?= $coinsTotal ?> moedas por R$ <?= number_format($finalPrice, 2, ',', '.') ?>"><?= e(__('shop.buy')) ?></button>
+                    <button type="submit" class="btn pack-buy" aria-label="<?= e(__('shop.buy')) ?> <?= e($pkg['name']) ?> - <?= $coinsTotal ?> moedas por R$ <?= number_format($finalPrice, 2, ',', '.') ?>"><?= e(__('shop.buy')) ?></button>
                 </form>
             </div>
             <?php endforeach; ?>
@@ -199,7 +199,7 @@ if ($prodItems) {
 
 
         <p class="shop-note">
-            🔒 <strong>Mercado Pago</strong><?= ($config['delivery_active'] ?? false) ? __('shop.auto_delivery') : __('shop.delivery_manual', [], locale() === 'en-us' ? ' — in-game coin delivery is handled by the server (Agent/Bot) after confirmation.' : ' — a entrega das moedas no jogo é feita pelo servidor (Agent/Bot) após a confirmação.') ?><br>
+            🔒 <strong>Mercado Pago</strong><?= ($config['delivery_active'] ?? false) ? __('shop.auto_delivery') : __('shop.delivery_manual', [], locale() === 'en-us' ? ' - in-game coin delivery is handled by the server (Agent/Bot) after confirmation.' : ' - a entrega das moedas no jogo é feita pelo servidor (Agent/Bot) após a confirmação.') ?><br>
             <?= __('shop.steamid_warning') ?>
         </p>
 
@@ -210,7 +210,7 @@ if ($prodItems) {
 </section>
 
 <style>
-/* Cards de pacotes — escopo local */
+/* Cards de pacotes - escopo local */
 .packs-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -233,7 +233,7 @@ if ($prodItems) {
     flex-direction: column;
 }
 .packs-grid {
-    /* align-items: stretch é o default, mas garantido aqui — cards ficam
+    /* align-items: stretch é o default, mas garantido aqui - cards ficam
        todos com mesma altura via height: 100% no grid item */
     align-items: stretch;
 }
@@ -456,7 +456,7 @@ if ($prodItems) {
 }
 </style>
 <script>
-// Server selector (multi-server) — sincroniza hidden input em todos os forms
+// Server selector (multi-server) - sincroniza hidden input em todos os forms
 (function() {
     const pills = document.querySelectorAll('.server-pill');
     if (!pills.length) return;
@@ -519,7 +519,7 @@ document.querySelectorAll('[data-wish]').forEach(btn => {
         });
     });
 
-    // Validação inline do SteamID — feedback imediato (SteamID errado = entrega no player errado).
+    // Validação inline do SteamID - feedback imediato (SteamID errado = entrega no player errado).
     document.querySelectorAll('.pack-input[name="steam_id"]').forEach(inp => {
         inp.addEventListener('input', () => {
             const v = inp.value.trim();

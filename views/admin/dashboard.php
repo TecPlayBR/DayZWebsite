@@ -10,7 +10,7 @@
         <p>Visão geral do servidor e das compras.</p>
     </div>
     <div class="refresh-control">
-        <span id="refresh-status" class="refresh-status">—</span>
+        <span id="refresh-status" class="refresh-status">-</span>
         <button id="refresh-toggle" type="button" class="btn-mini outline" title="Pausa/retoma auto-refresh (30s)">⏸ Pausar</button>
     </div>
 </div>
@@ -19,7 +19,7 @@
     <div style="background:var(--danger-overlay,rgba(231,57,70,.12)); border-left:4px solid var(--hazard,#facc15); padding:1rem 1.2rem; margin-bottom:1.5rem; border-radius:3px;">
         <strong style="color:var(--hazard,#facc15);">⚠ Banco de dados desatualizado</strong>
         <p style="color:var(--bone); margin:.5rem 0 0; font-size:.9rem; line-height:1.6;">
-            Há <strong><?= count($pending_migrations) ?> atualização(ões) de banco pendente(s)</strong> — você subiu os arquivos novos mas ainda não rodou a migration.
+            Há <strong><?= count($pending_migrations) ?> atualização(ões) de banco pendente(s)</strong> - você subiu os arquivos novos mas ainda não rodou a migration.
             Rode <strong>uma vez</strong>: <code style="background:var(--bg-2,#1c1230); padding:.1rem .4rem; border-radius:3px;">php cli/migrate.php</code>
             (sem SSH? Painel da hospedagem → <strong>Cron Jobs</strong> → cron "uma vez" com esse comando, rode e remova).
             Enquanto não rodar, recursos novos podem não funcionar.
@@ -34,7 +34,7 @@
         <p style="color:var(--bone); margin:.5rem 0 0; font-size:.9rem; line-height:1.6;">
             As compras estão sendo <strong>registradas e creditadas no site</strong>, mas <strong>não há quem entregue as moedas/itens dentro do jogo</strong> automaticamente.
             Pra entrega automática você precisa do <strong>Tecplay Agent</strong> (roda no servidor) ou do <strong>Bot Discord</strong> integrado.
-            Enquanto não ativar um dos dois, o site funciona como loja/carteira, mas a liberação no jogo é manual — e o site não promete "liberação automática" pros jogadores.
+            Enquanto não ativar um dos dois, o site funciona como loja/carteira, mas a liberação no jogo é manual - e o site não promete "liberação automática" pros jogadores.
             <br><a href="https://tecplay.inf.br/produtos/detalhe/?slug=tecplay-agent" target="_blank" rel="noopener" style="color:var(--hazard);">Ver o Tecplay Agent →</a>
         </p>
     </div>
@@ -90,7 +90,7 @@
 </div>
 
 <style>
-/* Chart escondido em mobile — dashboard mobile vai direto pra "Últimas compras". */
+/* Chart escondido em mobile - dashboard mobile vai direto pra "Últimas compras". */
 @media (max-width: 760px) {
     .chart-section { display: none; }
 }

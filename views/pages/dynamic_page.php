@@ -7,10 +7,10 @@ $body   = ($lang === 'en-us' && !empty($page['body_enus'])) ? $page['body_enus']
 // SEO: <title> próprio (nome + servidor) e description tirada do corpo. O $title
 // local continua servindo o H1; o View::with é o que vai pro <title> do layout.
 $_pgSite = $config['settings']['site_name'] ?? $config['site_name'] ?? 'Servidor';
-\App\View::with('title', $title . ' — ' . $_pgSite);
+\App\View::with('title', $title . ' - ' . $_pgSite);
 \App\View::with('description', mb_substr(trim(preg_replace('/\s+/', ' ', strip_tags($body))), 0, 155));
 
-// SEO: FAQPage schema (rich snippet de accordion no Google) — só pra página de FAQ,
+// SEO: FAQPage schema (rich snippet de accordion no Google) - só pra página de FAQ,
 // que usa <details><summary class="faq-q">Pergunta</summary>Resposta</details>.
 if (($page['slug'] ?? '') === 'faq'
     && preg_match_all('/<details[^>]*>\s*<summary[^>]*>(.*?)<\/summary>(.*?)<\/details>/is', $body, $faqM, PREG_SET_ORDER)) {
@@ -43,7 +43,7 @@ if (($page['slug'] ?? '') === 'faq'
 <section class="section">
     <div class="container" style="max-width: 800px;">
         <article class="page-body">
-            <?= $body /* admin escreve HTML — confia */ ?>
+            <?= $body /* admin escreve HTML - confia */ ?>
         </article>
     </div>
 </section>

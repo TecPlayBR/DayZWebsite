@@ -11,10 +11,10 @@ $online         = $online ?? [];
 // SEO: título/descrição únicos por aba (investimento vs gameplay).
 $rkSite = $config['settings']['site_name'] ?? $config['site_name'] ?? 'Servidor';
 if ($mode === 'gameplay') {
-    \App\View::with('title', 'Ranking ' . ($gameplay_stats[$stat] ?? 'Gameplay') . ' — ' . $rkSite . ' DayZ BR');
-    \App\View::with('description', 'Os melhores do ' . $rkSite . ' em ' . ($gameplay_stats[$stat] ?? 'combate') . ' — ranking ao vivo, direto do servidor DayZ brasileiro.');
+    \App\View::with('title', 'Ranking ' . ($gameplay_stats[$stat] ?? 'Gameplay') . ' - ' . $rkSite . ' DayZ BR');
+    \App\View::with('description', 'Os melhores do ' . $rkSite . ' em ' . ($gameplay_stats[$stat] ?? 'combate') . ' - ranking ao vivo, direto do servidor DayZ brasileiro.');
 } else {
-    \App\View::with('title', 'Ranking de Investimento — ' . $rkSite . ' DayZ BR');
+    \App\View::with('title', 'Ranking de Investimento - ' . $rkSite . ' DayZ BR');
     \App\View::with('description', 'Top dos jogadores que mais apoiam o ' . $rkSite . '. Ranking do servidor DayZ BR, atualizado direto da loja.');
 }
 ?>
@@ -27,7 +27,7 @@ if ($mode === 'gameplay') {
     <div class="container hero-content">
         <span class="hero-kicker">// HALL OF FAME</span>
         <h1 class="hero-title">Os <span class="accent">Sobreviventes</span><br>Mais Resistentes.</h1>
-        <p class="hero-subtitle"><?= $mode === 'gameplay' ? 'Os melhores do servidor em combate — direto do jogo.' : 'Ranking dos jogadores que mais investiram no servidor. Cada centavo trocado por mais chance de continuar inteiro.' ?></p>
+        <p class="hero-subtitle"><?= $mode === 'gameplay' ? 'Os melhores do servidor em combate - direto do jogo.' : 'Ranking dos jogadores que mais investiram no servidor. Cada centavo trocado por mais chance de continuar inteiro.' ?></p>
     </div>
 </section>
 
@@ -35,7 +35,7 @@ if ($mode === 'gameplay') {
     <div class="container">
 
         <p class="rank-intro">
-            Hall of Fame do <strong><?= e($rkSite) ?></strong> — ranking ao vivo dos sobreviventes que mais
+            Hall of Fame do <strong><?= e($rkSite) ?></strong> - ranking ao vivo dos sobreviventes que mais
             investiram, mais kills acumularam e mais tempo passaram em Chernarus. Os dados atualizam
             automaticamente após cada sessão de jogo. Quer aparecer aqui? Conecte ao servidor, jogue e
             <a href="/shop">compre moedas</a> pra equipar.
@@ -60,7 +60,7 @@ if ($mode === 'gameplay') {
             </div>
         <?php endif; ?>
 
-        <!-- Abas (só as visíveis — admin escolhe em /admin/rewards). A aba Clãs é
+        <!-- Abas (só as visíveis - admin escolhe em /admin/rewards). A aba Clãs é
              SEMPRE visível pra descoberta; a página /ranking/clans é que gateia os
              eventos (só quem tem clã vê o placar). -->
         <?php $invest_visible = $invest_visible ?? true; ?>
@@ -78,7 +78,7 @@ if ($mode === 'gameplay') {
         <?php if ($mode === 'gameplay'): ?>
             <?php if (empty($lb)): ?>
                 <div style="text-align:center; padding:4rem 1rem; color:var(--dim);">
-                    <p>Ainda sem dados de <strong><?= e($gameplay_stats[$stat] ?? $stat) ?></strong> — o servidor pode não ter estatísticas registradas ainda.</p>
+                    <p>Ainda sem dados de <strong><?= e($gameplay_stats[$stat] ?? $stat) ?></strong> - o servidor pode não ter estatísticas registradas ainda.</p>
                 </div>
             <?php else: ?>
                 <?php
@@ -104,7 +104,7 @@ if ($mode === 'gameplay') {
                                 <td><strong><?= clan_tag_cf($p['cftools_id'] ?? '') ?><?= e($name) ?></strong></td>
                                 <td class="rank-spent"><?= e($val) ?></td>
                                 <?php if ($rwOn): ?>
-                                    <td><?= $prize > 0 ? '<span class="rank-prize">🪙 ' . number_format($prize, 0, ',', '.') . '</span>' : '<span class="dim">—</span>' ?></td>
+                                    <td><?= $prize > 0 ? '<span class="rank-prize">🪙 ' . number_format($prize, 0, ',', '.') . '</span>' : '<span class="dim">-</span>' ?></td>
                                 <?php endif; ?>
                             </tr>
                         <?php endforeach; ?>

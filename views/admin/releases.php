@@ -28,7 +28,7 @@
             <tr>
                 <td class="mono"><?= e($date) ?></td>
                 <td><?= e(\App\Releases::catEmoji($r['category'])) ?> <?= e(\App\Releases::catLabel($r['category'])) ?></td>
-                <td class="mono"><?= e($r['version'] ?: '—') ?></td>
+                <td class="mono"><?= e($r['version'] ?: '-') ?></td>
                 <td><?= e($r['title']) ?></td>
                 <td><?= (int)$r['published'] ? '<span style="color:var(--moss);">✓ Publicada</span>' : '<span style="color:var(--dim);">Rascunho</span>' ?></td>
                 <td style="text-align:right;white-space:nowrap;">

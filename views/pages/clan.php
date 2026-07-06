@@ -1,7 +1,7 @@
 <?php /** @var array $config, $clan, $members; @var bool $is_owner; @var ?array $my_clan, $my_request, $steam_user; @var array $pending, $sent_invites */ ?>
 <?php $sent_invites = $sent_invites ?? []; $my_invite = $my_invite ?? false; ?>
-<?php \App\View::with('title', '[' . $clan['tag'] . '] ' . $clan['name'] . ' — Clã'); ?>
-<?php \App\View::with('description', '[' . $clan['tag'] . '] ' . $clan['name'] . ' — clã do ' . ($config['settings']['site_name'] ?? $config['site_name'] ?? 'servidor') . ' com ' . (int)$clan['member_count'] . ' membro(s) no DayZ. ' . mb_strimwidth(trim(strip_tags($clan['description'] ?? '')), 0, 110, '…')); ?>
+<?php \App\View::with('title', '[' . $clan['tag'] . '] ' . $clan['name'] . ' - Clã'); ?>
+<?php \App\View::with('description', '[' . $clan['tag'] . '] ' . $clan['name'] . ' - clã do ' . ($config['settings']['site_name'] ?? $config['site_name'] ?? 'servidor') . ' com ' . (int)$clan['member_count'] . ' membro(s) no DayZ. ' . mb_strimwidth(trim(strip_tags($clan['description'] ?? '')), 0, 110, '…')); ?>
 <?php \App\View::extend('layouts.main'); ?>
 <?php \App\View::with('hero_image', 'img/background2.png'); ?>
 <?php \App\View::section('content'); ?>
@@ -15,7 +15,7 @@ $okMsg = match($_GET['ok'] ?? '') {
     'requested'=>'Pedido enviado! O dono do clã vai avaliar.', 'invited'=>'Convite enviado.',
     'joined'=>'🎉 Você entrou no clã! Bem-vindo.',
     'accepted'=>'Membro aceito.', 'rejected'=>'Pedido recusado.', 'kicked'=>'Membro removido.', 'saved'=>'Clã atualizado.',
-    'transferred'=>'Pronto! Você passou o comando do clã pra outro membro — agora você é membro comum.',
+    'transferred'=>'Pronto! Você passou o comando do clã pra outro membro - agora você é membro comum.',
     'invite_cancelled'=>'Convite revogado.',
     default=>'',
 };
@@ -80,7 +80,7 @@ $errMsg = ($_GET['err'] ?? '') !== '' ? \App\Clan::errorMessage($_GET['err']) : 
                     </div>
                 </div>
             <?php elseif ($requestedThis): ?>
-                <p style="color:var(--hazard);">⏳ Seu pedido pra entrar está pendente — aguarde o dono aceitar.</p>
+                <p style="color:var(--hazard);">⏳ Seu pedido pra entrar está pendente - aguarde o dono aceitar.</p>
             <?php elseif (!$is_owner): ?>
                 <?php if ($full): ?>
                     <p style="color:var(--dim);">Esse clã está lotado (<?= (int)$clan['member_cap'] ?> membros).</p>
@@ -95,7 +95,7 @@ $errMsg = ($_GET['err'] ?? '') !== '' ? \App\Clan::errorMessage($_GET['err']) : 
         <!-- MEMBROS -->
         <?php $canSeeActivity = $is_owner || $inThisClan; // atividade só pra quem é do clã (candidato não vê) ?>
         <h2 class="clan-h2">Membros (<?= count($members) ?>)</h2>
-        <?php if ($canSeeActivity): ?><p style="color:var(--dim);font-size:.78rem;margin:-.5rem 0 1rem;">🕓 Última atividade visível só pros membros do clã — pra você acompanhar quem anda ativo.</p><?php endif; ?>
+        <?php if ($canSeeActivity): ?><p style="color:var(--dim);font-size:.78rem;margin:-.5rem 0 1rem;">🕓 Última atividade visível só pros membros do clã - pra você acompanhar quem anda ativo.</p><?php endif; ?>
         <div class="clan-members">
             <?php foreach ($members as $m): $nm = $m['display_name'] ?: 'Sobrevivente'; ?>
                 <div class="clan-member">
@@ -127,7 +127,7 @@ $errMsg = ($_GET['err'] ?? '') !== '' ? \App\Clan::errorMessage($_GET['err']) : 
                     'leave' => ['➖', e($an) . ' saiu do clã'],
                     'kick'  => ['✕', e($an) . ' foi removido' . ($who ? ' por ' . e($who) : '')],
                     'lead'  => ['👑', e($an) . ' virou líder' . ($who ? ' (por ' . e($who) . ')' : '')],
-                    default => ['•', e($an) . ' — ' . e($a['action'])],
+                    default => ['•', e($an) . ' - ' . e($a['action'])],
                 }; ?>
                 <div class="clan-member">
                     <div style="min-width:0;display:flex;flex-direction:column;">

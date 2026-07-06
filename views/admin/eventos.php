@@ -35,8 +35,8 @@ $dt  = fn($k) => !empty($e[$k]) ? e(date('Y-m-d\TH:i', strtotime((string)$e[$k])
         <label style="grid-column:1/3;">Descrição<textarea name="description" rows="3" style="width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);"><?= $val('description') ?></textarea></label>
         <label>Começa em<input type="datetime-local" name="starts_at" value="<?= $dt('starts_at') ?>" style="width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);"></label>
         <label>Termina em<input type="datetime-local" name="ends_at" value="<?= $dt('ends_at') ?>" style="width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);"></label>
-        <label>Vencedor — SteamID (sorteio)<input type="text" name="winner_steam_id" value="<?= $val('winner_steam_id') ?>" placeholder="7656119..." style="width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);"></label>
-        <label>Vencedor — Nome<input type="text" name="winner_name" value="<?= $val('winner_name') ?>" style="width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);"></label>
+        <label>Vencedor - SteamID (sorteio)<input type="text" name="winner_steam_id" value="<?= $val('winner_steam_id') ?>" placeholder="7656119..." style="width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);"></label>
+        <label>Vencedor - Nome<input type="text" name="winner_name" value="<?= $val('winner_name') ?>" style="width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);"></label>
         <label style="display:flex;align-items:center;gap:0.4rem;"><input type="checkbox" name="enabled" value="1" <?= !isset($e['enabled']) || $e['enabled'] ? 'checked' : '' ?>> Visível</label>
         <label>Ordem<input type="number" name="sort_order" value="<?= (int)($e['sort_order'] ?? 0) ?>" style="width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);"></label>
         <div style="grid-column:1/3;display:flex;gap:0.6rem;">
@@ -57,7 +57,7 @@ $dt  = fn($k) => !empty($e[$k]) ? e(date('Y-m-d\TH:i', strtotime((string)$e[$k])
             <tr<?= (int)$ev['enabled']?'':' style="opacity:0.5;"' ?>>
                 <td><strong style="color:var(--bone);"><?= e($ev['title']) ?></strong> <code style="color:var(--dim);font-size:0.72rem;">/<?= e($ev['slug']) ?></code></td>
                 <td><?= $ev['type']==='raffle'?'🎟 Sorteio':'🗓 Evento' ?></td>
-                <td class="dim"><?= !empty($ev['starts_at'])?e(date('d/m H:i',strtotime((string)$ev['starts_at']))):'—' ?><?= !empty($ev['ends_at'])?' → '.e(date('d/m H:i',strtotime((string)$ev['ends_at']))):'' ?></td>
+                <td class="dim"><?= !empty($ev['starts_at'])?e(date('d/m H:i',strtotime((string)$ev['starts_at']))):'-' ?><?= !empty($ev['ends_at'])?' → '.e(date('d/m H:i',strtotime((string)$ev['ends_at']))):'' ?></td>
                 <td><?= $stTxt ?></td>
                 <td style="text-align:right;white-space:nowrap;">
                     <a href="/admin/eventos/<?= (int)$ev['id'] ?>" class="btn btn-sm">Editar</a>

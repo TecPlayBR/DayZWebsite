@@ -6,7 +6,7 @@
 <?php
 $errMsg = match($_GET['err'] ?? '') {
     'csrf' => 'Sessão expirada, tente de novo.',
-    'rate' => 'Calma — muitas tentativas. Aguarde um pouco.',
+    'rate' => 'Calma - muitas tentativas. Aguarde um pouco.',
     '' => '',
     default => \App\Clan::errorMessage($_GET['err']),
 };

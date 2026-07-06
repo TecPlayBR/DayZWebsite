@@ -23,7 +23,7 @@
 
 <?php if ($pending > 0): ?>
     <div class="stat-card" style="margin-bottom:1rem; border-left:3px solid var(--hazard);">
-        ⏳ <strong><?= $pending ?></strong> entrega(s) pendente(s) — caem quando o player estiver online (longe do restart).
+        ⏳ <strong><?= $pending ?></strong> entrega(s) pendente(s) - caem quando o player estiver online (longe do restart).
     </div>
 <?php endif; ?>
 
@@ -41,7 +41,7 @@
         </div>
         <div>
             <label style="display:flex;align-items:center;gap:0.3rem;font-size:0.78rem;color:var(--dim);"><input type="checkbox" name="is_daily" value="1"> Diária grátis</label>
-            <small style="display:block;color:var(--dim);font-size:0.7rem;margin-top:0.3rem;">A caixa nasce ativa — desative depois pela lista, se quiser.</small>
+            <small style="display:block;color:var(--dim);font-size:0.7rem;margin-top:0.3rem;">A caixa nasce ativa - desative depois pela lista, se quiser.</small>
         </div>
         <button type="submit" class="btn">Criar</button>
     </form>

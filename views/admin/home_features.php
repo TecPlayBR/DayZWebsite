@@ -12,7 +12,7 @@ while (count($cards) < 12) $cards[] = ['icon' => '', 'title' => '', 'text' => ''
 <div class="admin-page-head">
     <div>
         <h1>🏠 Seção "O Que Você Vai Encontrar"</h1>
-        <p>Os cards que aparecem na home (abaixo dos depoimentos). Venda o que o servidor tem de bom. Linha <strong>sem título é ignorada</strong> — deixe vazia pra ter menos cards.</p>
+        <p>Os cards que aparecem na home (abaixo dos depoimentos). Venda o que o servidor tem de bom. Linha <strong>sem título é ignorada</strong> - deixe vazia pra ter menos cards.</p>
     </div>
     <a href="/" target="_blank" class="btn-mini outline">Ver home →</a>
 </div>

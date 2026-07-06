@@ -1,6 +1,6 @@
 <?php /** @var array $config, $clans; @var ?array $my_clan, $steam_user */ ?>
-<?php \App\View::with('title', 'Clãs — ' . ($config['settings']['site_name'] ?? $config['site_name'] ?? 'Servidor')); ?>
-<?php \App\View::with('description', 'Conheça os clãs e facções do ' . ($config['settings']['site_name'] ?? $config['site_name'] ?? 'servidor') . ' — encontre seu grupo, peça pra entrar e domine Chernarus em equipe no DayZ.'); ?>
+<?php \App\View::with('title', 'Clãs - ' . ($config['settings']['site_name'] ?? $config['site_name'] ?? 'Servidor')); ?>
+<?php \App\View::with('description', 'Conheça os clãs e facções do ' . ($config['settings']['site_name'] ?? $config['site_name'] ?? 'servidor') . ' - encontre seu grupo, peça pra entrar e domine Chernarus em equipe no DayZ.'); ?>
 <?php \App\View::extend('layouts.main'); ?>
 <?php \App\View::with('hero_image', 'img/background2.png'); ?>
 <?php \App\View::section('content'); ?>
@@ -32,7 +32,7 @@ $okMsg = match($_GET['ok'] ?? '') {
         <?php if ($okMsg): ?><div style="background:rgba(90,108,78,0.18);border-left:3px solid var(--moss);color:var(--text-success);padding:0.8rem 1.1rem;margin-bottom:1.5rem;border-radius:4px;"><?= e($okMsg) ?></div><?php endif; ?>
 
         <?php if (empty($clans)): ?>
-            <p style="text-align:center;color:var(--dim);padding:3rem 0;">Nenhum clã registrado ainda. <?php if ($steam_user): ?>Seja o primeiro — <a href="/clans/new" style="color:var(--hazard);">crie o seu</a >.<?php endif; ?></p>
+            <p style="text-align:center;color:var(--dim);padding:3rem 0;">Nenhum clã registrado ainda. <?php if ($steam_user): ?>Seja o primeiro - <a href="/clans/new" style="color:var(--hazard);">crie o seu</a >.<?php endif; ?></p>
         <?php else: ?>
         <div class="clan-grid">
             <?php foreach ($clans as $c): ?>

@@ -1,7 +1,7 @@
 <?php /** @var array $config, $releases */ ?>
 <?php $rlSite = $config['settings']['site_name'] ?? $config['site_name'] ?? 'Servidor'; ?>
-<?php \App\View::with('title', 'Novidades & Atualizações — ' . $rlSite); ?>
-<?php \App\View::with('description', 'Notas de atualização do ' . $rlSite . ' — o que mudou no servidor DayZ: updates de mods, correções e novidades.'); ?>
+<?php \App\View::with('title', 'Novidades & Atualizações - ' . $rlSite); ?>
+<?php \App\View::with('description', 'Notas de atualização do ' . $rlSite . ' - o que mudou no servidor DayZ: updates de mods, correções e novidades.'); ?>
 <?php \App\View::extend('layouts.main'); ?>
 <?php \App\View::with('hero_image', 'img/background3.png'); ?>
 <?php \App\View::section('content'); ?>

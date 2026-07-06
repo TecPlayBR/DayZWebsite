@@ -85,7 +85,7 @@
                 <td><strong><?= e($p['package_id']) ?></strong></td>
                 <td class="mono"><?= (int)$p['coins_total'] ?></td>
                 <td>R$ <?= number_format($p['price_brl'], 2, ',', '.') ?></td>
-                <td class="dim"><?= e($p['payment_method'] ?? '—') ?></td>
+                <td class="dim"><?= e($p['payment_method'] ?? '-') ?></td>
                 <td>
                     <?php $cls = match($p['mp_status']) {
                         'approved' => 'success',
@@ -95,7 +95,7 @@
                     }; ?>
                     <span class="badge <?= $cls ?>"><?= e($p['mp_status']) ?></span>
                 </td>
-                <td class="mono dim" style="font-size: 0.75rem;"><?= e($p['mp_payment_id'] ?? '—') ?></td>
+                <td class="mono dim" style="font-size: 0.75rem;"><?= e($p['mp_payment_id'] ?? '-') ?></td>
             </tr>
         <?php endforeach; endif; ?>
     </tbody>
@@ -138,9 +138,9 @@
                 <td class="mono dim"><?= (int)$b['balance_before'] ?></td>
                 <td class="mono"><strong><?= (int)$b['balance_after'] ?></strong></td>
                 <td class="mono dim" style="font-size: 0.78rem;">
-                    <?= $b['ref_type'] ? e($b['ref_type']) . ':' . e($b['ref_id'] ?? '') : '—' ?>
+                    <?= $b['ref_type'] ? e($b['ref_type']) . ':' . e($b['ref_id'] ?? '') : '-' ?>
                 </td>
-                <td class="dim" style="font-size: 0.85rem;"><?= e($b['notes'] ?? '—') ?></td>
+                <td class="dim" style="font-size: 0.85rem;"><?= e($b['notes'] ?? '-') ?></td>
             </tr>
         <?php endforeach; endif; ?>
     </tbody>

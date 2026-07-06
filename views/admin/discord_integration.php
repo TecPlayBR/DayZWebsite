@@ -27,7 +27,7 @@
         <span style="color:var(--dim); font-size:0.85rem;">
             Última chamada bem-sucedida:
             <strong style="color:var(--bone);">
-                <?= $lastOk > 0 ? e(date('d/m/Y H:i:s', $lastOk)) : '— nunca —' ?>
+                <?= $lastOk > 0 ? e(date('d/m/Y H:i:s', $lastOk)) : '- nunca -' ?>
             </strong>
         </span>
     </div>
@@ -108,7 +108,7 @@
                             <?= e((string)$row['ip']) ?>
                         </td>
                         <td>
-                            <code><?= e((string)($row['action'] ?: '—')) ?></code>
+                            <code><?= e((string)($row['action'] ?: '-')) ?></code>
                         </td>
                         <td>
                             <span style="color:<?= e($codeColor) ?>; font-weight:600; font-family:var(--font-mono);">

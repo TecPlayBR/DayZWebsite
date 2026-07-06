@@ -6,7 +6,7 @@
 <div class="admin-page-head">
     <div>
         <h1>🛡 Clãs</h1>
-        <p>Clãs registrados pelos jogadores. Use <strong>Remover</strong> pra tirar conteúdo impróprio (logo/nome/descrição) — o clã é dissolvido e os membros liberados.</p>
+        <p>Clãs registrados pelos jogadores. Use <strong>Remover</strong> pra tirar conteúdo impróprio (logo/nome/descrição) - o clã é dissolvido e os membros liberados.</p>
     </div>
 </div>
 
@@ -27,7 +27,7 @@
                 </td>
                 <td class="mono" style="font-size:.78rem;"><a href="/player/<?= e($c['owner_steam_id']) ?>" target="_blank" style="color:var(--dim);"><?= e($c['owner_steam_id']) ?></a></td>
                 <td class="mono"><?= (int)$c['member_count'] ?>/<?= (int)$c['member_cap'] ?></td>
-                <td><?php if (!empty($c['discord_url'])): ?><a href="<?= e($c['discord_url']) ?>" target="_blank" rel="noopener" style="color:var(--hazard);font-size:.8rem;">link</a><?php else: ?><span class="dim">—</span><?php endif; ?></td>
+                <td><?php if (!empty($c['discord_url'])): ?><a href="<?= e($c['discord_url']) ?>" target="_blank" rel="noopener" style="color:var(--hazard);font-size:.8rem;">link</a><?php else: ?><span class="dim">-</span><?php endif; ?></td>
                 <td class="dim" style="font-size:.8rem;"><?= e(substr($c['created_at'],0,10)) ?></td>
                 <td style="white-space:nowrap;">
                     <form method="POST" action="/admin/clans/<?= (int)$c['id'] ?>/remove" style="display:inline;" onsubmit="return confirm('Remover (dissolver) o clã [<?= e($c['tag']) ?>] <?= e(addslashes($c['name'])) ?>? Libera os membros e não dá pra desfazer.');">
