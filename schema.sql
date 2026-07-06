@@ -744,7 +744,20 @@ VALUES ('rules', 'Regras do Servidor', 'Server Rules', '<h2>Regras do Servidor</
 </ul>
 <p>A staff registra todas as ações em audit log. Decisões podem ser questionadas via ticket — não em chat público.</p>
 
-<h3>11. Aceite e Atualizações</h3>
+<h3>11. Perda de Item, Bug e Reposição (Prova Obrigatória)</h3>
+<p>DayZ é DayZ: bugs acontecem, e nem sempre o log guarda o que rolou. A gente faz o possível pra investigar, mas o critério de reposição é o mesmo pra todos, sem exceção.</p>
+<ul>
+<li><strong>Sem foto, sem vídeo, sem prova, não há reposição.</strong> "Sumiu meu item" ou "eu tinha 50 disso e agora não tenho nada", sem registro, não gera ação da staff.</li>
+<li><strong>Gravar é obrigação do jogador.</strong> Use OBS, o Gravador do Windows (Win+G), Medal ou qualquer gravador, e tire prints do inventário e da base por segurança.</li>
+<li><strong>Só há reposição com prova E registro no log.</strong> Se não encontrarmos o registro no log, infelizmente não tem como repor, mesmo com vídeo, porque não dá pra confirmar o que aconteceu do lado do servidor.</li>
+<li>Item perdido por morte, raid, decay do servidor ou descuido (guardar no lugar errado) não é reposto.</li>
+<li>Quando cabível, a reposição é a critério da staff e limitada ao que o log confirmar. A decisão é pela análise das evidências, não por insistência.</li>
+</ul>
+<div class="legal-callout warn">
+<p><strong>Resumindo:</strong> sem prova, é a sua palavra contra a nossa, e a gente não repõe no achismo. Jogue gravando e você se protege.</p>
+</div>
+
+<h3>12. Aceite e Atualizações</h3>
 <p>Ao conectar no servidor ou entrar no Discord, você aceita estas regras integralmente. Atualizações desta página serão anunciadas com até 7 dias de antecedência, exceto em casos urgentes (segurança, exploit grave).</p>
 
 <p style="font-size:0.85rem;color:#8aa0b5;margin-top:1.5rem;">
@@ -862,7 +875,20 @@ Dúvidas: <a href="https://discord.gg/SEU-CONVITE">Discord oficial [NOME DO SERV
 <li><strong>Permanent ban</strong> - no return. Only in serious or repeated cases.</li>
 </ul>
 <p>Staff logs all actions in audit log. Decisions may be questioned via ticket - not in public chat.</p>
-<h3>11. Acceptance and Updates</h3>
+<h3>11. Item Loss, Bugs, and Replacement (Proof Required)</h3>
+<p>DayZ is DayZ: bugs happen, and the log does not always capture what occurred. We do our best to investigate, but the replacement rule is the same for everyone, no exceptions.</p>
+<ul>
+<li><strong>No photo, no video, no proof, no replacement.</strong> "My item vanished" or "I had 50 of these and now I have none", with no record, gets no action from staff.</li>
+<li><strong>Recording is the player''s responsibility.</strong> Use OBS, the Windows Game Recorder (Win+G), Medal, or any recorder, and take screenshots of your inventory and base for safety.</li>
+<li><strong>Replacement only happens with proof AND a matching log record.</strong> If we cannot find the record in the log, we unfortunately cannot replace it, even with video, because we cannot confirm what happened on the server side.</li>
+<li>Items lost to death, raid, server decay, or carelessness (storing in the wrong place) are not replaced.</li>
+<li>When applicable, replacement is at the staff''s discretion and limited to what the log confirms. The decision is based on evidence, not persistence.</li>
+</ul>
+<div class="legal-callout warn">
+<p><strong>In short:</strong> without proof, it is your word against ours, and we do not replace based on guesses. Play while recording and you protect yourself.</p>
+</div>
+
+<h3>12. Acceptance and Updates</h3>
 <p>By connecting to the server or joining Discord, you accept these rules in full. Updates to this page will be announced with up to 7 days advance notice, except in urgent cases (security, serious exploit).</p>
 <p style=''font-size:0.85rem;color:#8aa0b5;margin-top:1.5rem;''>
 <strong>Legal entity:</strong> [RAZAO SOCIAL DA SUA EMPRESA], CNPJ [00.000.000/0000-00]. <strong>[NOME DO SERVIDOR]</strong> is a registered trademark.<br>
