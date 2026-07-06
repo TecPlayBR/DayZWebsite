@@ -1,7 +1,7 @@
 <?php
 // ============================================================
 // (c) 2026 Tecplay - DayZ Website Template
-// API: /api/postcoins.php — gravação de saldo pro MOD SPARDA (Api_Post)
+// API: /api/postcoins.php - gravação de saldo pro MOD SPARDA (Api_Post)
 // ============================================================
 // O mod Sparda grava o novo saldo do jogador aqui (depois que ele gasta in-game).
 //

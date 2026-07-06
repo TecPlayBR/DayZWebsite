@@ -1,13 +1,13 @@
 -- ============================================================
 -- (c) 2026 Tecplay - DayZ Website Template
--- Migration v1.1.0 — Integração Discord
+-- Migration v1.1.0 - Integração Discord
 -- ============================================================
 -- Adiciona suporte ao endpoint /api/bot-integration.php que o
 -- Tecplay Bot Discord (Pro/Free) consome com Bearer token.
 --
 -- Como aplicar:
 --   1. Conecta no DB do site (phpMyAdmin ou linha de comando)
---   2. Roda este arquivo inteiro (idempotente — pode rodar de novo
+--   2. Roda este arquivo inteiro (idempotente - pode rodar de novo
 --      em sites já com tabela criada que não quebra)
 --
 -- Em phpMyAdmin: Importar → escolhe este .sql → Executar
@@ -37,7 +37,7 @@ INSERT IGNORE INTO settings (`key`, `value`) VALUES
     ('discord_integration_last_ok', '0');
 
 -- ============ ENUM players.origin: adicionar 'bot' ============
--- Sites instalados na v1.0 têm ENUM('agent','panel','payment','manual') — falta 'bot'.
+-- Sites instalados na v1.0 têm ENUM('agent','panel','payment','manual') - falta 'bot'.
 -- ALTER TABLE com mesmo ENUM + 'bot' é idempotente (re-rodar não quebra).
 -- Players vinculados via comando /perfil ou /link-steam no bot Discord ganham origin='bot'.
 

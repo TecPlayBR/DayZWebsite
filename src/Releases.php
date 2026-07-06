@@ -1,9 +1,9 @@
 <?php
 // ============================================================
-// Releases — Novidades / Notas de Atualização (patch notes pro player).
+// Releases - Novidades / Notas de Atualização (patch notes pro player).
 // ============================================================
 // O admin publica o que mudou (update de mod, correção, novidade). Player lê em
-// /novidades — lista simples, mais recente primeiro (sem página por-item).
+// /novidades - lista simples, mais recente primeiro (sem página por-item).
 // Tabela: site_releases.
 // ============================================================
 
@@ -31,7 +31,7 @@ class Releases {
         );
     }
 
-    /** Tem ao menos 1 publicada? (pra mostrar/ocultar o link na nav — template nasce vazio). */
+    /** Tem ao menos 1 publicada? (pra mostrar/ocultar o link na nav - template nasce vazio). */
     public static function hasAny(): bool {
         try { return (bool) Database::fetchColumn("SELECT 1 FROM site_releases WHERE published = 1 LIMIT 1"); }
         catch (\Throwable $e) { return false; }

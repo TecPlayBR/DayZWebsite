@@ -1,5 +1,5 @@
 -- ============================================================
--- v2.0.2 — imagem do pacote (capa)
+-- v2.0.2 - imagem do pacote (capa)
 -- ============================================================
 -- Capa do pacote (PNG transparente ~512x512) pra dar destaque no shop/home,
 -- em vez do emoji. Guarda só o nome do arquivo em assets/img/packages/.

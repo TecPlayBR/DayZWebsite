@@ -2,7 +2,7 @@
 // ============================================================
 // Achievements - calculado on-the-fly a partir das compras do player.
 // Sem tabela própria: derivado de purchases + reviews.
-// name/description traduzidos via __() — keys em lang/{locale}.php.
+// name/description traduzidos via __() - keys em lang/{locale}.php.
 // ============================================================
 
 namespace App;
@@ -25,7 +25,7 @@ class Achievements {
             'generous'    => '💬',
             'rapid_fire'  => '⚡',
             'anniversary' => '🎂',
-            // Conquistas de GAMEPLAY (derivadas do player_stats — CFTools/bot).
+            // Conquistas de GAMEPLAY (derivadas do player_stats - CFTools/bot).
             'sharpshooter'=> '🎯',
             'exterminator'=> '☣',
             'survivor'    => '⏳',
@@ -103,7 +103,7 @@ class Achievements {
                 if ((int)  ($gs['kills_infected']  ?? 0) >= 500)    $unlocked['exterminator'] = true;
                 if ((int)  ($gs['playtime_seconds']?? 0) >= 360000) $unlocked['survivor']     = true; // 100h
             }
-        } catch (\Throwable $e) { /* sem player_stats (install antigo) — ignora */ }
+        } catch (\Throwable $e) { /* sem player_stats (install antigo) - ignora */ }
 
         return $unlocked;
     }
@@ -111,7 +111,7 @@ class Achievements {
     /**
      * Recompensa configurável por conquista (admin define em settings:
      *   achievement_rewards_enabled = '1'  + achievement_rewards = {"slug": coins, ...}).
-     * Idempotente: credita +X moedas UMA vez por conquista por jogador — o INSERT IGNORE
+     * Idempotente: credita +X moedas UMA vez por conquista por jogador - o INSERT IGNORE
      * em achievement_rewards_log é o "claim atômico" (rowCount=1 = ganhei; 0 = já paguei).
      * NÃO lista publicamente: só credita e registra no log do painel. Chamada quando o
      * dono vê o próprio perfil (reconcilia o que faltou). Retorna [slug => coins] do que pagou.

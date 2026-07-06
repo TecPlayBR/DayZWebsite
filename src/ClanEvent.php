@@ -2,7 +2,7 @@
 namespace App;
 
 // ============================================================
-// ClanEvent — Eventos de Clã com placar por DELTA.
+// ClanEvent - Eventos de Clã com placar por DELTA.
 // ============================================================
 // Regras (desenhadas com o Bryan):
 //  - Só o LÍDER inscreve o clã, e só ANTES do evento começar.
@@ -28,7 +28,7 @@ class ClanEvent
         return self::METRICS[$m] ?? $m;
     }
 
-    /** Coluna validada (whitelist) — protege contra SQL injection no nome da coluna. */
+    /** Coluna validada (whitelist) - protege contra SQL injection no nome da coluna. */
     private static function col(string $metric): string {
         return isset(self::METRICS[$metric]) ? $metric : 'kills_infected';
     }
@@ -170,7 +170,7 @@ class ClanEvent
     }
 
     /**
-     * Tick OPORTUNISTA throttled — pra páginas de tráfego (ex.: home) tocarem o ciclo
+     * Tick OPORTUNISTA throttled - pra páginas de tráfego (ex.: home) tocarem o ciclo
      * (baseline/congela) na hora SEM precisar de cron. Roda no máx 1x a cada $minSecs
      * (flag por mtime de arquivo). Zero-config: funciona em qualquer host do template.
      */
@@ -348,7 +348,7 @@ class ClanEvent
     /**
      * Entrou no clã durante evento ativo. Baseline = valor atual (0 de delta) SÓ pra
      * membro novo ou quem trocou de clã. Se é REJOIN no MESMO clã (saiu e voltou), NÃO
-     * reseta o baseline — só reativa, pra não zerar os pontos que ele já tinha feito
+     * reseta o baseline - só reativa, pra não zerar os pontos que ele já tinha feito
      * (ex.: clicou sair sem querer e voltou). Anti-acidente pedido pelo Bryan.
      */
     public static function onMemberJoin(int $clanId, string $steamId): void {

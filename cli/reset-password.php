@@ -1,6 +1,6 @@
 <?php
 // ============================================================
-// cli/reset-password.php — RESET de senha do admin SEM depender de email.
+// cli/reset-password.php - RESET de senha do admin SEM depender de email.
 // ============================================================
 // Recuperacao a prova de tudo (email em shared hosting e instavel). So roda
 // por LINHA DE COMANDO (o navegador NAO executa -> nao e backdoor exposta).

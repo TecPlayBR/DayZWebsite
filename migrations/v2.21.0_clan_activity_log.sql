@@ -1,4 +1,4 @@
--- v2.21.0 — Log de atividade do clã (entra/sai/kick/liderança), visível a
+-- v2.21.0 - Log de atividade do clã (entra/sai/kick/liderança), visível a
 -- membros+líder na página do clã. Ajuda o clã a saber quem entrou/saiu (pedido
 -- do Bryan, junto com o anti-acidente do rejoin nos eventos). Idempotente.
 

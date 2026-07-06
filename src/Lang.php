@@ -67,7 +67,7 @@ class Lang {
         if (isset($_COOKIE['lang']) && in_array($_COOKIE['lang'], self::$availableLocales, true)) {
             return $_COOKIE['lang'];
         }
-        // 3. Accept-Language header (simplificado — pega 2 primeiras letras + tenta combinar)
+        // 3. Accept-Language header (simplificado - pega 2 primeiras letras + tenta combinar)
         $accept = strtolower($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '');
         if (strpos($accept, 'pt') === 0) return 'pt-br';
         if (strpos($accept, 'en') === 0) return 'en-us';
@@ -101,7 +101,7 @@ class Lang {
     }
 
     /**
-     * Fallback minimo embutido — usado SO quando o arquivo de idioma some no deploy.
+     * Fallback minimo embutido - usado SO quando o arquivo de idioma some no deploy.
      * Cobre a navegacao e rotulos criticos pra UI nunca exibir "NAV.RULES" cru.
      * Nao substitui lang/<locale>.php (que tem tudo); e uma rede de seguranca.
      */

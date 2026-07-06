@@ -1,13 +1,13 @@
 -- ============================================================
--- DayZ Website Template — Migration v1.1.x → v1.2.0
+-- DayZ Website Template - Migration v1.1.x → v1.2.0
 -- ============================================================
 -- Aplica APÓS atualizar arquivos de v1.1.x pra v1.2.0.
 -- Idempotente: pode rodar várias vezes sem quebrar.
 --
 -- Mudanças:
---   1. admin_users.role — RBAC (super_admin/finance/support/editor)
---   2. reviews.source + purchase_id/steam_id NULL — reviews públicas
---   3. newsletter_emails — captura de email no footer
+--   1. admin_users.role - RBAC (super_admin/finance/support/editor)
+--   2. reviews.source + purchase_id/steam_id NULL - reviews públicas
+--   3. newsletter_emails - captura de email no footer
 -- ============================================================
 
 SET @db := DATABASE();

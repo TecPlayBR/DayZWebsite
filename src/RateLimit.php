@@ -63,7 +63,7 @@ class RateLimit {
     }
 
     /**
-     * IP do cliente — à prova de spoof. X-Forwarded-For SÓ é considerado quando a
+     * IP do cliente - à prova de spoof. X-Forwarded-For SÓ é considerado quando a
      * conexão chega de um proxy LOCAL/privado (reverse proxy na mesma máquina/rede).
      * Em hospedagem direta (cPanel/VPS), REMOTE_ADDR já é o IP real do cliente e o
      * X-Forwarded-For seria forjado por um atacante pra furar o rate-limit (cada IP

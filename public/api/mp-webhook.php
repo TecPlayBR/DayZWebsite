@@ -51,7 +51,7 @@ if (strlen($raw) >= 65536) {
 $payload = json_decode($raw, true);
 
 if (!is_array($payload) || ($payload['type'] ?? '') !== 'payment') {
-    // Pode ser teste/ping ou outro tipo de evento — responde 200 pra MP nao tentar de novo
+    // Pode ser teste/ping ou outro tipo de evento - responde 200 pra MP nao tentar de novo
     die(json_encode(['ok' => true, 'ignored' => true]));
 }
 
@@ -66,7 +66,7 @@ $mp = new \App\MercadoPago(
     $config['mercado_pago']['webhook_secret'] ?? null
 );
 
-// Valida assinatura (defesa em profundidade — protege contra requests forjados)
+// Valida assinatura (defesa em profundidade - protege contra requests forjados)
 $xSig    = $_SERVER['HTTP_X_SIGNATURE']  ?? '';
 $xReqId  = $_SERVER['HTTP_X_REQUEST_ID'] ?? '';
 $webhookSecret = $config['mercado_pago']['webhook_secret'] ?? '';
@@ -109,7 +109,7 @@ if (!$externalRef) {
     die(json_encode(['ok' => true, 'note' => 'no_external_reference']));
 }
 
-// ============ Cobrança avulsa (/cobrar) — external_reference "inv-<ref>" ============
+// ============ Cobrança avulsa (/cobrar) - external_reference "inv-<ref>" ============
 // Distingue do fluxo de purchases (que usa o id numérico). Roteia ANTES do
 // lookup de purchases pra o cast (int) não engolir o "inv-...".
 if (str_starts_with($externalRef, 'inv-')) {
@@ -247,7 +247,7 @@ if ($status === 'approved' && empty($purchase['delivered_at'])) {
     if ($payerEmail && filter_var($payerEmail, FILTER_VALIDATE_EMAIL)) {
         $purchase['mp_payment_id'] = (string)$paymentId;
         $html = \App\Mailer::purchaseReceiptHtml($purchase, $config);
-        $subject = '✓ Recibo de compra — ' . ($config['settings']['site_name'] ?? 'Tecplay');
+        $subject = '✓ Recibo de compra - ' . ($config['settings']['site_name'] ?? 'Tecplay');
         @\App\Mailer::send($payerEmail, $subject, $html);
     }
 
@@ -320,7 +320,7 @@ if ($matrizUrl !== '') {
         ]);
         @curl_exec($ch);   // ignora resposta de propósito (best-effort)
         curl_close($ch);
-    } catch (\Throwable $e) { /* silencioso — nunca quebra a loja */ }
+    } catch (\Throwable $e) { /* silencioso - nunca quebra a loja */ }
 }
 
 die(json_encode(['ok' => true, 'status' => $status, 'delivered' => $status === 'approved']));

@@ -1,11 +1,11 @@
 <?php
 // ============================================================
-// cli/migrate.php — aplica as migrations pendentes do banco com SEGURANÇA.
+// cli/migrate.php - aplica as migrations pendentes do banco com SEGURANÇA.
 // ============================================================
 // Roda SÓ as migrations que ainda não foram aplicadas (rastreadas na tabela
 // `schema_migrations`), em ordem. As migrations do template são idempotentes
 // (CREATE TABLE IF NOT EXISTS / ADD COLUMN IF NOT EXISTS / INSERT IGNORE), então
-// rodar de novo é seguro — e este script trata erros de "já existe" como OK.
+// rodar de novo é seguro - e este script trata erros de "já existe" como OK.
 //
 // >> NUNCA apaga nem altera dados existentes. Só adiciona o que falta.
 //
@@ -64,7 +64,7 @@ if (!$files) {
     exit(0);
 }
 
-// Erros que significam "a alteração já existe" — seguro tratar como aplicada.
+// Erros que significam "a alteração já existe" - seguro tratar como aplicada.
 $benign = ['already exists', 'duplicate column', 'duplicate key', 'duplicate entry', "doesn't exist for"];
 
 $ran = 0; $skipped = 0;
@@ -105,5 +105,5 @@ foreach ($files as $file) {
 echo "\n";
 echo $ran > 0
     ? "Concluido: $ran migration(s) nova(s) aplicada(s), $skipped ja estava(m) ok.\n"
-    : "Nada pendente — banco ja esta atualizado ($skipped migration(s) registrada(s)).\n";
+    : "Nada pendente - banco ja esta atualizado ($skipped migration(s) registrada(s)).\n";
 exit(0);

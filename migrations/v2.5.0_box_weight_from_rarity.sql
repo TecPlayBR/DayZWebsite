@@ -1,5 +1,5 @@
 -- ============================================================
--- v2.5.0 — peso da caixa DERIVADO da raridade (remove o "peso" manual)
+-- v2.5.0 - peso da caixa DERIVADO da raridade (remove o "peso" manual)
 -- ============================================================
 -- O campo "peso" saiu do admin: a RARIDADE passa a definir a chance sozinha.
 -- Esta migration normaliza o peso de todos os itens existentes pela raridade

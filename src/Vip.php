@@ -8,7 +8,7 @@
 //   2. grava um player_grant 'pending' (renovação SOMA dias ao que ainda falta);
 //   3. registra no balance_log.
 // O tecplay-agent puxa o grant pendente em /api/entitlements.php e aplica no
-// mod Sparda — o MESMO fluxo da concessão manual em /admin/entitlements.
+// mod Sparda - o MESMO fluxo da concessão manual em /admin/entitlements.
 //
 // Preço/labels: settings 'vip_store' (JSON). NÃO tem tabela nova (usa
 // player_grants + settings). Durações fixas: 30/60/90 dias.

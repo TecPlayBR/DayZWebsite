@@ -10,7 +10,7 @@
 //   5. Validamos os params batendo de volta no Steam (anti-spoof)
 //   6. Extraimos SteamID64 e salvamos na sessao ($_SESSION['steam'])
 //
-// Em DEV (localhost), Steam OpenID bloqueia — usa-se modo manual
+// Em DEV (localhost), Steam OpenID bloqueia - usa-se modo manual
 // (front-end pede SteamID via prompt). Isso eh implementado no JS,
 // nao aqui.
 // ============================================================
@@ -37,7 +37,7 @@ class SteamAuth {
 
     /**
      * Valida o callback do Steam OpenID. Retorna o SteamID64 se ok, null se falha.
-     * SEGURANCA: NUNCA confie no claimed_id direto da URL — sempre revalida no Steam.
+     * SEGURANCA: NUNCA confie no claimed_id direto da URL - sempre revalida no Steam.
      */
     public static function verifyCallback(array $params): ?string {
         // Confere mode esperado
@@ -129,7 +129,7 @@ class SteamAuth {
 
     /**
      * Busca o perfil público (nome + avatar) do jogador.
-     * 1º tenta a Steam Web API (se o cliente configurou steam_api_key — mais dados);
+     * 1º tenta a Steam Web API (se o cliente configurou steam_api_key - mais dados);
      * 2º cai pro XML público do perfil (NÃO precisa de key) → a fotinha aparece
      *    out-of-the-box pra QUALQUER instalação, sem o cliente configurar nada.
      */

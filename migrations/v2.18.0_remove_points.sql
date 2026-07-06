@@ -1,5 +1,5 @@
 -- ============================================================
--- v2.18.0 — Remove o Sistema de Pontos (reverte v2.16.0 + v2.17.0)
+-- v2.18.0 - Remove o Sistema de Pontos (reverte v2.16.0 + v2.17.0)
 -- ============================================================
 -- Decisao definitiva do Bryan: loja de pontos no site foi APOSENTADA
 -- (gera cadastro demais; as caixas ja entregam item in-game via CFTools).

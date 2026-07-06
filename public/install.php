@@ -33,7 +33,7 @@ foreach ($structureRequired as $label => $path) {
 }
 
 if (file_exists($configFile)) {
-    // Ja instalado: 404 puro, sem vazar estrutura/instrucao (defesa contra recon —
+    // Ja instalado: 404 puro, sem vazar estrutura/instrucao (defesa contra recon -
     // nao confirma que existe config.php nem ensina como forcar reinstalacao).
     // Pra reinstalar de proposito: apague config/config.php e este 404 some sozinho.
     http_response_code(404);
@@ -91,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$structureMissing) {
             ]);
 
             // SALVAGUARDA ANTI-DESTRUIÇÃO: o schema.sql dropa tabelas. Se o banco já
-            // tem QUALQUER dado de cliente (não só admin_users), recusamos reinstalar —
+            // tem QUALQUER dado de cliente (não só admin_users), recusamos reinstalar -
             // senão um "reinstalar pra atualizar" apagaria páginas/pacotes/jogadores/compras.
             // Pra ATUALIZAR é subir arquivos + `php cli/migrate.php` (nunca o install.php).
             foreach (['admin_users', 'players', 'purchases', 'pages', 'packages', 'settings'] as $t) {
@@ -106,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$structureMissing) {
                                   . "Pra instalar do zero de verdade, use um banco vazio.";
                         break;
                     }
-                } catch (\Throwable $e) { /* tabela não existe ou inacessível — segue */ }
+                } catch (\Throwable $e) { /* tabela não existe ou inacessível - segue */ }
             }
         } catch (PDOException $e) {
             $errors[] = 'Erro ao conectar no banco: ' . htmlspecialchars($e->getMessage());
@@ -117,13 +117,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$structureMissing) {
         try {
             // Importa schema.sql
             $sql = file_get_contents($schemaFile);
-            // PDO em geral nao suporta multiplas statements via prepare — splitamos por ';'
+            // PDO em geral nao suporta multiplas statements via prepare - splitamos por ';'
             // Estrategia simples: roda direto via exec (suporta multi-statement no mysql native)
             $pdo->exec($sql);
 
             // RODA as migrations em cima do schema (são idempotentes: CREATE/ADD IF NOT
             // EXISTS). Assim, mesmo que o schema.sql fique levemente atrás das migrations,
-            // a instalação do zero sai COMPLETA — nada de tabela faltando pro cliente (ex:
+            // a instalação do zero sai COMPLETA - nada de tabela faltando pro cliente (ex:
             // player_grants, achievement_rewards_log, login_log). Depois marca como aplicadas.
             try {
                 $pdo->exec("CREATE TABLE IF NOT EXISTS schema_migrations (filename VARCHAR(150) NOT NULL PRIMARY KEY, applied_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
@@ -132,7 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$structureMissing) {
                 sort($migFiles); // ordem lexical = ordem de versão
                 foreach ($migFiles as $mf) {
                     try { $pdo->exec((string) file_get_contents($mf)); }
-                    catch (\Throwable $e) { /* "já existe" é benigno — o schema.sql já tinha o efeito */ }
+                    catch (\Throwable $e) { /* "já existe" é benigno - o schema.sql já tinha o efeito */ }
                     $stmtMig->execute([basename($mf)]);
                 }
             } catch (\Throwable $e) { /* não bloqueia o install */ }
@@ -149,7 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$structureMissing) {
 
             // Dados-demo opcionais: deixa o site "vivo" (jogadores, compras, reviews,
             // anúncios fictícios) já no 1º acesso. Marcados como demo (steam 76561197000*
-            // e títulos "[demo]") — remova depois com: php cli/seed-demo.php --clean
+            // e títulos "[demo]") - remova depois com: php cli/seed-demo.php --clean
             if ($seed_demo) {
                 require_once $ROOT . '/cli/seed-demo-lib.php';
                 try { $seedResult = seed_demo_data($pdo); }
@@ -267,12 +267,12 @@ header p { color: var(--dim); margin-top: 0.5rem; font-size: 0.95rem; }
 
 <header>
     <h1>DAYZ WEBSITE TEMPLATE</h1>
-    <p>Instalacao em uma pagina — preencha os campos abaixo</p>
+    <p>Instalacao em uma pagina - preencha os campos abaixo</p>
 </header>
 
 <?php if ($structureMissing): ?>
     <div class="alert alert-err">
-        <strong>⛔ Faltam arquivos essenciais no servidor — NAO da pra instalar ainda.</strong>
+        <strong>⛔ Faltam arquivos essenciais no servidor - NAO da pra instalar ainda.</strong>
         <p style="margin-top:.6rem;">O upload por FTP parece ter ficado incompleto. Estas pastas/arquivos
         precisam ficar <strong>um nivel ACIMA</strong> da pasta publica (ao lado de <code>src/</code>),
         e nao foram encontrados:</p>
@@ -297,7 +297,7 @@ header p { color: var(--dim); margin-top: 0.5rem; font-size: 0.95rem; }
             <li>Dados de exemplo criados: <?= (int)$seedResult['players'] ?> jogadores,
                 <?= (int)$seedResult['purchases'] ?> compras, <?= (int)$seedResult['reviews'] ?> avaliacoes,
                 <?= (int)$seedResult['announcements'] ?> anuncios
-                <span style="color:var(--dim);">— remova antes de abrir pro publico com <code>php cli/seed-demo.php --clean</code></span></li>
+                <span style="color:var(--dim);">- remova antes de abrir pro publico com <code>php cli/seed-demo.php --clean</code></span></li>
             <?php endif; ?>
         </ul>
         <p style="margin-top: 1rem;">
@@ -310,7 +310,7 @@ header p { color: var(--dim); margin-top: 0.5rem; font-size: 0.95rem; }
                 Por seguranca, voce pode apagar esse arquivo via FTP.
             <?php else: ?>
                 <strong>⚠ APAGUE O INSTALL.PHP:</strong> nao consegui renomear sozinho (permissao).
-                Apague manualmente o arquivo <code>public/install.php</code> via FTP/cPanel agora —
+                Apague manualmente o arquivo <code>public/install.php</code> via FTP/cPanel agora -
                 quem acessar essa URL pode reinstalar (apos apagar config.php).
             <?php endif; ?>
         </p>
@@ -411,7 +411,7 @@ header p { color: var(--dim); margin-top: 0.5rem; font-size: 0.95rem; }
                 <input type="text" name="mp_token" value="<?= htmlspecialchars($_POST['mp_token'] ?? '') ?>">
             </div>
             <div class="row">
-                <label>Public Key <small>(APP_USR-... — habilita cartão no site; opcional)</small></label>
+                <label>Public Key <small>(APP_USR-... - habilita cartão no site; opcional)</small></label>
                 <input type="text" name="mp_public" value="<?= htmlspecialchars($_POST['mp_public'] ?? '') ?>">
             </div>
             <div class="row">
@@ -422,7 +422,7 @@ header p { color: var(--dim); margin-top: 0.5rem; font-size: 0.95rem; }
         </div>
 
         <div class="card">
-            <h2>CFTools <small style="font-size: 0.75rem; color: var(--dim);">(opcional — ranking de kills/zumbis + drop das caixas no jogo)</small></h2>
+            <h2>CFTools <small style="font-size: 0.75rem; color: var(--dim);">(opcional - ranking de kills/zumbis + drop das caixas no jogo)</small></h2>
             <div class="row">
                 <label>Application ID</label>
                 <input type="text" name="cftools_app_id" value="<?= htmlspecialchars($_POST['cftools_app_id'] ?? '') ?>" autocomplete="off">

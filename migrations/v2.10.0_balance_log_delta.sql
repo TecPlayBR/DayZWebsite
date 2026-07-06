@@ -1,4 +1,4 @@
--- v2.10.0 — adiciona balance_log.delta (faltava no schema).
+-- v2.10.0 - adiciona balance_log.delta (faltava no schema).
 -- BUG latente: BalanceLog::record SEMPRE inseriu a coluna `delta`, mas ela nunca
 -- existiu na tabela (nem no schema.sql nem em migration) → todo INSERT de
 -- balance_log falhava em silêncio (o catch engolia) e o histórico de saldo do

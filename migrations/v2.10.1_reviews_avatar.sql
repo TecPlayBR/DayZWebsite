@@ -1,4 +1,4 @@
--- v2.10.1 — foto Steam nos depoimentos: coluna reviews.avatar.
+-- v2.10.1 - foto Steam nos depoimentos: coluna reviews.avatar.
 -- Capturada do login no momento do envio (reviews antigas ficam sem -> fallback
 -- pra inicial do nome). Idempotente: só adiciona se ainda não existir.
 

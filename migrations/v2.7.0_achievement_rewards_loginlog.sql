@@ -1,5 +1,5 @@
 -- ============================================================
--- v2.7.0 — Recompensa por conquista + Log de login
+-- v2.7.0 - Recompensa por conquista + Log de login
 -- ============================================================
 -- Idempotente (CREATE TABLE IF NOT EXISTS). NUNCA apaga dados.
 -- ============================================================
@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS achievement_rewards_log (
     KEY idx_ach_created (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Log de quem logou no site via Steam (privacidade/auditoria). Sem PII sensível —
+-- Log de quem logou no site via Steam (privacidade/auditoria). Sem PII sensível -
 -- SteamID é público; IP/UA pra auditoria de acesso. Decoupled do ranking (que segue público).
 CREATE TABLE IF NOT EXISTS login_log (
     id           INT AUTO_INCREMENT PRIMARY KEY,

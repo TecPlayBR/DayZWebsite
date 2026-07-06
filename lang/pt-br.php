@@ -1,6 +1,6 @@
 <?php
 // ============================================================
-// pt-br.php — strings de interface do template DayZWebsite (Tecplay)
+// pt-br.php - strings de interface do template DayZWebsite (Tecplay)
 // Valores GENÉRICOS. Customize textos aqui (sobrevive a update se você
 // preservar este arquivo) ou via painel onde aplicável.
 // ============================================================
@@ -35,13 +35,13 @@ return array (
     'title' => 'Galeria',
     'subtitle' => 'Momentos capturados dentro do servidor. Junte-se à comunidade e crie os seus.',
     'empty' => 'Nenhuma screenshot por aqui ainda. Volte logo.',
-    'intro' => 'Screenshots capturados pelos jogadores do :site — servidor DayZ BR no mapa Chernarus. Bases construídas, raids noturnas, veículos, zonas quentes e a comunidade em ação.',
+    'intro' => 'Screenshots capturados pelos jogadores do :site - servidor DayZ BR no mapa Chernarus. Bases construídas, raids noturnas, veículos, zonas quentes e a comunidade em ação.',
   ),
   'hero' =>
   array (
     'kicker' => 'Bem-vindo ao fim do mundo',
     'title' => 'O Mundo Acabou. Você Não.',
-    'subkicker' => 'no seu <strong>servidor de DayZ</strong> — sobrevivência hardcore, economia real e PvP justo.',
+    'subkicker' => 'no seu <strong>servidor de DayZ</strong> - sobrevivência hardcore, economia real e PvP justo.',
     'subtitle' => 'Comunidade brasileira de DayZ. Economia real, base building, PvP justo e staff acordada. Entra, sobrevive, conquista.',
     'cta' => 'Entrar Agora',
     'cta_alt' => 'Conheça as Regras',
@@ -65,7 +65,7 @@ return array (
   'testimonials' => 
   array (
     'title' => 'O que dizem os sobreviventes',
-    'subtitle' => 'Quem joga aqui não solta o mouse — feedback real da comunidade.',
+    'subtitle' => 'Quem joga aqui não solta o mouse - feedback real da comunidade.',
     'see_all' => 'Veja todas em',
     'verified' => 'Cliente verificado',
     'member' => 'Membro da comunidade',
@@ -170,21 +170,21 @@ return array (
     'empty' => 'Nenhum depoimento ainda.',
     'be_first' => 'Seja o primeiro a comprar e avaliar →',
     'form_title' => 'Deixe sua avaliação',
-    'form_intro_1' => 'Joga aqui e quer compartilhar? Manda sua avaliação — passa por moderação antes de aparecer.',
+    'form_intro_1' => 'Joga aqui e quer compartilhar? Manda sua avaliação - passa por moderação antes de aparecer.',
     'form_intro_2' => 'Compradores podem também avaliar pelas compras em',
     'my_purchases' => 'Minhas Compras',
     'label_name' => 'Nome (como vai aparecer)',
     'ph_name' => 'Seu nick ou nome',
     'label_rating' => 'Sua nota',
     'label_review' => 'Sua avaliação',
-    'ph_review' => 'Conta como é jogar aqui — staff, eventos, PvP, comunidade...',
+    'ph_review' => 'Conta como é jogar aqui - staff, eventos, PvP, comunidade...',
     'submit' => 'Enviar avaliação',
     'flash_ok' => '✓ Obrigado! Sua avaliação foi enviada e vai aparecer aqui após moderação.',
     'err_rate' => 'Devagar! Tenta de novo em alguns minutos.',
     'err_csrf' => 'Token de segurança expirou. Recarrega a página.',
     'err_invalid_name' => 'Nome precisa ter entre 2 e 60 caracteres.',
     'err_invalid_body' => 'Avaliação precisa ter entre 10 e 500 caracteres.',
-    'login_cta' => 'Pra avaliar, entre com a sua conta Steam — assim o depoimento sai com o seu nick verificado.',
+    'login_cta' => 'Pra avaliar, entre com a sua conta Steam - assim o depoimento sai com o seu nick verificado.',
     'login_btn' => 'Entrar com Steam',
     'review_hint' => 'Reviews aprovados aparecem aqui e na loja em até 24h. Seu nick Steam fica visível; só jogadores verificados podem avaliar.',
     'reviewing_as' => 'Avaliando como',
@@ -193,7 +193,7 @@ return array (
   'features' =>
   array (
     'title' => 'O Que Você Vai Encontrar',
-    'subtitle' => 'Não somos só mais um servidor. Aqui você joga como se sua vida dependesse disso — porque depende.',
+    'subtitle' => 'Não somos só mais um servidor. Aqui você joga como se sua vida dependesse disso - porque depende.',
     'items' => 
     array (
       'survival' => 
@@ -226,7 +226,7 @@ return array (
     'buy' => 'Comprar',
     'terms_note' => 'Marque a caixa pra confirmar que leu e aceita. Ao comprar, fica registrado que você aceitou os Termos e a Política de Reembolso.',
     'auto_delivery' => '. Entrega automática em até 15 segundos após confirmação.',
-    'steamid_warning' => '⚠ Confira o seu SteamID antes de pagar — créditos vão pro SteamID informado e não podem ser transferidos depois.',
+    'steamid_warning' => '⚠ Confira o seu SteamID antes de pagar - créditos vão pro SteamID informado e não podem ser transferidos depois.',
     'with_coins' => 'Com suas moedas, abra também as',
     'try_boxes' => 'Caixas de Loot',
   ),
@@ -301,7 +301,7 @@ return array (
     'logged_as' => 'Logado como',
     'balance_label' => 'saldo:',
     'coins_word' => 'moedas',
-    'login_prompt' => 'Entre com Steam pra abrir caixas — o item cai direto no seu personagem.',
+    'login_prompt' => 'Entre com Steam pra abrir caixas - o item cai direto no seu personagem.',
     'login_steam' => 'Entrar com Steam',
     'none_available' => 'Nenhuma caixa disponível no momento.',
     'tag_daily' => 'DIÁRIA',
@@ -331,10 +331,10 @@ return array (
   'pix' =>
   array (
     'kicker' => 'PAGAMENTO PIX',
-    'title_1' => 'Escaneie e pague —',
+    'title_1' => 'Escaneie e pague -',
     'title_2' => 'sem sair daqui',
     'qr_alt' => 'QR Code PIX',
-    'qr_unavailable' => 'QR indisponível — use o código copia-e-cola →',
+    'qr_unavailable' => 'QR indisponível - use o código copia-e-cola →',
     'expires_in' => 'expira em',
     'coins_word' => 'moedas',
     'discount_applied' => 'desconto de R$ :v aplicado',
@@ -354,7 +354,7 @@ return array (
     'awaiting' => 'Aguardando pagamento…',
     'step1' => 'Abra o app do seu banco e escolha <strong>PIX → Pagar com QR Code</strong> (ou Copia e Cola).',
     'step2' => 'Confirme o valor de <strong>:v</strong>.',
-    'step3' => 'Assim que aprovar, <strong>esta página leva você direto pro seu perfil</strong> com o saldo novo — não precisa fazer nada.',
+    'step3' => 'Assim que aprovar, <strong>esta página leva você direto pro seu perfil</strong> com o saldo novo - não precisa fazer nada.',
     'pay_card' => 'Pagar com cartão ou boleto',
     'back_shop' => 'Voltar pra loja',
     'expired' => 'PIX expirado.',
@@ -365,7 +365,7 @@ return array (
   array (
     'next' => 'Próximo restart',
     'in' => '(em :t)',
-    'warn' => 'Restart próximo — saia de combate',
+    'warn' => 'Restart próximo - saia de combate',
     'soon' => 'Restart em :m min',
     'restarting' => 'Reiniciando…',
   ),
@@ -421,7 +421,7 @@ return array (
     'title_1' => 'Participe e',
     'title_2' => 'concorra a prêmios.',
     'subtitle' => 'Competições e sorteios do servidor. Acompanhe o cronograma e garanta a sua.',
-    'empty' => 'Nenhum evento ativo no momento. Fica de olho — vem coisa boa por aí.',
+    'empty' => 'Nenhum evento ativo no momento. Fica de olho - vem coisa boa por aí.',
     'live' => 'AO VIVO',
     'soon' => 'EM BREVE',
     'ended_badge' => 'ENCERRADO',

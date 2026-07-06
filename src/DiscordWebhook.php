@@ -44,7 +44,7 @@ class DiscordWebhook {
         $description .= "creditadas no servidor.";
 
         $payload = [
-            'username' => $siteName . ' — Vendas',
+            'username' => $siteName . ' - Vendas',
             'embeds' => [[
                 'title'       => '🎮 Nova compra aprovada',
                 'description' => $description,

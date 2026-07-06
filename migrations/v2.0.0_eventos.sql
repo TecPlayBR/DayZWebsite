@@ -1,5 +1,5 @@
 -- ============================================================
--- v2.0.0 — Eventos & Sorteios
+-- v2.0.0 - Eventos & Sorteios
 -- ============================================================
 -- Eventos/sorteios que aparecem em /eventos (nav) + teaser na home. O status
 -- (próximo / ativo / encerrado) é calculado pelas datas. Sorteio pode ter um

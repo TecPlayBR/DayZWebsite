@@ -38,7 +38,7 @@ class View {
                 self::$sections['content'] = $content;
             }
             // View filha pode ter usado View::with() pra setar title/description/etc
-            // que so existem no escopo dela — propaga pro layout via merge (extraData wins).
+            // que so existem no escopo dela - propaga pro layout via merge (extraData wins).
             $layoutData = array_merge($data, self::$extraData);
             return self::renderRaw(self::$layout, $layoutData);
         }

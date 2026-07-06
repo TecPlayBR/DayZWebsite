@@ -40,7 +40,7 @@ $pages = [
 <p>A entrega das moedas é vinculada ao <strong>SteamID</strong> informado no momento da compra. É responsabilidade do comprador fornecer o SteamID correto. Pedidos com SteamID errado não são reembolsáveis após a entrega.</p>
 
 <h2>4. Conduta do Jogador</h2>
-<p>O uso do servidor está sujeito às regras publicadas em <a href="/page/rules">Regras do Servidor</a>. Quebrar regras pode resultar em advertência, banimento temporário ou permanente — <strong>sem reembolso de moedas adquiridas previamente</strong>.</p>
+<p>O uso do servidor está sujeito às regras publicadas em <a href="/page/rules">Regras do Servidor</a>. Quebrar regras pode resultar em advertência, banimento temporário ou permanente - <strong>sem reembolso de moedas adquiridas previamente</strong>.</p>
 
 <h2>5. Pagamentos</h2>
 <p>Os pagamentos são processados via Mercado Pago. Após confirmação do pagamento, as moedas são entregues em até 15 segundos. Em caso de falha técnica, contate o suporte via Discord.</p>
@@ -75,7 +75,7 @@ HTML,
 <p>Coin delivery is tied to the <strong>SteamID</strong> provided at purchase. It is the buyer's responsibility to provide the correct SteamID. Orders with incorrect SteamID are non-refundable after delivery.</p>
 
 <h2>4. Player Conduct</h2>
-<p>Use of the server is subject to the published <a href="/page/rules">Server Rules</a>. Rule violations may result in warnings, temporary or permanent bans — <strong>without refund of previously purchased coins</strong>.</p>
+<p>Use of the server is subject to the published <a href="/page/rules">Server Rules</a>. Rule violations may result in warnings, temporary or permanent bans - <strong>without refund of previously purchased coins</strong>.</p>
 
 <h2>5. Payments</h2>
 <p>Payments are processed via Mercado Pago. After payment confirmation, coins are delivered within 15 seconds. In case of technical failure, contact support via Discord.</p>
@@ -109,7 +109,7 @@ HTML,
 <ul>
     <li><strong>SteamID:</strong> identificador da sua conta Steam, necessário para entregar moedas no servidor</li>
     <li><strong>E-mail (opcional):</strong> apenas se você informar para contato de suporte</li>
-    <li><strong>Dados de pagamento:</strong> processados exclusivamente pelo Mercado Pago — nós NÃO armazenamos número de cartão, CVV ou senha bancária</li>
+    <li><strong>Dados de pagamento:</strong> processados exclusivamente pelo Mercado Pago - nós NÃO armazenamos número de cartão, CVV ou senha bancária</li>
     <li><strong>Endereço IP e logs:</strong> registrados temporariamente para fins de segurança e prevenção a fraude</li>
     <li><strong>Cookies essenciais:</strong> sessão de login e preferência de idioma (não usamos cookies de rastreamento de terceiros)</li>
 </ul>
@@ -144,7 +144,7 @@ HTML,
 <p>Mantemos registros de compras por <strong>5 anos</strong> (exigência fiscal). SteamID e dados de saldo no jogo persistem enquanto sua conta estiver ativa no servidor.</p>
 
 <h2>7. Segurança</h2>
-<p>Usamos HTTPS, senhas hash bcrypt, proteção CSRF e rate limiting. Mesmo assim, nenhum sistema é 100% imune — você é responsável por proteger suas próprias credenciais Steam e e-mail.</p>
+<p>Usamos HTTPS, senhas hash bcrypt, proteção CSRF e rate limiting. Mesmo assim, nenhum sistema é 100% imune - você é responsável por proteger suas próprias credenciais Steam e e-mail.</p>
 
 <h2>8. Menores de idade</h2>
 <p>O serviço é destinado a maiores de 13 anos (idade mínima de uso do Steam). Menores entre 13 e 18 anos devem ter consentimento dos responsáveis para realizar compras.</p>
@@ -161,7 +161,7 @@ HTML,
 <ul>
     <li><strong>SteamID:</strong> your Steam account identifier, needed to deliver coins on the server</li>
     <li><strong>Email (optional):</strong> only if you provide it for support contact</li>
-    <li><strong>Payment data:</strong> processed exclusively by Mercado Pago — we do NOT store card number, CVV or banking password</li>
+    <li><strong>Payment data:</strong> processed exclusively by Mercado Pago - we do NOT store card number, CVV or banking password</li>
     <li><strong>IP address and logs:</strong> temporarily logged for security and fraud prevention</li>
     <li><strong>Essential cookies:</strong> login session and language preference (no third-party tracking cookies)</li>
 </ul>
@@ -196,10 +196,10 @@ HTML,
 <p>We keep purchase records for <strong>5 years</strong> (tax requirement). SteamID and in-game balance data persist while your account is active on the server.</p>
 
 <h2>7. Security</h2>
-<p>We use HTTPS, bcrypt password hashing, CSRF protection and rate limiting. Still, no system is 100% immune — you are responsible for protecting your own Steam credentials and email.</p>
+<p>We use HTTPS, bcrypt password hashing, CSRF protection and rate limiting. Still, no system is 100% immune - you are responsible for protecting your own Steam credentials and email.</p>
 
 <h2>8. Minors</h2>
-<p>The service is intended for users aged 13+ (Steam's minimum age). Users aged 13–18 must have parental consent to make purchases.</p>
+<p>The service is intended for users aged 13+ (Steam's minimum age). Users aged 13-18 must have parental consent to make purchases.</p>
 
 <blockquote><em>This is a starter template. Adapt to your server's actual practices and review with an LGPD specialist.</em></blockquote>
 HTML,
@@ -230,7 +230,7 @@ HTML,
 <p>Após verificação, processamos a entrega manual em até 24h úteis, ou reembolso integral se a entrega for inviável.</p>
 
 <h2>4. SteamID errado</h2>
-<p>Se você informou um SteamID errado e as moedas foram entregues a outra conta, <strong>não há reembolso</strong> — é responsabilidade do comprador conferir antes de pagar. Em casos comprovados de erro de digitação evidente (ex: diferença de 1 dígito), avaliamos caso a caso.</p>
+<p>Se você informou um SteamID errado e as moedas foram entregues a outra conta, <strong>não há reembolso</strong> - é responsabilidade do comprador conferir antes de pagar. Em casos comprovados de erro de digitação evidente (ex: diferença de 1 dígito), avaliamos caso a caso.</p>
 
 <h2>5. Banimento ou perda no jogo</h2>
 <p>Banimentos por quebra de regras, perda de itens por morte/raid/bug do jogo <strong>não geram reembolso</strong>. As regras do servidor estão em <a href="/page/rules">/page/rules</a>.</p>
@@ -267,7 +267,7 @@ HTML,
 <p>After verification, we process manual delivery within 24 business hours, or full refund if delivery is unfeasible.</p>
 
 <h2>4. Wrong SteamID</h2>
-<p>If you entered a wrong SteamID and coins were delivered to another account, <strong>no refund</strong> — it is the buyer's responsibility to verify before paying. Cases of evident typo (e.g. 1-digit difference) are reviewed individually.</p>
+<p>If you entered a wrong SteamID and coins were delivered to another account, <strong>no refund</strong> - it is the buyer's responsibility to verify before paying. Cases of evident typo (e.g. 1-digit difference) are reviewed individually.</p>
 
 <h2>5. In-game ban or loss</h2>
 <p>Bans for rule violations, loss of items via death/raid/game bug <strong>do not generate refund</strong>. Server rules at <a href="/page/rules">/page/rules</a>.</p>

@@ -5,7 +5,7 @@
 // ============================================================
 // Lógica de povoamento de dados-demo reutilizável tanto pelo CLI
 // (cli/seed-demo.php) quanto pelo instalador web (public/install.php).
-// Recebe um PDO já conectado — não toca em config nem em App\Database.
+// Recebe um PDO já conectado - não toca em config nem em App\Database.
 //
 // Idempotente: só insere o que ainda não existe (steam_id 76561197000* e
 // anúncios com título "[demo] ..."). Pode rodar várias vezes sem duplicar.
@@ -23,7 +23,7 @@ if (!function_exists('seed_demo_clean')) {
             try {
                 $st = $pdo->prepare("DELETE FROM `$t` WHERE steam_id LIKE ?");
                 $st->execute([$like]);
-            } catch (\Throwable $e) { /* tabela ausente em install antigo — ignora */ }
+            } catch (\Throwable $e) { /* tabela ausente em install antigo - ignora */ }
         }
         try { $pdo->exec("DELETE FROM announcements WHERE title LIKE '[demo]%'"); }
         catch (\Throwable $e) { /* ignora */ }

@@ -48,7 +48,7 @@ class Database {
         return $stmt;
     }
 
-    /** Alias de query() pra escrita (INSERT/UPDATE/DELETE) — semântica mais clara. */
+    /** Alias de query() pra escrita (INSERT/UPDATE/DELETE) - semântica mais clara. */
     public static function execute(string $sql, array $params = []): int {
         return self::query($sql, $params)->rowCount();
     }

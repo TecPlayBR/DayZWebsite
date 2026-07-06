@@ -7,11 +7,11 @@
 // o PRÓXIMO e usa pra:
 //   1. Mostrar discretamente pro player ("próximo restart em Xh").
 //   2. BLINDAR o drop de item: dentro da janela de perigo (~min antes
-//      do restart) NÃO dropa ao vivo (item iria pro limbo) — segura
+//      do restart) NÃO dropa ao vivo (item iria pro limbo) - segura
 //      como pendente e entrega quando o server voltar.
 //
 // CFTools NÃO expõe o schedule de restart (restart é config do host,
-// não do CF). Por isso o cadastro é manual — confiável e universal.
+// não do CF). Por isso o cadastro é manual - confiável e universal.
 // ============================================================
 
 namespace App;
@@ -63,7 +63,7 @@ class Restart {
     }
 
     /**
-     * Dentro da janela de PERIGO pro drop? (não dropar ao vivo — vai pro limbo).
+     * Dentro da janela de PERIGO pro drop? (não dropar ao vivo - vai pro limbo).
      * Buffer maior que o aviso (default warn+5) pra dar folga antes do servidor travar.
      */
     public static function inDangerWindow(?int $bufferMin = null): bool {

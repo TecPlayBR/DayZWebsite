@@ -102,12 +102,12 @@ if (!function_exists('notify_bot_release')) {
 if (!function_exists('pending_migrations')) {
     /**
      * Migrations em /migrations que ainda NÃO foram aplicadas (não estão na tabela
-     * schema_migrations). Usado pra avisar o admin que o banco está atrasado — o
+     * schema_migrations). Usado pra avisar o admin que o banco está atrasado - o
      * cliente subiu os arquivos novos mas esqueceu de rodar `php cli/migrate.php`.
      *
      * Só acusa quando schema_migrations EXISTE e tem lacuna. Instalação nova (via
      * schema.sql, que já traz tudo) não cria essa tabela → retorna [] (sem alarme falso).
-     * Qualquer erro também retorna [] — nunca trava o painel.
+     * Qualquer erro também retorna [] - nunca trava o painel.
      */
     function pending_migrations(string $root): array {
         try {
@@ -135,11 +135,11 @@ if (!function_exists('detect_image_mime')) {
      * têm a extensão PHP `fileinfo` (aí `finfo_open()` é undefined e dava fatal
      * "Call to undefined function finfo_open()" no upload). Ordem:
      *   1) finfo (ideal, quando a extensão existe);
-     *   2) getimagesize (parte do GD, quase sempre presente — e ainda confirma que é
+     *   2) getimagesize (parte do GD, quase sempre presente - e ainda confirma que é
      *      uma IMAGEM de verdade, então é até mais seguro pra upload de imagem);
      *   3) mime_content_type (último recurso).
      * Retorna o MIME (ex.: 'image/png') ou null. A validação por allowlist continua
-     * sendo feita por quem chama — isto só descobre o tipo.
+     * sendo feita por quem chama - isto só descobre o tipo.
      */
     function detect_image_mime(string $path): ?string {
         if (function_exists('finfo_open')) {
@@ -155,11 +155,11 @@ if (!function_exists('detect_image_mime')) {
 
 if (!function_exists('ensure_writable_dir')) {
     /**
-     * Garante que um diretório existe E é gravável pelo PHP — inclusive em hosts que
+     * Garante que um diretório existe E é gravável pelo PHP - inclusive em hosts que
      * rodam o PHP num usuário diferente do dono dos arquivos (enviados por FTP), onde
      * a pasta nasce sem permissão de escrita pro processo web. Cria recursivo e ESCALA
      * a permissão (0775 -> 0777) até conseguir. Retorna true se ficou gravável.
-     * Centraliza o "fazer funcionar sozinho" — o cliente não precisa dar chmod na mão.
+     * Centraliza o "fazer funcionar sozinho" - o cliente não precisa dar chmod na mão.
      */
     function ensure_writable_dir(string $dir): bool {
         if (!is_dir($dir)) @mkdir($dir, 0775, true);
@@ -175,7 +175,7 @@ if (!function_exists('asset')) {
         $publicAssets = dirname(__DIR__) . '/public/assets/';
 
         // Override de marca: se o cliente subiu pelo painel uma versão custom de
-        // uma imagem (logo/favicon/background), ela fica em assets/img/custom/ —
+        // uma imagem (logo/favicon/background), ela fica em assets/img/custom/ -
         // pasta GITIGNORED, que NÃO é sobrescrita quando ele atualiza o template.
         // Casa por nome-base SEM extensão (logo.png -> custom/logo.{png,jpg,webp,...})
         // pra o upload poder manter a extensão real e o content-type correto.
@@ -192,7 +192,7 @@ if (!function_exists('asset')) {
         }
 
         $url = '/assets/' . $rel;
-        // Cache-busting via filemtime: ?v=<unix-ts> só pra CSS/JS — quando o
+        // Cache-busting via filemtime: ?v=<unix-ts> só pra CSS/JS - quando o
         // cliente edita o tema, o browser pega a versão nova em vez do cache
         // de 1 mês do .htaccess. Imagens padrão ficam sem versionar (raramente mudam).
         $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
@@ -210,7 +210,7 @@ if (!function_exists('theme_override_tag')) {
     /**
      * Retorna <link> pro theme.override.css se ele existir; string vazia caso contrário.
      * Mecanismo de skin customizada pelo cliente sem tocar no template.
-     * theme.override.css fica gitignored — cada instalação tem o seu.
+     * theme.override.css fica gitignored - cada instalação tem o seu.
      */
     function theme_override_tag(): string {
         $abs = dirname(__DIR__) . '/public/assets/css/theme.override.css';
@@ -224,7 +224,7 @@ if (!function_exists('theme_override_tag')) {
 
 if (!function_exists('fmt_dt')) {
     /** Formata data ('Y-m-d H:i:s' ou timestamp) pra algo legível: "13 jun 2026, 04:10". */
-    function fmt_dt($value, string $fallback = '—'): string {
+    function fmt_dt($value, string $fallback = '-'): string {
         if (empty($value)) return $fallback;
         $ts = is_numeric($value) ? (int)$value : strtotime((string)$value);
         if (!$ts) return $fallback;
@@ -235,7 +235,7 @@ if (!function_exists('fmt_dt')) {
 
 if (!function_exists('time_ago')) {
     /** Tempo relativo amigável: "agora mesmo", "há 2h", "ontem", "há 3 dias"; data se antigo. */
-    function time_ago($value, string $fallback = '—'): string {
+    function time_ago($value, string $fallback = '-'): string {
         if (empty($value)) return $fallback;
         $ts = is_numeric($value) ? (int)$value : strtotime((string)$value);
         if (!$ts) return $fallback;
@@ -306,7 +306,7 @@ if (!function_exists('home_features')) {
     /**
      * Config da seção "O Que Você Vai Encontrar" da home.
      * Se o admin editou (setting `home_features` com cards), usa isso. Senão, cai
-     * pros 4 cards genéricos do idioma (template padrão — instalação nova não muda).
+     * pros 4 cards genéricos do idioma (template padrão - instalação nova não muda).
      * Retorna ['enabled'=>bool, 'title'=>str, 'subtitle'=>str, 'cards'=>[['icon','title','text'],...]].
      */
     function home_features(): array {

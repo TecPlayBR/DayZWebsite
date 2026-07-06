@@ -1,7 +1,7 @@
 <?php
 // ============================================================
 // (c) 2026 Tecplay - DayZ Website Template
-// API: /api/player-stats — estatísticas de gameplay (leaderboard/perfil)
+// API: /api/player-stats - estatísticas de gameplay (leaderboard/perfil)
 // ============================================================
 // O Bot puxa os stats do CFTools (resolve Steam64 -> cftools_id) e EMPURRA aqui.
 // Auth: header  Authorization: Bearer <discord_integration_token>  (mesmo token
@@ -68,7 +68,7 @@ if (!hash_equals($expected, _bearer_token())) {
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
-// ============ POST — Bot empurra stats (upsert em lote) ============
+// ============ POST - Bot empurra stats (upsert em lote) ============
 if ($method === 'POST') {
     $raw  = file_get_contents('php://input');
     $body = json_decode($raw, true);
@@ -125,7 +125,7 @@ if ($method === 'POST') {
     exit;
 }
 
-// ============ GET — leitura (perfil ou leaderboard) ============
+// ============ GET - leitura (perfil ou leaderboard) ============
 $lbCols = [
     'kills'    => 'kills',
     'kd'       => 'kdratio',

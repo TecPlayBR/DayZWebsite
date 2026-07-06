@@ -41,7 +41,7 @@ class Affiliate
      * Atrela o cliente a um streamer. Retorna o resultado:
      *  'disabled' | 'already' | 'blocked' | 'switched' | 'bound'
      * O benefício pro cliente só deve ser concedido quando o retorno for 'bound' ou 'switched'
-     * (um NOVO vínculo) — nunca em 'already' (evita desconto repetido).
+     * (um NOVO vínculo) - nunca em 'already' (evita desconto repetido).
      */
     public static function bind(string $steamId, string $couponCode): string
     {

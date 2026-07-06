@@ -1,4 +1,4 @@
--- v2.19.0 — Novidades / Notas de Atualização (patch notes pro player). Idempotente.
+-- v2.19.0 - Novidades / Notas de Atualização (patch notes pro player). Idempotente.
 -- O admin publica o que mudou (update de mod, correção, novidade); o player lê em /novidades.
 -- Nome da tabela = site_releases (evita "releases"/"release", que flerta com palavra reservada).
 CREATE TABLE IF NOT EXISTS site_releases (

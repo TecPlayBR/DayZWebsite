@@ -60,7 +60,7 @@ if (!$authServer) {
 }
 $serverId = (int) $authServer['id'];
 
-// ============ GET — agent puxa pendentes/revogados ============
+// ============ GET - agent puxa pendentes/revogados ============
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $rows = \App\Database::fetchAll(
         "SELECT id, steam_id, nickname, type, tier,
@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     die(json_encode(['ok' => true, 'grants' => $grants]));
 }
 
-// ============ POST — agent confirma (ack) ============
+// ============ POST - agent confirma (ack) ============
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $body = json_decode(file_get_contents('php://input'), true);
     $id = (int) ($body['id'] ?? 0);

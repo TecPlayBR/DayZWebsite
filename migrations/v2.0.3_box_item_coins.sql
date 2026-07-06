@@ -1,5 +1,5 @@
 -- ============================================================
--- v2.0.3 — recompensa de caixa pode ser ITEM ou MOEDAS
+-- v2.0.3 - recompensa de caixa pode ser ITEM ou MOEDAS
 -- ============================================================
 -- Cada item do pool da caixa agora tem um tipo: 'item' (dropa classname in-game)
 -- ou 'coins' (credita moedas no saldo). Quando 'coins', a coluna quantity guarda

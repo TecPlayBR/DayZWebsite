@@ -7,7 +7,7 @@
 // recomenda-se SMTP autenticado (Postmark, Sendgrid, Brevo, etc).
 //
 // Esta classe usa mail() por padrao. Se a config tiver SMTP, usa
-// PHPMailer (se disponivel) — caso contrario, fallback pra mail().
+// PHPMailer (se disponivel) - caso contrario, fallback pra mail().
 // ============================================================
 
 namespace App;

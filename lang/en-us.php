@@ -1,6 +1,6 @@
 <?php
 // ============================================================
-// en-us.php — strings de interface do template DayZWebsite (Tecplay)
+// en-us.php - strings de interface do template DayZWebsite (Tecplay)
 // Valores GENÉRICOS. Customize textos aqui (sobrevive a update se você
 // preservar este arquivo) ou via painel onde aplicável.
 // ============================================================
@@ -35,13 +35,13 @@ return array (
     'title' => 'Gallery',
     'subtitle' => 'Moments captured inside the server. Join the community and create your own.',
     'empty' => 'No screenshots here yet. Check back soon.',
-    'intro' => 'Screenshots captured by :site players — Brazilian DayZ server on the Chernarus map. Bases built, night raids, vehicles, hot zones and the community in action.',
+    'intro' => 'Screenshots captured by :site players - Brazilian DayZ server on the Chernarus map. Bases built, night raids, vehicles, hot zones and the community in action.',
   ),
   'hero' => 
   array (
     'kicker' => 'Welcome to the end of the world',
     'title' => 'The World Ended. You Did Not.',
-    'subkicker' => 'on your <strong>DayZ server</strong> — hardcore survival, real economy and fair PvP.',
+    'subkicker' => 'on your <strong>DayZ server</strong> - hardcore survival, real economy and fair PvP.',
     'subtitle' => 'Brazilian DayZ community. Real economy, base building, fair PvP and an awake staff. Join, survive, conquer.',
     'cta' => 'Join Now',
     'cta_alt' => 'Read the Rules',
@@ -65,7 +65,7 @@ return array (
   'testimonials' => 
   array (
     'title' => 'What survivors are saying',
-    'subtitle' => 'Players who join here don\'t let go — real feedback from the community.',
+    'subtitle' => 'Players who join here don\'t let go - real feedback from the community.',
     'see_all' => 'See all at',
     'verified' => 'Verified customer',
     'member' => 'Community member',
@@ -170,21 +170,21 @@ return array (
     'empty' => 'No testimonials yet.',
     'be_first' => 'Be the first to buy and review →',
     'form_title' => 'Leave your review',
-    'form_intro_1' => 'Playing here and want to share? Submit your review — it goes through moderation before appearing.',
+    'form_intro_1' => 'Playing here and want to share? Submit your review - it goes through moderation before appearing.',
     'form_intro_2' => 'Customers can also review purchases at',
     'my_purchases' => 'My Purchases',
     'label_name' => 'Name (how it will appear)',
     'ph_name' => 'Your nick or name',
     'label_rating' => 'Your rating',
     'label_review' => 'Your review',
-    'ph_review' => 'Tell us what it\'s like playing here — staff, events, PvP, community...',
+    'ph_review' => 'Tell us what it\'s like playing here - staff, events, PvP, community...',
     'submit' => 'Submit review',
     'flash_ok' => '✓ Thanks! Your review was sent and will appear here after moderation.',
     'err_rate' => 'Slow down! Try again in a few minutes.',
     'err_csrf' => 'Security token expired. Reload the page.',
     'err_invalid_name' => 'Name must be 2-60 characters.',
     'err_invalid_body' => 'Review must be 10-500 characters.',
-    'login_cta' => 'To leave a review, sign in with your Steam account — that way your review shows up with your verified nickname.',
+    'login_cta' => 'To leave a review, sign in with your Steam account - that way your review shows up with your verified nickname.',
     'login_btn' => 'Sign in with Steam',
     'review_hint' => 'Approved reviews show up here and in the shop within 24h. Your Steam nickname is visible; only verified players can review.',
     'reviewing_as' => 'Reviewing as',
@@ -193,7 +193,7 @@ return array (
   'features' =>
   array (
     'title' => 'What You Will Find',
-    'subtitle' => 'Not just another server. Here you play like your life depends on it — because it does.',
+    'subtitle' => 'Not just another server. Here you play like your life depends on it - because it does.',
     'items' => 
     array (
       'survival' => 
@@ -226,7 +226,7 @@ return array (
     'buy' => 'Buy',
     'terms_note' => 'Tick the box to confirm you have read and accept. Buying registers your acceptance of the Terms and Refund Policy.',
     'auto_delivery' => '. Automatic delivery within 15 seconds after confirmation.',
-    'steamid_warning' => '⚠ Double-check your SteamID before paying — credits go to the SteamID you submit and cannot be transferred later.',
+    'steamid_warning' => '⚠ Double-check your SteamID before paying - credits go to the SteamID you submit and cannot be transferred later.',
     'with_coins' => 'With your coins, also open the',
     'try_boxes' => 'Loot Boxes',
   ),
@@ -301,7 +301,7 @@ return array (
     'logged_as' => 'Logged in as',
     'balance_label' => 'balance:',
     'coins_word' => 'coins',
-    'login_prompt' => 'Sign in with Steam to open cases — the item drops straight onto your character.',
+    'login_prompt' => 'Sign in with Steam to open cases - the item drops straight onto your character.',
     'login_steam' => 'Sign in with Steam',
     'none_available' => 'No cases available right now.',
     'tag_daily' => 'DAILY',
@@ -331,10 +331,10 @@ return array (
   'pix' =>
   array (
     'kicker' => 'PIX PAYMENT',
-    'title_1' => 'Scan and pay —',
+    'title_1' => 'Scan and pay -',
     'title_2' => 'without leaving here',
     'qr_alt' => 'PIX QR Code',
-    'qr_unavailable' => 'QR unavailable — use the copy-and-paste code →',
+    'qr_unavailable' => 'QR unavailable - use the copy-and-paste code →',
     'expires_in' => 'expires in',
     'coins_word' => 'coins',
     'discount_applied' => 'R$ :v discount applied',
@@ -354,7 +354,7 @@ return array (
     'awaiting' => 'Awaiting payment…',
     'step1' => 'Open your bank app and choose <strong>PIX → Pay with QR Code</strong> (or Copy and Paste).',
     'step2' => 'Confirm the amount of <strong>:v</strong>.',
-    'step3' => 'Once approved, <strong>this page takes you straight to your profile</strong> with the new balance — nothing else to do.',
+    'step3' => 'Once approved, <strong>this page takes you straight to your profile</strong> with the new balance - nothing else to do.',
     'pay_card' => 'Pay with card or boleto',
     'back_shop' => 'Back to shop',
     'expired' => 'PIX expired.',
@@ -365,7 +365,7 @@ return array (
   array (
     'next' => 'Next restart',
     'in' => '(in :t)',
-    'warn' => 'Restart soon — get out of combat',
+    'warn' => 'Restart soon - get out of combat',
     'soon' => 'Restart in :m min',
     'restarting' => 'Restarting…',
   ),
@@ -421,7 +421,7 @@ return array (
     'title_1' => 'Take part and',
     'title_2' => 'win prizes.',
     'subtitle' => 'Server competitions and raffles. Follow the schedule and secure your spot.',
-    'empty' => 'No active events right now. Stay tuned — good stuff is coming.',
+    'empty' => 'No active events right now. Stay tuned - good stuff is coming.',
     'live' => 'LIVE',
     'soon' => 'SOON',
     'ended_badge' => 'ENDED',

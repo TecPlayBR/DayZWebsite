@@ -1,5 +1,5 @@
 -- ============================================================
--- DayZWebsite v1.4.0 — Loja Fase 2: catálogo in-game + spend
+-- DayZWebsite v1.4.0 - Loja Fase 2: catálogo in-game + spend
 -- ============================================================
 -- Itens gastáveis (moeda → item entregue in-game). O bot lista via
 -- ?action=shop_items, debita via ?action=spend (atômico + idempotente).

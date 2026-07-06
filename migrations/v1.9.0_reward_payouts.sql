@@ -1,5 +1,5 @@
 -- ============================================================
--- v1.9.0 — Premiações do leaderboard (histórico + dedup por período)
+-- v1.9.0 - Premiações do leaderboard (histórico + dedup por período)
 -- ============================================================
 -- Registra cada moeda creditada por colocação/categoria/período. A UNIQUE
 -- (period_label, category, place) impede creditar 2x a mesma posição no mesmo

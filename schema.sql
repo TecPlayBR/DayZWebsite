@@ -215,7 +215,7 @@ CREATE TABLE settings (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================================
--- TABELA: servers — registry de servidores DayZ (multi-server)
+-- TABELA: servers - registry de servidores DayZ (multi-server)
 -- Single-server: 1 linha (id=1). Multi-server: 2+ linhas ativas.
 -- ============================================================
 DROP TABLE IF EXISTS servers;
@@ -240,7 +240,7 @@ INSERT INTO servers (id, name, slug, description, agent_token, sort_order) VALUE
 (1, 'Servidor Principal', 'principal', 'Servidor padrão do site.', SHA2(CONCAT(RAND(), NOW()), 256), 0);
 
 -- ============================================================
--- TABELA: audit_log — trilha de ações administrativas
+-- TABELA: audit_log - trilha de ações administrativas
 -- ============================================================
 DROP TABLE IF EXISTS audit_log;
 CREATE TABLE audit_log (
@@ -259,7 +259,7 @@ CREATE TABLE audit_log (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================================
--- TABELA: balance_log — histórico granular de saldo do player
+-- TABELA: balance_log - histórico granular de saldo do player
 -- ============================================================
 DROP TABLE IF EXISTS balance_log;
 CREATE TABLE balance_log (
@@ -279,7 +279,7 @@ CREATE TABLE balance_log (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================================
--- TABELA: combos — pacotes promocionais agregando vários packages
+-- TABELA: combos - pacotes promocionais agregando vários packages
 -- ============================================================
 DROP TABLE IF EXISTS combos;
 CREATE TABLE combos (
@@ -296,7 +296,7 @@ CREATE TABLE combos (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================================
--- TABELA: wishlist — pacotes salvos como desejo pelo player
+-- TABELA: wishlist - pacotes salvos como desejo pelo player
 -- ============================================================
 DROP TABLE IF EXISTS wishlist;
 CREATE TABLE wishlist (
@@ -308,7 +308,7 @@ CREATE TABLE wishlist (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================================
--- TABELA: gallery — screenshots públicas do servidor
+-- TABELA: gallery - screenshots públicas do servidor
 -- ============================================================
 DROP TABLE IF EXISTS gallery;
 CREATE TABLE gallery (
@@ -322,8 +322,8 @@ CREATE TABLE gallery (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================================
--- TABELA: invoices — cobranças Pix de valor livre (/cobrar do bot)
--- (migration v1.5.0 — usada por api/bot-integration.php + api/mp-webhook.php)
+-- TABELA: invoices - cobranças Pix de valor livre (/cobrar do bot)
+-- (migration v1.5.0 - usada por api/bot-integration.php + api/mp-webhook.php)
 -- ============================================================
 DROP TABLE IF EXISTS invoices;
 CREATE TABLE invoices (
@@ -381,7 +381,7 @@ CREATE TABLE discord_integration_log (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
--- TABELAS: shop_items + shop_spends  (migration v1.4.0 — loja in-game)
+-- TABELAS: shop_items + shop_spends  (migration v1.4.0 - loja in-game)
 -- Catalogo gastavel (/admin/shop, ?action=shop_items) + debito (?action=spend).
 -- ============================================================
 DROP TABLE IF EXISTS shop_items;
@@ -413,7 +413,7 @@ CREATE TABLE shop_spends (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================================
--- TABELA: player_stats  (migration v1.6.0 — leaderboard/perfil)
+-- TABELA: player_stats  (migration v1.6.0 - leaderboard/perfil)
 -- Stats de gameplay vindos do CFTools via Bot. Core ordenável + extra_json.
 -- ============================================================
 DROP TABLE IF EXISTS player_stats;
@@ -532,7 +532,7 @@ CREATE TABLE events (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================================
--- Entitlements VIP/BattlePass (v2.6.0) — geridos pelo site, aplicados pelo agent
+-- Entitlements VIP/BattlePass (v2.6.0) - geridos pelo site, aplicados pelo agent
 -- ============================================================
 DROP TABLE IF EXISTS player_grants;
 CREATE TABLE player_grants (
@@ -623,19 +623,19 @@ INSERT INTO settings (`key`, `value`) VALUES
 INSERT INTO pages (slug, title_ptbr, title_enus, body_ptbr, body_enus, published, sort_order)
 VALUES ('rules', 'Regras do Servidor', 'Server Rules', '<h2>Regras do Servidor</h2>
 
-<p class="legal-meta">Última atualização: 2026-06-04 — Aplica-se a todos os jogadores do servidor [NOME DO SERVIDOR] e da comunidade no Discord oficial.</p>
+<p class="legal-meta">Última atualização: 2026-06-04 - Aplica-se a todos os jogadores do servidor [NOME DO SERVIDOR] e da comunidade no Discord oficial.</p>
 
 <div class="legal-callout">
-<p><strong>Importante:</strong> ao conectar no servidor ou entrar no Discord, você concorda com TODAS as regras abaixo. Ignorância não é desculpa — leia até o fim.</p>
+<p><strong>Importante:</strong> ao conectar no servidor ou entrar no Discord, você concorda com TODAS as regras abaixo. Ignorância não é desculpa - leia até o fim.</p>
 </div>
 
 <h3>1. Regras Gerais</h3>
 <ul>
-<li>Duplicar, hackear, explorar falhas, usar glitches e trapacear resulta em <strong>banimento permanente</strong> — você e todo o seu grupo.</li>
+<li>Duplicar, hackear, explorar falhas, usar glitches e trapacear resulta em <strong>banimento permanente</strong> - você e todo o seu grupo.</li>
 <li>Contas alternativas <strong>não são permitidas</strong>.</li>
 <li>Evitar banimento (combat log, alt account) resulta em banimento permanente.</li>
 <li>Não há reembolso para equipamentos perdidos devido a bugs sem evidência em vídeo.</li>
-<li>Veículos por sua conta e risco. Não reembolsamos — isto é DayZ.</li>
+<li>Veículos por sua conta e risco. Não reembolsamos - isto é DayZ.</li>
 <li>A equipe não tolera desrespeito. Se você sofrer com isso, denuncie em ticket no Discord.</li>
 <li>Se qualquer membro da staff te ofender ou desrespeitar, reporte imediatamente. Você tem direitos como consumidor e cidadão.</li>
 </ul>
@@ -646,7 +646,7 @@ VALUES ('rules', 'Regras do Servidor', 'Server Rules', '<h2>Regras do Servidor</
 <li>Proibido CAPS LOCK excessivo, spam de mensagens, flood de emojis.</li>
 <li>Proibido discurso de ódio, racismo, xenofobia, homofobia, transfobia, capacitismo, misoginia ou qualquer discriminação. Banimento permanente.</li>
 <li>Stream-sniping (perseguir jogador por live) é proibido. Banimento.</li>
-<li>Doxxing (divulgar dados pessoais reais de outro jogador) é crime — denunciamos à polícia.</li>
+<li>Doxxing (divulgar dados pessoais reais de outro jogador) é crime - denunciamos à polícia.</li>
 </ul>
 
 <h3>3. Base Building</h3>
@@ -671,7 +671,7 @@ VALUES ('rules', 'Regras do Servidor', 'Server Rules', '<h2>Regras do Servidor</
     <li><strong>Domingo:</strong> 14:00 às 20:00</li>
   </ul>
 </li>
-<li>Tomou RAID fora do horário? Denuncie — investigamos. Tomou no horário porque não logou para defender? Paciência, isso é DayZ.</li>
+<li>Tomou RAID fora do horário? Denuncie - investigamos. Tomou no horário porque não logou para defender? Paciência, isso é DayZ.</li>
 <li>Quebra das regras de RAID → banimento individual ou do clã inteiro, conforme envolvimento.</li>
 <li>Obstruir passagem nos dias de RAID (armadilhas, carros, barricadas táticas) é permitido.</li>
 <li>Provocar dano em estruturas/proteções fora do horário de RAID → banimento.</li>
@@ -692,16 +692,16 @@ VALUES ('rules', 'Regras do Servidor', 'Server Rules', '<h2>Regras do Servidor</
 </ul>
 
 <h3>6. Recompensas, Conquistas e Economia (Anti-Burla)</h3>
-<p>Conquistas, eventos, ranking, caixas e recompensas existem pra premiar quem joga de verdade. Burlar esses sistemas é levado a sério — algumas recompensas têm valor real:</p>
+<p>Conquistas, eventos, ranking, caixas e recompensas existem pra premiar quem joga de verdade. Burlar esses sistemas é levado a sério - algumas recompensas têm valor real:</p>
 <ul>
-<li><strong>Proibido combinar mortes ("kill-trading")</strong> — matar (ou morrer de propósito pra) um parceiro pra farmar abates, distância de tiro ou qualquer métrica de conquista, evento ou ranking.</li>
+<li><strong>Proibido combinar mortes ("kill-trading")</strong> - matar (ou morrer de propósito pra) um parceiro pra farmar abates, distância de tiro ou qualquer métrica de conquista, evento ou ranking.</li>
 <li><strong>Proibido conluio</strong> entre jogadores ou contas pra inflar resultado de evento (inclusive evento de clã), ranking ou recompensa.</li>
 <li><strong>Proibido usar conta alternativa</strong> pra farmar conquistas, recompensas, indicações ou vantagens. Alt account já é proibida (§1); usar pra farmar é agravante.</li>
-<li><strong>Proibido automatizar</strong> (macro, script, bot) ações que geram recompensa — farm de tempo online, abates, abertura de caixa, etc.</li>
-<li><strong>Proibido explorar bug</strong> de um sistema de recompensa (duplicar prêmio, repetir resgate, brecha de evento). Achou a brecha? <strong>Reporte</strong> — não abuse.</li>
+<li><strong>Proibido automatizar</strong> (macro, script, bot) ações que geram recompensa - farm de tempo online, abates, abertura de caixa, etc.</li>
+<li><strong>Proibido explorar bug</strong> de um sistema de recompensa (duplicar prêmio, repetir resgate, brecha de evento). Achou a brecha? <strong>Reporte</strong> - não abuse.</li>
 </ul>
 <div class="legal-callout warn">
-<p><strong>Consequência:</strong> identificado o abuso (por logs, denúncia ou investigação), a staff pode <strong>anular as recompensas e Moedas ganhas de forma indevida</strong>, aplicar <strong>banimento</strong> (individual ou do clã/grupo envolvido) e tratar o caso como tentativa de fraude. A análise considera o conjunto de evidências e o padrão de comportamento. <strong>Moedas que você comprou na Loja não são afetadas por esta regra</strong> — só as recompensas obtidas burlando o sistema.</p>
+<p><strong>Consequência:</strong> identificado o abuso (por logs, denúncia ou investigação), a staff pode <strong>anular as recompensas e Moedas ganhas de forma indevida</strong>, aplicar <strong>banimento</strong> (individual ou do clã/grupo envolvido) e tratar o caso como tentativa de fraude. A análise considera o conjunto de evidências e o padrão de comportamento. <strong>Moedas que você comprou na Loja não são afetadas por esta regra</strong> - só as recompensas obtidas burlando o sistema.</p>
 </div>
 
 <h3>7. Discord (Comunidade)</h3>
@@ -716,10 +716,10 @@ VALUES ('rules', 'Regras do Servidor', 'Server Rules', '<h2>Regras do Servidor</
 <h3>8. Loja e Moedas (Termo de Aceite)</h3>
 <ul>
 <li>Ao comprar moedas na <a href="/shop">Loja</a>, você concorda com os <a href="/page/terms">Termos de Uso</a> e <a href="/page/refund">Política de Reembolso</a>.</li>
-<li>Moedas compradas só podem ser usadas dentro do servidor — não há reembolso após uso parcial ou total.</li>
+<li>Moedas compradas só podem ser usadas dentro do servidor - não há reembolso após uso parcial ou total.</li>
 <li>Não realizamos <strong>trocas</strong> de itens da loja. Pense bem antes de comprar.</li>
 <li>Não realizamos <strong>descontos</strong> sob demanda. Promoções são gerais e anunciadas.</li>
-<li>Se um item sumir do seu inventário, a staff <strong>não repõe</strong> — DayZ é DayZ. Cuidado onde guarda suas coisas.</li>
+<li>Se um item sumir do seu inventário, a staff <strong>não repõe</strong> - DayZ é DayZ. Cuidado onde guarda suas coisas.</li>
 <li>Banido = não pode mais jogar. Banimento é irrevogável. Reembolso só nos casos previstos na <a href="/page/refund">Política de Reembolso</a>.</li>
 <li>A staff <strong>nunca</strong> faz transferência de bens entre players ou interfere em gameplay. Se alguém da staff se ofereceu a fazer isso, denuncie aos donos do servidor imediatamente.</li>
 </ul>
@@ -727,8 +727,8 @@ VALUES ('rules', 'Regras do Servidor', 'Server Rules', '<h2>Regras do Servidor</
 <h3>9. Wipes (Reset Periódico)</h3>
 <ul>
 <li>O servidor pode ter wipes programados. A data será anunciada no <a href="https://discord.gg/SEU-CONVITE">Discord oficial</a> e no banner do site.</li>
-<li>No wipe, sua progressão (base, inventário) é perdida — como no DayZ vanilla. Suas <strong>moedas compradas na loja são preservadas</strong>.</li>
-<li>Moedas obtidas via loja in-game (Trader) podem ser wipadas — verifique antes.</li>
+<li>No wipe, sua progressão (base, inventário) é perdida - como no DayZ vanilla. Suas <strong>moedas compradas na loja são preservadas</strong>.</li>
+<li>Moedas obtidas via loja in-game (Trader) podem ser wipadas - verifique antes.</li>
 <li>Wipe forçado (sem aviso, por falha técnica nossa) → você tem direito a reembolso ou reposição.</li>
 <li>Wipe causado pela Bohemia (patch da dona do jogo) → reposição via loja in-game; sem reembolso por motivo externo a nós.</li>
 <li>A equipe é obrigada a comunicar wipes com antecedência. Se você não foi avisado, exija seus direitos.</li>
@@ -737,12 +737,12 @@ VALUES ('rules', 'Regras do Servidor', 'Server Rules', '<h2>Regras do Servidor</
 <h3>10. Penalidades</h3>
 <p>As penalidades variam conforme gravidade e reincidência:</p>
 <ul>
-<li><strong>Advertência</strong> verbal/escrita — primeira infração leve.</li>
-<li><strong>Kick</strong> — desconexão forçada do servidor/Discord, sem ban.</li>
-<li><strong>Ban temporário</strong> — 24h, 7 dias ou 30 dias.</li>
-<li><strong>Ban permanente</strong> — sem retorno. Apenas em casos graves ou reincidência.</li>
+<li><strong>Advertência</strong> verbal/escrita - primeira infração leve.</li>
+<li><strong>Kick</strong> - desconexão forçada do servidor/Discord, sem ban.</li>
+<li><strong>Ban temporário</strong> - 24h, 7 dias ou 30 dias.</li>
+<li><strong>Ban permanente</strong> - sem retorno. Apenas em casos graves ou reincidência.</li>
 </ul>
-<p>A staff registra todas as ações em audit log. Decisões podem ser questionadas via ticket — não em chat público.</p>
+<p>A staff registra todas as ações em audit log. Decisões podem ser questionadas via ticket - não em chat público.</p>
 
 <h3>11. Perda de Item, Bug e Reposição (Prova Obrigatória)</h3>
 <p>DayZ é DayZ: bugs acontecem, e nem sempre o log guarda o que rolou. A gente faz o possível pra investigar, mas o critério de reposição é o mesmo pra todos, sem exceção.</p>
@@ -827,16 +827,16 @@ Dúvidas: <a href="https://discord.gg/SEU-CONVITE">Discord oficial [NOME DO SERV
 <li>You may be asked to install an <strong>anti-cheat validator</strong> under team supervision if reported. Refusing = ban.</li>
 </ul>
 <h3>6. Rewards, Achievements, and Economy (Anti-Abuse)</h3>
-<p>Achievements, events, rankings, crates, and rewards exist to reward players who actually play. Gaming these systems is taken seriously — some rewards have real value:</p>
+<p>Achievements, events, rankings, crates, and rewards exist to reward players who actually play. Gaming these systems is taken seriously - some rewards have real value:</p>
 <ul>
-<li><strong>No kill-trading</strong> — killing (or deliberately dying to) a partner to farm kills, shot distance, or any achievement, event, or ranking metric.</li>
+<li><strong>No kill-trading</strong> - killing (or deliberately dying to) a partner to farm kills, shot distance, or any achievement, event, or ranking metric.</li>
 <li><strong>No collusion</strong> between players or accounts to inflate event results (including clan events), rankings, or rewards.</li>
 <li><strong>No alternate accounts</strong> to farm achievements, rewards, referrals, or advantages. Alt accounts are already banned (§1); using them to farm is an aggravating factor.</li>
-<li><strong>No automation</strong> (macros, scripts, bots) of actions that generate rewards — playtime farming, kills, crate opening, etc.</li>
-<li><strong>No exploiting bugs</strong> in a reward system (duplicating a prize, repeating a claim, event loopholes). Found a loophole? <strong>Report it</strong> — don''t abuse it.</li>
+<li><strong>No automation</strong> (macros, scripts, bots) of actions that generate rewards - playtime farming, kills, crate opening, etc.</li>
+<li><strong>No exploiting bugs</strong> in a reward system (duplicating a prize, repeating a claim, event loopholes). Found a loophole? <strong>Report it</strong> - don''t abuse it.</li>
 </ul>
 <div class="legal-callout warn">
-<p><strong>Consequence:</strong> once abuse is identified (through logs, reports, or investigation), the staff may <strong>void the rewards and Coins obtained improperly</strong>, apply a <strong>ban</strong> (individual or the entire clan/group involved), and treat the case as attempted fraud. The analysis considers the overall evidence and behavior pattern. <strong>Coins you purchased in the Shop are not affected by this rule</strong> — only rewards obtained by gaming the system.</p>
+<p><strong>Consequence:</strong> once abuse is identified (through logs, reports, or investigation), the staff may <strong>void the rewards and Coins obtained improperly</strong>, apply a <strong>ban</strong> (individual or the entire clan/group involved), and treat the case as attempted fraud. The analysis considers the overall evidence and behavior pattern. <strong>Coins you purchased in the Shop are not affected by this rule</strong> - only rewards obtained by gaming the system.</p>
 </div>
 
 <h3>7. Discord (Community)</h3>
@@ -938,7 +938,7 @@ VALUES ('terms', 'Termos de Uso', 'Terms of Use', '<h2>Termos de Uso</h2>
 <li>Tentar <strong>fraudar</strong> o sistema de pagamento (chargeback abusivo, cartões clonados, etc).</li>
 <li>Realizar <strong>engenharia reversa</strong>, automatização ou exploração de bugs na Plataforma.</li>
 <li>Revender Moedas, contas ou itens do servidor para terceiros.</li>
-<li>Manipular, automatizar ou fraudar sistemas de <strong>recompensa, conquistas, eventos, ranking ou economia in-game</strong> — incluindo conluio entre jogadores ou contas, combinação de mortes ("kill-trading"), farm coordenado e exploração de falhas — para obter Moedas, itens ou vantagens de forma indevida.</li>
+<li>Manipular, automatizar ou fraudar sistemas de <strong>recompensa, conquistas, eventos, ranking ou economia in-game</strong> - incluindo conluio entre jogadores ou contas, combinação de mortes ("kill-trading"), farm coordenado e exploração de falhas - para obter Moedas, itens ou vantagens de forma indevida.</li>
 </ul>
 <div class="legal-callout">
 <p><strong>Banimento:</strong> infringir qualquer das proibições acima implica em banimento (temporário ou permanente, a critério da administração) <strong>sem direito a reembolso</strong> das Moedas não utilizadas ou em uso.</p>
@@ -996,7 +996,7 @@ VALUES ('terms', 'Termos de Uso', 'Terms of Use', '<h2>Termos de Uso</h2>
 <li>Attempting to <strong>defraud</strong> the payment system (abusive chargebacks, cloned cards, etc).</li>
 <li>Performing <strong>reverse engineering</strong>, automation, or bug exploitation on the Platform.</li>
 <li>Reselling Coins, accounts, or server items to third parties.</li>
-<li>Manipulating, automating, or defrauding <strong>reward, achievement, event, ranking, or in-game economy systems</strong> — including collusion between players or accounts, kill-trading, coordinated farming, and exploiting bugs — to obtain Coins, items, or advantages improperly.</li>
+<li>Manipulating, automating, or defrauding <strong>reward, achievement, event, ranking, or in-game economy systems</strong> - including collusion between players or accounts, kill-trading, coordinated farming, and exploiting bugs - to obtain Coins, items, or advantages improperly.</li>
 </ul>
 <div class=''legal-callout''>
 <p><strong>Ban:</strong> infringing any of the above prohibitions results in a ban (temporary or permanent, at administration discretion) <strong>without right to refund</strong> of unused or in-use Coins.</p>
@@ -1028,7 +1028,7 @@ INSERT INTO pages (slug, title_ptbr, title_enus, body_ptbr, body_enus, published
 VALUES ('privacy', 'Política de Privacidade (LGPD)', 'Privacy Policy (LGPD)', '<h2>Política de Privacidade (LGPD)</h2>
 
 <p class="legal-meta">Em conformidade com a Lei 13.709/18 (LGPD) · Última atualização: 2026-05-20</p>
-<h3>1. Quem somos (Controlador dos Dados — LGPD art. 5º, VI)</h3>
+<h3>1. Quem somos (Controlador dos Dados - LGPD art. 5º, VI)</h3>
 <p>A <strong>[NOME DO SERVIDOR] Store</strong> é uma loja virtual de bens digitais para o servidor DayZ [NOME DO SERVIDOR], operada pela empresa:</p>
 <ul>
 <li><strong>Razão Social:</strong> [SUA EMPRESA]</li>
@@ -1041,12 +1041,12 @@ VALUES ('privacy', 'Política de Privacidade (LGPD)', 'Privacy Policy (LGPD)', '
 <h3>2. Dados que coletamos</h3>
 <p>Para operar a Plataforma, coletamos e tratamos os seguintes dados:</p>
 <ul>
-<li><strong>SteamID64</strong> (público) — vincula a compra ao Jogador.</li>
-<li><strong>Nome de exibição e avatar</strong> da Steam — exibidos no carrinho/perfil (dados públicos da Valve).</li>
-<li><strong>Endereço IP</strong> de acesso — registrado em logs por 12 meses (Marco Civil, art. 15).</li>
-<li><strong>Identificadores de transação</strong> do Mercado Pago — payment_id, valor, status, método de pagamento. <strong>Não armazenamos número de cartão.</strong></li>
-<li><strong>Histórico de Moedas</strong> — saldo, créditos, débitos, com timestamps.</li>
-<li><strong>Logs técnicos</strong> — sucessos e falhas de acesso à API, para fins de segurança.</li>
+<li><strong>SteamID64</strong> (público) - vincula a compra ao Jogador.</li>
+<li><strong>Nome de exibição e avatar</strong> da Steam - exibidos no carrinho/perfil (dados públicos da Valve).</li>
+<li><strong>Endereço IP</strong> de acesso - registrado em logs por 12 meses (Marco Civil, art. 15).</li>
+<li><strong>Identificadores de transação</strong> do Mercado Pago - payment_id, valor, status, método de pagamento. <strong>Não armazenamos número de cartão.</strong></li>
+<li><strong>Histórico de Moedas</strong> - saldo, créditos, débitos, com timestamps.</li>
+<li><strong>Logs técnicos</strong> - sucessos e falhas de acesso à API, para fins de segurança.</li>
 </ul>
 <h3>3. Finalidade do tratamento (LGPD art. 7)</h3>
 <ul>
@@ -1057,9 +1057,9 @@ VALUES ('privacy', 'Política de Privacidade (LGPD)', 'Privacy Policy (LGPD)', '
 </ul>
 <h3>4. Com quem compartilhamos</h3>
 <ul>
-<li><strong>Mercado Pago</strong> — processador de pagamentos. Compartilha conosco status do pagamento. Não temos acesso ao seu cartão.</li>
-<li><strong>Valve / Steam</strong> — utilizamos a API pública do Steam para buscar nome de exibição e avatar. Não enviamos dados pessoais à Valve.</li>
-<li><strong>Hostinger</strong> — provedor de hospedagem do site, com sede e DPO próprios em conformidade com LGPD.</li>
+<li><strong>Mercado Pago</strong> - processador de pagamentos. Compartilha conosco status do pagamento. Não temos acesso ao seu cartão.</li>
+<li><strong>Valve / Steam</strong> - utilizamos a API pública do Steam para buscar nome de exibição e avatar. Não enviamos dados pessoais à Valve.</li>
+<li><strong>Hostinger</strong> - provedor de hospedagem do site, com sede e DPO próprios em conformidade com LGPD.</li>
 <li><strong>Não vendemos, alugamos ou compartilhamos seus dados com terceiros para fins de marketing.</strong></li>
 </ul>
 <h3>5. Seus direitos (LGPD art. 18)</h3>
@@ -1168,7 +1168,7 @@ VALUES ('refund', 'Política de Reembolso', 'Refund Policy', '<h2>Política de R
 </li>
 <li>A equipe analisa em até <strong>5 (cinco) dias úteis</strong>.</li>
 <li>Se aprovado, o estorno é processado via Mercado Pago em até <strong>14 dias úteis</strong> (prazo bancário, fora do nosso controle).</li>
-<li>Caso a compra envolva pacote com bônus, o reembolso considera o valor pago — não o valor comercial das Moedas bônus.</li>
+<li>Caso a compra envolva pacote com bônus, o reembolso considera o valor pago - não o valor comercial das Moedas bônus.</li>
 </ol>
 <h3>4. Estorno parcial</h3>
 <p>Não realizamos estorno parcial. Ou a totalidade do pedido se enquadra e é devolvida, ou o pedido é negado integralmente.</p>
@@ -1258,7 +1258,7 @@ VALUES ('faq', 'Perguntas Frequentes', 'Frequently Asked Questions', '<h2>Pergun
 </div>
 </details>
 <details class="faq-item">
-<summary class="faq-q">O servidor caiu — perco minhas Moedas?</summary>
+<summary class="faq-q">O servidor caiu - perco minhas Moedas?</summary>
 <div class="faq-a">
 <p>Não. As Moedas ficam armazenadas no banco de dados do site (espelhado no servidor de jogo). Quando o servidor voltar, seu saldo continua intacto. Manutenções programadas são anunciadas no Discord.</p>
 </div>
@@ -1272,7 +1272,7 @@ VALUES ('faq', 'Perguntas Frequentes', 'Frequently Asked Questions', '<h2>Pergun
 <details class="faq-item">
 <summary class="faq-q">Posso obter Moedas grátis (cupom, sorteio)?</summary>
 <div class="faq-a">
-<p>Eventualmente realizamos promoções com bônus de Moedas em pacotes ou cupons. Acompanhe o Discord oficial. <strong>Nunca</strong> entregamos Moedas via mensagem privada — qualquer "promoção" fora dos canais oficiais é golpe.</p>
+<p>Eventualmente realizamos promoções com bônus de Moedas em pacotes ou cupons. Acompanhe o Discord oficial. <strong>Nunca</strong> entregamos Moedas via mensagem privada - qualquer "promoção" fora dos canais oficiais é golpe.</p>
 </div>
 </details>
 <details class="faq-item">
@@ -1312,7 +1312,7 @@ VALUES ('connect', 'Como Conectar', 'How to Connect', '<h2>Como Conectar no Serv
 <li><strong>DayZ</strong> instalado e atualizado (Steam, pago, ~30 GB)</li>
 <li>Conta Steam ativa</li>
 <li>Conexão estável (>10 Mbps download recomendado)</li>
-<li>(Opcional) <strong>DZSA Launcher</strong> — facilita gerenciar mods. Download grátis: <a href=''https://dayzsalauncher.com/'' target=''_blank'' rel=''noopener''>dayzsalauncher.com</a></li>
+<li>(Opcional) <strong>DZSA Launcher</strong> - facilita gerenciar mods. Download grátis: <a href=''https://dayzsalauncher.com/'' target=''_blank'' rel=''noopener''>dayzsalauncher.com</a></li>
 </ul>
 
 <h3>Método 1 - Via DZSA Launcher (recomendado)</h3>
@@ -1321,7 +1321,7 @@ VALUES ('connect', 'Como Conectar', 'How to Connect', '<h2>Como Conectar no Serv
 <li>Abre o launcher e clica em <strong>Servers</strong></li>
 <li>Na barra de busca digita: <code>[NOME DO SERVIDOR]</code></li>
 <li>Clica no servidor <strong>[BR] [NOME DO SERVIDOR] | PVP | RAID-FIND | VANILLA+</strong></li>
-<li>Clica <strong>JOIN</strong> — o launcher baixa os mods automaticamente</li>
+<li>Clica <strong>JOIN</strong> - o launcher baixa os mods automaticamente</li>
 <li>Aguarda download dos mods (primeira vez pode demorar 5-30 min)</li>
 <li>Quando entrar, faz login com Steam normalmente</li>
 </ol>
@@ -1352,7 +1352,7 @@ VALUES ('connect', 'Como Conectar', 'How to Connect', '<h2>Como Conectar no Serv
 <ol>
 <li>Conecte no servidor e ache um lugar seguro</li>
 <li>Abre o site, vai na <a href=''/shop''>Loja</a> pra comprar suas primeiras moedas</li>
-<li>Loga com Steam — moedas são vinculadas ao seu Steam ID</li>
+<li>Loga com Steam - moedas são vinculadas ao seu Steam ID</li>
 <li>No jogo, vai num <strong>Trader</strong> (NPC vendedor) e troca moedas por itens/comida/armas</li>
 <li>Lê as <a href=''/rules''>Regras do servidor</a> antes de raidar ou jogar PvP</li>
 </ol>
@@ -1367,7 +1367,7 @@ VALUES ('connect', 'Como Conectar', 'How to Connect', '<h2>Como Conectar no Serv
 </ul>
 
 <h3>Mods do servidor</h3>
-<p>O servidor tem mods exclusivos da nossa comunidade + mods da comunidade DayZ. A lista completa atualizada está no <strong>Steam Workshop Collection</strong> linkada no DZSA Launcher quando você clica em JOIN — basta aceitar download.</p>
+<p>O servidor tem mods exclusivos da nossa comunidade + mods da comunidade DayZ. A lista completa atualizada está no <strong>Steam Workshop Collection</strong> linkada no DZSA Launcher quando você clica em JOIN - basta aceitar download.</p>
 
 <h3>Discord oficial</h3>
 <p>Pra avisos de wipe, eventos, suporte e comunidade:<br>
@@ -1494,7 +1494,7 @@ CREATE TABLE clan_requests (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================================
--- TABELA: help_articles (v2.14.0) — Central de Ajuda / Guia
+-- TABELA: help_articles (v2.14.0) - Central de Ajuda / Guia
 -- ============================================================
 DROP TABLE IF EXISTS help_articles;
 CREATE TABLE help_articles (
@@ -1515,7 +1515,7 @@ CREATE TABLE help_articles (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================================
--- TABELA: site_releases (migration v2.19.0) — Novidades / Notas de Atualização
+-- TABELA: site_releases (migration v2.19.0) - Novidades / Notas de Atualização
 -- ============================================================
 CREATE TABLE site_releases (
     id          INT AUTO_INCREMENT PRIMARY KEY,
@@ -1532,7 +1532,7 @@ CREATE TABLE site_releases (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================================
--- TABELAS: eventos de clã (migration v2.15.0) — placar por delta
+-- TABELAS: eventos de clã (migration v2.15.0) - placar por delta
 -- ============================================================
 CREATE TABLE clan_events (
     id             INT AUTO_INCREMENT PRIMARY KEY,

@@ -10,7 +10,7 @@
 //   2. Copia o ID numerico da URL (ex: 12345678)
 //   3. Cola em Admin -> Settings -> battlemetrics_id
 //
-// Cache: 60s. BM tem rate limit de 60 req/min — esse cache nos da
+// Cache: 60s. BM tem rate limit de 60 req/min - esse cache nos da
 // folga e melhora MUITO a latencia do hero.
 // ============================================================
 
@@ -57,7 +57,7 @@ class ServerStatus {
         curl_close($ch);
 
         if ($code !== 200) {
-            // Falha — retorna estado vazio mas configurado (UI mostra "Verificando..." ou "Offline")
+            // Falha - retorna estado vazio mas configurado (UI mostra "Verificando..." ou "Offline")
             $result = [
                 'configured' => true, 'online' => false,
                 'players' => 0, 'max' => 0,

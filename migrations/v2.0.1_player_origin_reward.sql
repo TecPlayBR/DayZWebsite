@@ -1,5 +1,5 @@
 -- ============================================================
--- v2.0.1 — origin 'reward' e 'box' no players
+-- v2.0.1 - origin 'reward' e 'box' no players
 -- ============================================================
 -- A premiação do leaderboard cria player novo com origin='reward' quando o
 -- vencedor ainda não tem linha. Sem esse valor no ENUM o INSERT falharia.

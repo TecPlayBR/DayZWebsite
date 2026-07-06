@@ -7,7 +7,7 @@
 // (UptimeRobot, BetterStack, StatusCake, etc).
 //
 // Retorna HTTP 200 se tudo ok, 503 se algo crítico ta down.
-// Sem auth — monitor externo precisa acessar sem credencial.
+// Sem auth - monitor externo precisa acessar sem credencial.
 // Cache busting OK (não cacheia).
 // ============================================================
 
@@ -71,7 +71,7 @@ $ok = $dbOk;
 if (!$ok) http_response_code(503);
 
 // Payload público enxuto: só saúde do sistema. Métricas de NEGÓCIO (nº de jogadores,
-// pedidos pendentes, última compra) NÃO vão pra resposta pública — vazavam volume de
+// pedidos pendentes, última compra) NÃO vão pra resposta pública - vazavam volume de
 // vendas do cliente a qualquer um. Ficam só no error_log/uso interno.
 $response = [
     'ok'          => $ok,

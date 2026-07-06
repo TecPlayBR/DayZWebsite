@@ -3,7 +3,7 @@
 // Tecplay - DayZ Website Template
 // (c) 2026 Tecplay - distribuido como template comercial
 // ============================================================
-// IMPORTANTE: este eh o arquivo MODELO. NAO edite aqui — o
+// IMPORTANTE: este eh o arquivo MODELO. NAO edite aqui - o
 // install.php cria automaticamente o /config/config.php real
 // quando voce roda o wizard pela primeira vez.
 //
@@ -39,7 +39,7 @@ return [
     // ======== ADMIN ========
     // Hash bcrypt da senha admin. Gere com:
     //    php -r "echo password_hash('SUASENHA', PASSWORD_BCRYPT);"
-    // (o install.php cria isso automaticamente — so use manual se nao for usar o wizard)
+    // (o install.php cria isso automaticamente - so use manual se nao for usar o wizard)
     'admin_password_hash' => 'ALTERE_AQUI_HASH_BCRYPT_DA_SENHA',
     'admin_session_ttl'   => 3600,                      // 1h
 
@@ -55,10 +55,10 @@ return [
     // Deixe vazio se nao for usar.
     'steam_api_key' => '',
 
-    // ======== CFTOOLS CLOUD (opcional — leaderboard + perfil de gameplay) ========
+    // ======== CFTOOLS CLOUD (opcional - leaderboard + perfil de gameplay) ========
     // Liga as estatisticas REAIS do seu servidor (kills, K/D, tempo online, armas)
     // no /ranking e no perfil /player/{steamid}. Use o SEU PROPRIO app CFTools
-    // (cada dono usa o seu — seu secret so controla o SEU servidor).
+    // (cada dono usa o seu - seu secret so controla o SEU servidor).
     //
     // Como obter (3 valores), passo a passo:
     //   1. Acesse https://developer.cftools.cloud e faca login com sua conta CFTools.
@@ -67,7 +67,7 @@ return [
     //      (Server -> Settings/API) -> 'server_api_id'.
     //   4. Abra a "Grant URL" do app (no painel da Application) e AUTORIZE o app a
     //      ver o seu servidor. Sem o grant, a API responde "no-grant".
-    // Deixe os 3 vazios se nao for usar — o site funciona normal, so sem stats de gameplay.
+    // Deixe os 3 vazios se nao for usar - o site funciona normal, so sem stats de gameplay.
     'cftools' => [
         'app_id'        => '',   // Application ID do seu app CFTools
         'secret'        => '',   // Secret do seu app CFTools (NUNCA compartilhe)
@@ -77,18 +77,18 @@ return [
     // ======== MERCADO PAGO (pagamentos PIX/boleto/cartao) ========
     // Pega ambos os tokens em: https://www.mercadopago.com.br/developers/panel
     // Sem isso o site funciona, mas o checkout cai em "modo dev" que so
-    // simula sem cobrar — ate voce configurar, ninguem consegue pagar.
+    // simula sem cobrar - ate voce configurar, ninguem consegue pagar.
     'mercado_pago' => [
         'access_token'      => 'ALTERE_AQUI_ACCESS_TOKEN_MP',   // TEST-... pra testes, APP_USR-... pra producao
-        'public_key'        => '',                              // APP_USR-... (mesma conta do access_token) — habilita o CARTAO transparente no site. Vazio = só Pix.
-        'webhook_secret'    => '',                              // opcional — recomendado em producao
+        'public_key'        => '',                              // APP_USR-... (mesma conta do access_token) - habilita o CARTAO transparente no site. Vazio = só Pix.
+        'webhook_secret'    => '',                              // opcional - recomendado em producao
         'currency'          => 'BRL',
         'min_purchase_brl'  => 5,
     ],
 
     // ======== E-MAIL (recibo de compra) ========
     // Em hospedagens compartilhadas (Hostinger/cPanel) o mail() nativo do PHP
-    // funciona out-of-the-box — basta preencher o "from" com um e-mail do seu
+    // funciona out-of-the-box - basta preencher o "from" com um e-mail do seu
     // dominio (ex: noreply@seudominio.com.br). SEM "from" preenchido, os e-mails
     // ficam apenas logados em /storage/cache/mail-log.txt (modo dev).
     'mail' => [
@@ -110,10 +110,10 @@ return [
         'token'    => '',  // mesmo WEBHOOK_TOKEN do bot
     ],
 
-    // OPCIONAL — encaminhar as vendas pra um Financeiro/matriz central.
+    // OPCIONAL - encaminhar as vendas pra um Financeiro/matriz central.
     // O Mercado Pago só chama 1 URL (a nossa); se você roda um painel financeiro
     // central que também precisa saber das vendas, o webhook ENCAMINHA a notificação
-    // pra essa URL DEPOIS de entregar a moeda (fire-and-forget — se cair, não afeta a
+    // pra essa URL DEPOIS de entregar a moeda (fire-and-forget - se cair, não afeta a
     // loja). Deixe 'forward_url' vazio pra NÃO encaminhar pra ninguém (padrão).
     'matriz' => [
         'forward_url' => '',          // ex: https://.../mercadopago-webhook  (vazio = desativado)

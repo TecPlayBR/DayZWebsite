@@ -1,5 +1,5 @@
 -- ============================================================
--- v2.4.0 — Programa de afiliado / streamer ("Apoie seu Streamer")
+-- v2.4.0 - Programa de afiliado / streamer ("Apoie seu Streamer")
 -- ============================================================
 -- O cliente atrela o perfil a UM streamer (digitando o codigo dele 1x). O
 -- streamer ganha cache escalonado pela recorrencia do cliente (1a/2a/3a+ compra),

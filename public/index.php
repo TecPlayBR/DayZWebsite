@@ -7,14 +7,14 @@
 
 declare(strict_types=1);
 
-// Handler global de erros fatais — em produção mostra página customizada
+// Handler global de erros fatais - em produção mostra página customizada
 // em vez do erro genérico do servidor. Erro detalhado vai pro error_log.
 set_exception_handler(function (\Throwable $e) {
     error_log('[Tecplay] Uncaught: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
     http_response_code(500);
     // Se o usuário é admin (sessão ativa), mostra detalhes (debug-friendly)
     $isAdmin = !empty($_SESSION['admin_user']['id']);
-    // So a MENSAGEM pro admin (sem arquivo/linha/path — nao vaza estrutura do servidor).
+    // So a MENSAGEM pro admin (sem arquivo/linha/path - nao vaza estrutura do servidor).
     // O detalhe completo (file:line) ja foi pro error_log acima.
     $detail = $isAdmin ? $e->getMessage() : null;
     $errorPage = dirname(__DIR__) . '/views/pages/error_500.php';
@@ -24,7 +24,7 @@ set_exception_handler(function (\Throwable $e) {
         include $errorPage;
     } else {
         echo '<!DOCTYPE html><html><body style="font-family:system-ui;padding:2rem;background:var(--bg-1);color:var(--bone);">';
-        echo '<h1 style="color:var(--rust);">500 — Algo deu errado</h1>';
+        echo '<h1 style="color:var(--rust);">500 - Algo deu errado</h1>';
         echo '<p>Tente recarregar a página. Se persistir, contate o suporte.</p>';
         if ($detail) echo '<pre style="background:var(--bg-2);padding:1rem;color:var(--text-danger);">' . htmlspecialchars($detail) . '</pre>';
         echo '</body></html>';
@@ -148,11 +148,11 @@ if (!empty($config['db'])) {
             $config['settings'][$s['key']] = $s['value'];
         }
     } catch (Throwable $e) {
-        // DB ainda nao tem tabela settings (instalacao incompleta) — segue
+        // DB ainda nao tem tabela settings (instalacao incompleta) - segue
     }
 }
 
-// Settings: snapshot em memória (cache) — evita re-consultar a mesma chave N vezes
+// Settings: snapshot em memória (cache) - evita re-consultar a mesma chave N vezes
 // por request e centraliza o whitelist/validação de escrita.
 \App\Settings::init($config['settings'] ?? []);
 
@@ -166,7 +166,7 @@ $config['restart'] = \App\Restart::summary();
 // Timeout de inatividade da sessão admin (segundos). Default 1h.
 \App\Auth::setSessionTtl((int)($config['admin_session_ttl'] ?? 3600));
 
-// CFTools Cloud (leaderboard/stats de gameplay + drop das caixas no jogo) — consulta
+// CFTools Cloud (leaderboard/stats de gameplay + drop das caixas no jogo) - consulta
 // direto, com cache. Credenciais: config.php (`$config['cftools']`) TEM PRIORIDADE; se
 // não definidas lá, cai pro que o admin salvou em Configurações (settings). Assim o
 // dev pode fixar no config.php OU o cliente preenche no painel, sem editar PHP.
@@ -270,7 +270,7 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
 
 \App\Router::get('/sitemap.xml', function() use ($config) {
     $siteUrl = rtrim($config['site_url'] ?? '', '/') ?: (($_SERVER['REQUEST_SCHEME'] ?? 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost'));
-    // lastmod real das páginas de conteúdo (sinal de re-crawl pro Google) — última
+    // lastmod real das páginas de conteúdo (sinal de re-crawl pro Google) - última
     // atualização de pacote serve de proxy pra home/loja. Falha → sem lastmod (ok).
     $pkgLastmod = null;
     try { $pkgLastmod = \App\Database::fetchColumn("SELECT MAX(updated_at) FROM packages") ?: null; } catch (\Throwable $e) {}
@@ -302,7 +302,7 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
         }
     } catch (\Throwable $e) {}
     // Páginas dinâmicas publicadas. Pula 'rules' (já listado acima como /rules) pra
-    // não duplicar conteúdo (/rules vs /page/rules) — o Google penaliza duplicata.
+    // não duplicar conteúdo (/rules vs /page/rules) - o Google penaliza duplicata.
     foreach (\App\Database::fetchAll("SELECT slug, updated_at FROM pages WHERE published = 1") as $p) {
         if ($p['slug'] === 'rules') continue;
         // /page/connect é página de alto valor SEO (IP, guia, problemas) → prioridade maior.
@@ -325,10 +325,10 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
 });
 
 \App\Router::get('/', function() use ($config, $ROOT) {
-    // Toca o ciclo dos eventos de clã no tráfego da home (throttled, máx 1x/2min) — assim
+    // Toca o ciclo dos eventos de clã no tráfego da home (throttled, máx 1x/2min) - assim
     // baseline/congelamento acontecem na hora SEM depender de cron (zero-config no template).
     try { \App\ClanEvent::tickThrottled($ROOT . '/storage/cache'); } catch (\Throwable $e) {}
-    // Mesma ordem da loja: featured primeiro, depois sort_order — assim o teaser bate.
+    // Mesma ordem da loja: featured primeiro, depois sort_order - assim o teaser bate.
     $packages = \App\Database::fetchAll(
         "SELECT * FROM packages WHERE enabled = 1 ORDER BY featured DESC, sort_order ASC"
     );
@@ -358,7 +358,7 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
             "SELECT COUNT(*) FROM purchases WHERE mp_status = 'approved' AND created_at > DATE_SUB(NOW(), INTERVAL 7 DAY)"
         ),
     ];
-    // Testimonials no home: pega ate 3 reviews aprovadas (rating >= 4) — fonte unica de verdade,
+    // Testimonials no home: pega ate 3 reviews aprovadas (rating >= 4) - fonte unica de verdade,
     // mesmas reviews que aparecem em /depoimentos. Substitui o setting testimonials_json antigo.
     $homeReviews = \App\Database::fetchAll(
         "SELECT display_name, avatar, rating, body, source, created_at
@@ -447,7 +447,7 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     $viewerId = \App\SteamAuth::steamId();
     $isOwner  = $viewerId !== null && $viewerId === $steamId;
     // Recompensa por conquista: reconcilia/credita (idempotente) o que o dono ainda não
-    // recebeu — antes do SELECT do player, pra o saldo já refletir o bônus desta visita.
+    // recebeu - antes do SELECT do player, pra o saldo já refletir o bônus desta visita.
     if ($isOwner) { \App\Achievements::grantRewards($steamId); }
     $playerCols = $isOwner
         ? "id, steam_id, display_name, coins, total_spent_brl, last_seen_at"
@@ -472,7 +472,7 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     if ($stats && !empty($stats['extra_json'])) {
         $stats['extra'] = json_decode($stats['extra_json'], true) ?: [];
     }
-    // Avatar/nome via XML público (cache 6h em storage/cache — evita curl por view + rate-limit).
+    // Avatar/nome via XML público (cache 6h em storage/cache - evita curl por view + rate-limit).
     $avatar = null;
     $name   = $player['display_name'] ?? null;
     $cacheFile = $ROOT . '/storage/cache/steam-' . $steamId . '.json';
@@ -529,7 +529,7 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
                   ORDER BY s.id DESC LIMIT 50",
                 [$steamId]
             );
-        } catch (\Throwable $e) { /* tabela ausente em install antigo — degrada limpo */ }
+        } catch (\Throwable $e) { /* tabela ausente em install antigo - degrada limpo */ }
         $viewData['shop_spends'] = $shopSpends;
         // Premiações do ranking que esse player ganhou (pra ele ver que recebeu).
         $viewData['reward_payouts'] = \App\Database::fetchAll(
@@ -674,7 +674,7 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     echo json_encode(['ok' => true, 'delivered' => $n]);
 });
 
-// Cron CONSOLIDADO (opcional) — UM cron só pro template: pendências de caixa + ciclo de eventos
+// Cron CONSOLIDADO (opcional) - UM cron só pro template: pendências de caixa + ciclo de eventos
 // de clã + refresh de stats dos participantes + premiação automática. Token = agent_token.
 // Aponte o cron do host aqui a cada ~2min. SEM cron o site funciona igual (dispara no tráfego);
 // o cron só deixa o placar de clã mais ao vivo e o congelamento/premiação mais pontuais.
@@ -771,7 +771,7 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     $isMember = $myClan && (int)($myClan['id'] ?? 0) === (int)$id;
     \App\View::display('pages.clan', [
         'config' => $config, 'clan' => $clan, 'members' => \App\Clan::members((int)$id),
-        // Log de atividade só pra quem é do clã (membro/líder) — privacidade.
+        // Log de atividade só pra quem é do clã (membro/líder) - privacidade.
         'activity' => $isMember ? \App\Clan::activity((int)$id, 15) : [],
         'is_owner' => $isOwner, 'my_clan' => $myClan,
         'my_request' => $sid ? \App\Clan::outgoingRequest($sid) : null,
@@ -855,7 +855,7 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     header('Location: /clan/' . $id . '?ok=saved'); exit;
 });
 
-// Convite: o JOGADOR aceita/recusa (consentimento do lado dele) — vindo do /player
+// Convite: o JOGADOR aceita/recusa (consentimento do lado dele) - vindo do /player
 \App\Router::post('/clan-invite/accept', function() use ($config) {
     if (!\App\SteamAuth::check()) { header('Location: /auth/steam'); exit; }
     if (!\App\Csrf::check()) { header('Location: /player/' . \App\SteamAuth::steamId()); exit; }
@@ -997,7 +997,7 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
         $selectedServerId = \App\Servers::defaultId();
     }
 
-    // JSON-LD: ItemList de Products — cada pacote vira uma Offer pra search engines.
+    // JSON-LD: ItemList de Products - cada pacote vira uma Offer pra search engines.
     $siteUrl = rtrim($config['site_url'] ?? '', '/') ?: (($_SERVER['REQUEST_SCHEME'] ?? 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost'));
     $itemList = [];
     foreach ($packages as $i => $pkg) {
@@ -1007,7 +1007,7 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
             'position' => $i + 1,
             'item'     => [
                 '@type'       => 'Product',
-                'name'        => $pkg['name'] . ' — ' . $coinsTotal . ' moedas',
+                'name'        => $pkg['name'] . ' - ' . $coinsTotal . ' moedas',
                 'description' => $pkg['name'] . ' do servidor. Entrega instantânea via Steam.',
                 'sku'         => $pkg['id'],
                 'offers'      => [
@@ -1032,7 +1032,7 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
         'wishlist' => $wishlist, 'is_logged' => \App\SteamAuth::check(),
         'servers' => $activeServers, 'is_multi_server' => $isMultiServer,
         'selected_server_id' => $selectedServerId,
-        'title' => 'Loja — Moedas DayZ',
+        'title' => 'Loja - Moedas DayZ',
         'description' => 'Compre moedas pro servidor DayZ. Entrega instantânea via Steam, pagamento seguro Mercado Pago (Pix, boleto, cartão).',
         'jsonld' => $shopJsonLd,
     ]);
@@ -1102,7 +1102,7 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     $priceFinal = $priceOriginal;
     $couponBonusCoins = 0;
     // Atribuição de afiliado/streamer: vínculo ATUAL do cliente (carimbado na compra,
-    // mesmo sem cupom agora — assim a recorrência dele conta pro streamer).
+    // mesmo sem cupom agora - assim a recorrência dele conta pro streamer).
     $affiliateStamp = \App\Affiliate::binding($steamId);
     if ($couponCode !== '') {
         [$coupon, $err] = \App\Coupon::lookup($couponCode, $packageId, $priceOriginal, $steamId);
@@ -1119,7 +1119,7 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
             $affiliateStamp = \App\Affiliate::binding($steamId);
             // Benefício pro cliente vale 1x: só na PRIMEIRA compra PAGA com este cupom.
             // Re-gerar o PIX da mesma 1ª compra mantém o benefício; depois de pagar 1 vez,
-            // não repete (é o que protege a margem na recorrência — a atribuição segue pelo vínculo).
+            // não repete (é o que protege a margem na recorrência - a atribuição segue pelo vínculo).
             $usedPaid = (int) \App\Database::fetchColumn(
                 "SELECT COUNT(*) FROM purchases
                   WHERE steam_id = ? AND UPPER(coupon_code) = UPPER(?)
@@ -1179,7 +1179,7 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
         );
         $purchaseId = (int)\App\Database::pdo()->lastInsertId();
     }
-    // Marca a compra como "desta sessão" — só quem criou pode consultar status / pagar
+    // Marca a compra como "desta sessão" - só quem criou pode consultar status / pagar
     // com cartão depois (anti-IDOR: impede enumerar SteamID de compras alheias).
     if (!isset($_SESSION['checkout_pids']) || !is_array($_SESSION['checkout_pids'])) $_SESSION['checkout_pids'] = [];
     $_SESSION['checkout_pids'][$purchaseId] = true;
@@ -1199,7 +1199,7 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
 
     // Pix não cobra R$0 (ex: cupom 100%). Bloqueia com mensagem amigável.
     if ($priceBrl < 0.01) {
-        \App\View::display('pages.checkout_error', ['config' => $config, 'msg' => 'O cupom cobre 100% do valor — fale com o admin pra liberar manualmente.']);
+        \App\View::display('pages.checkout_error', ['config' => $config, 'msg' => 'O cupom cobre 100% do valor - fale com o admin pra liberar manualmente.']);
         return;
     }
 
@@ -1210,7 +1210,7 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     $siteName = $config['settings']['site_name'] ?? ($config['site_name'] ?? 'Loja');
     $pay = $mp->createPixPayment([
         'transaction_amount' => round($priceBrl, 2),
-        'description'        => $siteName . ' — ' . $pkg['name'] . ' (' . $coinsTotal . ' moedas)',
+        'description'        => $siteName . ' - ' . $pkg['name'] . ' (' . $coinsTotal . ' moedas)',
         'external_reference' => (string)$purchaseId,
         'notification_url'   => $siteUrl . '/api/mp-webhook.php',
         'date_of_expiration' => $expires,
@@ -1284,7 +1284,7 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     $pref = $mp->createPreference([
         'items' => [[
             'id'          => $p['package_id'],
-            'title'       => ($pkgRow['name'] ?? 'Moedas') . ' — ' . (int)$p['coins_total'] . ' moedas',
+            'title'       => ($pkgRow['name'] ?? 'Moedas') . ' - ' . (int)$p['coins_total'] . ' moedas',
             'description' => 'Compra para SteamID ' . $p['steam_id'],
             'quantity'    => 1,
             'currency_id' => 'BRL',
@@ -1346,7 +1346,7 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     $payload = [
         'transaction_amount' => round((float)$p['price_brl'], 2),
         'token'              => $token,
-        'description'        => $cardSite . ' — ' . ($cardPkg['name'] ?? 'Moedas') . ' (' . (int)$p['coins_total'] . ' moedas)',
+        'description'        => $cardSite . ' - ' . ($cardPkg['name'] ?? 'Moedas') . ' (' . (int)$p['coins_total'] . ' moedas)',
         'installments'       => $installments,
         'payment_method_id'  => $pmId,
         'external_reference' => (string)$p['id'],
@@ -1382,7 +1382,7 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
 // ============ STEAM AUTH ============
 \App\Router::get('/auth/steam', function() use ($config) {
     $siteUrl = $config['site_url'] ?? ('http://' . $_SERVER['HTTP_HOST']);
-    // Volta pra ONDE o usuário estava ao clicar em login (não joga ele na loja —
+    // Volta pra ONDE o usuário estava ao clicar em login (não joga ele na loja -
     // ficava evasivo, tipo "compra moeda agora"). Só seta se um fluxo específico
     // (ex: depoimentos, minhas-compras) ainda NÃO definiu o retorno, e só aceita
     // path interno same-site que não seja /auth ou /admin (evita loop/conflito).
@@ -1433,9 +1433,9 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
                 [$profile['display_name'], $existing['id']]
             );
         }
-    } catch (Throwable $e) { /* sem DB? ignora — login funciona via sessao */ }
+    } catch (Throwable $e) { /* sem DB? ignora - login funciona via sessao */ }
 
-    // Log de login (privacidade/auditoria: quem entrou no site via Steam). Best-effort —
+    // Log de login (privacidade/auditoria: quem entrou no site via Steam). Best-effort -
     // SteamID é público; IP/UA pra auditoria. Decoupled do ranking (que segue público).
     try {
         \App\Database::query(
@@ -1443,10 +1443,10 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
             [$steamId, $profile['display_name'] ?? null, \App\RateLimit::clientIp(),
              substr((string)($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 255)]
         );
-    } catch (\Throwable $e) { /* tabela ausente (migration pendente) — degrada limpo */ }
+    } catch (\Throwable $e) { /* tabela ausente (migration pendente) - degrada limpo */ }
 
     // Redireciona pra de onde veio (setado em /auth/steam ou por um fluxo específico).
-    // Default = home (NÃO a loja — evita parecer que tá empurrando moeda no login).
+    // Default = home (NÃO a loja - evita parecer que tá empurrando moeda no login).
     // Guard anti open-redirect: só aceita path interno (começa com / e não //).
     $back = $_SESSION['steam_login_return'] ?? '/';
     unset($_SESSION['steam_login_return']);
@@ -1516,13 +1516,13 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     exit;
 });
 
-// (Review por compra foi removida do perfil — avaliar é espontâneo via /depoimentos
+// (Review por compra foi removida do perfil - avaliar é espontâneo via /depoimentos
 //  → /reviews/public-submit. A antiga rota /reviews/submit saiu junto, sem caller.)
 
 \App\Router::get('/admin/reviews', function() use ($config) {
     \App\Auth::requireCan('reviews');
     $filter = $_GET['filter'] ?? 'pending';
-    // LEFT JOIN: depoimentos PÚBLICOS têm purchase_id NULL — com INNER JOIN eles
+    // LEFT JOIN: depoimentos PÚBLICOS têm purchase_id NULL - com INNER JOIN eles
     // sumiam do painel (admin nunca via/aprovava). LEFT JOIN traz os dois tipos.
     $sql = "SELECT r.*, p.package_id, p.price_brl
               FROM reviews r LEFT JOIN purchases p ON p.id = r.purchase_id";
@@ -1672,7 +1672,7 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
         \App\RateLimit::clearBucket('login_u_' . substr(md5($username . '|' . $ip), 0, 16));
         // Regenera ID de sessao apos login (anti session fixation)
         session_regenerate_id(true);
-        // Redirect pra home do role — support cai em /admin/players, editor em /admin/pages, etc.
+        // Redirect pra home do role - support cai em /admin/players, editor em /admin/pages, etc.
         // Evita 403 logo após login pra quem não tem acesso a /admin (dashboard).
         header('Location: ' . \App\Auth::homePath());
     } else {
@@ -1712,7 +1712,7 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
                 . '<h2 style="color:#fff;">Redefinir senha do painel</h2>'
                 . '<p>Recebemos um pedido pra redefinir a senha do admin de <strong>' . $siteName . '</strong>.</p>'
                 . '<p><a href="' . htmlspecialchars($link) . '" style="display:inline-block;padding:12px 24px;background:#a855f7;color:#fff;text-decoration:none;border-radius:8px;">Redefinir minha senha</a></p>'
-                . '<p style="font-size:13px;color:#a1a1aa;">O link vale por 1 hora e só pode ser usado uma vez. Se você não pediu isso, ignore — sua senha continua a mesma.</p>'
+                . '<p style="font-size:13px;color:#a1a1aa;">O link vale por 1 hora e só pode ser usado uma vez. Se você não pediu isso, ignore - sua senha continua a mesma.</p>'
                 . '<p style="font-size:12px;color:#71717a;word-break:break-all;">Ou cole no navegador: ' . htmlspecialchars($link) . '</p>'
                 . '</div>';
             @\App\Mailer::send($email, 'Redefinir senha do painel', $html);
@@ -1828,7 +1828,7 @@ $collectDashboardData = function() {
     header('Content-Type: application/json; charset=utf-8');
     header('Cache-Control: no-store');
     $data = $collectDashboardData();
-    // Formata pra JSON (badges, números formatados, etc) — pra o JS só substituir DOM
+    // Formata pra JSON (badges, números formatados, etc) - pra o JS só substituir DOM
     foreach ($data['recent_purchases'] as &$p) {
         $p['coins_total']    = (int)$p['coins_total'];
         $p['price_brl_fmt']  = number_format((float)$p['price_brl'], 2, ',', '.');
@@ -1952,7 +1952,7 @@ $collectDashboardData = function() {
 \App\Router::post('/admin/packages/{id}/delete', function($id) use ($config) {
     \App\Auth::requireCan('packages');
     if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
-    // Pacote com compras NÃO é apagado (preserva histórico/recibo do jogador) — desative em vez disso.
+    // Pacote com compras NÃO é apagado (preserva histórico/recibo do jogador) - desative em vez disso.
     $used = (int)\App\Database::fetchColumn("SELECT COUNT(*) FROM purchases WHERE package_id = ?", [$id]);
     if ($used > 0) { header('Location: /admin/packages?err=inuse'); exit; }
     \App\Database::query("DELETE FROM packages WHERE id = ?", [$id]);
@@ -2062,7 +2062,7 @@ $collectDashboardData = function() {
     if (!$name || $coins <= 0 || $price <= 0) {
         header('Location: /admin/packages/new?err=invalid'); exit;
     }
-    // Imagem (capa) opcional — mesmo guard do save (MIME real + nome aleatório).
+    // Imagem (capa) opcional - mesmo guard do save (MIME real + nome aleatório).
     $image = null;
     $pkgDir = $ROOT . '/public/assets/img/packages';
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
@@ -2090,7 +2090,7 @@ $collectDashboardData = function() {
     exit;
 });
 
-// ============ LOJA IN-GAME (catálogo gastável — Fase 2) ============
+// ============ LOJA IN-GAME (catálogo gastável - Fase 2) ============
 // Gerido por quem tem a permissão 'packages' (mesma da loja de moedas).
 
 \App\Router::get('/admin/shop', function() use ($config) {
@@ -2180,7 +2180,7 @@ $collectDashboardData = function() {
             [$sku, $name, $icon, $coinsCost, $enabled, $sortOrder, $deliverJson]
         );
     } else {
-        // SKU é imutável após criado (o bot referencia) — não atualiza o sku.
+        // SKU é imutável após criado (o bot referencia) - não atualiza o sku.
         \App\Database::query(
             "UPDATE shop_items SET name = ?, icon = ?, coins_cost = ?, enabled = ?, sort_order = ?, deliver_json = ?
              WHERE id = ?",
@@ -2275,7 +2275,7 @@ $collectDashboardData = function() {
     \App\Auth::requireCan('settings');
     if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     // Campos de texto do form (subconjunto do SCHEMA que aparece nesta página).
-    // bonus_enabled NÃO entra aqui (é togglado em /admin/packages) — senão salvar
+    // bonus_enabled NÃO entra aqui (é togglado em /admin/packages) - senão salvar
     // configurações zeraria o bônus.
     $fields = ['site_name','site_tagline','site_tagline_enus','server_ip','server_port','discord_invite',
                'social_discord','social_instagram','social_whatsapp','social_facebook','social_youtube',
@@ -2298,7 +2298,7 @@ $collectDashboardData = function() {
         \App\Settings::set($k, !empty($_POST[$k]) ? '1' : '0');
     }
     // Secret do CFTools: só sobrescreve se o admin digitou algo (o campo vem vazio na
-    // tela por segurança — não echoamos o secret salvo). Vazio = mantém o atual.
+    // tela por segurança - não echoamos o secret salvo). Vazio = mantém o atual.
     if (isset($_POST['cftools_secret']) && trim((string)$_POST['cftools_secret']) !== '') {
         \App\Settings::set('cftools_secret', trim((string)$_POST['cftools_secret']));
     }
@@ -2475,7 +2475,7 @@ $collectDashboardData = function() {
 
 // ============ RECOMPENSAS DO LEADERBOARD ============
 // Categorias ranqueáveis no CFTools que aceitam premiação. Animais NÃO entra
-// (o CFTools não expõe leaderboard de animais — só stat individual no perfil).
+// (o CFTools não expõe leaderboard de animais - só stat individual no perfil).
 $REWARD_CATEGORIES = [
     'kills'          => 'Kills (jogadores)',
     'kills_infected' => 'Zumbis mortos',
@@ -2532,7 +2532,7 @@ $REWARD_CATEGORIES = [
     exit;
 });
 
-// Premiar agora (manual) — credita o top do período atual. Idempotente por período.
+// Premiar agora (manual) - credita o top do período atual. Idempotente por período.
 \App\Router::post('/admin/rewards/award-now', function() use ($config) {
     \App\Auth::requireCan('settings');
     if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
@@ -3045,7 +3045,7 @@ $REWARD_CATEGORIES = [
     if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
     $id = (int)($_POST['id'] ?? 0);
     if ($id < 1) { header('Location: /admin/servers'); exit; }
-    // Não deleta se ainda tem compras vinculadas — protege histórico
+    // Não deleta se ainda tem compras vinculadas - protege histórico
     $hasPurchases = (int)\App\Database::fetchColumn("SELECT COUNT(*) FROM purchases WHERE server_id = ?", [$id]);
     if ($hasPurchases > 0) {
         header('Location: /admin/servers?err=has_purchases&id=' . $id); exit;
@@ -3153,7 +3153,7 @@ $REWARD_CATEGORIES = [
     );
     \App\View::display('pages.gallery', [
         'config' => $config, 'items' => $items,
-        'skip_hero_preload' => true, // galeria não tem hero — evita warning de preload sem uso
+        'skip_hero_preload' => true, // galeria não tem hero - evita warning de preload sem uso
     ]);
 });
 
@@ -3220,7 +3220,7 @@ $REWARD_CATEGORIES = [
     $overrideFile = $ROOT . '/public/assets/css/theme.override.css';
     $vars  = ['--bg-0','--bg-1','--bg-2','--bg-3','--rust','--rust-2','--bone','--moss','--hazard','--dim'];
 
-    // Lê as cores ATUAIS do override (pra registrar o "antes" no audit — recuperável).
+    // Lê as cores ATUAIS do override (pra registrar o "antes" no audit - recuperável).
     $readColors = function($file) use ($vars) {
         $out = [];
         if (is_file($file)) {
@@ -3255,7 +3255,7 @@ $REWARD_CATEGORIES = [
     }
     if (!$lines) { header('Location: /admin/customize?err=theme'); exit; }
 
-    $css = "/* Tema customizado — gerado pelo painel (/admin/customize).\n"
+    $css = "/* Tema customizado - gerado pelo painel (/admin/customize).\n"
          . "   Gitignored: sobrevive a updates do template. Pra voltar ao padrão, use o botão no painel. */\n"
          . ":root {\n" . implode("\n", $lines) . "\n}\n";
 
@@ -3266,14 +3266,14 @@ $REWARD_CATEGORIES = [
             header('Location: /admin/customize?err=theme_write'); exit;
         }
     }
-    // Audit com ANTES -> DEPOIS por cor (diff só do que mudou) — rastreável/recuperável.
+    // Audit com ANTES -> DEPOIS por cor (diff só do que mudou) - rastreável/recuperável.
     $diff = [];
     foreach ($after as $v => $nv) {
         $ov = $before[$v] ?? '(padrão)';
         if ($ov !== $nv) $diff[$v] = $ov . ' -> ' . $nv;
     }
     \App\AuditLog::record('customize.theme', 'theme', null, [
-        'antes'  => $before ?: '(sem override — usava o padrão do template)',
+        'antes'  => $before ?: '(sem override - usava o padrão do template)',
         'depois' => $after,
         'mudou'  => $diff ?: '(sem mudança de valor)',
     ]);
@@ -3282,10 +3282,10 @@ $REWARD_CATEGORIES = [
 
 // Slots de marca que o cliente pode trocar pelo painel. A imagem custom é gravada
 // em assets/img/custom/<stem>.<ext> (gitignored) e o asset() a usa no lugar da
-// padrão — então o update do template NUNCA sobrescreve a marca do cliente.
+// padrão - então o update do template NUNCA sobrescreve a marca do cliente.
 // chave = nome canônico do arquivo padrão (precisa bater com o que o asset() pede).
 $BRAND_SLOTS = [
-    'logo_semfundo.png'       => 5,  // logo principal (header/footer/emails) — MB
+    'logo_semfundo.png'       => 5,  // logo principal (header/footer/emails) - MB
     'logo_semfundo_small.png' => 2,
     'logo.png'                => 2,  // favicon
     'background.png'          => 6,  // hero home
@@ -3939,7 +3939,7 @@ $BRAND_SLOTS = [
     $publicUrl = rtrim(($config['app_url'] ?? ('https://' . ($_SERVER['HTTP_HOST'] ?? 'localhost'))), '/');
     $tok = rawurlencode($token);
     // O mod Sparda cola o SteamID no FINAL da URL (GetRestContext(url)+GET(steamid)).
-    // Por isso as URLs terminam em "&steamid=" — o mod completa com o ID do jogador.
+    // Por isso as URLs terminam em "&steamid=" - o mod completa com o ID do jogador.
     $apiGet  = $publicUrl . '/api/getcoins.php?token=' . $tok . '&steamid=';
     $apiPost = $publicUrl . '/api/postcoins.php?token=' . $tok . '&steamid=';
     $jsonSnippet = "\"EnableWebsiteAPI\": 1,\n\"Api_Get\": \"" . $apiGet . "\",\n\"Api_Post\": \"" . $apiPost . "\"";
@@ -3993,7 +3993,7 @@ $BRAND_SLOTS = [
 
 // ============ CSRF GUARD pra POSTs do admin ============
 // Rotas de admin que são usadas por quem está DESLOGADO (login + recuperação de senha)
-// NÃO podem exigir sessão admin — senão o fluxo de "esqueci a senha" fica inacessível
+// NÃO podem exigir sessão admin - senão o fluxo de "esqueci a senha" fica inacessível
 // (lockout sem saída). Elas já fazem CSRF + rate-limit próprios nos handlers.
 if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);

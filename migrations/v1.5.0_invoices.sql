@@ -1,5 +1,5 @@
 -- ============================================================
--- DayZWebsite v1.5.0 — Cobranças Pix de valor livre (/cobrar do bot)
+-- DayZWebsite v1.5.0 - Cobranças Pix de valor livre (/cobrar do bot)
 -- ============================================================
 -- Helpdesk + pagamentos: o admin gera uma cobrança Pix de valor arbitrário
 -- com dados do cliente; o bot manda o QR; o mp-webhook.php marca 'paid'.

@@ -125,7 +125,7 @@ class Clan {
         )) === 'owner';
     }
 
-    /** Pedidos de entrada pendentes (kind=request) — o dono revisa. Com nick. */
+    /** Pedidos de entrada pendentes (kind=request) - o dono revisa. Com nick. */
     public static function pendingRequests(int $clanId): array {
         return Database::fetchAll(
             "SELECT r.steam_id, r.created_at, p.display_name
@@ -143,7 +143,7 @@ class Clan {
         );
     }
 
-    /** Convites pendentes pro jogador (kind=invite) — ele aceita. Com dados do clã. */
+    /** Convites pendentes pro jogador (kind=invite) - ele aceita. Com dados do clã. */
     public static function invitesForPlayer(string $steamId): array {
         return Database::fetchAll(
             "SELECT r.clan_id, r.created_at, c.name, c.tag, c.logo
@@ -262,7 +262,7 @@ class Clan {
         Database::query("DELETE FROM clan_requests WHERE clan_id = ? AND steam_id = ?", [$clanId, $steamId]);
     }
 
-    /** Membro sai do clã (o DONO não sai — tem que dissolver). */
+    /** Membro sai do clã (o DONO não sai - tem que dissolver). */
     public static function leave(string $steamId): ?string {
         $m = Database::fetchOne("SELECT clan_id, role FROM clan_members WHERE steam_id = ? LIMIT 1", [$steamId]);
         if (!$m) return 'not_member';
@@ -336,7 +336,7 @@ class Clan {
             'already'            => 'Esse jogador já tem convite/pedido pendente.',
             'not_owner'          => 'Só o dono do clã pode fazer isso.',
             'bad_steam'          => 'SteamID inválido (17 dígitos, 7656119...).',
-            'owner_must_disband' => 'O dono não pode sair — passe a liderança ou dissolva o clã.',
+            'owner_must_disband' => 'O dono não pode sair - passe a liderança ou dissolva o clã.',
             'not_member'         => 'Esse jogador não é membro do clã.',
             'cant_self'          => 'Você já é o dono do clã.',
             'not_found'          => 'Clã não encontrado.',

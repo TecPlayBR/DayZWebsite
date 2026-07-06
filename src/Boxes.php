@@ -13,8 +13,8 @@ namespace App;
 class Boxes {
 
     /** Caixas habilitadas pro grid público. */
-    // A RARIDADE define o peso/chance (o campo "peso" manual saiu do admin — 2026-06-16).
-    // Mesmos valores no JS do caixa_edit.php e na migration v2.5.0 — manter em sincronia.
+    // A RARIDADE define o peso/chance (o campo "peso" manual saiu do admin - 2026-06-16).
+    // Mesmos valores no JS do caixa_edit.php e na migration v2.5.0 - manter em sincronia.
     public const RARITY_WEIGHT = [
         'common' => 100, 'uncommon' => 40, 'rare' => 15, 'epic' => 5, 'legendary' => 2,
     ];
@@ -86,7 +86,7 @@ class Boxes {
     public static function open(array $box, string $steamId): array {
         $boxId = (int)$box['id'];
         // Lock por (caixa, jogador): serializa aberturas concorrentes (duplo-clique /
-        // requisições paralelas) — fecha a race do cooldown da diária e double-open.
+        // requisições paralelas) - fecha a race do cooldown da diária e double-open.
         // Auto-libera no fim da requisição (conexão PDO não-persistente).
         $lock = 'boxopen_' . $boxId . '_' . substr(md5($steamId), 0, 16);
         if (!Database::fetchColumn("SELECT GET_LOCK(?, 5)", [$lock])) {
@@ -120,7 +120,7 @@ class Boxes {
         $won = self::draw($items);
         if (!$won) return ['ok' => false, 'error' => 'Não foi possível sortear um item.'];
 
-        // Debita moedas (caixa paga) — com log.
+        // Debita moedas (caixa paga) - com log.
         if ($cost > 0) {
             $player = $player ?? Database::fetchOne("SELECT id, coins FROM players WHERE steam_id = ? LIMIT 1", [$steamId]);
             $pid = (int)($player['id'] ?? 0);
@@ -189,7 +189,7 @@ class Boxes {
      * Retorna quantas entregou.
      */
     public static function deliverPending(int $limit = 50): int {
-        // Modo "resgate manual": NÃO entrega sozinho — espera o player clicar "Receber"
+        // Modo "resgate manual": NÃO entrega sozinho - espera o player clicar "Receber"
         // (no painel) ou resgatar in-game, pra ele escolher o momento/lugar seguro.
         if (Settings::getBool('box_claim_enabled')) return 0;
         if (Restart::inDangerWindow() || !CFTools::isConfigured()) return 0;

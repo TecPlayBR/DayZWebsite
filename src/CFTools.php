@@ -1,6 +1,6 @@
 <?php
 // ============================================================
-// CFTools Cloud — Data API (cliente PHP). Mesmo padrão de ServerStatus/MercadoPago.
+// CFTools Cloud - Data API (cliente PHP). Mesmo padrão de ServerStatus/MercadoPago.
 // ============================================================
 // O SITE consulta o CFTools direto (não depende de bot externo). Cacheia tudo em
 // storage/cache pra respeitar os rate limits apertados:
@@ -51,7 +51,7 @@ class CFTools {
 
     /**
      * Invalida TODO o cache do CFTools (token, lookups, leaderboard, player).
-     * Chamar quando a config do CFTools muda no admin — senão o token/lookup
+     * Chamar quando a config do CFTools muda no admin - senão o token/lookup
      * VELHO (cache 23h/7d) continua valendo contra o app NOVO e a integracao
      * "nao funciona" ate alguem apagar storage/cache na mao. Retorna nº de arquivos.
      */
@@ -169,7 +169,7 @@ class CFTools {
         $resp = self::player($cid);
         $dayz = $resp[$cid]['game']['dayz'] ?? null;
         if (!is_array($dayz)) return null;
-        // Playtime/sessões NÃO ficam em game.dayz — ficam em omega (validado live).
+        // Playtime/sessões NÃO ficam em game.dayz - ficam em omega (validado live).
         $omega = is_array($resp[$cid]['omega'] ?? null) ? $resp[$cid]['omega'] : [];
 
         $k     = is_array($dayz['kills'] ?? null) ? $dayz['kills'] : [];
@@ -265,7 +265,7 @@ class CFTools {
 
     // ---------- GameLabs (drop de item / ações no jogo) ----------
 
-    /** Schema de uma action GameLabs (cache 24h — lista raramente muda + rate limit baixo). */
+    /** Schema de uma action GameLabs (cache 24h - lista raramente muda + rate limit baixo). */
     private static function gameLabsAction(string $code): ?array {
         $c = self::cacheGet('gamelabs-actions', 86400);
         if (!$c || empty($c['actions'])) {
@@ -284,7 +284,7 @@ class CFTools {
     /**
      * Dropa um item no personagem do jogador (precisa estar ONLINE).
      * Validado live: CFCloud_SpawnPlayerItem + quantity>=1 + referenceKey=SteamID64.
-     * Retorna true se a API aceitou (204). NÃO garante que o player estava online —
+     * Retorna true se a API aceitou (204). NÃO garante que o player estava online -
      * cheque isOnline() antes pra decidir entre dropar agora ou enfileirar.
      */
     public static function spawnPlayerItem(string $steamId64, string $classname, int $qty = 1, bool $stacked = false): bool {

@@ -1,5 +1,5 @@
 -- ============================================================
--- DayZWebsite v1.6.0 — Estatísticas de gameplay (leaderboard + perfil)
+-- DayZWebsite v1.6.0 - Estatísticas de gameplay (leaderboard + perfil)
 -- ============================================================
 -- Stats vêm do CFTools (via Bot, que resolve Steam64->cftools_id e empurra
 -- pro site em /api/player-stats.php). Colunas fixas pros stats ordenáveis

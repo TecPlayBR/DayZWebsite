@@ -79,9 +79,9 @@ try {
          ON DUPLICATE KEY UPDATE `value` = VALUES(`value`)",
         [(string) time()]
     );
-} catch (\Throwable $e) { /* settings pode não existir em instalação incompleta — ignora */ }
+} catch (\Throwable $e) { /* settings pode não existir em instalação incompleta - ignora */ }
 
-// ============ GET — agent lê players do site (apenas do SEU servidor) ============
+// ============ GET - agent lê players do site (apenas do SEU servidor) ============
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $rows = \App\Database::fetchAll(
         "SELECT steam_id, display_name, coins, total_spent_brl, last_seen_at, origin
@@ -104,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     die(json_encode(['ok' => true, 'count' => count($players), 'players' => $players]));
 }
 
-// ============ POST — agent reporta updates ============
+// ============ POST - agent reporta updates ============
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $body = json_decode(file_get_contents('php://input'), true);
     if (!is_array($body) || !isset($body['players']) || !is_array($body['players'])) {

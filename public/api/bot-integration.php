@@ -4,7 +4,7 @@
 // API: /api/bot-integration
 // ============================================================
 // Endpoint para o Tecplay Bot Discord (Pro/Free) consultar dados
-// do site. SEPARADO do /api/health.php (que é público) — este aqui
+// do site. SEPARADO do /api/health.php (que é público) - este aqui
 // é autenticado via Bearer token.
 //
 // AUTH:
@@ -297,7 +297,7 @@ case 'link_player':
         _bail(400, 'invalid_steam_id', 'link_player');
     }
     // Upsert: cria se não existe, atualiza display_name e marca origem='bot'.
-    // Se player já existia com outra origem (ex: 'agent'), MANTÉM a origem antiga —
+    // Se player já existia com outra origem (ex: 'agent'), MANTÉM a origem antiga -
     // bot só "marca" origem quando é o primeiro registro do player. Evita reescrever
     // histórico de quem já era conhecido pelo agent/painel.
     $existing = \App\Database::fetchOne(
@@ -324,7 +324,7 @@ case 'link_player':
             'origin_kept' => (string)$existing['origin'],
         ]));
     }
-    // Player novo — cria com origin='bot'
+    // Player novo - cria com origin='bot'
     \App\Database::query(
         "INSERT INTO players (steam_id, display_name, coins, total_spent_brl, last_seen_at, origin)
          VALUES (?, ?, 0, 0.00, NOW(), 'bot')",
@@ -435,7 +435,7 @@ case 'packages':
 
 case 'create_checkout':
     // Compra de coins pelo Discord via LINK de checkout web (reusa o fluxo do site).
-    // O cliente paga pelo link e o mp-webhook.php credita os coins — zero duplicação.
+    // O cliente paga pelo link e o mp-webhook.php credita os coins - zero duplicação.
     if ($method !== 'POST') {
         _bail(405, 'method_not_allowed', 'create_checkout');
     }
@@ -454,7 +454,7 @@ case 'create_checkout':
     $pref = $mp->createPreference([
         'items' => [[
             'id'          => $pkg['id'],
-            'title'       => $pkg['name'] . ' — ' . $coinsTotal . ' moedas',
+            'title'       => $pkg['name'] . ' - ' . $coinsTotal . ' moedas',
             'description' => 'Compra (Discord) para SteamID ' . $steamId,
             'quantity'    => 1,
             'currency_id' => 'BRL',
@@ -514,7 +514,7 @@ case 'create_pix':
     $expires = gmdate("Y-m-d\\TH:i:s.000P", time() + 1800); // QR válido ~30 min
     $pay = $mp->createPixPayment([
         'transaction_amount' => round($priceBrl, 2),
-        'description'        => $pkg['name'] . ' — ' . $coinsTotal . ' moedas (Discord)',
+        'description'        => $pkg['name'] . ' - ' . $coinsTotal . ' moedas (Discord)',
         'external_reference' => (string) $purchaseId,
         'notification_url'   => $siteUrl . '/api/mp-webhook.php',
         'date_of_expiration' => $expires,
@@ -569,7 +569,7 @@ case 'create_invoice':
     if ($invCpf !== null && strlen($invCpf) !== 11)         _bail(400, 'invalid_cpf', 'create_invoice');
     if ($invEmail !== null && !filter_var($invEmail, FILTER_VALIDATE_EMAIL)) _bail(400, 'invalid_email', 'create_invoice');
 
-    // Idempotência: invoice_ref já existe? NÃO cria/cobra de novo — devolve o estado atual.
+    // Idempotência: invoice_ref já existe? NÃO cria/cobra de novo - devolve o estado atual.
     $prevInv = \App\Database::fetchOne(
         "SELECT id, status, amount_brl, qr_code, expires_at FROM invoices WHERE invoice_ref = ? LIMIT 1",
         [$invRef]

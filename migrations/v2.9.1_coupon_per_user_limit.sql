@@ -1,4 +1,4 @@
--- v2.9.1 — limite de uso de cupom POR jogador (além do limite global max_uses).
+-- v2.9.1 - limite de uso de cupom POR jogador (além do limite global max_uses).
 -- per_user_limit NULL = ilimitado por jogador; 1 = cada jogador usa uma vez só
 -- (ex: cupom de aniversário). A contagem usa as compras aprovadas do jogador.
 -- Idempotente: só adiciona a coluna se ainda não existir.

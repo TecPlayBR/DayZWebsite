@@ -1,7 +1,7 @@
 <?php
 // ============================================================
 // (c) 2026 Tecplay - DayZ Website Template
-// API: /api/getcoins.php — leitura de saldo pro MOD SPARDA (Api_Get)
+// API: /api/getcoins.php - leitura de saldo pro MOD SPARDA (Api_Get)
 // ============================================================
 // Entrega NATIVA via mod Sparda (sem o Agent pago): o mod lê o saldo de moedas
 // do jogador direto daqui. O site vende a moeda (Mercado Pago) e credita o saldo;

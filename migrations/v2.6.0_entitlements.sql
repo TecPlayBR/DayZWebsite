@@ -1,5 +1,5 @@
 -- ============================================================
--- v2.6.0 — Entitlements (VIP / BattlePass) gerenciados pelo SITE
+-- v2.6.0 - Entitlements (VIP / BattlePass) gerenciados pelo SITE
 -- ============================================================
 -- O site (template) e quem manda no servidor de jogo. O admin concede VIP/Passe
 -- aqui; o tecplay-agent puxa os pendentes (GET /api/entitlements) e escreve os

@@ -1,4 +1,4 @@
--- v2.13.0 — Clãs (Fase 1): registro de clãs no site + membros + pedidos/convites.
+-- v2.13.0 - Clãs (Fase 1): registro de clãs no site + membros + pedidos/convites.
 -- 1 jogador = 1 clã (UNIQUE em clan_members.steam_id). Entrada só com aceite dos
 -- dois lados (pedido do jogador OU convite do dono) → LGPD/consentimento.
 -- Idempotente: CREATE TABLE IF NOT EXISTS.

@@ -1,5 +1,5 @@
 -- ============================================================
--- v2.15.0 — Eventos de Clã (placar por DELTA)
+-- v2.15.0 - Eventos de Clã (placar por DELTA)
 -- ============================================================
 -- Competição entre clãs num período (ex: "Mate o máximo de zumbis").
 -- A pontuação conta SÓ o que rolou DENTRO do evento: tira-se um baseline

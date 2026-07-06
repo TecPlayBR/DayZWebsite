@@ -31,10 +31,10 @@ $excludeDirs = [
     '.git',
     '.vscode',
     '.idea',
-    '.preview',          // screenshots de dev — não vão pro cliente
+    '.preview',          // screenshots de dev - não vão pro cliente
     'node_modules',
     'vendor',
-    // storage/* fica fora — só os .gitkeep entram pra criar a estrutura de pastas
+    // storage/* fica fora - só os .gitkeep entram pra criar a estrutura de pastas
     'storage/backups',
     'storage/cache',
     'storage/logs',

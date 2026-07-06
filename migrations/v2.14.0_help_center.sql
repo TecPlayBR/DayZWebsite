@@ -1,4 +1,4 @@
--- v2.14.0 — Central de Ajuda (artigos/guia por categoria). Idempotente.
+-- v2.14.0 - Central de Ajuda (artigos/guia por categoria). Idempotente.
 -- Conteúdo migrado do "Começo" do Discord. Cada artigo: categoria, título, corpo
 -- (HTML), vídeo do YouTube (opcional) e imagem (opcional). Editável no painel.
 

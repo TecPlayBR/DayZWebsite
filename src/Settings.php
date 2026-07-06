@@ -1,12 +1,12 @@
 <?php
 // ============================================================
-// Settings — acesso às configurações editáveis (tabela `settings`).
+// Settings - acesso às configurações editáveis (tabela `settings`).
 // ============================================================
 // Fonte ÚNICA da verdade do que é editável + tipo de cada chave (SCHEMA).
 // - Cache em memória: lê o snapshot carregado no bootstrap → ZERO query extra
 //   por leitura (antes, bonus_enabled era consultado 4-5x por page load).
 // - set() valida contra o whitelist e normaliza por tipo (defesa: chave fora
-//   do SCHEMA é rejeitada — mata o footgun "dev adiciona campo e esquece o whitelist").
+//   do SCHEMA é rejeitada - mata o footgun "dev adiciona campo e esquece o whitelist").
 // NÃO guarda segredos (db/tokens/MP ficam no config.php). Só config editável.
 // ============================================================
 
@@ -61,7 +61,7 @@ class Settings {
         'card_installments_min'    => 'int',     // default 30 (lido com getInt default)
         // Integração CFTools Cloud (App ID + Secret + Server API ID). Habilita o ranking
         // de gameplay (kills/zumbis/K-D/tempo) E a entrega das CAIXAS no jogo. Config via
-        // admin OU config.php (config.php tem prioridade — ver bootstrap do index.php).
+        // admin OU config.php (config.php tem prioridade - ver bootstrap do index.php).
         'cftools_app_id'           => 'string',
         'cftools_secret'           => 'string',
         'cftools_server_api_id'    => 'string',
@@ -111,7 +111,7 @@ class Settings {
         $agent = (int) self::get('agent_last_sync', 0);
         if ($agent > 0 && (time() - $agent) < 1800) return true;
         // Entrega nativa Sparda (mod lê/grava via getcoins/postcoins). É EVENT-DRIVEN:
-        // o mod só fala com o site quando alguém abre a loja in-game — então a janela é
+        // o mod só fala com o site quando alguém abre a loja in-game - então a janela é
         // larga (7 dias). Com 30 min, servidor parado de madrugada já dispararia o
         // "entrega não detectada" mesmo com o Sparda configurado e funcionando.
         $sparda = (int) self::get('sparda_last_sync', 0);

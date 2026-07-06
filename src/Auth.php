@@ -23,7 +23,7 @@ class Auth {
     }
 
     /** Matriz role → áreas permitidas. super_admin tem '*' (todas).
-     *  IMPORTANTE: support NÃO vê dashboard nem nada com valor financeiro —
+     *  IMPORTANTE: support NÃO vê dashboard nem nada com valor financeiro -
      *  só relação direta com jogadores (atendimento, moedas, reviews). */
     private const PERMISSIONS = [
         'super_admin' => ['*'],
@@ -42,7 +42,7 @@ class Auth {
         ];
     }
 
-    /** Página inicial pro role — usada como fallback de redirect após login
+    /** Página inicial pro role - usada como fallback de redirect após login
      *  pra usuários que não têm acesso ao dashboard (/admin). */
     public static function homePath(): string {
         $role = self::role();

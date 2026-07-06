@@ -4,7 +4,7 @@
 // Demo Seed CLI
 // ============================================================
 // Popula o banco com dados fictícios pra cliente ver o site "vivo"
-// já no primeiro acesso. Idempotente: pode rodar várias vezes — só
+// já no primeiro acesso. Idempotente: pode rodar várias vezes - só
 // insere se ainda não houver dados de demo (steam_id começa com 7656119DEMO).
 //
 // Uso: php cli/seed-demo.php
@@ -29,7 +29,7 @@ $pdo = App\Database::pdo();
 if (in_array('--clean', $argv ?? [], true)) {
     echo "Limpando dados demo...\n";
     seed_demo_clean($pdo);
-    echo "OK — dados demo removidos.\n";
+    echo "OK - dados demo removidos.\n";
     exit;
 }
 

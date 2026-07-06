@@ -1,5 +1,5 @@
 -- ============================================================
--- v1.8.0 — Caixas / Lootboxes
+-- v1.8.0 - Caixas / Lootboxes
 -- ============================================================
 -- Caixas que o player abre (gastando moedas ou diária grátis). Cada caixa tem
 -- um pool de itens com peso (chance). Ao abrir, sorteia por peso e dropa o item
