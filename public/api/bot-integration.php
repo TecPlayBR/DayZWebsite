@@ -387,6 +387,16 @@ case 'stats':
           GROUP BY p.package_id ORDER BY qtd DESC LIMIT 3",
         [$ym]
     );
+    // Serie diaria dos ultimos 30 dias (pro grafico do dashboard do bot).
+    $dailyRows = \App\Database::fetchAll(
+        "SELECT DATE(created_at) AS d, COUNT(*) AS sales, COALESCE(SUM(price_brl),0) AS revenue
+           FROM purchases
+          WHERE mp_status = 'approved' AND created_at >= DATE_SUB(CURDATE(), INTERVAL 29 DAY)
+          GROUP BY DATE(created_at)"
+    );
+    $daily = array_map(static function (array $r): array {
+        return ['d' => (string) $r['d'], 'sales' => (int) $r['sales'], 'revenue' => round((float) $r['revenue'], 2)];
+    }, $dailyRows);
     _mark_last_ok();
     _log_call('stats', 200);
     die(json_encode([
@@ -397,6 +407,7 @@ case 'stats':
         'month_sales'        => (int) $monthRow['qtd'],
         'month_avg_brl'      => round((float) $monthRow['media'], 2),
         'new_players_month'  => $newPlayersMonth,
+        'daily'              => $daily,
         'top_packages'       => array_map(static function (array $r): array {
             return [
                 'name'  => $r['name'],

@@ -272,6 +272,9 @@ if ($status === 'approved' && empty($purchase['delivered_at'])) {
             [$purchase['package_id']]
         );
         $payload = json_encode([
+            // site_token = quem ESTE site e (o discord_integration_token dele). O bot usa
+            // pra rotear a venda pra guild CERTA (multi-tenant) e nao vazar pra outra.
+            'site_token'     => trim((string)($config['settings']['discord_integration_token'] ?? '')),
             'purchase_id'    => (int)$purchase['id'],
             'steam_id'       => $purchase['steam_id'],
             'player_name'    => $playerRow['display_name'] ?? null,

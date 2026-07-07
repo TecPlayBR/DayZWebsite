@@ -72,6 +72,7 @@ if (!function_exists('notify_bot_release')) {
         $tokenB   = trim(($config['bot']['token']    ?? '') ?: ($config['settings']['bot_token']    ?? ''));
         if ($endpoint === '' || $tokenB === '') return false; // bot não integrado
         $payload = json_encode([
+            'site_token'   => trim((string)($config['settings']['discord_integration_token'] ?? '')), // roteia pra guild certa
             'release_id'   => $info['release_id']   ?? null,
             'title'        => $info['title']        ?? '',
             'category'     => $info['category']     ?? '',
