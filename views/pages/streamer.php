@@ -11,18 +11,18 @@ $siteName = $config['settings']['site_name'] ?? ($config['site_name'] ?? 'Servid
 <section class="st-wrap">
 <?php if (!$streamer): ?>
     <div class="st-empty">
-        <h1>Streamer nao encontrado</h1>
-        <p>Esse codigo de streamer nao existe ou esta inativo.</p>
+        <h1>Streamer não encontrado</h1>
+        <p>Esse código de streamer não existe ou está inativo.</p>
         <a href="/streamers" class="btn btn-outline">Ver streamers</a>
     </div>
 <?php else:
     $aff = $_GET['aff'] ?? '';
     $flash = [
-        'ok'       => ['moss',   'Pronto! Agora voce apoia ' . e($streamer['name']) . '.'],
-        'switched' => ['moss',   'Trocado! Agora voce apoia ' . e($streamer['name']) . '.'],
-        'already'  => ['dim',    'Voce ja apoia ' . e($streamer['name']) . '.'],
-        'blocked'  => ['hazard', 'Voce ja apoia outro streamer (vinculo fixo - fale com a staff).'],
-        'invalid'  => ['hazard', 'Codigo invalido.'],
+        'ok'       => ['moss',   'Pronto! Agora você apoia ' . e($streamer['name']) . '.'],
+        'switched' => ['moss',   'Trocado! Agora você apoia ' . e($streamer['name']) . '.'],
+        'already'  => ['dim',    'Você já apoia ' . e($streamer['name']) . '.'],
+        'blocked'  => ['hazard', 'Você já apoia outro streamer (vínculo fixo - fale com a staff).'],
+        'invalid'  => ['hazard', 'Código inválido.'],
     ][$aff] ?? null;
     $linkedCoupon = trim((string) ($streamer['coupon_code'] ?? ''));
     $alreadyMine = $my_streamer_code && (
@@ -57,7 +57,7 @@ $siteName = $config['settings']['site_name'] ?? ($config['site_name'] ?? 'Servid
             <?php if ($affiliate_on): ?>
                 <div class="st-actions">
                     <?php if ($alreadyMine): ?>
-                        <span class="st-btn st-btn-mine">&#10004; Voce ja apoia</span>
+                        <span class="st-btn st-btn-mine">&#10004; Você já apoia</span>
                     <?php elseif (!$steam_user): ?>
                         <a href="/auth/steam" class="st-btn st-btn-primary">Entrar pra apoiar</a>
                     <?php else: ?>
@@ -93,7 +93,7 @@ $siteName = $config['settings']['site_name'] ?? ($config['site_name'] ?? 'Servid
     <?php endif; ?>
 
     <?php if ($videos): ?>
-        <h2 class="st-h2">Videos</h2>
+        <h2 class="st-h2">Vídeos</h2>
         <div class="st-videos">
             <?php foreach ($videos as $v): ?>
                 <a href="<?= e($v) ?>" target="_blank" rel="noopener" class="st-video">&#9654; <?= e($v) ?></a>
