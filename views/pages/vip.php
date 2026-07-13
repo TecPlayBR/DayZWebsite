@@ -151,7 +151,7 @@ $imgSrc = function ($img) {
 </section>
 
 <style>
-.vip-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(min(280px,100%), 1fr)); gap:1.6rem; }
+.vip-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 340px)); gap:1.6rem; justify-content:center; }
 .vip-card { position:relative; background:linear-gradient(180deg, var(--bg-1) 0%, var(--bg-0) 100%); border:1px solid var(--border); border-radius:10px; padding:1.6rem 1.4rem; display:flex; flex-direction:column; transition:transform .2s, border-color .2s, box-shadow .2s; overflow:hidden; }
 .vip-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, var(--hazard), transparent); opacity:.7; }
 .vip-card:hover { transform:translateY(-4px); border-color:var(--hazard); box-shadow:0 12px 30px rgba(0,0,0,.4); }
