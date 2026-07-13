@@ -22,16 +22,16 @@
                         <svg width="9" height="9" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M6 9 L1 4 h10 z"/></svg>
                     </button>
                     <ul class="nav-drop-menu">
-                        <li><a href="/clans"><?= e(__('nav.clans', [], 'Clãs')) ?></a></li>
-                        <li><a href="/streamers"><?= e(__('nav.streamers', [], 'Streamers')) ?></a></li>
                         <li><a href="/ajuda"><?= e(__('nav.help', [], 'Ajuda')) ?></a></li>
-                        <?php if (\App\Releases::hasAny()): ?><li><a href="/novidades"><?= e(__('nav.releases', [], 'Novidades')) ?></a></li><?php endif; ?>
+                        <li><a href="/clans"><?= e(__('nav.clans', [], 'Clãs')) ?></a></li>
                         <li><a href="/eventos"><?= e(__('nav.events')) ?></a></li>
                         <li><a href="/galeria"><?= e(__('nav.gallery')) ?></a></li>
+                        <?php if (\App\Releases::hasAny()): ?><li><a href="/novidades"><?= e(__('nav.releases', [], 'Novidades')) ?></a></li><?php endif; ?>
                         <li><a href="/rules"><?= e(__('nav.rules')) ?></a></li>
                         <?php if (\App\Servers::isMulti()): ?>
                             <li><a href="/servidores"><?= e(__('nav.servers')) ?></a></li>
                         <?php endif; ?>
+                        <li><a href="/streamers"><?= e(__('nav.streamers', [], 'Streamers')) ?></a></li>
                     </ul>
                 </li>
                 <?php if ($discord): ?>
