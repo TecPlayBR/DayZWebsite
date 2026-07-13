@@ -3670,6 +3670,74 @@ $BRAND_SLOTS = [
     ]);
 });
 
+// Gerenciar streamers (CRUD) - separado do relatorio de cache.
+\App\Router::get('/admin/streamers/manage', function() use ($config) {
+    \App\Auth::requireCan('coupons');
+    $id = (int) ($_GET['id'] ?? 0);
+    \App\View::display('admin.streamer_edit', [
+        'config'    => $config,
+        'streamers' => \App\Database::fetchAll("SELECT * FROM streamers ORDER BY sort_order, name"),
+        'edit'      => $id ? \App\Database::fetchOne("SELECT * FROM streamers WHERE id = ?", [$id]) : null,
+        'coupons'   => [],
+    ]);
+});
+
+\App\Router::post('/admin/streamers/save', function() use ($config) {
+    \App\Auth::requireCan('coupons');
+    if (!\App\Csrf::check()) { header('Location: /admin/streamers/manage'); exit; }
+    $toJson = function ($raw) {
+        $out = [];
+        foreach (preg_split('/[\r\n]+/', (string) $raw) as $line) {
+            $line = trim($line);
+            if ($line !== '') $out[] = $line;
+        }
+        return $out ? json_encode($out) : null;
+    };
+    $id   = (int) ($_POST['id'] ?? 0);
+    $code = strtoupper(trim($_POST['code'] ?? ''));
+    $name = trim($_POST['name'] ?? '');
+    if ($code === '' || $name === '') { header('Location: /admin/streamers/manage?id=' . $id); exit; }
+    $vals = [
+        substr($code, 0, 40), substr($name, 0, 80),
+        (trim($_POST['bio'] ?? '') ?: null),
+        (trim($_POST['avatar_url'] ?? '') ?: null),
+        $toJson($_POST['photos'] ?? ''),
+        (trim($_POST['channel_url'] ?? '') ?: null),
+        $toJson($_POST['videos'] ?? ''),
+        (strtoupper(trim($_POST['coupon_code'] ?? '')) ?: null),
+        (!empty($_POST['featured']) ? 1 : 0),
+        (!empty($_POST['active']) ? 1 : 0),
+        (int) ($_POST['sort_order'] ?? 0),
+    ];
+    try {
+        if ($id) {
+            \App\Database::query(
+                "UPDATE streamers SET code=?,name=?,bio=?,avatar_url=?,photos_json=?,channel_url=?,video_urls_json=?,coupon_code=?,featured=?,active=?,sort_order=? WHERE id=?",
+                array_merge($vals, [$id])
+            );
+        } else {
+            \App\Database::query(
+                "INSERT INTO streamers (code,name,bio,avatar_url,photos_json,channel_url,video_urls_json,coupon_code,featured,active,sort_order) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                $vals
+            );
+        }
+    } catch (\Throwable $ex) {
+        header('Location: /admin/streamers/manage?id=' . $id . '&err=1'); exit;
+    }
+    \App\AuditLog::record('streamer.saved', 'streamer', $code);
+    header('Location: /admin/streamers/manage?ok=1'); exit;
+});
+
+\App\Router::post('/admin/streamers/delete', function() use ($config) {
+    \App\Auth::requireCan('coupons');
+    if (!\App\Csrf::check()) { header('Location: /admin/streamers/manage'); exit; }
+    $id = (int) ($_POST['id'] ?? 0);
+    $code = \App\Database::fetchColumn("SELECT code FROM streamers WHERE id = ?", [$id]);
+    \App\Database::query("DELETE FROM streamers WHERE id = ?", [$id]);
+    \App\AuditLog::record('streamer.deleted', 'streamer', $code);
+    header('Location: /admin/streamers/manage?ok=1'); exit;
+});
+
 // ============ ADMIN: ENTITLEMENTS (VIP / BattlePass) ============
 // Loja de VIP/Passe por moedas: liga/desliga + tabela de preços (tier x duração).
 \App\Router::get('/admin/vip', function() use ($config) {

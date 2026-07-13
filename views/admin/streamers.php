@@ -17,6 +17,7 @@ $totComm  = array_sum(array_map(fn($s) => $s['commission'], $streamers));
 <div class="admin-page-head">
     <div>
         <h1>🎮 Streamers / Afiliados</h1>
+        <a href="/admin/streamers/manage" class="btn-mini" style="float:right; margin-top:-2.2rem;">Gerenciar streamers →</a>
         <p>Quanto cada streamer gerou de venda e o cachê a pagar (sobre o valor cheio, só compra paga). O valor é só pra você pagar por fora - o site não paga automático.</p>
     </div>
 </div>
