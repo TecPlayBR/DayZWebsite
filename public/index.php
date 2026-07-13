@@ -1646,6 +1646,7 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
         'streamer'         => $s,
         'photos'           => $s ? \App\Streamer::photos($s) : [],
         'videos'           => $s ? \App\Streamer::videos($s) : [],
+        'socials'          => $s ? \App\Streamer::socials($s) : [],
         'steam_user'       => $steamUser,
         'my_streamer_code' => $steamUser ? \App\Affiliate::binding($steamUser['steam_id']) : null,
         'affiliate_on'     => \App\Affiliate::enabled(),
@@ -3731,6 +3732,11 @@ $BRAND_SLOTS = [
             if ($u) $photoUrls[] = $u;
         }
     }
+    $socials = [];
+    foreach (\App\Streamer::SOCIAL_PLATFORMS as $sk => $slbl) {
+        $su = trim($_POST['social_' . $sk] ?? '');
+        if ($su !== '') $socials[$sk] = substr($su, 0, 300);
+    }
     $vals = [
         substr($code, 0, 40), substr($name, 0, 80),
         (trim($_POST['bio'] ?? '') ?: null),
@@ -3738,6 +3744,7 @@ $BRAND_SLOTS = [
         ($photoUrls ? json_encode($photoUrls) : null),
         (trim($_POST['channel_url'] ?? '') ?: null),
         $toJson($_POST['videos'] ?? ''),
+        ($socials ? json_encode($socials) : null),
         (strtoupper(trim($_POST['coupon_code'] ?? '')) ?: null),
         (!empty($_POST['featured']) ? 1 : 0),
         (!empty($_POST['active']) ? 1 : 0),
@@ -3746,12 +3753,12 @@ $BRAND_SLOTS = [
     try {
         if ($id) {
             \App\Database::query(
-                "UPDATE streamers SET code=?,name=?,bio=?,avatar_url=?,photos_json=?,channel_url=?,video_urls_json=?,coupon_code=?,featured=?,active=?,sort_order=? WHERE id=?",
+                "UPDATE streamers SET code=?,name=?,bio=?,avatar_url=?,photos_json=?,channel_url=?,video_urls_json=?,socials_json=?,coupon_code=?,featured=?,active=?,sort_order=? WHERE id=?",
                 array_merge($vals, [$id])
             );
         } else {
             \App\Database::query(
-                "INSERT INTO streamers (code,name,bio,avatar_url,photos_json,channel_url,video_urls_json,coupon_code,featured,active,sort_order) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                "INSERT INTO streamers (code,name,bio,avatar_url,photos_json,channel_url,video_urls_json,socials_json,coupon_code,featured,active,sort_order) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
                 $vals
             );
         }

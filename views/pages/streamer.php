@@ -45,6 +45,10 @@ $siteName = $config['settings']['site_name'] ?? ($config['site_name'] ?? 'Servid
         <div style="flex:1; min-width:240px;">
             <span style="color:var(--hazard); font-weight:700; letter-spacing:.1em; font-size:.8rem;">// STREAMER PARCEIRO</span>
             <h1 style="color:var(--bone); margin:.2rem 0 .4rem; font-size:2rem;"><?= e($streamer['name']) ?></h1>
+            <?php $supCount = \App\Streamer::supporterCount($streamer); ?>
+            <?php if ($supCount > 0): ?>
+                <div style="color:var(--hazard); font-weight:600; font-size:.9rem; margin:0 0 .5rem;">❤ <?= $supCount ?> <?= $supCount === 1 ? 'apoiador' : 'apoiadores' ?></div>
+            <?php endif; ?>
             <?php if (!empty($streamer['bio'])): ?>
                 <p style="color:var(--dim); margin:0; line-height:1.6;"><?= nl2br(e($streamer['bio'])) ?></p>
             <?php endif; ?>
@@ -70,6 +74,21 @@ $siteName = $config['settings']['site_name'] ?? ($config['site_name'] ?? 'Servid
             <?php endif; ?>
         <?php endif; ?>
     </div>
+
+    <?php if (!empty($socials)): ?>
+        <div style="display:flex; gap:.6rem; flex-wrap:wrap; margin-bottom:2rem;">
+            <?php foreach ($socials as $soc): ?>
+                <a href="<?= e($soc['url']) ?>" target="_blank" rel="noopener"
+                   style="display:inline-flex; align-items:center; gap:.4rem; padding:.5rem .95rem; border-radius:8px;
+                          border:1px solid var(--border); background:var(--bg-2); color:var(--bone); text-decoration:none;
+                          font-size:.85rem; font-weight:600; transition:border-color .15s, color .15s;"
+                   onmouseover="this.style.borderColor='var(--hazard)';this.style.color='var(--hazard)';"
+                   onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--bone)';">
+                    <?= e($soc['label']) ?>
+                </a>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
 
     <?php if ($photos): ?>
         <h2 style="color:var(--bone); font-size:1.2rem; margin:0 0 1rem;">Galeria</h2>

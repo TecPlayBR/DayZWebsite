@@ -40,6 +40,20 @@ class Streamer
         return self::get($code) !== null;
     }
 
+    /** Quantos players estao vinculados a esse streamer (codigo OU cupom vinculado). */
+    public static function supporterCount(array $s): int
+    {
+        if (!self::available()) return 0;
+        $codes = [strtoupper((string) $s['code'])];
+        $cc = strtoupper(trim((string) ($s['coupon_code'] ?? '')));
+        if ($cc !== '' && $cc !== $codes[0]) $codes[] = $cc;
+        $ph = implode(',', array_fill(0, count($codes), '?'));
+        return (int) Database::fetchColumn(
+            "SELECT COUNT(*) FROM players WHERE affiliate_coupon_code IS NOT NULL AND UPPER(affiliate_coupon_code) IN ($ph)",
+            $codes
+        );
+    }
+
     public static function allActive(): array
     {
         if (!self::available()) return [];
@@ -67,6 +81,33 @@ class Streamer
                     $u = trim((string) $u);
                     if ($u !== '') $out[] = $u;
                 }
+            }
+        }
+        return $out;
+    }
+
+    /** Plataformas sociais suportadas (chave => label). Ordem = ordem de exibicao. */
+    public const SOCIAL_PLATFORMS = [
+        'youtube'   => 'YouTube',
+        'twitch'    => 'Twitch',
+        'kick'      => 'Kick',
+        'discord'   => 'Discord',
+        'instagram' => 'Instagram',
+        'tiktok'    => 'TikTok',
+        'twitter'   => 'X (Twitter)',
+        'facebook'  => 'Facebook',
+    ];
+
+    /** Redes preenchidas do streamer: [key => ['label'=>, 'url'=>]] (so as que tem URL). */
+    public static function socials(array $s): array
+    {
+        $out = [];
+        $raw = $s['socials_json'] ?? '';
+        $d = (is_string($raw) && $raw !== '') ? json_decode($raw, true) : null;
+        if (is_array($d)) {
+            foreach (self::SOCIAL_PLATFORMS as $key => $label) {
+                $u = trim((string) ($d[$key] ?? ''));
+                if ($u !== '') $out[$key] = ['label' => $label, 'url' => $u];
             }
         }
         return $out;

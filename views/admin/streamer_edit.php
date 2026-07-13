@@ -13,6 +13,11 @@ if ($e) {
     $v = json_decode($e['video_urls_json'] ?? '[]', true);
     if (is_array($v)) $videos = implode("\n", $v);
 }
+$socialVals = [];
+if ($e) {
+    $sj = json_decode($e['socials_json'] ?? '[]', true);
+    if (is_array($sj)) $socialVals = $sj;
+}
 ?>
 
 <div class="admin-page-head">
@@ -65,6 +70,14 @@ if ($e) {
         <div style="margin-top:1rem;">
             <label>Vídeos (uma URL por linha)</label>
             <textarea name="videos" rows="2" placeholder="https://youtu.be/..." style="<?= $field ?>"><?= e($videos) ?></textarea>
+        </div>
+        <div style="margin-top:1rem;">
+            <label>Redes / Canais (preencha só o que tiver — aparece só esses na página)</label>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.7rem; margin-top:0.4rem;">
+                <?php foreach (\App\Streamer::SOCIAL_PLATFORMS as $sk => $slbl): ?>
+                    <input name="social_<?= e($sk) ?>" maxlength="300" value="<?= e($socialVals[$sk] ?? '') ?>" placeholder="<?= e($slbl) ?> (URL)" style="<?= $field ?>">
+                <?php endforeach; ?>
+            </div>
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem;">
             <div>
