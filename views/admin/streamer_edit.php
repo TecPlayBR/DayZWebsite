@@ -28,7 +28,7 @@ if ($e) {
 
 <div class="stat-card" style="margin-bottom:1.5rem;">
     <h3 style="margin-top:0;"><?= $e ? 'Editar: ' . e($e['name']) : 'Novo streamer' ?></h3>
-    <form method="POST" action="/admin/streamers/save" style="max-width:760px;">
+    <form method="POST" action="/admin/streamers/save" enctype="multipart/form-data" style="max-width:760px;">
         <?= \App\Csrf::field() ?>
         <?php if ($e): ?><input type="hidden" name="id" value="<?= (int)$e['id'] ?>"><?php endif; ?>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
@@ -47,8 +47,9 @@ if ($e) {
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem;">
             <div>
-                <label>Avatar (URL)</label>
+                <label>Avatar (URL ou upload)</label>
                 <input name="avatar_url" maxlength="300" value="<?= e($e['avatar_url'] ?? '') ?>" placeholder="/assets/img/streamers/hardo.webp" style="<?= $field ?>">
+                <input type="file" name="avatar_file" accept="image/png,image/webp,image/jpeg" style="margin-top:0.4rem; font-size:0.8rem; color:var(--dim);">
             </div>
             <div>
                 <label>Canal (Twitch/YouTube)</label>
@@ -56,8 +57,10 @@ if ($e) {
             </div>
         </div>
         <div style="margin-top:1rem;">
-            <label>Fotos (uma URL por linha)</label>
+            <label>Fotos (uma URL por linha) — ou faça upload abaixo</label>
             <textarea name="photos" rows="3" placeholder="/assets/img/streamers/hardo-1.webp&#10;/assets/img/streamers/hardo-2.webp" style="<?= $field ?>"><?= e($photos) ?></textarea>
+            <input type="file" name="photo_files[]" accept="image/png,image/webp,image/jpeg" multiple style="margin-top:0.4rem; font-size:0.8rem; color:var(--dim);">
+            <div style="font-size:0.78rem; color:var(--dim); margin-top:0.2rem;">As fotos enviadas somam às URLs acima.</div>
         </div>
         <div style="margin-top:1rem;">
             <label>Vídeos (uma URL por linha)</label>

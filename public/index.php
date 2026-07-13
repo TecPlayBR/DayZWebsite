@@ -1628,6 +1628,14 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     exit;
 });
 
+// Lista publica de streamers parceiros.
+\App\Router::get('/streamers', function() use ($config) {
+    \App\View::display('pages.streamers', [
+        'config'    => $config,
+        'streamers' => \App\Streamer::allActive(),
+    ]);
+});
+
 // Pagina publica do streamer (fotos, canal, apoiar).
 \App\Router::get('/streamer/{code}', function($code) use ($config) {
     $s = \App\Streamer::get((string) $code);
@@ -3697,11 +3705,37 @@ $BRAND_SLOTS = [
     $code = strtoupper(trim($_POST['code'] ?? ''));
     $name = trim($_POST['name'] ?? '');
     if ($code === '' || $name === '') { header('Location: /admin/streamers/manage?id=' . $id); exit; }
+    // Uploads (avatar + fotos) - opcionais; se enviados, sobrescrevem/complementam as URLs.
+    $destDir = __DIR__ . '/assets/img/streamers';
+    $avatar = trim($_POST['avatar_url'] ?? '') ?: null;
+    if (!empty($_FILES['avatar_file']['name'])) {
+        $u = upload_image($_FILES['avatar_file'], $destDir, 'st', '/assets/img/streamers');
+        if ($u) $avatar = $u;
+    }
+    $photoUrls = [];
+    foreach (preg_split('/[\r\n]+/', (string) ($_POST['photos'] ?? '')) as $l) {
+        $l = trim($l);
+        if ($l !== '') $photoUrls[] = $l;
+    }
+    if (!empty($_FILES['photo_files']['name']) && is_array($_FILES['photo_files']['name'])) {
+        $n = count($_FILES['photo_files']['name']);
+        for ($i = 0; $i < $n; $i++) {
+            if (($_FILES['photo_files']['error'][$i] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) continue;
+            $f = [
+                'error'    => $_FILES['photo_files']['error'][$i],
+                'size'     => $_FILES['photo_files']['size'][$i],
+                'tmp_name' => $_FILES['photo_files']['tmp_name'][$i],
+                'name'     => $_FILES['photo_files']['name'][$i],
+            ];
+            $u = upload_image($f, $destDir, 'st', '/assets/img/streamers');
+            if ($u) $photoUrls[] = $u;
+        }
+    }
     $vals = [
         substr($code, 0, 40), substr($name, 0, 80),
         (trim($_POST['bio'] ?? '') ?: null),
-        (trim($_POST['avatar_url'] ?? '') ?: null),
-        $toJson($_POST['photos'] ?? ''),
+        $avatar,
+        ($photoUrls ? json_encode($photoUrls) : null),
         (trim($_POST['channel_url'] ?? '') ?: null),
         $toJson($_POST['videos'] ?? ''),
         (strtoupper(trim($_POST['coupon_code'] ?? '')) ?: null),
