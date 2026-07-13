@@ -373,6 +373,7 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
         'promo_coupon' => $promoCoupon, 'home_stats' => $homeStats,
         'home_reviews' => $homeReviews,
         'featured_event' => \App\Events::featured(),
+        'featured_streamers' => \App\Streamer::featured(),
     ]);
 });
 
@@ -1618,7 +1619,10 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     if (!$streamer) {
         header('Location: ' . $back . '?aff=invalid'); exit;
     }
-    $res = \App\Affiliate::bind($steamId, $streamer['code']);
+    // Vincula ao CUPOM do streamer (se houver) - assim o cache conta no relatorio
+    // (que agrega por cupom afiliado). Sem cupom, usa o codigo do streamer.
+    $bindCode = trim((string) ($streamer['coupon_code'] ?? '')) ?: $streamer['code'];
+    $res = \App\Affiliate::bind($steamId, $bindCode);
     $map = ['bound' => 'ok', 'switched' => 'switched', 'already' => 'already', 'blocked' => 'blocked', 'disabled' => 'invalid'];
     header('Location: ' . $back . '?aff=' . ($map[$res] ?? 'invalid'));
     exit;

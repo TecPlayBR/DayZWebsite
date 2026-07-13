@@ -24,7 +24,11 @@ $siteName = $config['settings']['site_name'] ?? ($config['site_name'] ?? 'Servid
         'blocked'  => ['hazard', 'Você já apoia outro streamer (vínculo fixo - fale com a staff).'],
         'invalid'  => ['hazard', 'Código inválido.'],
     ][$aff] ?? null;
-    $alreadyMine = $my_streamer_code && strcasecmp($my_streamer_code, $streamer['code']) === 0;
+    $linkedCoupon = trim((string) ($streamer['coupon_code'] ?? ''));
+    $alreadyMine = $my_streamer_code && (
+        strcasecmp($my_streamer_code, $streamer['code']) === 0
+        || ($linkedCoupon !== '' && strcasecmp($my_streamer_code, $linkedCoupon) === 0)
+    );
 ?>
     <?php if ($flash): ?>
         <div style="margin-bottom:1.4rem; padding:0.8rem 1rem; border-radius:8px; border:1px solid var(--border);

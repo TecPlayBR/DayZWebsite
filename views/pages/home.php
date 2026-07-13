@@ -534,6 +534,40 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
 </style>
 <?php endif; ?>
 
+<!-- ============ STREAMERS EM DESTAQUE ============ -->
+<?php if (!empty($featured_streamers)): ?>
+<section class="section section-bg-2" style="padding-top:3rem;padding-bottom:3rem;">
+    <div class="container">
+        <div class="section-header">
+            <h2>🎮 Streamers Parceiros</h2>
+            <p>Apoie um streamer - suas compras ajudam ele direto.</p>
+        </div>
+        <div class="home-streamers">
+            <?php foreach (array_slice($featured_streamers, 0, 4) as $st): ?>
+                <a href="/streamer/<?= e(strtolower($st['code'])) ?>" class="home-streamer">
+                    <?php if (!empty($st['avatar_url'])): ?>
+                        <img src="<?= e($st['avatar_url']) ?>" alt="<?= e($st['name']) ?>" loading="lazy">
+                    <?php endif; ?>
+                    <div class="home-streamer-body">
+                        <span class="home-streamer-name">🎮 <?= e($st['name']) ?></span>
+                        <span class="home-streamer-cta">Ver / Apoiar →</span>
+                    </div>
+                </a>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+<style>
+.home-streamers { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:1rem; }
+.home-streamer { display:flex; align-items:center; gap:0.9rem; background:linear-gradient(180deg,var(--bg-2),var(--bg-1)); border:1px solid var(--border); border-left:3px solid var(--hazard); border-radius:8px; padding:0.9rem 1rem; text-decoration:none; transition:transform .2s,box-shadow .2s,border-color .2s; }
+.home-streamer:hover { transform:translateY(-3px); box-shadow:0 12px 30px rgba(0,0,0,0.5); border-color:var(--hazard); }
+.home-streamer img { width:64px; height:64px; border-radius:10px; object-fit:cover; flex:0 0 64px; border:1px solid var(--border); }
+.home-streamer-body { display:flex; flex-direction:column; gap:0.25rem; }
+.home-streamer-name { font-family:var(--font-display); color:var(--bone); font-size:1.05rem; letter-spacing:0.03em; }
+.home-streamer-cta { color:var(--hazard); font-size:0.82rem; }
+</style>
+<?php endif; ?>
+
 <!-- ============ SHOP TEASER (3 pacotes destaque) ============ -->
 <section class="section section-bg-3" id="shop">
     <div class="container">
