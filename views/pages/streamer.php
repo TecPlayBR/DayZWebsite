@@ -6,10 +6,9 @@ $siteName = $config['settings']['site_name'] ?? ($config['site_name'] ?? 'Servid
 <?php \App\View::with('title', ($streamer ? $streamer['name'] : 'Streamer') . ' - ' . $siteName); ?>
 <?php \App\View::with('description', $streamer ? ('Apoie ' . $streamer['name'] . ' no ' . $siteName . '. Fotos, canal e apoio direto.') : 'Streamer'); ?>
 <?php \App\View::extend('layouts.main'); ?>
-<?php if ($streamer && !empty($streamer['avatar_url'])): ?><?php \App\View::with('hero_image', ltrim($streamer['avatar_url'], '/')); ?><?php endif; ?>
 <?php \App\View::section('content'); ?>
 
-<section class="container" style="padding:2.5rem 0; max-width:960px;">
+<section class="container" style="padding:7rem 0 3rem; max-width:960px;">
 <?php if (!$streamer): ?>
     <div style="text-align:center; padding:3rem 0;">
         <h1 style="color:var(--bone);">Streamer não encontrado</h1>
