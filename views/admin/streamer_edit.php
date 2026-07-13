@@ -79,7 +79,7 @@ if ($e) {
         </div>
         <div style="display:flex; gap:1.5rem; margin-top:1rem;">
             <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
-                <input type="checkbox" name="featured" value="1" <?= !empty($e['featured']) ? 'checked' : '' ?>> Destaque na home
+                <input type="checkbox" name="featured" value="1" <?= !empty($e['featured']) ? 'checked' : '' ?>> Streamer OFICIAL (destaque exclusivo na home)
             </label>
             <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
                 <input type="checkbox" name="active" value="1" <?= (!$e || !empty($e['active'])) ? 'checked' : '' ?>> Ativo

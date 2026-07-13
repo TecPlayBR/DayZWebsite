@@ -44,7 +44,7 @@ $siteName = $config['settings']['site_name'] ?? ($config['site_name'] ?? 'Servid
         <?php endif; ?>
         <div style="flex:1; min-width:240px;">
             <span style="color:var(--hazard); font-weight:700; letter-spacing:.1em; font-size:.8rem;">// STREAMER PARCEIRO</span>
-            <h1 style="color:var(--bone); margin:.2rem 0 .4rem; font-size:2rem;">🎮 <?= e($streamer['name']) ?></h1>
+            <h1 style="color:var(--bone); margin:.2rem 0 .4rem; font-size:2rem;"><?= e($streamer['name']) ?></h1>
             <?php if (!empty($streamer['bio'])): ?>
                 <p style="color:var(--dim); margin:0; line-height:1.6;"><?= nl2br(e($streamer['bio'])) ?></p>
             <?php endif; ?>

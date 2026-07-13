@@ -27,7 +27,7 @@ $siteName = $config['settings']['site_name'] ?? ($config['site_name'] ?? 'Servid
                              style="width:72px; height:72px; border-radius:12px; object-fit:cover; flex:0 0 72px; border:1px solid var(--border);">
                     <?php endif; ?>
                     <div>
-                        <div style="font-family:var(--font-display); color:var(--bone); font-size:1.15rem;">🎮 <?= e($s['name']) ?></div>
+                        <div style="font-family:var(--font-display); color:var(--bone); font-size:1.15rem;"><?= e($s['name']) ?></div>
                         <div style="color:var(--hazard); font-size:0.85rem; margin-top:0.2rem;">Ver / Apoiar →</div>
                     </div>
                 </a>

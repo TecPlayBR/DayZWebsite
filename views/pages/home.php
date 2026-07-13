@@ -534,38 +534,70 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
 </style>
 <?php endif; ?>
 
-<!-- ============ STREAMERS EM DESTAQUE ============ -->
+<!-- ============ STREAMER OFICIAL (spotlight exclusivo, carrossel 5s) ============ -->
 <?php if (!empty($featured_streamers)): ?>
-<section class="section section-bg-2" style="padding-top:3rem;padding-bottom:3rem;">
+<section class="section section-bg-2" style="padding-top:3.5rem;padding-bottom:3.5rem;">
     <div class="container">
         <div class="section-header">
-            <h2>🎮 Streamers Parceiros</h2>
-            <p>Apoie um streamer - suas compras ajudam ele direto.</p>
+            <h2><?= count($featured_streamers) > 1 ? 'Streamers Oficiais' : 'Streamer Oficial' ?></h2>
+            <p>Apoie quem representa o servidor - suas compras ajudam ele direto.</p>
         </div>
-        <div class="home-streamers">
-            <?php foreach (array_slice($featured_streamers, 0, 4) as $st): ?>
-                <a href="/streamer/<?= e(strtolower($st['code'])) ?>" class="home-streamer">
-                    <?php if (!empty($st['avatar_url'])): ?>
-                        <img src="<?= e($st['avatar_url']) ?>" alt="<?= e($st['name']) ?>" loading="lazy">
-                    <?php endif; ?>
-                    <div class="home-streamer-body">
-                        <span class="home-streamer-name">🎮 <?= e($st['name']) ?></span>
-                        <span class="home-streamer-cta">Ver / Apoiar →</span>
-                    </div>
-                </a>
+        <div class="streamer-spotlight" data-rotate="5000">
+            <?php foreach ($featured_streamers as $i => $st):
+                $sbio = trim((string) ($st['bio'] ?? ''));
+                if (mb_strlen($sbio) > 180) $sbio = mb_substr($sbio, 0, 180) . '...';
+            ?>
+            <a href="/streamer/<?= e(strtolower($st['code'])) ?>" class="spot-slide<?= $i === 0 ? ' active' : '' ?>">
+                <?php if (!empty($st['avatar_url'])): ?>
+                    <div class="spot-avatar" style="background-image:url('<?= e($st['avatar_url']) ?>');"></div>
+                <?php endif; ?>
+                <div class="spot-body">
+                    <span class="spot-badge">★ STREAMER OFICIAL</span>
+                    <h3 class="spot-name"><?= e($st['name']) ?></h3>
+                    <?php if ($sbio): ?><p class="spot-bio"><?= e($sbio) ?></p><?php endif; ?>
+                    <span class="spot-cta">Ver / Apoiar →</span>
+                </div>
+            </a>
             <?php endforeach; ?>
         </div>
+        <?php if (count($featured_streamers) > 1): ?>
+        <div class="spot-dots">
+            <?php foreach ($featured_streamers as $i => $st): ?>
+                <span class="spot-dot<?= $i === 0 ? ' active' : '' ?>" data-idx="<?= $i ?>"></span>
+            <?php endforeach; ?>
+        </div>
+        <?php endif; ?>
     </div>
 </section>
 <style>
-.home-streamers { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:1rem; }
-.home-streamer { display:flex; align-items:center; gap:0.9rem; background:linear-gradient(180deg,var(--bg-2),var(--bg-1)); border:1px solid var(--border); border-left:3px solid var(--hazard); border-radius:8px; padding:0.9rem 1rem; text-decoration:none; transition:transform .2s,box-shadow .2s,border-color .2s; }
-.home-streamer:hover { transform:translateY(-3px); box-shadow:0 12px 30px rgba(0,0,0,0.5); border-color:var(--hazard); }
-.home-streamer img { width:64px; height:64px; border-radius:10px; object-fit:cover; flex:0 0 64px; border:1px solid var(--border); }
-.home-streamer-body { display:flex; flex-direction:column; gap:0.25rem; }
-.home-streamer-name { font-family:var(--font-display); color:var(--bone); font-size:1.05rem; letter-spacing:0.03em; }
-.home-streamer-cta { color:var(--hazard); font-size:0.82rem; }
+.streamer-spotlight { position:relative; max-width:820px; margin:0 auto; }
+.spot-slide { display:none; align-items:center; gap:1.6rem; background:linear-gradient(120deg,var(--bg-2),var(--bg-1)); border:1px solid var(--border); border-left:4px solid var(--hazard); border-radius:12px; padding:1.6rem 1.8rem; text-decoration:none; animation:spotfade .6s ease; }
+.spot-slide.active { display:flex; }
+@keyframes spotfade { from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:none;} }
+.spot-avatar { flex:0 0 130px; width:130px; height:130px; border-radius:14px; background-size:cover; background-position:center; border:2px solid var(--hazard); }
+.spot-body { flex:1; min-width:0; }
+.spot-badge { display:inline-block; font-family:var(--font-mono); font-size:.72rem; letter-spacing:.12em; color:var(--hazard); border:1px solid var(--hazard); border-radius:4px; padding:.15rem .5rem; margin-bottom:.5rem; }
+.spot-name { font-family:var(--font-display); color:var(--bone); font-size:1.8rem; letter-spacing:.03em; margin:.2rem 0; }
+.spot-bio { color:var(--dim); font-size:.92rem; line-height:1.5; margin:.3rem 0 .7rem; }
+.spot-cta { color:var(--bone); font-weight:600; font-size:.9rem; }
+.spot-slide:hover .spot-cta { color:var(--hazard); }
+.spot-dots { display:flex; gap:.5rem; justify-content:center; margin-top:1.1rem; }
+.spot-dot { width:9px; height:9px; border-radius:50%; background:var(--border); cursor:pointer; transition:background .2s; }
+.spot-dot.active { background:var(--hazard); }
+@media (max-width:560px){ .spot-slide{flex-direction:column;text-align:center;} .spot-avatar{margin:0 auto;} }
 </style>
+<script>
+(function(){
+  var box=document.querySelector('.streamer-spotlight'); if(!box) return;
+  var slides=box.querySelectorAll('.spot-slide'); if(slides.length<2) return;
+  var dots=document.querySelectorAll('.spot-dot'); var cur=0, timer;
+  function show(n){ slides[cur].classList.remove('active'); if(dots[cur])dots[cur].classList.remove('active');
+    cur=(n+slides.length)%slides.length; slides[cur].classList.add('active'); if(dots[cur])dots[cur].classList.add('active'); }
+  function start(){ timer=setInterval(function(){ show(cur+1); }, parseInt(box.getAttribute('data-rotate'),10)||5000); }
+  dots.forEach(function(d){ d.addEventListener('click', function(ev){ ev.preventDefault(); clearInterval(timer); show(parseInt(d.getAttribute('data-idx'),10)); start(); }); });
+  start();
+})();
+</script>
 <?php endif; ?>
 
 <!-- ============ SHOP TEASER (3 pacotes destaque) ============ -->
