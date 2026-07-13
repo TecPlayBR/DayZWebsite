@@ -62,6 +62,7 @@ require $ROOT . '/src/Restart.php';
 require $ROOT . '/src/Mailer.php';
 require $ROOT . '/src/Coupon.php';
 require $ROOT . '/src/Affiliate.php';
+require $ROOT . '/src/Streamer.php';
 require $ROOT . '/src/AuditLog.php';
 require $ROOT . '/src/BalanceLog.php';
 require $ROOT . '/src/Achievements.php';
@@ -1609,14 +1610,34 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     if (!\App\Affiliate::enabled()) { header('Location: /my-purchases'); exit; }
     $steamId = \App\SteamAuth::steamId();
     $code = strtoupper(trim($_POST['affiliate_code'] ?? ''));
-    [$coupon, $err] = \App\Coupon::lookup($code);
-    if ($err || !\App\Coupon::isAffiliate($coupon)) {
-        header('Location: /my-purchases?aff=invalid'); exit;
+    // Pra onde volta (pagina do streamer ou perfil). So caminho interno.
+    $back = (string) ($_POST['back'] ?? '');
+    if ($back === '' || $back[0] !== '/') $back = '/my-purchases';
+    // Valida contra o STREAMER (codigo proprio, separado do cupom de desconto).
+    $streamer = \App\Streamer::get($code);
+    if (!$streamer) {
+        header('Location: ' . $back . '?aff=invalid'); exit;
     }
-    $res = \App\Affiliate::bind($steamId, $coupon['code']);
+    $res = \App\Affiliate::bind($steamId, $streamer['code']);
     $map = ['bound' => 'ok', 'switched' => 'switched', 'already' => 'already', 'blocked' => 'blocked', 'disabled' => 'invalid'];
-    header('Location: /my-purchases?aff=' . ($map[$res] ?? 'invalid'));
+    header('Location: ' . $back . '?aff=' . ($map[$res] ?? 'invalid'));
     exit;
+});
+
+// Pagina publica do streamer (fotos, canal, apoiar).
+\App\Router::get('/streamer/{code}', function($code) use ($config) {
+    $s = \App\Streamer::get((string) $code);
+    if (!$s) { http_response_code(404); }
+    $steamUser = \App\SteamAuth::user();
+    \App\View::display('pages.streamer', [
+        'config'           => $config,
+        'streamer'         => $s,
+        'photos'           => $s ? \App\Streamer::photos($s) : [],
+        'videos'           => $s ? \App\Streamer::videos($s) : [],
+        'steam_user'       => $steamUser,
+        'my_streamer_code' => $steamUser ? \App\Affiliate::binding($steamUser['steam_id']) : null,
+        'affiliate_on'     => \App\Affiliate::enabled(),
+    ]);
 });
 
 // Resgatar (claim) uma caixa pendente: o player decide QUANDO o item cai no jogo.
