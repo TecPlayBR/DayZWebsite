@@ -295,7 +295,7 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
             <div style="font-family: var(--font-display); color: var(--bone); font-size: 1.1rem; margin-bottom: 0.5rem;">🎮 Apoie seu Streamer</div>
             <?php if ($affMsg): ?><p style="color: <?= $affMsg[1] ?>; font-size: 0.85rem; margin: 0 0 0.8rem;"><?= e($affMsg[0]) ?></p><?php endif; ?>
             <?php if (!empty($my_streamer_name)): ?>
-                <p style="color: var(--dim); font-size: 0.9rem; margin: 0 0 0.8rem;">Você apoia <strong style="color: var(--moss);">🎮 <?= e($my_streamer_name) ?></strong>. Suas compras ajudam ele.
+                <p style="color: var(--dim); font-size: 0.9rem; margin: 0 0 0.8rem;">Você apoia <strong style="color: var(--moss);"><?= e($my_streamer_name) ?></strong>. Suas compras ajudam ele.
                     <?php if (empty($affiliate_allow_switch)): ?><br><span style="font-size: 0.8rem;">(vínculo fixo - fale com a staff pra trocar)</span><?php endif; ?></p>
                 <?php if (!empty($affiliate_allow_switch)): ?>
                     <form method="POST" action="/apoiar-streamer" style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
