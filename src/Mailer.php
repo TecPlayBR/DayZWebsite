@@ -6,8 +6,10 @@
 // geralmente funciona out-of-the-box. Pra robustez em producao
 // recomenda-se SMTP autenticado (Postmark, Sendgrid, Brevo, etc).
 //
-// Esta classe usa mail() por padrao. Se a config tiver SMTP, usa
-// PHPMailer (se disponivel) - caso contrario, fallback pra mail().
+// Esta classe usa o mail() nativo do PHP. NAO ha caminho SMTP/PHPMailer
+// implementado - se precisar de entrega robusta (SMTP autenticado), integrar
+// depois. E-mails HTML devem usar estilo INLINE + tabelas (clientes de e-mail
+// ignoram <style> do <head> e nao entendem CSS custom properties var(--x)).
 // ============================================================
 
 namespace App;
@@ -82,42 +84,54 @@ class Mailer {
         $bonus    = (int)$purchase['coins_bonus'];
         $price    = (float)$purchase['price_brl'];
 
-        $base = '<!DOCTYPE html><html lang="pt-br"><head><meta charset="UTF-8">';
-        $base .= '<style>
-            body { background: var(--bg-1); color: var(--bone); font-family: Arial, sans-serif; margin: 0; padding: 20px; }
-            .box { max-width: 560px; margin: 0 auto; background: var(--bg-2); border: 1px solid #2a2f37; padding: 30px; }
-            h1 { color: var(--rust); font-size: 22px; letter-spacing: 0.05em; margin: 0 0 20px; text-transform: uppercase; }
-            .receipt { background: #0a0c10; padding: 20px; border-left: 3px solid var(--hazard); margin: 20px 0; }
-            .receipt-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #2a2f37; }
-            .receipt-row:last-child { border-bottom: none; }
-            .receipt-label { color: var(--dim); font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
-            .receipt-value { color: var(--bone); font-family: monospace; font-size: 14px; }
-            .total { font-size: 20px; color: var(--hazard); font-weight: bold; }
-            .footer { color: var(--dim); font-size: 12px; text-align: center; margin-top: 20px; }
-            a { color: var(--rust-2); }
-        </style></head><body>';
-        $base .= '<div class="box">';
-        $base .= "<h1>Pagamento confirmado</h1>";
-        $base .= "<p>Suas moedas foram <strong>creditadas no servidor</strong>. Se ainda não apareceram no jogo, faça <strong>relog</strong> (desconectar + conectar).</p>";
-        $base .= '<div class="receipt">';
-        $base .= '<div class="receipt-row"><span class="receipt-label">Pacote</span><span class="receipt-value">' . htmlspecialchars($purchase['package_id']) . '</span></div>';
-        $base .= '<div class="receipt-row"><span class="receipt-label">SteamID</span><span class="receipt-value">' . htmlspecialchars($purchase['steam_id']) . '</span></div>';
-        $base .= '<div class="receipt-row"><span class="receipt-label">Moedas creditadas</span><span class="receipt-value">' . $coins;
-        if ($bonus > 0) $base .= ' <small style="color:var(--moss);">(+' . $bonus . ' bônus)</small>';
-        $base .= '</span></div>';
-        $base .= '<div class="receipt-row"><span class="receipt-label">Total pago</span><span class="receipt-value total">R$ ' . number_format($price, 2, ',', '.') . '</span></div>';
+        // Paleta FIXA (email nao entende var(--x)). Tema escuro padrao do template.
+        $cBg = '#12141a'; $cBox = '#1b1f27'; $cBorder = '#2a2f37'; $cInner = '#0a0c10';
+        $cBone = '#e8e2d4'; $cDim = '#8a8f98'; $cRust = '#b23a2e'; $cHazard = '#c9a961';
+        $cMoss = '#7fae63'; $cLink = '#d98b84';
+        $esc = static fn($v) => htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
+
+        // Uma linha do recibo (tabela = renderiza em qualquer cliente, ate Outlook).
+        $row = static function (string $label, string $valueHtml, bool $last = false) use ($cDim, $cBone, $cBorder) {
+            $bb = $last ? '' : "border-bottom:1px solid {$cBorder};";
+            return '<tr>'
+                . '<td style="padding:8px 0;' . $bb . 'color:' . $cDim . ';font-size:12px;text-transform:uppercase;letter-spacing:0.08em;">' . $label . '</td>'
+                . '<td style="padding:8px 0;' . $bb . 'color:' . $cBone . ';font-family:monospace,monospace;font-size:14px;text-align:right;">' . $valueHtml . '</td>'
+                . '</tr>';
+        };
+
+        $moedasVal = (string)$coins;
+        if ($bonus > 0) $moedasVal .= ' <span style="color:' . $cMoss . ';">(+' . $bonus . ' bônus)</span>';
+        $totalVal = '<span style="color:' . $cHazard . ';font-size:20px;font-weight:bold;">R$ ' . number_format($price, 2, ',', '.') . '</span>';
+
+        $base = '<!DOCTYPE html><html lang="pt-br"><head><meta charset="UTF-8">'
+            . '<meta name="viewport" content="width=device-width, initial-scale=1.0"></head>'
+            . '<body style="margin:0;padding:0;background:' . $cBg . ';">'
+            . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:' . $cBg . ';padding:20px 0;">'
+            . '<tr><td align="center">'
+            . '<table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:' . $cBox . ';border:1px solid ' . $cBorder . ';">'
+            . '<tr><td style="padding:30px;font-family:Arial,Helvetica,sans-serif;">'
+            . '<h1 style="color:' . $cRust . ';font-size:22px;letter-spacing:0.05em;margin:0 0 20px;text-transform:uppercase;">Pagamento confirmado</h1>'
+            . '<p style="color:' . $cBone . ';font-size:14px;line-height:1.6;margin:0 0 20px;">Suas moedas foram <strong>creditadas no servidor</strong>. Se ainda não apareceram no jogo, faça <strong>relog</strong> (desconectar e conectar).</p>'
+            . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:' . $cInner . ';border-left:3px solid ' . $cHazard . ';margin:0 0 20px;">'
+            . '<tr><td style="padding:16px 20px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">';
+        $base .= $row('Pacote', $esc($purchase['package_id']));
+        $base .= $row('SteamID', $esc($purchase['steam_id']));
+        $base .= $row('Moedas creditadas', $moedasVal);
+        $base .= $row('Total pago', $totalVal, empty($purchase['mp_payment_id']));
         if (!empty($purchase['mp_payment_id'])) {
-            $base .= '<div class="receipt-row"><span class="receipt-label">ID Mercado Pago</span><span class="receipt-value">' . htmlspecialchars($purchase['mp_payment_id']) . '</span></div>';
+            $base .= $row('ID Mercado Pago', $esc($purchase['mp_payment_id']), true);
         }
-        $base .= '</div>';
+        $base .= '</table></td></tr></table>';
         if ($siteUrl) {
-            $base .= '<p style="text-align:center;"><a href="' . htmlspecialchars($siteUrl) . '/my-purchases" style="display:inline-block; background:var(--rust); color:#fff; padding:10px 24px; text-decoration:none; letter-spacing:0.05em;">Ver minhas compras</a></p>';
+            $base .= '<p style="text-align:center;margin:0 0 20px;"><a href="' . $esc($siteUrl) . '/my-purchases" style="display:inline-block;background:' . $cRust . ';color:#ffffff;padding:12px 28px;text-decoration:none;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:bold;">Ver minhas compras</a></p>';
         }
-        $base .= '<div class="footer">';
-        $base .= 'Este é um e-mail automático de <strong>' . htmlspecialchars($siteName) . '</strong>. Não responda.<br>';
-        $base .= 'Suporte: ' . (($config['settings']['social_discord'] ?? '') ?: ($config['settings']['discord_invite'] ?? '') ?: '<a href="https://discord.gg/uwSE3WSjNH">Discord Tecplay</a>');
-        $base .= '</div>';
-        $base .= '</div></body></html>';
+        $support = ($config['settings']['social_discord'] ?? '') ?: ($config['settings']['discord_invite'] ?? '');
+        $supportHtml = $support !== '' ? $esc($support) : '<a href="https://discord.gg/uwSE3WSjNH" style="color:' . $cLink . ';">Discord Tecplay</a>';
+        $base .= '<p style="color:' . $cDim . ';font-size:12px;text-align:center;margin:0;line-height:1.6;">'
+            . 'Este é um e-mail automático de <strong style="color:' . $cBone . ';">' . $esc($siteName) . '</strong>. Não responda.<br>'
+            . 'Suporte: ' . $supportHtml
+            . '</p>'
+            . '</td></tr></table></td></tr></table></body></html>';
         return $base;
     }
 }
