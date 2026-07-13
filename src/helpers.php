@@ -373,6 +373,20 @@ if (!function_exists('clan_tag')) {
     }
 }
 
+if (!function_exists('clan_tag_plain')) {
+    /**
+     * Igual clan_tag(), mas SEM <a> (só texto estilizado). Usar quando o tag fica
+     * DENTRO de outro <a> (ex: lista de online no ranking) - <a> aninhado é HTML
+     * invalido e o navegador quebra a estrutura (nome some). '' se sem clã.
+     */
+    function clan_tag_plain(string $steamId): string {
+        if ($steamId === '') return '';
+        $b = \App\Clan::badgeForPlayer($steamId);
+        if (!$b) return '';
+        return '<span class="clan-tag">[' . e($b['tag']) . ']</span> ';
+    }
+}
+
 if (!function_exists('clan_tag_cf')) {
     /** Igual clan_tag(), mas pelo cftools_id (ranking de gameplay). '' se sem clã. */
     function clan_tag_cf(?string $cftoolsId): string {

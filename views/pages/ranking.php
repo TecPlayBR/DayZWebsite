@@ -52,7 +52,8 @@ if ($mode === 'gameplay') {
                             <?php if (!empty($o['avatar'])): ?>
                                 <img src="<?= e($o['avatar']) ?>" alt="" width="22" height="22" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.style.display='none'">
                             <?php endif; ?>
-                            <span><?= clan_tag($o['steam_id']) ?><?= e($o['name']) ?></span>
+                            <?php // O nome in-game (CFTools) ja vem com o tag do cla; nao prefixar (duplicava). ?>
+                            <span><?= e($o['name']) ?></span>
                         </a>
                     <?php endforeach; ?>
                 </div>
