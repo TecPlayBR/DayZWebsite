@@ -62,7 +62,7 @@ if ($e) {
             </div>
         </div>
         <div style="margin-top:1rem;">
-            <label>Fotos (uma URL por linha) — ou faça upload abaixo</label>
+            <label>Fotos (uma URL por linha) - ou faça upload abaixo</label>
             <textarea name="photos" rows="3" placeholder="/assets/img/streamers/hardo-1.webp&#10;/assets/img/streamers/hardo-2.webp" style="<?= $field ?>"><?= e($photos) ?></textarea>
             <input type="file" name="photo_files[]" accept="image/png,image/webp,image/jpeg" multiple style="margin-top:0.4rem; font-size:0.8rem; color:var(--dim);">
             <div style="font-size:0.78rem; color:var(--dim); margin-top:0.2rem;">As fotos enviadas somam às URLs acima.</div>
@@ -72,7 +72,7 @@ if ($e) {
             <textarea name="videos" rows="2" placeholder="https://youtu.be/..." style="<?= $field ?>"><?= e($videos) ?></textarea>
         </div>
         <div style="margin-top:1rem;">
-            <label>Redes / Canais (preencha só o que tiver — aparece só esses na página)</label>
+            <label>Redes / Canais (preencha só o que tiver, aparece só esses na página)</label>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.7rem; margin-top:0.4rem;">
                 <?php foreach (\App\Streamer::SOCIAL_PLATFORMS as $sk => $slbl): ?>
                     <input name="social_<?= e($sk) ?>" maxlength="300" value="<?= e($socialVals[$sk] ?? '') ?>" placeholder="<?= e($slbl) ?> (URL)" style="<?= $field ?>">
