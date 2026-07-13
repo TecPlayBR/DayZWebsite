@@ -3794,9 +3794,30 @@ $BRAND_SLOTS = [
     \App\View::display('admin.vip', ['config' => $config, 'vip' => \App\Vip::config(), 'durations' => \App\Vip::DURATIONS]);
 });
 
-\App\Router::post('/admin/vip', function() use ($config) {
+\App\Router::post('/admin/vip', function() use ($config, $ROOT) {
     \App\Auth::requireCan('coupons');
     if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
+    $cur = \App\Vip::config(); // pra preservar imagem quando nao vier upload/url nova
+    // Resolve a imagem de um plano: upload > URL informada > imagem atual.
+    $resolveImg = function(string $field, string $prevImg) use ($ROOT) {
+        if (!empty($_FILES[$field . '_file']['name'])) {
+            $up = upload_image($_FILES[$field . '_file'], $ROOT . '/public/assets/img/vip', 'vip', '/assets/img/vip');
+            if ($up) return $up;
+        }
+        $url = trim($_POST[$field] ?? '');
+        if ($url !== '') return mb_substr($url, 0, 255);
+        return $prevImg;
+    };
+    $parsePerks = function(string $field) {
+        $raw = (string)($_POST[$field] ?? '');
+        $out = [];
+        foreach (preg_split('/\r\n|\r|\n/', $raw) as $line) {
+            $line = trim($line);
+            if ($line !== '') $out[] = mb_substr($line, 0, 120);
+            if (count($out) >= 8) break;
+        }
+        return $out;
+    };
     $cfg = ['enabled' => !empty($_POST['enabled']), 'tiers' => [], 'battlepass' => []];
     foreach (\App\Vip::VIP_TIERS as $key) {
         $prices = [];
@@ -3808,6 +3829,8 @@ $BRAND_SLOTS = [
             'enabled' => !empty($_POST["en_{$key}"]),
             'label'   => mb_substr(trim($_POST["label_{$key}"] ?? ''), 0, 60),
             'desc'    => mb_substr(trim($_POST["desc_{$key}"] ?? ''), 0, 200),
+            'image'   => $resolveImg("image_{$key}", $cur['tiers'][$key]['image'] ?? ''),
+            'perks'   => $parsePerks("perks_{$key}"),
             'prices'  => $prices,
         ];
     }
@@ -3820,6 +3843,8 @@ $BRAND_SLOTS = [
         'enabled' => !empty($_POST['en_bp']),
         'label'   => mb_substr(trim($_POST['label_bp'] ?? ''), 0, 60),
         'desc'    => mb_substr(trim($_POST['desc_bp'] ?? ''), 0, 200),
+        'image'   => $resolveImg('image_bp', $cur['battlepass']['image'] ?? ''),
+        'perks'   => $parsePerks('perks_bp'),
         'prices'  => $bpp,
     ];
     \App\Settings::set('vip_store', json_encode($cfg, JSON_UNESCAPED_UNICODE));

@@ -29,12 +29,16 @@ $errMsg = $err === 'csrf' ? 'Sessão expirada, tente de novo.'
 $cards = [];
 foreach ($vip['tiers'] as $tierKey => $t) {
     if ($t['enabled'] && $t['prices']) {
-        $cards[] = ['type' => 'vip', 'tier' => $tierKey, 'label' => $t['label'], 'desc' => $t['desc'], 'prices' => $t['prices'], 'icon' => '⭐'];
+        $cards[] = ['type' => 'vip', 'tier' => $tierKey, 'label' => $t['label'], 'desc' => $t['desc'], 'prices' => $t['prices'], 'icon' => '⭐', 'image' => $t['image'] ?? '', 'perks' => $t['perks'] ?? []];
     }
 }
 if ($vip['battlepass']['enabled'] && $vip['battlepass']['prices']) {
-    $cards[] = ['type' => 'battlepass', 'tier' => null, 'label' => $vip['battlepass']['label'], 'desc' => $vip['battlepass']['desc'], 'prices' => $vip['battlepass']['prices'], 'icon' => '🎖️'];
+    $cards[] = ['type' => 'battlepass', 'tier' => null, 'label' => $vip['battlepass']['label'], 'desc' => $vip['battlepass']['desc'], 'prices' => $vip['battlepass']['prices'], 'icon' => '🎖️', 'image' => $vip['battlepass']['image'] ?? '', 'perks' => $vip['battlepass']['perks'] ?? []];
 }
+$imgSrc = function ($img) {
+    if (!$img) return '';
+    return preg_match('#^https?://#i', $img) ? $img : (str_starts_with($img, '/') ? $img : asset('img/vip/' . $img));
+};
 ?>
 
 <section class="hero" style="min-height:34vh;padding-bottom:1.5rem;">
@@ -92,11 +96,24 @@ if ($vip['battlepass']['enabled'] && $vip['battlepass']['prices']) {
                 $k = $c['type'] . ':' . ($c['tier'] ?? '');
                 $activeUntil = $activeMap[$k] ?? null;
             ?>
+                <?php $img = $imgSrc($c['image']); ?>
                 <div class="vip-card<?= $activeUntil ? ' vip-card-active' : '' ?>">
                     <?php if ($activeUntil): ?><div class="vip-badge-active">ATIVO até <?= e($fmtDate($activeUntil)) ?></div><?php endif; ?>
-                    <div class="vip-card-icon"><?= $c['icon'] ?></div>
+                    <div class="vip-card-media">
+                        <?php if ($img): ?>
+                            <img class="vip-card-img" src="<?= e($img) ?>" alt="<?= e($c['label']) ?>" loading="lazy" decoding="async">
+                        <?php else: ?>
+                            <span class="vip-card-icon"><?= $c['icon'] ?></span>
+                        <?php endif; ?>
+                    </div>
                     <h3 class="vip-card-title"><?= e($c['label']) ?></h3>
                     <?php if ($c['desc']): ?><p class="vip-card-desc"><?= e($c['desc']) ?></p><?php endif; ?>
+
+                    <?php if (!empty($c['perks'])): ?>
+                        <ul class="vip-perks">
+                            <?php foreach ($c['perks'] as $p): ?><li><?= e($p) ?></li><?php endforeach; ?>
+                        </ul>
+                    <?php endif; ?>
 
                     <div class="vip-durations">
                         <?php foreach ($durations as $d):
@@ -134,15 +151,25 @@ if ($vip['battlepass']['enabled'] && $vip['battlepass']['prices']) {
 </section>
 
 <style>
-.vip-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(min(260px,100%), 1fr)); gap:1.5rem; }
-.vip-card { position:relative; background:var(--bg-1); border:1px solid var(--border); border-radius:8px; padding:1.6rem 1.4rem; display:flex; flex-direction:column; }
+.vip-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(min(280px,100%), 1fr)); gap:1.6rem; }
+.vip-card { position:relative; background:linear-gradient(180deg, var(--bg-1) 0%, var(--bg-0) 100%); border:1px solid var(--border); border-radius:10px; padding:1.6rem 1.4rem; display:flex; flex-direction:column; transition:transform .2s, border-color .2s, box-shadow .2s; overflow:hidden; }
+.vip-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, var(--hazard), transparent); opacity:.7; }
+.vip-card:hover { transform:translateY(-4px); border-color:var(--hazard); box-shadow:0 12px 30px rgba(0,0,0,.4); }
 .vip-card-active { border-color:var(--moss); box-shadow:0 0 0 1px var(--moss) inset; }
-.vip-badge-active { position:absolute; top:0; right:0; background:var(--moss); color:#0a0a0a; font-size:0.66rem; font-weight:700; letter-spacing:0.05em; padding:0.25rem 0.6rem; border-radius:0 8px 0 8px; }
-.vip-card-icon { font-size:2.6rem; line-height:1; margin-bottom:0.5rem; }
-.vip-card-title { font-family:var(--font-display); color:var(--bone); font-size:1.25rem; letter-spacing:0.03em; margin-bottom:0.4rem; }
-.vip-card-desc { color:var(--dim); font-size:0.85rem; line-height:1.5; margin-bottom:1rem; flex-grow:1; }
+.vip-card-active::before { background:linear-gradient(90deg, var(--moss), transparent); }
+.vip-badge-active { position:absolute; top:0; right:0; background:var(--moss); color:#0a0a0a; font-size:0.66rem; font-weight:700; letter-spacing:0.05em; padding:0.25rem 0.6rem; border-radius:0 10px 0 8px; z-index:2; }
+.vip-card-media { display:flex; align-items:center; justify-content:center; height:150px; margin-bottom:0.8rem; }
+.vip-card-img { max-width:100%; max-height:150px; object-fit:contain; filter:drop-shadow(0 10px 18px rgba(0,0,0,.55)); transition:transform .25s; }
+.vip-card:hover .vip-card-img { transform:scale(1.06); }
+.vip-card-icon { font-size:3.4rem; line-height:1; }
+.vip-card-title { font-family:var(--font-display); color:var(--bone); font-size:1.3rem; letter-spacing:0.03em; margin-bottom:0.4rem; text-align:center; }
+.vip-card-desc { color:var(--dim); font-size:0.85rem; line-height:1.5; margin-bottom:0.9rem; text-align:center; }
+.vip-perks { list-style:none; padding:0; margin:0 0 1.1rem; display:flex; flex-direction:column; gap:0.4rem; flex-grow:1; }
+.vip-perks li { color:var(--bone); font-size:0.83rem; line-height:1.35; padding-left:1.4rem; position:relative; }
+.vip-perks li::before { content:'✓'; position:absolute; left:0; top:0; color:var(--moss); font-weight:700; }
 .vip-durations { display:flex; flex-direction:column; gap:0.6rem; margin-top:auto; }
-.vip-dur-row { display:flex; align-items:center; justify-content:space-between; gap:0.8rem; padding:0.6rem 0.8rem; background:var(--bg-0); border:1px solid var(--border); border-radius:5px; }
+.vip-dur-row { display:flex; align-items:center; justify-content:space-between; gap:0.8rem; padding:0.6rem 0.8rem; background:var(--bg-0); border:1px solid var(--border); border-radius:5px; transition:border-color .2s; }
+.vip-dur-row:hover { border-color:var(--hazard); }
 .vip-dur-info { display:flex; flex-direction:column; }
 .vip-dur-days { color:var(--bone); font-weight:600; font-size:0.9rem; }
 .vip-dur-price { color:var(--hazard); font-family:var(--font-mono); font-size:0.82rem; }

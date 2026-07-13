@@ -34,6 +34,8 @@ class Vip {
                 'enabled' => !empty($t['enabled']),
                 'label'   => trim((string)($t['label'] ?? '')) ?: ('VIP ' . ($i + 1)),
                 'desc'    => trim((string)($t['desc'] ?? '')),
+                'image'   => trim((string)($t['image'] ?? '')),
+                'perks'   => array_values(array_filter(array_map('trim', (array)($t['perks'] ?? [])))),
                 'prices'  => self::cleanPrices($t['prices'] ?? []),
             ];
         }
@@ -45,6 +47,8 @@ class Vip {
                 'enabled' => !empty($bp['enabled']),
                 'label'   => trim((string)($bp['label'] ?? '')) ?: 'Passe de Batalha',
                 'desc'    => trim((string)($bp['desc'] ?? '')),
+                'image'   => trim((string)($bp['image'] ?? '')),
+                'perks'   => array_values(array_filter(array_map('trim', (array)($bp['perks'] ?? [])))),
                 'prices'  => self::cleanPrices($bp['prices'] ?? []),
             ],
         ];
