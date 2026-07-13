@@ -571,11 +571,16 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
 </section>
 <style>
 .streamer-spotlight { position:relative; max-width:820px; margin:0 auto; }
-.spot-slide { display:none; align-items:center; gap:1.6rem; background:linear-gradient(120deg,var(--bg-2),var(--bg-1)); border:1px solid var(--border); border-left:4px solid var(--hazard); border-radius:12px; padding:1.6rem 1.8rem; text-decoration:none; animation:spotfade .6s ease; }
-.spot-slide.active { display:flex; }
+.spot-slide { display:none; position:relative; overflow:hidden; align-items:center; gap:1.6rem; background:linear-gradient(120deg,var(--bg-2),var(--bg-1)); border:1px solid var(--border); border-left:4px solid var(--hazard); border-radius:12px; padding:1.6rem 1.8rem; text-decoration:none; }
+.spot-slide.active { display:flex; animation:spotfade .55s ease, spotglow 3.6s ease-in-out infinite; }
 @keyframes spotfade { from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:none;} }
-.spot-avatar { flex:0 0 130px; width:130px; height:130px; border-radius:14px; background-size:cover; background-position:center; border:2px solid var(--hazard); }
-.spot-body { flex:1; min-width:0; }
+@keyframes spotglow { 0%,100%{ box-shadow:0 0 16px -6px var(--hazard); border-left-color:var(--hazard); } 50%{ box-shadow:0 0 34px -2px var(--hazard); border-left-color:#ffcf33; } }
+/* brilho suave que atravessa o card de tempos em tempos (chama atencao sem piscar) */
+.spot-slide::after { content:''; position:absolute; top:0; left:-70%; width:45%; height:100%; background:linear-gradient(100deg, transparent, rgba(255,255,255,.07), transparent); transform:skewX(-18deg); pointer-events:none; animation:spotsheen 6s ease-in-out infinite; }
+@keyframes spotsheen { 0%{ left:-70%; } 22%{ left:150%; } 100%{ left:150%; } }
+@media (prefers-reduced-motion: reduce){ .spot-slide.active{ animation:none; } .spot-slide::after{ display:none; } }
+.spot-avatar { flex:0 0 130px; width:130px; height:130px; border-radius:14px; background-size:cover; background-position:center; border:2px solid var(--hazard); box-shadow:0 0 18px -6px var(--hazard); position:relative; z-index:1; }
+.spot-body { flex:1; min-width:0; position:relative; z-index:1; }
 .spot-badge { display:inline-block; font-family:var(--font-mono); font-size:.72rem; letter-spacing:.12em; color:var(--hazard); border:1px solid var(--hazard); border-radius:4px; padding:.15rem .5rem; margin-bottom:.5rem; }
 .spot-name { font-family:var(--font-display); color:var(--bone); font-size:1.8rem; letter-spacing:.03em; margin:.2rem 0; }
 .spot-bio { color:var(--dim); font-size:.92rem; line-height:1.5; margin:.3rem 0 .7rem; }
