@@ -39,7 +39,10 @@
                             <?php if ($img): ?>
                                 <div class="help-card-img" style="background-image:url('<?= e($img) ?>');"></div>
                             <?php elseif ($vid): ?>
-                                <div class="help-card-img help-card-vid" style="background-image:url('https://img.youtube.com/vi/<?= e($vid) ?>/hqdefault.jpg');"><span class="help-play">▶</span></div>
+                                <div class="help-card-img help-card-vid">
+                                    <img class="help-yt" src="https://img.youtube.com/vi/<?= e($vid) ?>/hqdefault.jpg" alt="" loading="lazy" decoding="async">
+                                    <span class="help-play">▶</span>
+                                </div>
                             <?php else: ?>
                                 <div class="help-card-img help-card-ph"><span><?= $catIcon[$a['category']] ?? '📄' ?></span></div>
                             <?php endif; ?>
@@ -64,7 +67,9 @@
 .help-card:hover { transform:translateY(-4px); border-color:var(--hazard); box-shadow:0 10px 26px rgba(0,0,0,.4); }
 /* area de midia SEMPRE presente (padroniza a altura dos titulos) */
 .help-card-img { position:relative; height:130px; background-size:cover; background-position:center; background-color:var(--bg-2); display:flex; align-items:center; justify-content:center; border-bottom:2px solid var(--hazard); }
-.help-card-vid::before { content:''; position:absolute; inset:0; background:rgba(0,0,0,.35); }
+.help-card-vid { background:linear-gradient(135deg,var(--bg-2),var(--bg-0)); }
+.help-card-vid::before { content:''; position:absolute; inset:0; background:rgba(0,0,0,.35); z-index:1; }
+.help-yt { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
 .help-play { position:relative; z-index:1; width:52px; height:52px; border-radius:50%; background:rgba(0,0,0,.55); border:2px solid var(--hazard); color:#fff; display:flex; align-items:center; justify-content:center; font-size:1.2rem; padding-left:3px; transition:transform .2s, background .2s; }
 .help-card:hover .help-play { transform:scale(1.1); background:var(--hazard); }
 .help-card-ph { background:linear-gradient(135deg,var(--bg-2),var(--bg-0)); }
@@ -75,4 +80,14 @@
 .help-card-sum { color:var(--dim); font-size:.85rem; line-height:1.5; margin:0 0 .6rem; flex-grow:1; }
 .help-card-tag { font-size:.72rem; color:var(--hazard); font-family:var(--font-mono); margin-top:auto; }
 </style>
+<script>
+// Se o video for unlisted/privado, a thumb do YouTube volta cinza (120px). Nesse
+// caso removemos a img e fica o placeholder de video (gradiente + play). Se for
+// publico, a capa real (>=480px) aparece sozinha.
+document.querySelectorAll('.help-yt').forEach(function (img) {
+    function chk() { if (img.naturalWidth && img.naturalWidth <= 120) img.remove(); }
+    if (img.complete) chk(); else img.addEventListener('load', chk);
+    img.addEventListener('error', function () { img.remove(); });
+});
+</script>
 <?php \App\View::endSection(); ?>
