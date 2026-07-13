@@ -2878,6 +2878,14 @@ $REWARD_CATEGORIES = [
     header('Location: /admin/help?ok=1');
     exit;
 });
+\App\Router::post('/admin/help/upload', function() use ($config, $ROOT) {
+    \App\Auth::requireCan('pages');
+    header('Content-Type: application/json');
+    if (!\App\Csrf::check()) { echo json_encode(['error' => 'csrf']); exit; }
+    $url = upload_image($_FILES['file'] ?? [], $ROOT . '/public/assets/img/help', 'help', '/assets/img/help');
+    echo json_encode($url ? ['url' => $url] : ['error' => 'upload']);
+    exit;
+});
 \App\Router::post('/admin/help/{id}/delete', function($id) use ($config) {
     \App\Auth::requireCan('pages');
     if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
