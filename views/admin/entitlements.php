@@ -47,7 +47,10 @@ $badge = [
             <select name="type" style="padding:.55rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone);">
                 <option value="vip">VIP</option>
                 <option value="battlepass">BattlePass</option>
+                <option value="skin">Skin / Textura</option>
+                <option value="killfeed">KillFeed</option>
             </select>
+            <span style="font-size:.72rem; color:var(--dim); align-self:center;">Skin/KillFeed: só depois do agent aplicar (ver handoff)</span>
         </div>
         <div>
             <label style="display:block; font-size:.8rem; color:var(--dim); margin-bottom:.25rem;">Tier <span style="opacity:.6;">(só VIP)</span></label>

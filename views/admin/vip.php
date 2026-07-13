@@ -11,6 +11,9 @@ foreach (\App\Vip::VIP_TIERS as $key) {
     $rows[] = ['cfg' => $vip['tiers'][$key], 'badge' => $key, 'en' => "en_{$key}", 'lbl' => "label_{$key}", 'desc' => "desc_{$key}", 'pre' => "price_{$key}_", 'img' => "image_{$key}", 'perks' => "perks_{$key}"];
 }
 $rows[] = ['cfg' => $vip['battlepass'], 'badge' => 'BattlePass', 'en' => 'en_bp', 'lbl' => 'label_bp', 'desc' => 'desc_bp', 'pre' => 'price_bp_', 'img' => 'image_bp', 'perks' => 'perks_bp'];
+foreach (\App\Vip::EXTRAS as $ek => $elbl) {
+    $rows[] = ['cfg' => $vip['extras'][$ek], 'badge' => $elbl, 'en' => "en_{$ek}", 'lbl' => "label_{$ek}", 'desc' => "desc_{$ek}", 'pre' => "price_{$ek}_", 'img' => "image_{$ek}", 'perks' => "perks_{$ek}"];
+}
 ?>
 
 <div class="admin-page-head">

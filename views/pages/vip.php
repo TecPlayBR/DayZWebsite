@@ -35,6 +35,12 @@ foreach ($vip['tiers'] as $tierKey => $t) {
 if ($vip['battlepass']['enabled'] && $vip['battlepass']['prices']) {
     $cards[] = ['type' => 'battlepass', 'tier' => null, 'label' => $vip['battlepass']['label'], 'desc' => $vip['battlepass']['desc'], 'prices' => $vip['battlepass']['prices'], 'icon' => '🎖️', 'image' => $vip['battlepass']['image'] ?? '', 'perks' => $vip['battlepass']['perks'] ?? []];
 }
+$extraIcons = ['skin' => '🎨', 'killfeed' => '💀'];
+foreach (($vip['extras'] ?? []) as $ek => $e) {
+    if (!empty($e['enabled']) && !empty($e['prices'])) {
+        $cards[] = ['type' => $ek, 'tier' => null, 'label' => $e['label'], 'desc' => $e['desc'], 'prices' => $e['prices'], 'icon' => $extraIcons[$ek] ?? '✨', 'image' => $e['image'] ?? '', 'perks' => $e['perks'] ?? []];
+    }
+}
 $imgSrc = function ($img) {
     if (!$img) return '';
     return preg_match('#^https?://#i', $img) ? $img : (str_starts_with($img, '/') ? $img : asset('img/vip/' . $img));

@@ -717,7 +717,8 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     $steamId = \App\SteamAuth::steamId();
     $rl = \App\RateLimit::check('vip-buy:' . $steamId, 10, 60);
     if (empty($rl['allowed'])) { header('Location: /vip?err=rate'); exit; }
-    $type = in_array($_POST['type'] ?? '', ['vip', 'battlepass'], true) ? $_POST['type'] : 'vip';
+    $validTypes = array_merge(['vip', 'battlepass'], array_keys(\App\Vip::EXTRAS));
+    $type = in_array($_POST['type'] ?? '', $validTypes, true) ? $_POST['type'] : 'vip';
     $tier = $type === 'vip' ? trim($_POST['tier'] ?? '') : null;
     $days = (int)($_POST['days'] ?? 0);
     $user = \App\SteamAuth::user();
@@ -3847,6 +3848,22 @@ $BRAND_SLOTS = [
         'perks'   => $parsePerks('perks_bp'),
         'prices'  => $bpp,
     ];
+    $cfg['extras'] = [];
+    foreach (array_keys(\App\Vip::EXTRAS) as $ek) {
+        $ep = [];
+        foreach (\App\Vip::DURATIONS as $d) {
+            $v = (int)($_POST["price_{$ek}_{$d}"] ?? 0);
+            if ($v > 0) $ep[(string)$d] = $v;
+        }
+        $cfg['extras'][$ek] = [
+            'enabled' => !empty($_POST["en_{$ek}"]),
+            'label'   => mb_substr(trim($_POST["label_{$ek}"] ?? ''), 0, 60),
+            'desc'    => mb_substr(trim($_POST["desc_{$ek}"] ?? ''), 0, 200),
+            'image'   => $resolveImg("image_{$ek}", $cur['extras'][$ek]['image'] ?? ''),
+            'perks'   => $parsePerks("perks_{$ek}"),
+            'prices'  => $ep,
+        ];
+    }
     \App\Settings::set('vip_store', json_encode($cfg, JSON_UNESCAPED_UNICODE));
     \App\AuditLog::record('vip_store.saved', 'settings', null);
     header('Location: /admin/vip?ok=1');
@@ -3869,7 +3886,8 @@ $BRAND_SLOTS = [
     $sid   = \App\Servers::defaultId();
     $steam = trim($_POST['steam_id'] ?? '');
     $nick  = trim($_POST['nickname'] ?? '') ?: null;
-    $type  = in_array($_POST['type'] ?? '', ['vip', 'battlepass'], true) ? $_POST['type'] : 'vip';
+    $entTypes = array_merge(['vip', 'battlepass'], array_keys(\App\Vip::EXTRAS));
+    $type  = in_array($_POST['type'] ?? '', $entTypes, true) ? $_POST['type'] : 'vip';
     $tier  = null;
     if ($type === 'vip') {
         $tier = in_array($_POST['tier'] ?? '', ['PanelVip1','PanelVip2','PanelVip3','PanelVip4','CUSTOM'], true) ? $_POST['tier'] : 'PanelVip1';

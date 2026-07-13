@@ -20,8 +20,20 @@ class Vip {
     /** Durações vendáveis (dias). */
     public const DURATIONS = [30, 60, 90];
 
-    /** Tiers de VIP do mod Sparda (espelha /admin/entitlements). */
-    public const VIP_TIERS = ['PanelVip1', 'PanelVip2', 'PanelVip3', 'PanelVip4'];
+    /**
+     * Tiers de VIP do mod Sparda (espelha /admin/entitlements). CUSTOM = painel
+     * totalmente customizável (o "Loadout"). O agent escreve todos em
+     * VipPanel/PlayersVIP.json (NamePanel = a chave), então CUSTOM funciona com o
+     * agent atual sem mudanças.
+     */
+    public const VIP_TIERS = ['PanelVip1', 'PanelVip2', 'PanelVip3', 'PanelVip4', 'CUSTOM'];
+
+    /**
+     * Produtos EXTRA do mod Sparda vendáveis por moeda (fora dos tiers de VIP).
+     * chave (= player_grants.type) => rótulo padrão. O agent escreve cada um num
+     * JSON diferente do Sparda (skin -> SkinStore, killfeed -> KillFeed).
+     */
+    public const EXTRAS = ['skin' => 'Skin / Textura', 'killfeed' => 'KillFeed'];
 
     /** Config da loja de VIP (settings 'vip_store'), com defaults seguros. */
     public static function config(): array {
@@ -32,7 +44,7 @@ class Vip {
             $t = $c['tiers'][$key] ?? [];
             $tiers[$key] = [
                 'enabled' => !empty($t['enabled']),
-                'label'   => trim((string)($t['label'] ?? '')) ?: ('VIP ' . ($i + 1)),
+                'label'   => trim((string)($t['label'] ?? '')) ?: ($key === 'CUSTOM' ? 'Loadout Customizável' : ('VIP ' . ($i + 1))),
                 'desc'    => trim((string)($t['desc'] ?? '')),
                 'image'   => trim((string)($t['image'] ?? '')),
                 'perks'   => array_values(array_filter(array_map('trim', (array)($t['perks'] ?? [])))),
@@ -40,6 +52,18 @@ class Vip {
             ];
         }
         $bp = $c['battlepass'] ?? [];
+        $extras = [];
+        foreach (self::EXTRAS as $key => $defLabel) {
+            $e = $c['extras'][$key] ?? [];
+            $extras[$key] = [
+                'enabled' => !empty($e['enabled']),
+                'label'   => trim((string)($e['label'] ?? '')) ?: $defLabel,
+                'desc'    => trim((string)($e['desc'] ?? '')),
+                'image'   => trim((string)($e['image'] ?? '')),
+                'perks'   => array_values(array_filter(array_map('trim', (array)($e['perks'] ?? [])))),
+                'prices'  => self::cleanPrices($e['prices'] ?? []),
+            ];
+        }
         return [
             'enabled' => !empty($c['enabled']),
             'tiers'   => $tiers,
@@ -51,6 +75,7 @@ class Vip {
                 'perks'   => array_values(array_filter(array_map('trim', (array)($bp['perks'] ?? [])))),
                 'prices'  => self::cleanPrices($bp['prices'] ?? []),
             ],
+            'extras'  => $extras,
         ];
     }
 
@@ -72,6 +97,7 @@ class Vip {
         if (!$c['enabled']) return false;
         foreach ($c['tiers'] as $t) if ($t['enabled'] && $t['prices']) return true;
         if ($c['battlepass']['enabled'] && $c['battlepass']['prices']) return true;
+        foreach ($c['extras'] as $e) if ($e['enabled'] && $e['prices']) return true;
         return false;
     }
 
@@ -87,6 +113,11 @@ class Vip {
             $t = $c['tiers'][$tier];
             if (!$t['enabled']) return null;
             return $t['prices'][(string)$days] ?? null;
+        }
+        if (isset(self::EXTRAS[$type]) && isset($c['extras'][$type])) {
+            $e = $c['extras'][$type];
+            if (!$e['enabled']) return null;
+            return $e['prices'][(string)$days] ?? null;
         }
         return null;
     }
@@ -126,8 +157,8 @@ class Vip {
     public static function purchase(int $serverId, string $steamId, ?string $nick, string $type, ?string $tier, int $days): array {
         if (!in_array($days, self::DURATIONS, true)) return ['ok' => false, 'error' => 'invalid_duration'];
         if ($type === 'vip' && !in_array($tier, self::VIP_TIERS, true)) return ['ok' => false, 'error' => 'invalid_tier'];
-        if ($type === 'battlepass') $tier = null;
-        if (!in_array($type, ['vip', 'battlepass'], true)) return ['ok' => false, 'error' => 'invalid_type'];
+        if ($type !== 'vip') $tier = null; // battlepass/skin/killfeed nao tem tier
+        if (!in_array($type, array_merge(['vip', 'battlepass'], array_keys(self::EXTRAS)), true)) return ['ok' => false, 'error' => 'invalid_type'];
 
         $price = self::priceFor($type, $tier, $days);
         if ($price === null || $price <= 0) return ['ok' => false, 'error' => 'not_for_sale'];
@@ -171,8 +202,10 @@ class Vip {
 
             $pdo->commit();
 
-            BalanceLog::record((int)$player['id'], $steamId, $before, $after, 'vip_purchase', $type, $tier ?? 'battlepass',
-                ($extended ? 'Renovação ' : 'Compra ') . ($type === 'vip' ? (string)$tier : 'BattlePass') . " {$days}d");
+            $label = $type === 'vip' ? (string)$tier
+                   : ($type === 'battlepass' ? 'BattlePass' : (self::EXTRAS[$type] ?? $type));
+            BalanceLog::record((int)$player['id'], $steamId, $before, $after, 'vip_purchase', $type, $tier ?? $type,
+                ($extended ? 'Renovação ' : 'Compra ') . $label . " {$days}d");
 
             return ['ok' => true, 'new_balance' => $after, 'expiration' => $exp, 'extended' => $extended, 'days' => $days, 'price' => $price];
         } catch (\Throwable $e) {
