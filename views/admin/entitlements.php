@@ -21,7 +21,7 @@ $badge = [
 
 <?php if (isset($_GET['ok'])): ?>
     <div class="stat-card" style="margin-bottom:1rem; border-left:3px solid var(--moss);">
-        ✓ <?= $_GET['ok'] === '2' ? 'Revogado - o agent remove no próximo ciclo.' : 'Concedido - o agent aplica no próximo ciclo.' ?>
+        ✓ <?= $_GET['ok'] === '2' ? 'Revogado - o agent remove no próximo ciclo.' : ($_GET['ok'] === '3' ? 'Nick atualizado.' : 'Concedido - o agent aplica no próximo ciclo.') ?>
     </div>
 <?php endif; ?>
 <?php if (isset($_GET['err'])): ?>
@@ -80,7 +80,14 @@ $badge = [
                 <?php [$lbl, $cor] = $badge[$g['status']] ?? [$g['status'], 'var(--dim)']; ?>
                 <tr>
                     <td class="mono"><?= e($g['steam_id']) ?></td>
-                    <td><?= e($g['nickname'] ?? '-') ?></td>
+                    <td>
+                        <form method="POST" action="/admin/entitlements/nick" style="display:flex; gap:.3rem; align-items:center; margin:0;">
+                            <?= \App\Csrf::field() ?>
+                            <input type="hidden" name="id" value="<?= (int)$g['id'] ?>">
+                            <input type="text" name="nickname" value="<?= e($g['nickname'] ?? '') ?>" maxlength="120" placeholder="sem nick" style="padding:.35rem .5rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); width:130px; font-size:.82rem;">
+                            <button type="submit" class="btn btn-sm" title="Salvar nick" style="padding:.35rem .55rem;">✓</button>
+                        </form>
+                    </td>
                     <td><?= e($g['type']) ?></td>
                     <td><?= e($g['tier'] ?? '-') ?></td>
                     <td><?= e($g['expiration_date'] ?? '-') ?></td>

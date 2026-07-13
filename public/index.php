@@ -3890,6 +3890,19 @@ $BRAND_SLOTS = [
     exit;
 });
 
+\App\Router::post('/admin/entitlements/nick', function() use ($config) {
+    \App\Auth::requireCan('coupons');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
+    $sid  = \App\Servers::defaultId();
+    $id   = (int)($_POST['id'] ?? 0);
+    $nick = trim($_POST['nickname'] ?? '');
+    $nick = $nick !== '' ? mb_substr($nick, 0, 120) : null;
+    \App\Database::query("UPDATE player_grants SET nickname = ? WHERE id = ? AND server_id = ?", [$nick, $id, $sid]);
+    \App\AuditLog::record('entitlement.nick', 'grant', $id ?: null);
+    header('Location: /admin/entitlements?ok=3');
+    exit;
+});
+
 \App\Router::post('/admin/entitlements/revoke', function() use ($config) {
     \App\Auth::requireCan('coupons');
     if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
