@@ -30,6 +30,18 @@ $siteName = $config['settings']['site_name'] ?? ($config['site_name'] ?? 'Servid
         || ($linkedCoupon !== '' && strcasecmp($my_streamer_code, $linkedCoupon) === 0)
     );
     $supCount = \App\Streamer::supporterCount($streamer);
+    // Niveis do contador de apoiadores (placas estilo YouTube). Marcos: 10/50/100/250/500/1000.
+    $supTiers = [
+        ['min' => 1000, 'key' => 'diamante',  'label' => 'Diamante'],
+        ['min' => 500,  'key' => 'rubi',      'label' => 'Rubi'],
+        ['min' => 250,  'key' => 'esmeralda', 'label' => 'Esmeralda'],
+        ['min' => 100,  'key' => 'ouro',      'label' => 'Ouro'],
+        ['min' => 50,   'key' => 'prata',     'label' => 'Prata'],
+        ['min' => 10,   'key' => 'bronze',    'label' => 'Bronze'],
+        ['min' => 1,    'key' => 'rosa',      'label' => ''],
+    ];
+    $supTier = 'rosa'; $supTierLabel = '';
+    foreach ($supTiers as $st) { if ($supCount >= $st['min']) { $supTier = $st['key']; $supTierLabel = $st['label']; break; } }
     // Cor de marca por plataforma (botoes de rede)
     $brand = [
         'youtube' => '#ff0033', 'twitch' => '#9146ff', 'kick' => '#53fc18', 'discord' => '#5865f2',
@@ -48,7 +60,12 @@ $siteName = $config['settings']['site_name'] ?? ($config['site_name'] ?? 'Servid
             <span class="st-kicker">// STREAMER PARCEIRO</span>
             <h1 class="st-name"><?= e($streamer['name']) ?></h1>
             <?php if ($supCount > 0): ?>
-                <div class="st-supporters">&#10084; <?= $supCount ?> <?= $supCount === 1 ? 'apoiador' : 'apoiadores' ?></div>
+                <div class="st-supporters st-tier-<?= $supTier ?>"<?= $supTierLabel ? ' title="Nivel ' . e($supTierLabel) . '"' : '' ?>>
+                    <span class="st-sup-heart">&#10084;</span>
+                    <span class="st-sup-count"><?= number_format($supCount, 0, ',', '.') ?></span>
+                    <span class="st-sup-word"><?= $supCount === 1 ? 'apoiador' : 'apoiadores' ?></span>
+                    <?php if ($supTierLabel): ?><span class="st-tier-label"><?= e($supTierLabel) ?></span><?php endif; ?>
+                </div>
             <?php endif; ?>
             <?php if (!empty($streamer['bio'])): ?>
                 <p class="st-bio"><?= nl2br(e($streamer['bio'])) ?></p>
@@ -125,7 +142,26 @@ $siteName = $config['settings']['site_name'] ?? ($config['site_name'] ?? 'Servid
 .st-info { flex:1; min-width:0; }
 .st-kicker { font-family:var(--font-mono,monospace); font-size:.74rem; letter-spacing:.16em; color:var(--hazard); }
 .st-name { font-family:var(--font-display); color:var(--bone); font-size:2.4rem; line-height:1.05; margin:.25rem 0 .35rem; }
-.st-supporters { display:inline-block; color:var(--hazard); font-weight:700; font-size:.9rem; background:rgba(201,169,97,0.08); border:1px solid rgba(201,169,97,0.25); padding:.2rem .6rem; border-radius:20px; margin-bottom:.8rem; }
+.st-supporters { --tc:#ff4d6d; display:inline-flex; align-items:center; gap:.4rem; color:var(--tc); font-weight:800; font-size:.9rem; background:rgba(0,0,0,.28); border:1px solid var(--tc); padding:.28rem .75rem; border-radius:20px; margin-bottom:.85rem; box-shadow:0 0 10px -3px var(--tc); transition:box-shadow .2s, transform .2s; }
+.st-supporters:hover { transform:translateY(-1px); box-shadow:0 0 16px -1px var(--tc); }
+.st-sup-heart { animation:st-heart 1.6s ease-in-out infinite; }
+.st-sup-count { font-family:var(--font-mono,monospace); }
+.st-sup-word { font-weight:600; opacity:.9; }
+.st-tier-label { font-size:.62rem; letter-spacing:.09em; text-transform:uppercase; background:var(--tc); color:#0a0a0a; padding:.1rem .42rem; border-radius:10px; font-weight:800; margin-left:.15rem; }
+@keyframes st-heart { 0%,100%{ transform:scale(1);} 50%{ transform:scale(1.18);} }
+/* Placas / niveis (marcos 10/50/100/250/500/1000) */
+.st-tier-rosa      { --tc:#ff4d6d; }
+.st-tier-bronze    { --tc:#cd7f32; }
+.st-tier-prata     { --tc:#cfd8e3; }
+.st-tier-ouro      { --tc:#ffcf33; }
+.st-tier-esmeralda { --tc:#2ec76a; }
+.st-tier-rubi      { --tc:#e0115f; }
+.st-tier-ouro, .st-tier-esmeralda, .st-tier-rubi { animation:st-glow 2.4s ease-in-out infinite; }
+@keyframes st-glow { 0%,100%{ box-shadow:0 0 8px -3px var(--tc);} 50%{ box-shadow:0 0 18px 0 var(--tc);} }
+.st-tier-diamante { --tc:#8fe9ff; color:#dff8ff; border-color:#bff3ff; background:linear-gradient(110deg, rgba(143,233,255,.15), rgba(180,160,255,.15), rgba(143,233,255,.15)); background-size:220% 100%; animation:st-shimmer 3s linear infinite, st-glow 2.4s ease-in-out infinite; }
+.st-tier-diamante .st-tier-label { background:linear-gradient(110deg,#8fe9ff,#c9b8ff); }
+@keyframes st-shimmer { 0%{ background-position:0% 0;} 100%{ background-position:220% 0;} }
+@media (prefers-reduced-motion: reduce){ .st-sup-heart, .st-supporters { animation:none !important; } }
 .st-bio { color:var(--dim); font-size:.98rem; line-height:1.65; margin:.2rem 0 1.2rem; }
 
 .st-actions { margin-bottom:1.1rem; }
