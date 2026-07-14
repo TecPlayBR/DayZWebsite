@@ -42,10 +42,10 @@ $fld = 'width:100%;padding:.65rem;background:var(--bg-0);border:1px solid var(--
         </div>
     </div>
 
-    <div class="stat-card" style="margin-bottom:1rem;">
+    <div class="stat-card rich-editor" style="margin-bottom:1rem;">
         <div class="label">Conteúdo</div>
-        <p style="font-size:.78rem;color:var(--dim);margin:.3rem 0 .6rem;">Clique nos botões pra inserir estrutura pronta. Escreva o texto e intercale imagens. O <strong>preview ao lado</strong> mostra como fica antes de salvar.</p>
-        <div class="help-toolbar" style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.55rem;">
+        <p style="font-size:.78rem;color:var(--dim);margin:.3rem 0 .6rem;">Clique nos botões pra inserir estrutura pronta. Escreva o texto e intercale imagens. Use o <strong>📎 Enviar imagem</strong> pra anexar uma foto do PC (ela é inserida no ponto do cursor). O <strong>preview ao lado</strong> mostra como fica antes de salvar.</p>
+        <div class="rich-toolbar" style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.55rem;">
             <button type="button" class="btn-mini outline" data-ins="h3">＋ Título</button>
             <button type="button" class="btn-mini outline" data-ins="p">＋ Parágrafo</button>
             <button type="button" class="btn-mini outline" data-ins="ul">＋ Lista</button>
@@ -54,17 +54,17 @@ $fld = 'width:100%;padding:.65rem;background:var(--bg-0);border:1px solid var(--
             <button type="button" class="btn-mini outline" data-ins="img">Imagem (URL)</button>
             <button type="button" class="btn-mini outline" data-ins="hr">Separador</button>
             <label class="btn-mini" style="cursor:pointer;margin:0;">📎 Enviar imagem
-                <input type="file" id="help-upload" accept="image/png,image/webp,image/jpeg" style="display:none;">
+                <input type="file" data-ed-upload accept="image/png,image/webp,image/jpeg" style="display:none;">
             </label>
         </div>
         <div class="help-editor-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;align-items:start;">
-            <textarea name="body" id="help-body" rows="18" style="<?= $fld ?> font-family:var(--font-mono);font-size:.85rem;resize:vertical;"><?= e($a['body']) ?></textarea>
+            <textarea name="body" data-ed-body rows="18" style="<?= $fld ?> font-family:var(--font-mono);font-size:.85rem;resize:vertical;"><?= e($a['body']) ?></textarea>
             <div style="border:1px solid var(--border);border-radius:6px;background:var(--bg-0);">
                 <div style="font-size:.72rem;color:var(--dim);padding:.4rem .7rem;border-bottom:1px solid var(--border);">PREVIEW</div>
-                <div id="help-preview" style="padding:1rem;min-height:180px;max-height:520px;overflow:auto;color:var(--bone);"></div>
+                <div data-ed-preview id="help-preview" style="padding:1rem;min-height:180px;max-height:520px;overflow:auto;color:var(--bone);"></div>
             </div>
         </div>
-        <div id="help-upmsg" style="font-size:.78rem;color:var(--dim);margin-top:.45rem;min-height:1em;"></div>
+        <div data-ed-msg style="font-size:.78rem;color:var(--dim);margin-top:.45rem;min-height:1em;"></div>
     </div>
 
     <div class="stat-card" style="margin-bottom:1rem;">
@@ -97,49 +97,6 @@ $fld = 'width:100%;padding:.65rem;background:var(--bg-0);border:1px solid var(--
     <button type="submit" class="btn-mini" style="padding:.7rem 1.6rem;">Salvar artigo</button>
 </form>
 
-<script>
-(function(){
-  var ta = document.getElementById('help-body'); if (!ta) return;
-  var prev = document.getElementById('help-preview');
-  var snip = {
-    h3:'\n<h3>Título da seção</h3>\n',
-    p:'\n<p>Escreva seu texto aqui.</p>\n',
-    ul:'\n<ul>\n  <li>Primeiro item</li>\n  <li>Segundo item</li>\n</ul>\n',
-    b:'<strong>texto em negrito</strong>',
-    a:'<a href="https://" target="_blank">texto do link</a>',
-    img:'\n<img src="/assets/img/help/arquivo.png" alt="">\n',
-    hr:'\n<hr>\n'
-  };
-  function insert(t){
-    var s = ta.selectionStart || 0, e = ta.selectionEnd || 0;
-    ta.value = ta.value.slice(0, s) + t + ta.value.slice(e);
-    ta.focus(); ta.selectionStart = ta.selectionEnd = s + t.length;
-    render();
-  }
-  document.querySelectorAll('.help-toolbar [data-ins]').forEach(function(b){
-    b.addEventListener('click', function(){ insert(snip[b.getAttribute('data-ins')] || ''); });
-  });
-  function render(){ prev.innerHTML = ta.value; }
-  ta.addEventListener('input', render); render();
-
-  var up = document.getElementById('help-upload'), msg = document.getElementById('help-upmsg');
-  var csrfEl = document.querySelector('form [name=_csrf]');
-  var csrf = csrfEl ? csrfEl.value : '';
-  if (up) up.addEventListener('change', function(){
-    if (!up.files || !up.files[0]) return;
-    msg.textContent = 'Enviando imagem...';
-    var fd = new FormData(); fd.append('file', up.files[0]); fd.append('_csrf', csrf);
-    fetch('/admin/help/upload', { method:'POST', body: fd, headers: { 'X-CSRF-Token': csrf } })
-      .then(function(r){ return r.json(); })
-      .then(function(d){
-        if (d && d.url) { insert('\n<img src="' + d.url + '" alt="">\n'); msg.textContent = 'Imagem inserida: ' + d.url; }
-        else { msg.textContent = 'Falha no upload da imagem.'; }
-        up.value = '';
-      })
-      .catch(function(){ msg.textContent = 'Erro no upload.'; });
-  });
-})();
-</script>
 <style>
 #help-preview h3{color:var(--bone);margin:.6rem 0 .3rem;} #help-preview p{color:var(--dim);margin:.4rem 0;line-height:1.5;}
 #help-preview img{max-width:100%;border-radius:6px;margin:.5rem 0;} #help-preview ul{color:var(--dim);padding-left:1.2rem;}

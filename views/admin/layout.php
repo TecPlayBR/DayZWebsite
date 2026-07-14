@@ -383,5 +383,58 @@ document.addEventListener('submit', function (e) {
     }
 }, true);
 </script>
+<script>
+// Editor rico (Ajuda + Novidades): toolbar de insercao + preview ao vivo + upload
+// de imagem inline. GLOBAL e por DELEGACAO porque o admin usa PJAX (innerHTML nao
+// roda <script> do conteudo trocado). Elementos marcados com data-ed-* dentro de .rich-editor.
+(function () {
+    var SNIP = {
+        h3: '\n<h3>Título da seção</h3>\n',
+        p:  '\n<p>Escreva seu texto aqui.</p>\n',
+        ul: '\n<ul>\n  <li>Primeiro item</li>\n  <li>Segundo item</li>\n</ul>\n',
+        b:  '<strong>texto em negrito</strong>',
+        a:  '<a href="https://" target="_blank">texto do link</a>',
+        img:'\n<img src="/assets/img/help/arquivo.png" alt="">\n',
+        hr: '\n<hr>\n'
+    };
+    function edOf(el) { return el.closest ? el.closest('.rich-editor') : null; }
+    function bodyOf(el) { var ed = edOf(el); return ed ? ed.querySelector('[data-ed-body]') : null; }
+    function render(ta) { var ed = edOf(ta); var p = ed ? ed.querySelector('[data-ed-preview]') : null; if (p) p.innerHTML = ta.value; }
+    function insertInto(ta, t) {
+        var s = ta.selectionStart || 0, e = ta.selectionEnd || 0;
+        ta.value = ta.value.slice(0, s) + t + ta.value.slice(e);
+        ta.focus(); ta.selectionStart = ta.selectionEnd = s + t.length; render(ta);
+    }
+    document.addEventListener('click', function (e) {
+        var btn = e.target.closest ? e.target.closest('.rich-toolbar [data-ins]') : null;
+        if (!btn) return;
+        var ta = bodyOf(btn); if (!ta) return;
+        e.preventDefault(); insertInto(ta, SNIP[btn.getAttribute('data-ins')] || '');
+    });
+    document.addEventListener('input', function (e) {
+        if (e.target && e.target.matches && e.target.matches('[data-ed-body]')) render(e.target);
+    });
+    document.addEventListener('change', function (e) {
+        var up = e.target; if (!(up.matches && up.matches('[data-ed-upload]'))) return;
+        if (!up.files || !up.files[0]) return;
+        var ed = edOf(up), ta = ed ? ed.querySelector('[data-ed-body]') : null, msg = ed ? ed.querySelector('[data-ed-msg]') : null;
+        var csrfEl = document.querySelector('form [name=_csrf]'), csrf = csrfEl ? csrfEl.value : '';
+        if (msg) msg.textContent = 'Enviando imagem...';
+        var fd = new FormData(); fd.append('file', up.files[0]); fd.append('_csrf', csrf);
+        fetch('/admin/help/upload', { method: 'POST', body: fd, headers: { 'X-CSRF-Token': csrf } })
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                if (d && d.url) { if (ta) insertInto(ta, '\n<img src="' + d.url + '" alt="">\n'); if (msg) msg.textContent = 'Imagem inserida: ' + d.url; }
+                else if (msg) { msg.textContent = 'Falha no upload da imagem.'; }
+                up.value = '';
+            })
+            .catch(function () { if (msg) msg.textContent = 'Erro no upload.'; });
+    });
+    function initAll() { document.querySelectorAll('[data-ed-body]').forEach(render); }
+    if (document.readyState !== 'loading') initAll(); else document.addEventListener('DOMContentLoaded', initAll);
+    var host = document.querySelector('.admin-main') || document.body;
+    new MutationObserver(initAll).observe(host, { childList: true, subtree: true });
+})();
+</script>
 </body>
 </html>
