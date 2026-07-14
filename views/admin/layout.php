@@ -355,5 +355,33 @@ table.admin-table thead th[data-sortable]:hover { color: var(--bone); }
     new MutationObserver(scan).observe(host, { childList: true, subtree: true });
 })();
 </script>
+<script>
+// Aviso de data (todos os forms admin): se a data de FIM estiver no passado ou
+// antes do inicio, avisa antes de salvar. Pega o typo tipo "2025" que faz o
+// aviso/evento nao aparecer no site. Delegacao no document = cobre todo form.
+document.addEventListener('submit', function (e) {
+    var form = e.target;
+    if (!(form instanceof HTMLFormElement)) return;
+    var endEl = form.querySelector('[name=ends_at],[name=end_at],[name=expires_at],[name=valid_until]');
+    if (!endEl || !endEl.value) return;
+    var end = new Date(endEl.value);
+    if (isNaN(end.getTime())) return;
+    var now = new Date();
+    var startEl = form.querySelector('[name=starts_at],[name=start_at]');
+    var msg = '';
+    if (end.getTime() <= now.getTime()) {
+        msg = 'A data de FIM esta no passado (' + endEl.value + '). Assim o item NAO vai aparecer no site.';
+    } else if (startEl && startEl.value) {
+        var st = new Date(startEl.value);
+        if (!isNaN(st.getTime()) && end.getTime() <= st.getTime()) {
+            msg = 'A data de FIM e anterior (ou igual) a de INICIO. Assim o item pode nao aparecer.';
+        }
+    }
+    if (msg && !window.confirm(msg + '\n\nSalvar assim mesmo?')) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+}, true);
+</script>
 </body>
 </html>
