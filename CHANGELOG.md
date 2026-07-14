@@ -5,6 +5,55 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.23.0] — 2026-07-13
+
+> Sem migration (reusa colunas existentes).
+
+### 🎟️ VIP: Loadout, Skin e KillFeed vendáveis
+- **Loadout** (painel VIP CUSTOM), **Skin/Textura** e **KillFeed** agora são vendáveis por moeda na `/vip` e concedíveis em `/admin/entitlements`, igual VIP/Passe. O agent aplica no mod Sparda via `/api/entitlements` (Loadout reusa o fluxo VIP existente; Skin/KillFeed dependem do agent escrever os JSON novos e ficam desabilitados até isso).
+- Página `/vip` redesenhada: imagem e lista de benefícios por plano (estilo loja), grid centrado, Passe de Batalha com opção de 90 dias.
+
+### ✍️ Editores turbinados (Ajuda e Novidades)
+- O editor de artigos de Ajuda e o de Novidades ganharam botões de inserção rápida (título, parágrafo, lista, negrito, link, imagem, separador), **preview ao vivo** lado a lado e **upload de imagem inline** (cola o `<img>` no cursor).
+
+### 🧩 Central de Ajuda
+- Cards padronizados: área de mídia sempre presente (títulos alinhados), título maior com destaque no hover.
+- Card de vídeo puxa a **capa real do YouTube** quando o vídeo é público, com fallback pra um placeholder limpo quando é não listado/privado.
+
+### 🎥 Streamer
+- Contador de apoiadores com **placas por nível** (marcos 10/50/100/250/500/1000, do bronze ao diamante) e destaque na home com brilho suave (sem piscar quando há um só streamer).
+
+### 🐛 Correções e polimento
+- Ranking: o nome do jogador online sumia pra quem tinha clã (link aninhado quebrava o HTML). Corrigido.
+- Recibo de compra por e-mail: estava com CSS que cliente de e-mail ignora (variáveis e `<style>` no head). Reescrito com estilo inline + tabelas + cores fixas.
+- Entitlements: nick editável em qualquer concessão (inclui os que vieram só com SteamID).
+- Imagens de evento/banner re-hospedadas no site (link do Discord CDN expira em ~24h).
+
+## [2.22.0] — 2026-07-13
+
+> **Tem migration** (`v2.22.0_streamers.sql`). Rode `php cli/migrate.php`.
+
+### 🎥 Apoie seu Streamer
+- Entidade **streamer** própria (código separado do cupom), páginas públicas `/streamer/{code}` e `/streamers`, e admin CRUD (bio, fotos com upload, canal, vídeos, redes sociais por plataforma, cupom vinculado, destaque).
+- **Spotlight "Streamer Oficial"** na home (carrossel quando há mais de um). Apoiar vincula o jogador ao cupom do streamer, e o cachê entra no relatório de afiliado existente.
+
+## [2.21.0] — 2026-07-05
+
+> **Tem migration** (`v2.21.0_clan_activity_log.sql`). Rode `php cli/migrate.php`.
+
+### 🏰 Clãs
+- **Log de atividade** do clã. O placar dos eventos de clã passa a sincronizar os stats do CFTools no baseline, no freeze e ao vivo (antes usava `player_stats`, que só atualizava ao abrir o perfil).
+- Correção: a aba **Clãs** do ranking não navegava (o AJAX do ranking engolia o clique).
+
+## [2.20.0] — 2026-07-02
+
+> **Tem migration** (`v2.20.0_release_announced.sql`). Rode `php cli/migrate.php`.
+
+### 🔗 Integrações site ↔ bot
+- **Novidades cross-postam no Discord** (uma vez por release, marcado com `announced_at`).
+- `/passe` (grants de Passe) e stats enriquecidos pro dashboard do bot.
+- Correções multi-tenant: venda e novidade roteiam pela identidade do site (fim do vazamento entre clientes) e o aviso site para bot voltou a disparar (config vazia sombreava as settings via `??`, trocado por elvis `?:`).
+
 ## [2.19.0] — 2026-07-01
 
 > **Tem migration** (`v2.19.0_releases.sql` — tabela `site_releases`). Rode `php cli/migrate.php`.
