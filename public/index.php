@@ -1614,7 +1614,10 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     $code = strtoupper(trim($_POST['affiliate_code'] ?? ''));
     // Pra onde volta (pagina do streamer ou perfil). So caminho interno.
     $back = (string) ($_POST['back'] ?? '');
-    if ($back === '' || $back[0] !== '/') $back = '/my-purchases';
+    // So path interno (bloqueia //evil.com protocol-relative, esquemas e backslash = anti open-redirect)
+    if ($back === '' || !preg_match('#^/[A-Za-z0-9/_?&=.\-]*$#', $back) || str_starts_with($back, '//')) {
+        $back = '/my-purchases';
+    }
     // Valida contra o STREAMER (codigo proprio, separado do cupom de desconto).
     $streamer = \App\Streamer::get($code);
     if (!$streamer) {

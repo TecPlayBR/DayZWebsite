@@ -107,7 +107,8 @@ class Streamer
         if (is_array($d)) {
             foreach (self::SOCIAL_PLATFORMS as $key => $label) {
                 $u = trim((string) ($d[$key] ?? ''));
-                if ($u !== '') $out[$key] = ['label' => $label, 'url' => $u];
+                // So aceita http/https (bloqueia javascript:, data:, etc. = anti-XSS no href)
+                if ($u !== '' && preg_match('#^https?://#i', $u)) $out[$key] = ['label' => $label, 'url' => $u];
             }
         }
         return $out;
@@ -123,7 +124,8 @@ class Streamer
             if (is_array($d)) {
                 foreach ($d as $u) {
                     $u = trim((string) $u);
-                    if ($u !== '') $out[] = $u;
+                    // So http/https (anti-XSS no href do link de video)
+                    if ($u !== '' && preg_match('#^https?://#i', $u)) $out[] = $u;
                 }
             }
         }
