@@ -7,11 +7,19 @@
 <?php \App\View::with('hero_image', 'img/background3.png'); ?>
 <?php \App\View::section('content'); ?>
 <?php
-// Status ativo por type/tier -> "ativo até".
+// Status ativo por type/tier -> "ativo até". Duas chaves por entitlement:
+// - exata "type:tier" (pro VIP, onde o tier importa: Vip2 != Vip4);
+// - por-tipo "type:" (pros produtos sem tier no site: skin/killfeed/passe/loadout),
+//   porque o in-game guarda um tier interno (ex: skin=group1) que o card do site
+//   nao tem. Sem isso, "seus planos ativos" nao pegava a skin/killfeed comprada.
 $activeMap = [];
 foreach ($active as $a) {
-    $k = $a['type'] . ':' . ($a['tier'] ?? '');
-    $activeMap[$k] = $a['expiration_date'];
+    $exp = $a['expiration_date'];
+    $activeMap[$a['type'] . ':' . ($a['tier'] ?? '')] = $exp;
+    $tk = $a['type'] . ':';
+    if (!array_key_exists($tk, $activeMap) || ($exp !== null && ($activeMap[$tk] === null || $exp > $activeMap[$tk]))) {
+        $activeMap[$tk] = $exp;
+    }
 }
 $fmtDate = function ($d) {
     if (!$d) return '';
