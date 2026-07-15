@@ -430,10 +430,22 @@ document.addEventListener('submit', function (e) {
             })
             .catch(function () { if (msg) msg.textContent = 'Erro no upload.'; });
     });
-    function initAll() { document.querySelectorAll('[data-ed-body]').forEach(render); }
+    // Renderiza cada editor UMA vez. O guard edInit e critico: render() escreve no
+    // [data-ed-preview] (innerHTML), o que dispara o MutationObserver abaixo; sem o
+    // guard isso vira LOOP INFINITO (render -> mutation -> initAll -> render...) e
+    // TRAVA o navegador. Com o flag, o observer so pega editor NOVO (ex: via PJAX).
+    function initAll() {
+        document.querySelectorAll('[data-ed-body]').forEach(function (ta) {
+            if (ta.dataset.edInit) return;
+            ta.dataset.edInit = '1';
+            render(ta);
+        });
+    }
     if (document.readyState !== 'loading') initAll(); else document.addEventListener('DOMContentLoaded', initAll);
+    // Observa so a ADICAO de nós (childList no nivel do main), nao subtree, pra nao
+    // reagir a cada innerHTML do preview. Editor novo (PJAX) e pego e renderizado 1x.
     var host = document.querySelector('.admin-main') || document.body;
-    new MutationObserver(initAll).observe(host, { childList: true, subtree: true });
+    new MutationObserver(initAll).observe(host, { childList: true });
 })();
 </script>
 </body>
