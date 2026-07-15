@@ -163,6 +163,38 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
         </p>
         <?php endif; ?>
 
+        <!-- ===== PÚBLICO: benefícios ativos (VIP/Passe/Skin/KillFeed/Loadout) ===== -->
+        <?php if (!empty($entitlements)):
+            $entLabel = function ($t, $tier) {
+                if ($t === 'vip') {
+                    if ($tier === 'CUSTOM') return ['🎛️', 'Loadout Customizável'];
+                    $n = preg_replace('/\D/', '', (string) $tier);
+                    return ['⭐', 'VIP' . ($n !== '' ? ' ' . $n : '')];
+                }
+                $map = [
+                    'battlepass' => ['🎖️', 'Passe de Batalha'],
+                    'skin'       => ['🎨', 'Skin / Textura'],
+                    'killfeed'   => ['💀', 'KillFeed'],
+                    'loadout'    => ['🎛️', 'Loadout Customizável'],
+                ];
+                return $map[$t] ?? ['✨', ucfirst($t)];
+            };
+            $fmtExp = function ($d) { if (!$d) return 'permanente'; $ts = strtotime($d); return $ts ? 'até ' . date('d/m/Y', $ts) : ''; };
+        ?>
+        <h2 class="pp-section-title">🎁 Benefícios ativos</h2>
+        <div style="display:flex; flex-wrap:wrap; gap:.7rem; margin-bottom:1.8rem;">
+            <?php foreach ($entitlements as $ent): [$ic, $lb] = $entLabel($ent['type'], $ent['tier']); ?>
+                <div style="display:flex; align-items:center; gap:.55rem; background:var(--bg-1); border:1px solid var(--border); border-left:3px solid var(--hazard); border-radius:8px; padding:.55rem .9rem;">
+                    <span style="font-size:1.3rem;"><?= $ic ?></span>
+                    <span>
+                        <span style="color:var(--bone); font-weight:700; display:block; font-size:.92rem;"><?= e($lb) ?></span>
+                        <span style="color:var(--dim); font-size:.75rem;"><?= e($fmtExp($ent['expiration_date'])) ?></span>
+                    </span>
+                </div>
+            <?php endforeach; ?>
+        </div>
+        <?php endif; ?>
+
         <!-- ===== PÚBLICO: estatísticas de gameplay ===== -->
         <h2 class="pp-section-title"><?= $icon('kills') ?> <?= e(__('profile.pub_combat_stats')) ?></h2>
         <?php if ($stats): ?>

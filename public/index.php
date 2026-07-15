@@ -564,6 +564,19 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
         $viewData['box_claim_enabled']      = \App\Settings::getBool('box_claim_enabled');
     }
 
+    // Benefícios ATIVOS do player (VIP/Passe/Skin/KillFeed/Loadout) - inclui os
+    // concedidos pelo site (applied/pending) E os comprados DIRETO no jogo
+    // (status 'external', reportados pelo agent). Publico = qualquer um vê no perfil.
+    $viewData['entitlements'] = \App\Database::fetchAll(
+        "SELECT type, tier, status, MAX(expiration_date) AS expiration_date
+           FROM player_grants
+          WHERE server_id = ? AND steam_id = ?
+            AND status IN ('applied','external','pending')
+            AND (expiration_date IS NULL OR expiration_date >= CURDATE())
+          GROUP BY type, tier, status",
+        [\App\Servers::defaultId(), $steamId]
+    );
+
     \App\View::display('pages.player_public', $viewData);
 });
 

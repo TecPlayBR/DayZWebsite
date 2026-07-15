@@ -143,7 +143,7 @@ class Vip {
             "SELECT type, tier, MAX(expiration_date) AS expiration_date
                FROM player_grants
               WHERE server_id = ? AND steam_id = ?
-                AND status IN ('pending','applied')
+                AND status IN ('pending','applied','external')
                 AND (expiration_date IS NULL OR expiration_date >= CURDATE())
               GROUP BY type, tier",
             [$serverId, $steamId]
