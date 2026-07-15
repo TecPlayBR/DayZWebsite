@@ -5,6 +5,18 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.23.1] — 2026-07-15
+
+> Sem migration. Correções, segurança e polimento.
+
+### 🔒 Segurança
+- **Open redirect** no `/apoiar-streamer`: o retorno (`back`) só checava se começava com `/`, então `//site-externo` (protocol-relative) passava e redirecionava pra fora. Agora exige caminho interno limpo (bloqueia `//`, esquemas e backslash).
+- **XSS via href**: as URLs de rede social e de vídeo do streamer iam pro `href` sem validar o esquema; agora só `http/https` são aceitos (bloqueia `javascript:` etc.).
+
+### 🐛 Correções
+- **Editor de Ajuda e Novidades** (toolbar + preview ao vivo + upload de imagem inline): não funcionava ao navegar pelo menu (o admin usa PJAX e `<script>` em conteúdo trocado por `innerHTML` não executa) e, num primeiro conserto, chegou a travar o navegador (loop entre a escrita do preview e o `MutationObserver`). Reescrito como handler global por delegação no layout, sem loop. Testado no admin.
+- **Aviso de data no admin**: ao salvar um aviso/evento com data de fim no passado (ou antes da de início), o painel agora avisa antes de gravar (evita o item publicado que não aparece por causa de data errada, tipo ano digitado errado).
+
 ## [2.23.0] — 2026-07-13
 
 > Sem migration (reusa colunas existentes).
