@@ -3893,7 +3893,15 @@ $BRAND_SLOTS = [
         "SELECT * FROM player_grants WHERE server_id = ? ORDER BY id DESC LIMIT 100",
         [$sid]
     );
-    \App\View::display('admin.entitlements', ['config' => $config, 'grants' => $grants]);
+    // Ultima sincronizacao dos entitlements comprados IN-GAME (reverse-sync).
+    $importAt = \App\Database::fetchColumn("SELECT `value` FROM settings WHERE `key` = 'entitlements_import_at'");
+    $externalCount = (int) \App\Database::fetchColumn(
+        "SELECT COUNT(*) FROM player_grants WHERE server_id = ? AND status = 'external'", [$sid]
+    );
+    \App\View::display('admin.entitlements', [
+        'config' => $config, 'grants' => $grants,
+        'ingame_sync_at' => $importAt, 'ingame_count' => $externalCount,
+    ]);
 });
 
 \App\Router::post('/admin/entitlements/grant', function() use ($config) {

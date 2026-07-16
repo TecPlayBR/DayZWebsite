@@ -193,6 +193,9 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
                 </div>
             <?php endforeach; ?>
         </div>
+        <?php if (!empty($is_owner)): ?>
+            <p style="color:var(--dim); font-size:.78rem; margin:-.8rem 0 1.8rem;">Comprou algo direto no jogo? Pode levar alguns minutos pra aparecer aqui.</p>
+        <?php endif; ?>
         <?php endif; ?>
 
         <!-- ===== PÚBLICO: estatísticas de gameplay ===== -->

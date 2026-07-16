@@ -19,6 +19,25 @@ $badge = [
     </div>
 </div>
 
+<?php
+$syncAt = $ingame_sync_at ?? null;
+$syncTs = $syncAt ? strtotime((string) $syncAt) : 0;
+$mins   = $syncTs ? (int) floor((time() - $syncTs) / 60) : null;
+$stale  = $syncTs && $mins > 30;
+$igCount = (int) ($ingame_count ?? 0);
+$barColor = !$syncTs ? 'var(--rust)' : ($stale ? 'var(--hazard)' : 'var(--moss)');
+?>
+<div class="stat-card" style="margin-bottom:1rem; border-left:3px solid <?= $barColor ?>;">
+    <strong>🔄 Sincronização de benefícios in-game (loja do jogo → site)</strong><br>
+    <?php if (!$syncTs): ?>
+        <span style="color:var(--dim);">Ainda não rodou. Compras feitas <strong>direto no jogo</strong> (VIP/Passe/Skin/KillFeed) só aparecem no site depois que o agent/reconciliador sincroniza. Se acabou de instalar, aguarde alguns minutos.</span>
+    <?php else: ?>
+        <span style="color:var(--dim);">Última sync: <strong><?= $mins < 1 ? 'agora mesmo' : ('há ' . $mins . ' min') ?></strong> · <?= $igCount ?> benefício(s) in-game refletido(s) no site.
+        <?php if ($stale): ?><br><span style="color:var(--hazard);">⚠️ Faz mais de 30 min desde a última sync — o reconciliador/agent pode estar parado. Compras in-game recentes podem não estar aparecendo.</span><?php endif; ?>
+        </span>
+    <?php endif; ?>
+</div>
+
 <?php if (isset($_GET['ok'])): ?>
     <div class="stat-card" style="margin-bottom:1rem; border-left:3px solid var(--moss);">
         ✓ <?= $_GET['ok'] === '2' ? 'Revogado - o agent remove no próximo ciclo.' : ($_GET['ok'] === '3' ? 'Nick atualizado.' : 'Concedido - o agent aplica no próximo ciclo.') ?>

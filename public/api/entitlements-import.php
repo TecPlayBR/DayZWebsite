@@ -108,4 +108,12 @@ try {
     die(json_encode(['ok' => false, 'error' => 'failed']));
 }
 
+// Marca a hora da ultima sync in-game (pro admin mostrar "sincronizado ha X" / alertar se parou).
+try {
+    \App\Database::query(
+        "INSERT INTO settings (`key`, `value`) VALUES ('entitlements_import_at', NOW())
+         ON DUPLICATE KEY UPDATE `value` = NOW()"
+    );
+} catch (\Throwable $e) { /* nao critico */ }
+
 echo json_encode(['ok' => true, 'imported' => count($clean)]);
