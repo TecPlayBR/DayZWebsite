@@ -80,6 +80,7 @@ if (!function_exists('notify_bot_release')) {
             'cat_emoji'    => $info['cat_emoji']    ?? '',
             'version'      => $info['version']      ?? '',
             'body_excerpt' => $info['body_excerpt'] ?? '',
+            'image'        => $info['hero_image']   ?? '',
             'url'          => $info['url']          ?? '',
         ]);
         $ch = curl_init(rtrim($endpoint, '/') . '/notify/release');
@@ -97,6 +98,48 @@ if (!function_exists('notify_bot_release')) {
         if ($code !== 200) return false;
         $j = json_decode((string) $resp, true);
         return is_array($j) && !empty($j['posted']); // só marca announced se REALMENTE postou
+    }
+}
+
+if (!function_exists('release_teaser')) {
+    /**
+     * Resumo curto e legível de uma novidade pro Discord (embed não comporta o
+     * post inteiro). Pega o texto dos primeiros parágrafos, corta no limite de
+     * caracteres respeitando a palavra. Nunca joga tag/HTML cru.
+     */
+    function release_teaser(string $html, int $max = 300): string {
+        $text = '';
+        if (preg_match_all('#<p[^>]*>(.*?)</p>#is', $html, $m)) {
+            foreach ($m[1] as $p) {
+                $t = trim(html_entity_decode(strip_tags($p), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+                $t = preg_replace('/\s+/', ' ', $t);
+                if ($t === '') continue;
+                $text = $text === '' ? $t : $text . ' ' . $t;
+                if (mb_strlen($text) >= $max) break;
+            }
+        }
+        if ($text === '') {
+            $text = preg_replace('/\s+/', ' ', trim(html_entity_decode(strip_tags($html), ENT_QUOTES | ENT_HTML5, 'UTF-8')));
+        }
+        if (mb_strlen($text) > $max) {
+            $cut = mb_substr($text, 0, $max);
+            $sp  = mb_strrpos($cut, ' ');
+            if ($sp !== false && $sp > (int)($max * 0.6)) $cut = mb_substr($cut, 0, $sp);
+            $text = rtrim($cut, " ,.;:-") . '…';
+        }
+        return $text;
+    }
+}
+
+if (!function_exists('release_hero')) {
+    /** Primeira imagem do corpo, em URL absoluta (pra imagem de destaque do embed). */
+    function release_hero(string $html, string $siteUrl): ?string {
+        if (!preg_match('#<img[^>]+src\s*=\s*["\']([^"\']+)["\']#i', $html, $m)) return null;
+        $src = trim($m[1]);
+        if ($src === '') return null;
+        if (preg_match('#^https?://#i', $src)) return $src;
+        $base = rtrim($siteUrl, '/');
+        return $src[0] === '/' ? $base . $src : $base . '/' . ltrim($src, '/');
     }
 }
 

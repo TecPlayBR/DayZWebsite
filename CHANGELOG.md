@@ -5,6 +5,23 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.23.2] — 2026-07-17
+
+> Sem migration. Correção importante de imagens + segurança + polimento das Novidades.
+
+### 🐛 Correção importante (imagens sumindo ao publicar)
+- **Imagens eram apagadas ao publicar** Novidades, Ajuda e Páginas. O sanitizador de HTML tinha uma allowlist de tags sem `<img>`, então o `<img>` sobrevivia no preview (HTML cru) mas era removido ao salvar. Agora `<img>` (e `<figure>/<figcaption>`) fazem parte da allowlist e as imagens são preservadas.
+
+### 🔒 Segurança
+- **Sanitizador de HTML reescrito** (`Html::sanitize`): saiu do `strip_tags` + regex (frágil a bypass tipo `<img/onerror=>`, `href` sem aspas, `java\tscript:`) para um parser DOM atribute-aware que reconstrói só as tags/atributos da allowlist, re-escapa todo valor e valida esquema de `href`/`src` (só `http/https`, `mailto` em href; bloqueia `javascript:`/`data:`/`vbscript:`/`file:` mesmo com espaço/controle no meio). `<script>/<style>/<iframe>/<svg>` etc. são descartados com conteúdo. Validado contra uma bateria de payloads de XSS.
+
+### ✨ Novidades (`/novidades`)
+- Página virou **accordion**: cada atualização é um item recolhível (`<details>` nativo, sem JS), com a mais recente aberta e as demais fechadas. Evita rolar uma parede de conteúdo a cada visita.
+- Imagens do corpo agora ficam **contidas** (`max-width:100%`, cantos arredondados, centralizadas) e `<h4>` estilizado.
+
+### 📢 Aviso de novidade no Discord
+- O cross-post de novidade no Discord virou um **teaser** em vez de despejar o texto truncado sem formatação. Agora leva **imagem de destaque** (1ª imagem do post), **título clicável** pro site, **resumo limpo** (primeiros parágrafos, corte na palavra), **CTA** "Confira tudo no site" e mantém o **@everyone**. O site passa a gerar o resumo e a imagem de capa (`release_teaser`/`release_hero`).
+
 ## [2.23.1] — 2026-07-15
 
 > Sem migration. Correções, segurança e polimento.

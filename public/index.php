@@ -2955,8 +2955,7 @@ $REWARD_CATEGORIES = [
         try {
             $announced = \App\Database::fetchColumn("SELECT announced_at FROM site_releases WHERE id=?", [$id]);
             if ($announced === null) {
-                $excerpt = trim(html_entity_decode(strip_tags((string)$body), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
-                if (mb_strlen($excerpt) > 500) $excerpt = mb_substr($excerpt, 0, 500) . '…';
+                $siteUrl = (string)($config['site_url'] ?? '');
                 $posted = notify_bot_release($config, [
                     'release_id'   => $id,
                     'title'        => $title,
@@ -2964,8 +2963,9 @@ $REWARD_CATEGORIES = [
                     'cat_label'    => \App\Releases::catLabel($cat),
                     'cat_emoji'    => \App\Releases::catEmoji($cat),
                     'version'      => $ver ?? '',
-                    'body_excerpt' => $excerpt,
-                    'url'          => rtrim($config['site_url'] ?? '', '/') . '/novidades',
+                    'body_excerpt' => release_teaser((string)$body),
+                    'hero_image'   => release_hero((string)$body, $siteUrl),
+                    'url'          => rtrim($siteUrl, '/') . '/novidades',
                 ]);
                 if ($posted) {
                     \App\Database::query("UPDATE site_releases SET announced_at = NOW() WHERE id=?", [$id]);
