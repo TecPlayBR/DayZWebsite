@@ -5,6 +5,21 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [3.0.1] — 2026-07-28
+
+> Versão de consolidação (quase release final): integração in-game pelo Discord, ponte de saldos nos dois sentidos, colar imagem no editor e correção de segurança. Nada de migration manual além do `migrate.php` de sempre — e atualizar **não perde dados** (validado num site real 4 versões atrás).
+
+### 🎮 Novo
+- **Resgate de itens pelo Discord (`/receber`):** o jogador puxa os itens da loja **quando quiser** — não caem no chão no meio de um tiroteio. Servidor-autoritativo: só resgata o que é dele.
+- **Ponte de saldos site ↔ bot nos dois sentidos:** migra moedas do bot pro site **e** do site pro bot, idempotente (não duplica nem perde saldo).
+- **Colar imagem (Ctrl+V) nos editores** de Páginas, Ajuda e Novidades — cola direto, sobe sozinho e insere a imagem no texto (chega de salvar em pasta e anexar).
+
+### 🔒 Segurança
+- Corrigido XSS armazenado nos widgets de Insights do painel admin (escape de nick/cupom).
+
+### 🗃️ Banco
+- Nova migration `v2.23.0_coin_imports` (idempotente). Aplicada pelo `migrate.php` normal.
+
 ## [2.23.2] — 2026-07-17
 
 > Sem migration. Correção importante de imagens + segurança + polimento das Novidades.
