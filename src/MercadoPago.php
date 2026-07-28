@@ -88,6 +88,24 @@ class MercadoPago {
     }
 
     /**
+     * Valida um CPF (11 dígitos + dígitos verificadores). Aceita com ou sem máscara.
+     * Pro cartão o MP embute o CPF no token e valida -> CPF ruim = HTTP 400 genérico.
+     * Barrar aqui dá mensagem clara e evita gastar chamada no MP.
+     */
+    public static function isValidCpf(string $cpf): bool {
+        $d = preg_replace('/\D+/', '', $cpf);
+        if (strlen($d) !== 11 || preg_match('/^(\d)\1{10}$/', $d)) return false;
+        for ($t = 9; $t < 11; $t++) {
+            $sum = 0;
+            for ($i = 0; $i < $t; $i++) $sum += (int)$d[$i] * (($t + 1) - $i);
+            $rest = ($sum * 10) % 11;
+            if ($rest === 10) $rest = 0;
+            if ($rest !== (int)$d[$t]) return false;
+        }
+        return true;
+    }
+
+    /**
      * Busca um payment pelo ID (apos receber webhook).
      */
     public function getPayment(string $paymentId): ?array {
@@ -155,9 +173,20 @@ class MercadoPago {
                 return null;
             }
             if ($code >= 400) {
-                // Loga so codigo+path. A resposta do MP pode conter dados do pagador
-                // (PII) / detalhes sensiveis -> NAO vai pro error_log.
-                error_log("MP $method $path HTTP $code (corpo omitido)");
+                // A resposta do MP pode conter PII do pagador -> logamos SO os codigos de
+                // erro/validacao (nao-PII), nunca o corpo cru, pra permitir diagnostico.
+                $codes = 'n/a';
+                $j = json_decode((string)$resp, true);
+                if (is_array($j)) {
+                    $errName = is_string($j['error'] ?? null) ? $j['error'] : '';
+                    $causes  = [];
+                    foreach ((array)($j['cause'] ?? []) as $c) {
+                        if (isset($c['code'])) $causes[] = (string)$c['code'];
+                    }
+                    $joined = trim($errName . ' [' . implode(',', $causes) . ']');
+                    if ($joined !== '[]') $codes = $joined;
+                }
+                error_log("MP $method $path HTTP $code error=$codes");
                 return null;
             }
             $decoded = json_decode($resp, true);

@@ -44,6 +44,17 @@ class Settings {
         'live_purchases_anonymize' => 'bool',
         'live_purchases_show_price'=> 'bool',
         'bonus_enabled'            => 'bool',
+        // Dashboard admin: liga/desliga cada card de Insights (default = ligado)
+        'dash_ins_pay'             => 'bool',
+        'dash_ins_pkgs'            => 'bool',
+        'dash_ins_status'          => 'bool',
+        'dash_ins_grants'          => 'bool',
+        'dash_ins_coins'           => 'bool',
+        'dash_ins_boxes'           => 'bool',
+        'dash_ins_newplayers'      => 'bool',
+        'dash_ins_cupons'          => 'bool',
+        'dash_ins_afiliados'       => 'bool',
+        'dash_ins_reviews'         => 'bool',
         // Config de recompensas do leaderboard (JSON gerenciado em /admin/rewards).
         'leaderboard_rewards'      => 'json',
         // Config da loja de VIP/Passe paga com moedas (JSON gerenciado em /admin/vip).

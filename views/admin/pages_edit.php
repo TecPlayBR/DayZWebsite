@@ -43,7 +43,7 @@
         </div>
         <div style="margin-top: 1rem;">
             <label style="display:block; font-size:0.85rem; margin-bottom:0.3rem;">Conteúdo (HTML simples permitido)</label>
-            <textarea name="body_ptbr" rows="14" style="width:100%; padding:0.7rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:var(--font-mono); font-size:0.9rem; resize:vertical;"><?= e($page['body_ptbr'] ?? '') ?></textarea>
+            <textarea name="body_ptbr" data-paste-img rows="14" style="width:100%; padding:0.7rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:var(--font-mono); font-size:0.9rem; resize:vertical;"><?= e($page['body_ptbr'] ?? '') ?></textarea>
         </div>
     </div>
 
@@ -55,7 +55,7 @@
         </div>
         <div style="margin-top: 1rem;">
             <label style="display:block; font-size:0.85rem; margin-bottom:0.3rem;">Body (HTML allowed)</label>
-            <textarea name="body_enus" rows="14" style="width:100%; padding:0.7rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:var(--font-mono); font-size:0.9rem; resize:vertical;"><?= e($page['body_enus'] ?? '') ?></textarea>
+            <textarea name="body_enus" data-paste-img rows="14" style="width:100%; padding:0.7rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:var(--font-mono); font-size:0.9rem; resize:vertical;"><?= e($page['body_enus'] ?? '') ?></textarea>
         </div>
     </div>
 

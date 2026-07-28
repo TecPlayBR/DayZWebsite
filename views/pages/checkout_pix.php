@@ -117,7 +117,17 @@ $activeTab = ((($active_tab ?? 'pix') === 'card') && $cardAvailable) ? 'card' : 
                 <div class="cf-row"><label>Nome impresso no cartão</label><input type="text" id="cf-name" class="cf-input" autocomplete="cc-name" placeholder="Como está no cartão"></div>
                 <div class="cf-grid2">
                     <div><label>Documento</label><input type="text" class="cf-input" value="CPF" readonly style="opacity:0.7;cursor:default;"></div>
-                    <div><label>CPF do titular</label><input type="text" id="cf-docnumber" class="cf-input" inputmode="numeric" placeholder="000.000.000-00" maxlength="14"></div>
+                    <div>
+                        <label>CPF do titular</label>
+                        <!-- Campo VISÍVEL com máscara (000.000.000-00). O MP lê o campo oculto só-dígitos
+                             (#cf-docnumber-mp) pra a formatação não quebrar a tokenização do cartão. -->
+                        <input type="text" id="cf-docnumber" class="cf-input" inputmode="numeric" autocomplete="off"
+                               placeholder="000.000.000-00" maxlength="14">
+                        <!-- Campo que o MP realmente lê (só dígitos). display:none (não type=hidden)
+                             pra casar com o padrão já comprovado do #cf-issuer mapeado neste form. -->
+                        <input type="text" id="cf-docnumber-mp" inputmode="numeric" style="display:none;" tabindex="-1" aria-hidden="true">
+                        <small id="cf-cpf-err" style="display:none;color:var(--rust-2);font-size:0.72rem;margin-top:0.25rem;">CPF inválido — confira os 11 dígitos.</small>
+                    </div>
                 </div>
                 <!-- Tipo de documento fixo em CPF (pessoa física) - não mapeado no cardForm pra o MP não trocar -->
                 <select id="cf-doctype" style="display:none;"><option value="CPF" selected>CPF</option></select>
@@ -292,6 +302,38 @@ $activeTab = ((($active_tab ?? 'pix') === 'card') && $cardAvailable) ? 'card' : 
         if (couponTab) couponTab.value = b.dataset.tab; // ao aplicar cupom, volta nesta aba
     }); });
 
+    // --- CPF do titular: máscara visível (000.000.000-00) + validação ---
+    // O campo visível é só cosmético; o MP lê o oculto #cf-docnumber-mp (só dígitos).
+    var cpfView = document.getElementById('cf-docnumber');
+    var cpfRaw  = document.getElementById('cf-docnumber-mp');
+    var cpfErr  = document.getElementById('cf-cpf-err');
+    function cpfDigits(){ return (cpfRaw.value || '').replace(/\D+/g, ''); }
+    function fmtCpf(d){
+        d = d.slice(0, 11);
+        var out = d.slice(0, 3);
+        if (d.length > 3) out += '.' + d.slice(3, 6);
+        if (d.length > 6) out += '.' + d.slice(6, 9);
+        if (d.length > 9) out += '-' + d.slice(9, 11);
+        return out;
+    }
+    function validCpf(d){
+        if (!/^\d{11}$/.test(d) || /^(\d)\1{10}$/.test(d)) return false; // 11 dígitos, não todos iguais
+        var s, r, i;
+        for (s = 0, i = 0; i < 9;  i++) s += parseInt(d[i], 10) * (10 - i);
+        r = (s * 10) % 11; if (r === 10) r = 0; if (r !== parseInt(d[9], 10))  return false;
+        for (s = 0, i = 0; i < 10; i++) s += parseInt(d[i], 10) * (11 - i);
+        r = (s * 10) % 11; if (r === 10) r = 0; if (r !== parseInt(d[10], 10)) return false;
+        return true;
+    }
+    if (cpfView && cpfRaw) {
+        cpfView.addEventListener('input', function(){
+            var d = cpfView.value.replace(/\D+/g, '').slice(0, 11);
+            cpfRaw.value = d;                 // o MP lê isto (só dígitos)
+            cpfView.value = fmtCpf(d);        // usuário vê formatado
+            if (cpfErr) cpfErr.style.display = (d.length === 11 && !validCpf(d)) ? 'block' : 'none';
+        });
+    }
+
     var PUBKEY   = <?= json_encode($pubKey) ?>;
     var AMOUNT   = <?= json_encode(number_format($price_brl, 2, '.', '')) ?>;
     var PURCHASE = <?= (int)$purchase_id ?>;
@@ -313,7 +355,7 @@ $activeTab = ((($active_tab ?? 'pix') === 'card') && $cardAvailable) ? 'card' : 
             cardholderName:       { id: 'cf-name',   placeholder: 'Nome no cartão' },
             issuer:               { id: 'cf-issuer' },
             <?php if ($allowInstallments): ?>installments: { id: 'cf-installments' },<?php endif; ?>
-            identificationNumber: { id: 'cf-docnumber', placeholder: 'CPF' },
+            identificationNumber: { id: 'cf-docnumber-mp', placeholder: 'CPF' },
             cardholderEmail:      { id: 'cf-email',  placeholder: 'voce@email.com' }
         },
         callbacks: {
@@ -323,13 +365,22 @@ $activeTab = ((($active_tab ?? 'pix') === 'card') && $cardAvailable) ? 'card' : 
             },
             onSubmit: function(event){
                 event.preventDefault();
+                // Bloqueia CPF inválido ANTES de chamar o MP (autofill costuma jogar lixo aqui).
+                var cpf = cpfDigits();
+                if (!validCpf(cpf)) {
+                    if (cpfErr) cpfErr.style.display = 'block';
+                    statusEl.className = 'cf-status err';
+                    statusEl.textContent = 'CPF do titular inválido. Confira os 11 dígitos e tente de novo.';
+                    if (cpfView) cpfView.focus();
+                    return;
+                }
                 submitBtn.disabled = true; statusEl.className = 'cf-status'; statusEl.textContent = 'Processando…';
                 var d = cardForm.getCardFormData();
                 if (!d || !d.token) { statusEl.className='cf-status err'; statusEl.textContent='Revise os dados do cartão.'; submitBtn.disabled=false; return; }
                 var body = new URLSearchParams({
                     token: d.token, payment_method_id: d.paymentMethodId, issuer_id: d.issuerId || '',
                     installments: d.installments || '1', doc_type: 'CPF',
-                    doc_number: (d.identificationNumber || document.getElementById('cf-docnumber').value || ''),
+                    doc_number: (cpf || d.identificationNumber || ''),
                     email: (document.getElementById('cf-email').value || ''), _csrf: CSRF
                 });
                 fetch('/shop/card-pay/' + PURCHASE, {

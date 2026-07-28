@@ -340,6 +340,62 @@ case 'link_player':
         'origin'    => 'bot',
     ]));
 
+case 'import_coins':
+    // Ponte bot->site: credita `coins` em players.coins de forma IDEMPOTENTE por `ref`.
+    // Usado 1x na migracao de saldo quando um guild que era so-bot conecta o site.
+    // Aditivo (coins = coins + X): se o player ja tinha saldo no site, ninguem perde.
+    if ($method !== 'POST') {
+        _bail(405, 'method_not_allowed', 'import_coins');
+    }
+    $raw  = file_get_contents('php://input') ?: '';
+    $body = json_decode($raw, true) ?: [];
+    $steamId = trim((string) ($body['steam_id'] ?? ''));
+    $coins   = (int) ($body['coins'] ?? 0);
+    $ref     = substr(trim((string) ($body['ref'] ?? '')), 0, 80);
+    if (!preg_match('/^7656119\d{10}$/', $steamId)) _bail(400, 'invalid_steam_id', 'import_coins');
+    if ($coins < 1)  _bail(400, 'invalid_coins', 'import_coins');
+    if ($ref === '') _bail(400, 'missing_ref', 'import_coins');
+
+    // Garante a tabela de idempotencia (cliente que ainda nao rodou o migrate).
+    \App\Database::query(
+        "CREATE TABLE IF NOT EXISTS coin_imports (
+            id BIGINT AUTO_INCREMENT PRIMARY KEY, ref VARCHAR(80) NOT NULL UNIQUE,
+            steam_id VARCHAR(20) NOT NULL, coins BIGINT NOT NULL,
+            source VARCHAR(20) NOT NULL DEFAULT 'bot_wallet',
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, INDEX idx_steam (steam_id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
+    );
+
+    // Claim atomico do ref: so quem INSERIR (rowCount=1) credita. Replay -> applied=false.
+    $applied = (\App\Database::query(
+        "INSERT IGNORE INTO coin_imports (ref, steam_id, coins) VALUES (?, ?, ?)",
+        [$ref, $steamId, $coins]
+    )->rowCount() === 1);
+
+    if ($applied) {
+        $p = \App\Database::fetchOne("SELECT id FROM players WHERE steam_id = ? LIMIT 1", [$steamId]);
+        if (!$p) {
+            \App\Database::query(
+                "INSERT INTO players (steam_id, display_name, coins, total_spent_brl, last_seen_at, origin)
+                 VALUES (?, NULL, ?, 0.00, NOW(), 'bot')",
+                [$steamId, $coins]
+            );
+        } else {
+            \App\Database::query(
+                "UPDATE players SET coins = coins + ? WHERE id = ?",
+                [$coins, (int)$p['id']]
+            );
+        }
+    }
+    $row = \App\Database::fetchOne("SELECT coins FROM players WHERE steam_id = ? LIMIT 1", [$steamId]);
+    _mark_last_ok();
+    _log_call('import_coins', 200);
+    die(json_encode([
+        'ok'          => true,
+        'applied'     => $applied,
+        'new_balance' => (int) ($row['coins'] ?? 0),
+    ]));
+
 case 'stats':
     // Mes alvo (YYYY-MM); default = mes atual. O bot manda ?month= no /stats-mes.
     $ym = (isset($_GET['month']) && preg_match('/^\d{4}-\d{2}$/', (string) $_GET['month']))
@@ -551,6 +607,77 @@ case 'create_pix':
         'ticket_url'     => $tx['ticket_url'] ?? null,
         'price_brl'      => round($priceBrl, 2),
         'coins_total'    => $coinsTotal,
+        'expires_at'     => $pay['date_of_expiration'] ?? $expires,
+    ]));
+
+case 'create_coin_pix':
+    // Admin vende quantidade CUSTOM de moedas pra um jogador (comando /comprar-moedas do bot).
+    // Cria uma purchase com coins/preco LIVRES (package_id='custom') + Pix; o mp-webhook.php
+    // entrega os coins na aprovacao (ele credita por coins_total, nao depende do pacote existir).
+    if ($method !== 'POST') {
+        _bail(405, 'method_not_allowed', 'create_coin_pix');
+    }
+    $body     = json_decode(file_get_contents('php://input') ?: '', true) ?: [];
+    $steamId  = trim((string) ($body['steam_id'] ?? ''));
+    $coins    = (int) ($body['coins'] ?? 0);
+    $priceBrl = round((float) ($body['price_brl'] ?? 0), 2);
+    if (!preg_match('/^7656119\d{10}$/', $steamId)) {
+        _bail(400, 'invalid_steam_id', 'create_coin_pix');
+    }
+    if ($coins < 1) {
+        _bail(400, 'invalid_coins', 'create_coin_pix');
+    }
+    if ($priceBrl < 0.01) {
+        _bail(400, 'invalid_amount', 'create_coin_pix');
+    }
+    $serverId = (int) ($body['server_id'] ?? 0);
+    if ($serverId < 1) $serverId = \App\Servers::defaultId();
+
+    $mp = new \App\MercadoPago(
+        $config['mercado_pago']['access_token'] ?? '',
+        $config['mercado_pago']['webhook_secret'] ?? null
+    );
+    if (!$mp->isConfigured()) {
+        _bail(503, 'payments_not_configured', 'create_coin_pix');
+    }
+    \App\Database::query(
+        "INSERT INTO purchases
+            (steam_id, package_id, server_id, coins_base, coins_bonus, coins_total,
+             price_brl, discount_brl, mp_status, terms_accepted_at, terms_version)
+         VALUES (?, 'custom', ?, ?, 0, ?, ?, 0, 'pending', NOW(), '2026-05-27')",
+        [$steamId, $serverId, $coins, $coins, $priceBrl]
+    );
+    $purchaseId = (int) \App\Database::pdo()->lastInsertId();
+
+    $siteUrl = rtrim($config['site_url'] ?? '', '/');
+    $expires = gmdate("Y-m-d\\TH:i:s.000P", time() + 1800);
+    $pay = $mp->createPixPayment([
+        'transaction_amount' => $priceBrl,
+        'description'        => $coins . ' moedas (venda admin - Discord)',
+        'external_reference' => (string) $purchaseId,
+        'notification_url'   => $siteUrl . '/api/mp-webhook.php',
+        'date_of_expiration' => $expires,
+        'payer'              => ['email' => $steamId . '@pix.tecplay.inf.br'],
+    ]);
+    $tx = $pay['point_of_interaction']['transaction_data'] ?? null;
+    if (!$pay || !$tx || empty($tx['qr_code'])) {
+        _bail(502, 'pix_failed', 'create_coin_pix');
+    }
+    \App\Database::query(
+        "UPDATE purchases SET mp_payment_id = ? WHERE id = ?",
+        [(string) $pay['id'], $purchaseId]
+    );
+    _mark_last_ok();
+    _log_call('create_coin_pix', 201);
+    http_response_code(201);
+    die(json_encode([
+        'ok'             => true,
+        'purchase_id'    => $purchaseId,
+        'qr_code'        => $tx['qr_code'],
+        'qr_code_base64' => $tx['qr_code_base64'] ?? null,
+        'ticket_url'     => $tx['ticket_url'] ?? null,
+        'price_brl'      => $priceBrl,
+        'coins_total'    => $coins,
         'expires_at'     => $pay['date_of_expiration'] ?? $expires,
     ]));
 
@@ -818,6 +945,155 @@ case 'list_active_vips':
     _mark_last_ok();
     _log_call('list_active_vips', 200);
     die(json_encode(['ok' => true, 'vips' => $vips]));
+
+case 'claimable':
+    // Fallback do /receber no Discord: lista as aberturas de caixa PENDENTES do
+    // jogador (as que estao esperando ele resgatar no modo claim). So leitura.
+    $steamId = trim((string) ($_GET['steam_id'] ?? ''));
+    if (!preg_match('/^7656119\d{10}$/', $steamId)) {
+        _bail(400, 'invalid_steam_id', 'claimable');
+    }
+    $rows = \App\Database::fetchAll(
+        "SELECT bo.id, bo.item_name, bo.classname, bo.quantity, bo.rarity,
+                b.name AS box_name, UNIX_TIMESTAMP(bo.created_at) AS ts
+           FROM box_openings bo
+           LEFT JOIN boxes b ON b.id = bo.box_id
+          WHERE bo.steam_id = ? AND bo.status = 'pending' AND bo.delivered_at IS NULL
+          ORDER BY bo.id ASC LIMIT 50",
+        [$steamId]
+    );
+    $items = array_map(static function (array $r): array {
+        return [
+            'id'        => (int) $r['id'],
+            'item_name' => (string) ($r['item_name'] ?? $r['classname']),
+            'classname' => (string) $r['classname'],
+            'quantity'  => (int) $r['quantity'],
+            'rarity'    => (string) ($r['rarity'] ?? ''),
+            'box_name'  => $r['box_name'],
+            'ts'        => (int) $r['ts'],
+        ];
+    }, $rows);
+    _mark_last_ok();
+    _log_call('claimable', 200);
+    die(json_encode([
+        'ok'         => true,
+        'claim_mode' => \App\Settings::getBool('box_claim_enabled'),
+        'count'      => count($items),
+        'items'      => $items,
+    ]));
+
+case 'claim_box':
+    // Resgata caixa(s) pendente(s) do jogador. Server-authoritative (anti-burla,
+    // igual a rota web /claim-box/{id}): so entrega abertura que E DELE e esta
+    // pendente. Sem opening_id => resgata TODAS as pendentes dele.
+    // Boxes::deliver() ja blinda online + janela de restart + CFTools.
+    if ($method !== 'POST') {
+        _bail(405, 'method_not_allowed', 'claim_box');
+    }
+    $raw  = file_get_contents('php://input') ?: '';
+    $body = json_decode($raw, true) ?: [];
+    $steamId   = trim((string) ($body['steam_id'] ?? ''));
+    $openingId = (int) ($body['opening_id'] ?? 0);
+    if (!preg_match('/^7656119\d{10}$/', $steamId)) {
+        _bail(400, 'invalid_steam_id', 'claim_box');
+    }
+    $rl = \App\RateLimit::check('claimbox:' . $steamId, 20, 600);
+    if (!$rl['allowed']) {
+        _bail(429, 'rate_limited', 'claim_box');
+    }
+    if ($openingId > 0) {
+        $targets = \App\Database::fetchAll(
+            "SELECT id, classname, item_name, quantity FROM box_openings
+              WHERE id = ? AND steam_id = ? AND status = 'pending' AND delivered_at IS NULL LIMIT 1",
+            [$openingId, $steamId]
+        );
+    } else {
+        $targets = \App\Database::fetchAll(
+            "SELECT id, classname, item_name, quantity FROM box_openings
+              WHERE steam_id = ? AND status = 'pending' AND delivered_at IS NULL
+              ORDER BY id ASC LIMIT 50",
+            [$steamId]
+        );
+    }
+    $results = [];
+    $delivered = 0; $pending = 0;
+    foreach ($targets as $op) {
+        $st = \App\Boxes::deliver((int) $op['id'], $steamId, (string) $op['classname'], (int) $op['quantity']);
+        if ($st === 'delivered') { $delivered++; } else { $pending++; }
+        $results[] = [
+            'id'        => (int) $op['id'],
+            'item_name' => (string) ($op['item_name'] ?? $op['classname']),
+            'quantity'  => (int) $op['quantity'],
+            'status'    => $st,
+        ];
+    }
+    _mark_last_ok();
+    _log_call('claim_box', 200);
+    die(json_encode([
+        'ok'        => true,
+        'delivered' => $delivered,
+        'pending'   => $pending,
+        'results'   => $results,
+    ]));
+
+case 'coin_holders':
+    // Reverso da ponte: lista quem tem saldo no SITE (coins>0), pro bot puxar de volta
+    // pro bot_wallet quando um guild volta pro modo bot-only. So leitura.
+    $rows = \App\Database::fetchAll(
+        "SELECT steam_id, coins FROM players WHERE coins > 0 ORDER BY coins DESC LIMIT 500"
+    );
+    $holders = array_map(static function (array $r): array {
+        return ['steam_id' => (string) $r['steam_id'], 'coins' => (int) $r['coins']];
+    }, $rows);
+    _mark_last_ok();
+    _log_call('coin_holders', 200);
+    die(json_encode(['ok' => true, 'count' => count($holders), 'holders' => $holders]));
+
+case 'export_coins':
+    // Reverso da ponte (site->bot): CLAIM atomico por `ref` do saldo do jogador no site
+    // + subtrai do players.coins. Idempotente: replay devolve o valor gravado no ledger
+    // (coin_exports) sem subtrair de novo. O bot credita esse valor no bot_wallet (tb
+    // idempotente por ref) -> se cair no meio, re-rodar recupera sem perder/duplicar.
+    if ($method !== 'POST') {
+        _bail(405, 'method_not_allowed', 'export_coins');
+    }
+    $raw  = file_get_contents('php://input') ?: '';
+    $body = json_decode($raw, true) ?: [];
+    $steamId = trim((string) ($body['steam_id'] ?? ''));
+    $ref     = substr(trim((string) ($body['ref'] ?? '')), 0, 80);
+    if (!preg_match('/^7656119\d{10}$/', $steamId)) _bail(400, 'invalid_steam_id', 'export_coins');
+    if ($ref === '') _bail(400, 'missing_ref', 'export_coins');
+
+    \App\Database::query(
+        "CREATE TABLE IF NOT EXISTS coin_exports (
+            id BIGINT AUTO_INCREMENT PRIMARY KEY, ref VARCHAR(80) NOT NULL UNIQUE,
+            steam_id VARCHAR(20) NOT NULL, coins BIGINT NOT NULL,
+            source VARCHAR(20) NOT NULL DEFAULT 'to_bot',
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, INDEX idx_steam (steam_id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
+    );
+
+    // captura o saldo atual e faz o claim atomico do ref (so o 1o INSERT vinga)
+    $p   = \App\Database::fetchOne("SELECT id, coins FROM players WHERE steam_id = ? LIMIT 1", [$steamId]);
+    $bal = $p ? (int) $p['coins'] : 0;
+    $applied = (\App\Database::query(
+        "INSERT IGNORE INTO coin_exports (ref, steam_id, coins) VALUES (?, ?, ?)",
+        [$ref, $steamId, $bal]
+    )->rowCount() === 1);
+
+    if ($applied && $p && $bal > 0) {
+        // subtrai EXATAMENTE o valor capturado (nunca negativo; se ganhou mais no meio, mantem o extra)
+        \App\Database::query(
+            "UPDATE players SET coins = GREATEST(0, coins - ?) WHERE id = ?",
+            [$bal, (int) $p['id']]
+        );
+    }
+    // valor a devolver = o gravado no ledger (aplicado agora OU num run anterior)
+    $exp    = \App\Database::fetchOne("SELECT coins FROM coin_exports WHERE ref = ? LIMIT 1", [$ref]);
+    $amount = (int) ($exp['coins'] ?? $bal);
+    _mark_last_ok();
+    _log_call('export_coins', 200);
+    die(json_encode(['ok' => true, 'applied' => $applied, 'coins' => $amount]));
 
 default:
     _bail(400, 'unknown_action', 'unknown');

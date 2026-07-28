@@ -335,6 +335,17 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     );
     $bonusEnabled = \App\Settings::getInt('bonus_enabled');
     $serverStatus = \App\ServerStatus::fetch($config['settings']['battlemetrics_id'] ?? null);
+    // CFTools = fonte de verdade do status (BM agora exige assinatura paga -> 403). Mesmo
+    // fallback do /server-status: CFTools respondeu (mesmo vazio) = servidor ONLINE.
+    if (\App\CFTools::isConfigured()) {
+        $cfSt = \App\CFTools::onlinePlayers();
+        if ($cfSt !== null) {
+            $serverStatus['configured'] = true;
+            $serverStatus['online']     = true;
+            $serverStatus['players']    = count($cfSt);
+            $serverStatus['source']     = 'cftools';
+        }
+    }
 
     // Promo sazonal: idem loja, pra preço riscado bater
     $promoCode = trim($config['settings']['promo_coupon_code'] ?? '');
@@ -567,13 +578,17 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     // Benefícios ATIVOS do player (VIP/Passe/Skin/KillFeed/Loadout) - inclui os
     // concedidos pelo site (applied/pending) E os comprados DIRETO no jogo
     // (status 'external', reportados pelo agent). Publico = qualquer um vê no perfil.
+    // Dedup pelo que o usuário REALMENTE vê no card (ícone+label): 1 por tipo, e por
+    // tier só quando é VIP (VIP 1/VIP 2 são cards distintos; Passe/Skin/etc não variam
+    // por tier no label). NÃO agrupar por status, senão o mesmo Passe aparece 2x quando
+    // vem de duas fontes (site 'applied'/'pending' + agent 'external' do in-game).
     $viewData['entitlements'] = \App\Database::fetchAll(
-        "SELECT type, tier, status, MAX(expiration_date) AS expiration_date
+        "SELECT type, MAX(tier) AS tier, MAX(expiration_date) AS expiration_date
            FROM player_grants
           WHERE server_id = ? AND steam_id = ?
             AND status IN ('applied','external','pending')
             AND (expiration_date IS NULL OR expiration_date >= CURDATE())
-          GROUP BY type, tier, status",
+          GROUP BY type, IF(type = 'vip', tier, '')",
         [\App\Servers::defaultId(), $steamId]
     );
 
@@ -585,11 +600,12 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     $status  = \App\ServerStatus::fetch($bmId);
     $players = \App\ServerStatus::fetchPlayers($bmId, 60);
 
-    // CFTools dá os players online em TEMPO REAL (BattleMetrics atrasa minutos).
-    // Quando configurado E há alguém online, prevalece pra lista e contagem.
+    // CFTools é a FONTE DE VERDADE do status (BattleMetrics passou a exigir assinatura
+    // paga -> responde 403, quebrando o online/off). Se o CFTools responde (mesmo com 0
+    // players online), o servidor está ONLINE. Só cai pro BM se o CFTools nem responder.
     if (\App\CFTools::isConfigured()) {
         $cfOnline = \App\CFTools::onlinePlayers();
-        if (!empty($cfOnline)) {
+        if ($cfOnline !== null) {
             $mapped = [];
             foreach ($cfOnline as $row) {
                 $since = $row['since'] ?? null;
@@ -1352,6 +1368,9 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     $docNumber    = preg_replace('/\D+/', '', (string)($_POST['doc_number'] ?? ''));
     $email        = filter_var(trim((string)($_POST['email'] ?? '')), FILTER_VALIDATE_EMAIL) ?: ($p['steam_id'] . '@pix.tecplay.inf.br');
     if ($token === '' || $pmId === '') { http_response_code(422); echo json_encode(['ok' => false, 'error' => 'Dados do cartão incompletos. Revise e tente de novo.']); return; }
+    // CPF do titular: o MP embute no token do cartão e valida -> CPF ruim = HTTP 400 genérico.
+    // Barra aqui com mensagem clara (autofill do navegador costuma jogar valor truncado/errado).
+    if (!\App\MercadoPago::isValidCpf($docNumber)) { http_response_code(422); echo json_encode(['ok' => false, 'error' => 'CPF do titular inválido. Confira os 11 dígitos e tente de novo.']); return; }
 
     $mp = new \App\MercadoPago($config['mercado_pago']['access_token'] ?? '', $config['mercado_pago']['webhook_secret'] ?? null);
     if (!$mp->isConfigured()) { http_response_code(503); echo json_encode(['ok' => false, 'error' => 'Pagamento indisponível no momento.']); return; }
@@ -1840,6 +1859,18 @@ $collectDashboardData = function() {
     \App\View::display('admin.dashboard', [
         'config' => $config, 'stats' => $data['stats'], 'recent_purchases' => $data['recent_purchases'],
         'pending_migrations' => pending_migrations($ROOT),
+        'insights_on' => [
+            'pay'    => \App\Settings::getBool('dash_ins_pay', true),
+            'pkgs'   => \App\Settings::getBool('dash_ins_pkgs', true),
+            'status' => \App\Settings::getBool('dash_ins_status', true),
+            'grants' => \App\Settings::getBool('dash_ins_grants', true),
+            'coins'  => \App\Settings::getBool('dash_ins_coins', true),
+            'boxes'      => \App\Settings::getBool('dash_ins_boxes', true),
+            'newplayers' => \App\Settings::getBool('dash_ins_newplayers', true),
+            'cupons'     => \App\Settings::getBool('dash_ins_cupons', true),
+            'afiliados'  => \App\Settings::getBool('dash_ins_afiliados', true),
+            'reviews'    => \App\Settings::getBool('dash_ins_reviews', true),
+        ],
     ]);
 });
 
@@ -1891,6 +1922,110 @@ $collectDashboardData = function() {
         };
     }
     die(json_encode($data, JSON_UNESCAPED_UNICODE));
+});
+
+// Widgets extras do dashboard (carregados 1x no load; dados dos ultimos 30 dias).
+\App\Router::get('/admin/insights.json', function() use ($config) {
+    \App\Auth::requireCan('dashboard');
+    header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: no-store');
+    $I30 = "created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)";
+
+    // 1) Forma de pagamento (aprovados, 30d) -> Pix / Cartao / Outros
+    $payRows = \App\Database::fetchAll(
+        "SELECT COALESCE(payment_method,'') pm, COUNT(*) c, COALESCE(SUM(price_brl),0) rev
+           FROM purchases WHERE mp_status='approved' AND $I30 GROUP BY payment_method");
+    $pay = ['Pix' => ['c'=>0,'rev'=>0.0], 'Cartão' => ['c'=>0,'rev'=>0.0], 'Outros' => ['c'=>0,'rev'=>0.0]];
+    foreach ($payRows as $r) {
+        $pm = strtolower((string)$r['pm']);
+        $k = $pm === 'pix' ? 'Pix' : (in_array($pm, ['credit_card','debit_card','card'], true) ? 'Cartão' : 'Outros');
+        $pay[$k]['c']   += (int)$r['c'];
+        $pay[$k]['rev'] += (float)$r['rev'];
+    }
+
+    // 2) Top pacotes (aprovados, 30d)
+    $topPkgs = \App\Database::fetchAll(
+        "SELECT COALESCE(pk.name, p.package_id) name, pk.icon icon, COUNT(*) c, COALESCE(SUM(p.price_brl),0) rev
+           FROM purchases p LEFT JOIN packages pk ON pk.id = p.package_id
+          WHERE p.mp_status='approved' AND p.$I30
+          GROUP BY p.package_id ORDER BY rev DESC LIMIT 6");
+
+    // 3) Status dos pagamentos (30d) -> aprovado / recusado / pendente
+    $stRows = \App\Database::fetchAll("SELECT mp_status st, COUNT(*) c FROM purchases WHERE $I30 GROUP BY mp_status");
+    $status = ['approved'=>0, 'rejected'=>0, 'pending'=>0];
+    foreach ($stRows as $r) {
+        $s = (string)$r['st'];
+        if ($s === 'approved') $status['approved'] += (int)$r['c'];
+        elseif ($s === 'pending' || $s === '') $status['pending'] += (int)$r['c'];
+        else $status['rejected'] += (int)$r['c']; // rejected/cancelled/refunded
+    }
+
+    // 4) VIP/Passe ativos + expirando em 7 dias
+    $grActive = \App\Database::fetchAll(
+        "SELECT type, COUNT(DISTINCT steam_id) c FROM player_grants
+          WHERE type IN ('vip','battlepass') AND status IN ('applied','external','pending')
+            AND (expiration_date IS NULL OR expiration_date >= CURDATE()) GROUP BY type");
+    $vipActive = 0; $passeActive = 0;
+    foreach ($grActive as $r) {
+        if ($r['type'] === 'vip') $vipActive = (int)$r['c'];
+        if ($r['type'] === 'battlepass') $passeActive = (int)$r['c'];
+    }
+    $expiring = \App\Database::fetchAll(
+        "SELECT steam_id, nickname, type, expiration_date FROM player_grants
+          WHERE type IN ('vip','battlepass') AND status IN ('applied','external','pending')
+            AND expiration_date IS NOT NULL AND expiration_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 7 DAY)
+          ORDER BY expiration_date ASC LIMIT 10");
+
+    // 5) Economia de moedas (30d) via balance_log (delta +/-)
+    $faucet = (int)\App\Database::fetchColumn("SELECT COALESCE(SUM(delta),0)  FROM balance_log WHERE delta > 0 AND $I30");
+    $sink   = (int)\App\Database::fetchColumn("SELECT COALESCE(-SUM(delta),0) FROM balance_log WHERE delta < 0 AND $I30");
+
+    // 6) Caixas abertas (30d) + distribuicao de raridade
+    $boxesTotal = (int)\App\Database::fetchColumn("SELECT COUNT(*) FROM box_openings WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)");
+    $boxRarity  = \App\Database::fetchAll("SELECT rarity, COUNT(*) c FROM box_openings WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) GROUP BY rarity ORDER BY c DESC");
+
+    // 7) Novos jogadores - serie diaria (30d)
+    $npRows = \App\Database::fetchAll("SELECT DATE(created_at) d, COUNT(*) c FROM players WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 29 DAY) GROUP BY DATE(created_at)");
+    $npBy = []; foreach ($npRows as $r) $npBy[(string)$r['d']] = (int)$r['c'];
+    $npDays = []; $npData = [];
+    for ($i = 29; $i >= 0; $i--) { $dk = date('Y-m-d', strtotime("-$i days")); $npDays[] = date('d/m', strtotime($dk)); $npData[] = $npBy[$dk] ?? 0; }
+
+    // 8) Cupons (30d): desconto dado + compras com cupom + cupons ativos
+    $cpDiscount = (float)\App\Database::fetchColumn("SELECT COALESCE(SUM(discount_brl),0) FROM purchases WHERE mp_status='approved' AND discount_brl > 0 AND $I30");
+    $cpUses     = (int)\App\Database::fetchColumn("SELECT COUNT(*) FROM purchases WHERE mp_status='approved' AND discount_brl > 0 AND $I30");
+    $cpActive   = (int)\App\Database::fetchColumn("SELECT COUNT(*) FROM coupons WHERE active = 1");
+
+    // 9) Afiliados/streamers (cupons com affiliate_name) - top por usos
+    $aff = \App\Database::fetchAll("SELECT affiliate_name name, used_count FROM coupons WHERE affiliate_name IS NOT NULL AND affiliate_name <> '' ORDER BY used_count DESC LIMIT 8");
+
+    // 10) Avaliacoes aprovadas - nota media + total
+    $rv = \App\Database::fetchOne("SELECT COUNT(*) c, COALESCE(AVG(rating),0) avg FROM reviews WHERE approved = 1") ?: ['c'=>0,'avg'=>0];
+
+    die(json_encode([
+        'pay'        => $pay,
+        'top_pkgs'   => $topPkgs,
+        'status'     => $status,
+        'grants'     => ['vip'=>$vipActive, 'passe'=>$passeActive, 'expiring'=>$expiring],
+        'coins'      => ['faucet'=>$faucet, 'sink'=>$sink],
+        'boxes'      => ['total'=>$boxesTotal, 'rarity'=>$boxRarity],
+        'newplayers' => ['days'=>$npDays, 'data'=>$npData],
+        'cupons'     => ['discount'=>$cpDiscount, 'uses'=>$cpUses, 'active'=>$cpActive],
+        'afiliados'  => $aff,
+        'reviews'    => ['count'=>(int)$rv['c'], 'avg'=>round((float)$rv['avg'], 1)],
+    ], JSON_UNESCAPED_UNICODE));
+});
+
+// Liga/desliga UM card de Insights (escrita de 1 chave só, nao mexe no form de settings).
+\App\Router::post('/admin/insights-toggle', function() {
+    \App\Auth::requireCan('dashboard');
+    header('Content-Type: application/json; charset=utf-8');
+    if (!\App\Csrf::check()) { http_response_code(419); echo json_encode(['ok'=>false, 'error'=>'csrf']); return; }
+    $key = (string)($_POST['key'] ?? '');
+    if (!in_array($key, ['pay','pkgs','status','grants','coins','boxes','newplayers','cupons','afiliados','reviews'], true)) {
+        http_response_code(422); echo json_encode(['ok'=>false, 'error'=>'key']); return;
+    }
+    \App\Settings::set('dash_ins_' . $key, !empty($_POST['on']) ? '1' : '0');
+    echo json_encode(['ok'=>true]);
 });
 
 \App\Router::get('/admin/players', function() use ($config) {
@@ -3951,13 +4086,19 @@ $BRAND_SLOTS = [
     $sid = \App\Servers::defaultId();
     $id  = (int)($_POST['id'] ?? 0);
     $g   = \App\Database::fetchOne("SELECT steam_id, type FROM player_grants WHERE id=? AND server_id=? LIMIT 1", [$id, $sid]);
-    // applied/pending -> revoked (o agent remove do jogo + ack -> removed)
-    \App\Database::query(
-        "UPDATE player_grants SET status = 'revoked' WHERE id = ? AND server_id = ? AND status IN ('applied','pending')",
-        [$id, $sid]
-    );
-    if ($g && ($g['type'] ?? '') === 'vip') {
-        notify_bot_vip($config, (string)$g['steam_id'], 'revoke', ['site_grant_id' => $id]);
+    // Revoga TODAS as fontes ATIVAS desse player+tipo (site 'applied'/'pending' E in-game
+    // 'external'), não só a linha clicada. Motivo: list_active_vips conta 'external' como
+    // ativo -> um grant external (comprado no jogo / import reverse-sync) sombreava o revoke
+    // e o cargo VIP no Discord NUNCA saía. Admin revoke = "tira o VIP desse player, ponto".
+    // (applied/pending: o agent remove do jogo + ack -> removed)
+    if ($g) {
+        \App\Database::query(
+            "UPDATE player_grants SET status = 'revoked' WHERE server_id = ? AND steam_id = ? AND type = ? AND status IN ('applied','pending','external')",
+            [$sid, (string)$g['steam_id'], (string)$g['type']]
+        );
+        if (($g['type'] ?? '') === 'vip') {
+            notify_bot_vip($config, (string)$g['steam_id'], 'revoke', ['site_grant_id' => $id]);
+        }
     }
     header('Location: /admin/entitlements?ok=2');
     exit;

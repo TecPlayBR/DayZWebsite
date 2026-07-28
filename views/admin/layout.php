@@ -430,6 +430,47 @@ document.addEventListener('submit', function (e) {
             })
             .catch(function () { if (msg) msg.textContent = 'Erro no upload.'; });
     });
+    // COLAR imagem (Ctrl+V) direto no editor: pega o blob do clipboard, sobe no
+    // mesmo endpoint (/admin/help/upload, MIME validado) e insere <img> no cursor.
+    // Vale pros editores ricos (Ajuda/Novidades, [data-ed-body]) E pra textarea de
+    // Paginas ([data-paste-img]). Sem imagem no clipboard = paste normal (texto).
+    var pasteSeq = 0;
+    document.addEventListener('paste', function (e) {
+        var ta = e.target;
+        if (!(ta && ta.matches && ta.matches('[data-ed-body],[data-paste-img]'))) return;
+        var cd = e.clipboardData || window.clipboardData;
+        var items = cd ? cd.items : null;
+        if (!items) return;
+        var file = null;
+        for (var i = 0; i < items.length; i++) {
+            if (items[i].kind === 'file' && items[i].type && items[i].type.indexOf('image/') === 0) {
+                file = items[i].getAsFile(); break;
+            }
+        }
+        if (!file) return;                 // texto normal -> deixa o paste padrao
+        e.preventDefault();
+        var ed = edOf(ta), msg = ed ? ed.querySelector('[data-ed-msg]') : null;
+        var mark = '\n<!-- enviando imagem #' + (++pasteSeq) + ' -->\n';
+        insertInto(ta, mark);
+        if (msg) msg.textContent = 'Enviando imagem colada...';
+        var csrfEl = document.querySelector('form [name=_csrf]'), csrf = csrfEl ? csrfEl.value : '';
+        var fd = new FormData();
+        fd.append('file', file, file.name || 'colado.png');
+        fd.append('_csrf', csrf);
+        fetch('/admin/help/upload', { method: 'POST', body: fd, headers: { 'X-CSRF-Token': csrf } })
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                var tag = (d && d.url) ? '<img src="' + d.url + '" alt="">' : '<!-- falha no upload da imagem -->';
+                ta.value = ta.value.replace(mark, '\n' + tag + '\n');
+                render(ta);
+                if (msg) msg.textContent = (d && d.url) ? ('Imagem colada inserida: ' + d.url) : 'Falha no upload da imagem.';
+            })
+            .catch(function () {
+                ta.value = ta.value.replace(mark, '<!-- erro no upload da imagem -->');
+                render(ta);
+                if (msg) msg.textContent = 'Erro no upload.';
+            });
+    });
     // Renderiza cada editor UMA vez. O guard edInit e critico: render() escreve no
     // [data-ed-preview] (innerHTML), o que dispara o MutationObserver abaixo; sem o
     // guard isso vira LOOP INFINITO (render -> mutation -> initAll -> render...) e
