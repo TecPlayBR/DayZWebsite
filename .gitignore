@@ -5,15 +5,15 @@
 # Config real (cliente gera via install.php)
 config/config.php
 
-# Skin customizada do cliente (override CSS) — cada instalação tem o seu
+# Skin customizada do cliente (override CSS) - cada instalação tem o seu
 public/assets/css/theme.override.css
 
 # Marca customizada do cliente (logo/favicon/backgrounds enviados pelo painel)
-# — NÃO é sobrescrita em update; cada instalação tem a sua.
+# - NÃO é sobrescrita em update; cada instalação tem a sua.
 public/assets/img/custom/*
 !public/assets/img/custom/.gitkeep
 
-# Storage runtime — só estrutura vai pro repo via .gitkeep
+# Storage runtime - só estrutura vai pro repo via .gitkeep
 storage/backups/*
 !storage/backups/.gitkeep
 storage/cache/*
@@ -25,7 +25,11 @@ storage/ratelimit/*
 storage/server-status/*
 !storage/server-status/.gitkeep
 
-# Galeria — imagens locais de teste
+# Banners de evento enviados pelo painel. Sao de cada instalacao, nao do template.
+public/assets/img/events/*
+!public/assets/img/events/.gitkeep
+
+# Galeria - imagens locais de teste
 public/assets/img/gallery/seed_*.png
 public/assets/img/gallery/g_*.jpg
 public/assets/img/gallery/g_*.png
@@ -56,5 +60,11 @@ desktop.ini
 vendor/
 composer.lock
 
-# CLAUDE.md = arquivo operacional interno do Claude (caminhos/infra) — repo e PUBLICO, nunca versionar
-CLAUDE.md
+# Screenshots de desenvolvimento/QA. Nao vao pro cliente (o build-release ja
+# exclui a pasta) e nao servem pra nada no repo: sao 29 MB de imagem.
+.preview/
+
+# Notas operacionais internas (caminhos de infra, acessos, anotacoes de manutencao).
+# O repo e PUBLICO: estes arquivos NUNCA podem ser versionados.
+NOTAS-INTERNAS.md
+*.local.md

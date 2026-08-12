@@ -31,7 +31,7 @@
         });
     });
 
-    // ============ Lang selector — animacao curta (drawer mobile) ============
+    // ============ Lang selector - animacao curta (drawer mobile) ============
     document.querySelectorAll('.lang-flag').forEach(btn => {
         btn.addEventListener('click', e => {
             btn.style.transform = 'scale(0.92)';

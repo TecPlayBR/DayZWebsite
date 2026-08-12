@@ -3,18 +3,27 @@
 // cli/migrate.php - aplica as migrations pendentes do banco com SEGURANÇA.
 // ============================================================
 // Roda SÓ as migrations que ainda não foram aplicadas (rastreadas na tabela
-// `schema_migrations`), em ordem. As migrations do template são idempotentes
-// (CREATE TABLE IF NOT EXISTS / ADD COLUMN IF NOT EXISTS / INSERT IGNORE), então
-// rodar de novo é seguro - e este script trata erros de "já existe" como OK.
+// `schema_migrations`), na ordem certa de versão. As migrations do template são
+// idempotentes (CREATE TABLE IF NOT EXISTS / ADD COLUMN IF NOT EXISTS /
+// INSERT IGNORE), então rodar de novo é seguro: erros de "já existe" contam como OK.
 //
-// >> NUNCA apaga nem altera dados existentes. Só adiciona o que falta.
+// >> NUNCA apaga dados do cliente (moedas, jogadores, compras, páginas, pacotes).
+//    Exceção declarada: v2.18.0_remove_points.sql dropa as tabelas do Sistema de
+//    Pontos, que foi aposentado de propósito. É a ÚNICA migration destrutiva do
+//    template e ela não encosta em mais nada.
+//
+// O motor de verdade está em cli/migrate-lib.php, compartilhado com a tela
+// public/update.php (atualização pelo navegador, protegida por login de admin).
 //
 // Uso (SSH / terminal):
 //     php cli/migrate.php
 //
-// Sem SSH (Hostinger/cPanel): Painel -> Cron Jobs -> cron "uma vez" com:
-//     php /home/SEU_USER/public_html/cli/migrate.php
-//     (rode 1x depois de subir os arquivos novos e remova o cron).
+// Sem SSH (Hostinger/cPanel): use a tela /update.php pelo navegador, é mais simples.
+// Se preferir cron, ATENÇÃO ao caminho: o cli/ NÃO fica dentro do public_html, e o
+// layout varia por conta. Confirme no Gerenciador de Arquivos antes de colar:
+//     com domínio próprio:  php /home/SEU_USER/domains/SEUDOMINIO.com/cli/migrate.php
+//     sem domínio próprio:  php /home/SEU_USER/cli/migrate.php
+// (rode 1x depois de subir os arquivos novos e remova o cron.)
 //
 // Só roda por LINHA DE COMANDO (o navegador NÃO executa -> não é backdoor exposta).
 // ============================================================
@@ -46,64 +55,38 @@ try {
     exit(1);
 }
 
-// Tabela de controle: registra cada migration já aplicada.
-$pdo->exec(
-    "CREATE TABLE IF NOT EXISTS schema_migrations (
-        filename   VARCHAR(150) NOT NULL PRIMARY KEY,
-        applied_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
-);
+require_once $ROOT . '/cli/migrate-lib.php';
 
-$applied = $pdo->query("SELECT filename FROM schema_migrations")->fetchAll(\PDO::FETCH_COLUMN) ?: [];
+$dir = $ROOT . '/migrations';
+mig_garante_tabela($pdo);
 
-$files = glob($ROOT . '/migrations/*.sql') ?: [];
-sort($files); // ordem lexical = ordem de versão (v1.1.0 < v1.2.0 < v1.4.0 ...)
+$total     = count(mig_ordenar(glob($dir . '/*.sql') ?: []));
+$pendentes = mig_pendentes($pdo, $dir);
 
-if (!$files) {
+if ($total === 0) {
     echo "Nenhuma migration encontrada em migrations/.\n";
     exit(0);
 }
-
-// Erros que significam "a alteração já existe" - seguro tratar como aplicada.
-$benign = ['already exists', 'duplicate column', 'duplicate key', 'duplicate entry', "doesn't exist for"];
-
-$ran = 0; $skipped = 0;
-foreach ($files as $file) {
-    $name = basename($file);
-    if (in_array($name, $applied, true)) {
-        echo "· ja aplicada:  $name\n";
-        $skipped++;
-        continue;
-    }
-    $sql = file_get_contents($file);
-    try {
-        $pdo->exec($sql);
-        $record = true;
-        echo "OK aplicada:    $name\n";
-        $ran++;
-    } catch (\Throwable $e) {
-        $msg = strtolower($e->getMessage());
-        $isBenign = false;
-        foreach ($benign as $b) { if (strpos($msg, $b) !== false) { $isBenign = true; break; } }
-        if ($isBenign) {
-            // Efeito já presente (instalação que rodou a migration antes do tracking existir).
-            $record = true;
-            echo "~ ja presente:  $name (marcando como aplicada)\n";
-            $skipped++;
-        } else {
-            fwrite(STDERR, "X FALHOU:       $name -> " . $e->getMessage() . "\n");
-            fwrite(STDERR, "  Banco NAO foi alterado por esta migration. Corrija e rode de novo.\n");
-            exit(1);
-        }
-    }
-    if (!empty($record)) {
-        $stmt = $pdo->prepare("INSERT IGNORE INTO schema_migrations (filename) VALUES (?)");
-        $stmt->execute([$name]);
-    }
+if (!$pendentes) {
+    echo "Nada pendente. O banco ja esta atualizado ($total migration(s) registrada(s)).\n";
+    exit(0);
 }
 
-echo "\n";
-echo $ran > 0
-    ? "Concluido: $ran migration(s) nova(s) aplicada(s), $skipped ja estava(m) ok.\n"
-    : "Nada pendente - banco ja esta atualizado ($skipped migration(s) registrada(s)).\n";
+echo "Pendentes: " . count($pendentes) . " de $total\n\n";
+
+$r = mig_aplicar_pendentes($pdo, $dir);
+
+foreach ($r['aplicadas']    as $n) { echo "OK aplicada:    $n\n"; }
+foreach ($r['ja_presentes'] as $n) { echo "~  ja presente: $n (marcada como aplicada)\n"; }
+
+if ($r['falhou']) {
+    fwrite(STDERR, "\nX FALHOU:       " . $r['falhou']['arquivo'] . "\n");
+    fwrite(STDERR, "  motivo: " . $r['falhou']['erro'] . "\n");
+    fwrite(STDERR, "  Esta migration NAO foi registrada. Corrija e rode de novo:\n");
+    fwrite(STDERR, "  as que passaram antes dela ja estao aplicadas e nao repetem.\n");
+    exit(1);
+}
+
+echo "\nConcluido: " . count($r['aplicadas']) . " nova(s), "
+   . count($r['ja_presentes']) . " ja estava(m) ok.\n";
 exit(0);

@@ -126,7 +126,7 @@ $activeTab = ((($active_tab ?? 'pix') === 'card') && $cardAvailable) ? 'card' : 
                         <!-- Campo que o MP realmente lê (só dígitos). display:none (não type=hidden)
                              pra casar com o padrão já comprovado do #cf-issuer mapeado neste form. -->
                         <input type="text" id="cf-docnumber-mp" inputmode="numeric" style="display:none;" tabindex="-1" aria-hidden="true">
-                        <small id="cf-cpf-err" style="display:none;color:var(--rust-2);font-size:0.72rem;margin-top:0.25rem;">CPF inválido — confira os 11 dígitos.</small>
+                        <small id="cf-cpf-err" style="display:none;color:var(--rust-2);font-size:0.72rem;margin-top:0.25rem;">CPF inválido: confira os 11 dígitos.</small>
                     </div>
                 </div>
                 <!-- Tipo de documento fixo em CPF (pessoa física) - não mapeado no cardForm pra o MP não trocar -->

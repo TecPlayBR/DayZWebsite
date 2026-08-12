@@ -46,6 +46,17 @@ if (PHP_SAPI === 'cli-server') {
 // ============ BOOTSTRAP ============
 
 $ROOT = dirname(__DIR__);
+
+// PUBLIC_DIR = a pasta publica de VERDADE, que e onde este arquivo mora.
+// NAO da pra assumir que ela se chama "public": em conta com dominio proprio
+// (Hostinger/cPanel) o docroot e "public_html" e o conteudo de public/ vai
+// direto pra dentro dele. Assumir "public" fazia TODO upload do painel (logo,
+// cores, pacote, caixa, cla, galeria, VIP) ser gravado em <raiz>/public/...,
+// uma pasta fora do docroot: o arquivo salvava, o painel dizia "atualizado" e
+// a imagem aparecia quebrada porque a URL /assets/... nao chegava nela.
+// Bug real de cliente em 2026-08-12.
+define('PUBLIC_DIR', __DIR__);
+
 require $ROOT . '/src/Router.php';
 require $ROOT . '/src/View.php';
 require $ROOT . '/src/Lang.php';
@@ -788,7 +799,7 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     $steamId = \App\SteamAuth::steamId();
     $rl = \App\RateLimit::check('clan-create:' . $steamId, 5, 3600);
     if (empty($rl['allowed'])) { header('Location: /clans/new?err=rate'); exit; }
-    $logo = upload_image($_FILES['logo_file'] ?? [], $ROOT . '/public/assets/img/clans', 'clan', '/assets/img/clans');
+    $logo = upload_image($_FILES['logo_file'] ?? [], public_dir() . '/assets/img/clans', 'clan', '/assets/img/clans');
     [$id, $err] = \App\Clan::create($steamId, $_POST['name'] ?? '', $_POST['tag'] ?? '', $_POST['description'] ?? null, $_POST['discord_url'] ?? null, $logo);
     if ($err) { header('Location: /clans/new?err=' . urlencode($err)); exit; }
     header('Location: /clan/' . $id); exit;
@@ -881,7 +892,7 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
     if (!\App\SteamAuth::check()) { header('Location: /auth/steam'); exit; }
     if (!\App\Csrf::check()) { header('Location: /clan/' . $id); exit; }
     if (\App\Clan::isOwner((int)$id, \App\SteamAuth::steamId())) {
-        $logo = upload_image($_FILES['logo_file'] ?? [], $ROOT . '/public/assets/img/clans', 'clan', '/assets/img/clans');
+        $logo = upload_image($_FILES['logo_file'] ?? [], public_dir() . '/assets/img/clans', 'clan', '/assets/img/clans');
         \App\Clan::updateInfo((int)$id, $_POST['description'] ?? null, $_POST['discord_url'] ?? null, $logo);
     }
     header('Location: /clan/' . $id . '?ok=saved'); exit;
@@ -2179,7 +2190,7 @@ $collectDashboardData = function() {
 
     // Imagem (capa): upload opcional pra assets/img/packages/. Mantém a atual se não subir nova.
     $image = $existing['image'] ?? null;
-    $pkgDir = $ROOT . '/public/assets/img/packages';
+    $pkgDir = public_dir() . '/assets/img/packages';
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
         $f = $_FILES['image'];
         $allowed = ['image/png' => 'png', 'image/webp' => 'webp', 'image/jpeg' => 'jpg'];
@@ -2250,7 +2261,7 @@ $collectDashboardData = function() {
     }
     // Imagem (capa) opcional - mesmo guard do save (MIME real + nome aleatório).
     $image = null;
-    $pkgDir = $ROOT . '/public/assets/img/packages';
+    $pkgDir = public_dir() . '/assets/img/packages';
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
         $f = $_FILES['image'];
         $allowed = ['image/png' => 'png', 'image/webp' => 'webp', 'image/jpeg' => 'jpg'];
@@ -2549,7 +2560,7 @@ $collectDashboardData = function() {
     // Capa: upload novo vence; senão usa o campo URL (que vem pré-preenchido com a atual,
     // então salvar sem mexer mantém; limpar o campo remove). Vazio + sem upload = sem capa.
     $image = trim((string)($_POST['image'] ?? '')) ?: null;
-    $up = upload_image($_FILES['image_file'] ?? [], $ROOT . '/public/assets/img/caixas', 'cx', '/assets/img/caixas');
+    $up = upload_image($_FILES['image_file'] ?? [], public_dir() . '/assets/img/caixas', 'cx', '/assets/img/caixas');
     if ($up) $image = $up;
     // Ordem: na edição usa o campo; caixa NOVA sem ordem vai pro fim (max+1).
     if (isset($_POST['sort_order']) && $_POST['sort_order'] !== '') {
@@ -2626,7 +2637,7 @@ $collectDashboardData = function() {
     if ($itemId > 0 && $image === null) {
         $image = \App\Database::fetchColumn("SELECT image FROM box_items WHERE id = ? AND box_id = ?", [$itemId, $boxId]) ?: null;
     }
-    $up = upload_image($_FILES['image_file'] ?? [], $ROOT . '/public/assets/img/caixas', 'ci', '/assets/img/caixas');
+    $up = upload_image($_FILES['image_file'] ?? [], public_dir() . '/assets/img/caixas', 'ci', '/assets/img/caixas');
     if ($up) $image = $up;
     $rarity = in_array($_POST['rarity'] ?? 'common', ['common','uncommon','rare','epic','legendary'], true) ? $_POST['rarity'] : 'common';
     $f = [
@@ -3011,7 +3022,7 @@ $REWARD_CATEGORIES = [
     $video     = trim($_POST['video_url'] ?? '') ?: null;
     $published = isset($_POST['published']) ? 1 : 0;
     $sort      = (int)($_POST['sort_order'] ?? 0);
-    $img       = upload_image($_FILES['image_file'] ?? [], $ROOT . '/public/assets/img/help', 'help', '/assets/img/help');
+    $img       = upload_image($_FILES['image_file'] ?? [], public_dir() . '/assets/img/help', 'help', '/assets/img/help');
     if ($id > 0) {
         $slug = \App\Help::makeSlug($title, $id);
         if ($img !== null) {
@@ -3034,7 +3045,7 @@ $REWARD_CATEGORIES = [
     \App\Auth::requireCan('pages');
     header('Content-Type: application/json');
     if (!\App\Csrf::check()) { echo json_encode(['error' => 'csrf']); exit; }
-    $url = upload_image($_FILES['file'] ?? [], $ROOT . '/public/assets/img/help', 'help', '/assets/img/help');
+    $url = upload_image($_FILES['file'] ?? [], public_dir() . '/assets/img/help', 'help', '/assets/img/help');
     echo json_encode($url ? ['url' => $url] : ['error' => 'upload']);
     exit;
 });
@@ -3293,7 +3304,7 @@ $REWARD_CATEGORIES = [
     }
     $ext = $allowed[$mime];
     $fname = 'g_' . bin2hex(random_bytes(8)) . '.' . $ext;
-    $galleryDir = $ROOT . '/public/assets/img/gallery';
+    $galleryDir = public_dir() . '/assets/img/gallery';
     ensure_writable_dir($galleryDir);
     $dest = $galleryDir . '/' . $fname;
     if (!move_uploaded_file($file['tmp_name'], $dest)) {
@@ -3333,7 +3344,7 @@ $REWARD_CATEGORIES = [
     if ($id < 1) { header('Location: /admin/gallery'); exit; }
     $row = \App\Database::fetchOne("SELECT filename FROM gallery WHERE id = ?", [$id]);
     if ($row) {
-        $path = $ROOT . '/public/assets/img/gallery/' . $row['filename'];
+        $path = public_dir() . '/assets/img/gallery/' . $row['filename'];
         if (is_file($path)) @unlink($path);
         \App\Database::execute("DELETE FROM gallery WHERE id = ?", [$id]);
         \App\AuditLog::record('gallery.delete', 'gallery', $id, ['filename' => $row['filename']]);
@@ -3373,7 +3384,7 @@ $REWARD_CATEGORIES = [
     \App\Auth::requireCan('customize');
     // Detecta quais imagens de marca já têm versão custom ativa (pra UI mostrar
     // status + botão de reset). Casa por nome-base sem extensão, como o asset().
-    $customDir = $ROOT . '/public/assets/img/custom';
+    $customDir = public_dir() . '/assets/img/custom';
     $isCustom = function(string $slot) use ($customDir): bool {
         $stem = pathinfo($slot, PATHINFO_FILENAME);
         foreach (['png', 'jpg', 'jpeg', 'webp', 'gif'] as $e) {
@@ -3390,7 +3401,7 @@ $REWARD_CATEGORIES = [
         '--moss' => '#16a34a', '--hazard' => '#facc15', '--dim' => '#a1a1aa',
     ];
     $themeColors  = $themeDefaults;
-    $overrideFile = $ROOT . '/public/assets/css/theme.override.css';
+    $overrideFile = public_dir() . '/assets/css/theme.override.css';
     $themeActive  = is_file($overrideFile);
     if ($themeActive) {
         $css = (string)file_get_contents($overrideFile);
@@ -3411,7 +3422,7 @@ $REWARD_CATEGORIES = [
     \App\Auth::requireCan('customize');
     if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
 
-    $overrideFile = $ROOT . '/public/assets/css/theme.override.css';
+    $overrideFile = public_dir() . '/assets/css/theme.override.css';
     $vars  = ['--bg-0','--bg-1','--bg-2','--bg-3','--rust','--rust-2','--bone','--moss','--hazard','--dim'];
 
     // Lê as cores ATUAIS do override (pra registrar o "antes" no audit - recuperável).
@@ -3438,11 +3449,26 @@ $REWARD_CATEGORIES = [
         header('Location: /admin/customize?ok=theme_reset'); exit;
     }
 
+    // Normaliza o que veio do campo HEX antes de validar. O cliente digita/cola a cor
+    // da marca em formatos variados ("e01b1b", "#E01B1B", "#e11", com espaço) e antes
+    // qualquer um deles era descartado em silêncio: parecia que "salvar não funciona".
+    $normalizaHex = function (string $v): string {
+        $v = strtolower(ltrim(trim($v), '#'));
+        if (preg_match('/^[0-9a-f]{3}$/', $v)) {
+            $v = $v[0] . $v[0] . $v[1] . $v[1] . $v[2] . $v[2];
+        }
+        return '#' . $v;
+    };
+
     $lines = [];
     $after = [];
+    $recusadas = [];
     foreach ($vars as $v) {
-        $val = $_POST['c_' . ltrim($v, '-')] ?? '';
-        if (!preg_match('/^#[0-9a-fA-F]{6}$/', $val)) continue; // ignora inválido (defesa)
+        $val = $normalizaHex((string)($_POST['c_' . ltrim($v, '-')] ?? ''));
+        if (!preg_match('/^#[0-9a-fA-F]{6}$/', $val)) {
+            if ($val !== '#') $recusadas[] = ltrim($v, '-');
+            continue; // ignora inválido (defesa)
+        }
         $val = strtolower($val);
         $lines[] = '    ' . $v . ': ' . $val . ';';
         $after[$v] = $val;
@@ -3471,6 +3497,11 @@ $REWARD_CATEGORIES = [
         'depois' => $after,
         'mudou'  => $diff ?: '(sem mudança de valor)',
     ]);
+    // Se alguma cor veio num formato que nao da pra entender, avisa QUAIS em vez de
+    // salvar o resto calado e deixar o cliente achando que o painel esta com defeito.
+    if ($recusadas) {
+        header('Location: /admin/customize?ok=theme&hexruim=' . urlencode(implode(',', $recusadas))); exit;
+    }
     header('Location: /admin/customize?ok=theme'); exit;
 });
 
@@ -3508,7 +3539,7 @@ $BRAND_SLOTS = [
     if (!isset($allowed[$mime])) { header('Location: /admin/customize?err=type'); exit; }
     $ext = $allowed[$mime];
 
-    $customDir = $ROOT . '/public/assets/img/custom';
+    $customDir = public_dir() . '/assets/img/custom';
     ensure_writable_dir($customDir);
 
     $stem = pathinfo($slot, PATHINFO_FILENAME);
@@ -3535,7 +3566,7 @@ $BRAND_SLOTS = [
     $slot = $_POST['slot'] ?? '';
     if (!isset($BRAND_SLOTS[$slot])) { header('Location: /admin/customize?err=slot'); exit; }
 
-    $customDir = $ROOT . '/public/assets/img/custom';
+    $customDir = public_dir() . '/assets/img/custom';
     $stem = pathinfo($slot, PATHINFO_FILENAME);
     foreach (['png', 'jpg', 'jpeg', 'webp', 'gif'] as $e) {
         $old = $customDir . '/' . $stem . '.' . $e;
@@ -3953,7 +3984,7 @@ $BRAND_SLOTS = [
     // Resolve a imagem de um plano: upload > URL informada > imagem atual.
     $resolveImg = function(string $field, string $prevImg) use ($ROOT) {
         if (!empty($_FILES[$field . '_file']['name'])) {
-            $up = upload_image($_FILES[$field . '_file'], $ROOT . '/public/assets/img/vip', 'vip', '/assets/img/vip');
+            $up = upload_image($_FILES[$field . '_file'], public_dir() . '/assets/img/vip', 'vip', '/assets/img/vip');
             if ($up) return $up;
         }
         $url = trim($_POST[$field] ?? '');

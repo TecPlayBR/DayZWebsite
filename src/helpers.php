@@ -213,10 +213,37 @@ if (!function_exists('ensure_writable_dir')) {
     }
 }
 
+if (!function_exists('public_dir')) {
+    /**
+     * Caminho absoluto da pasta PUBLICA (docroot) desta instalacao.
+     *
+     * Por que existe: o template era escrito assumindo que a pasta publica se
+     * chama "public". Isso e verdade em parte das hospedagens, mas em conta com
+     * dominio proprio (o caso mais comum em cliente) o docroot e "public_html" e
+     * o conteudo de public/ mora direto dentro dele. Com o nome hardcoded, todo
+     * upload do painel era gravado em <raiz>/public/..., fora do docroot: salvava
+     * de verdade, o painel dizia "atualizado", e a imagem vinha quebrada porque a
+     * URL /assets/... apontava pro docroot certo, onde o arquivo nao estava.
+     *
+     * Ordem de resolucao:
+     *   1. PUBLIC_DIR, definida pelo front controller (ele sabe onde mora).
+     *   2. procura, ao lado da raiz, a pasta que REALMENTE tem assets/ dentro.
+     *   3. ultimo recurso: <raiz>/public.
+     */
+    function public_dir(): string {
+        if (defined('PUBLIC_DIR') && is_dir(PUBLIC_DIR)) return PUBLIC_DIR;
+        $root = dirname(__DIR__);
+        foreach (['public', 'public_html', 'htdocs', 'www'] as $nome) {
+            if (is_dir($root . '/' . $nome . '/assets')) return $root . '/' . $nome;
+        }
+        return $root . '/public';
+    }
+}
+
 if (!function_exists('asset')) {
     function asset(string $path): string {
         $rel = ltrim($path, '/');
-        $publicAssets = dirname(__DIR__) . '/public/assets/';
+        $publicAssets = public_dir() . '/assets/';
 
         // Override de marca: se o cliente subiu pelo painel uma versão custom de
         // uma imagem (logo/favicon/background), ela fica em assets/img/custom/ -
@@ -257,7 +284,7 @@ if (!function_exists('theme_override_tag')) {
      * theme.override.css fica gitignored - cada instalação tem o seu.
      */
     function theme_override_tag(): string {
-        $abs = dirname(__DIR__) . '/public/assets/css/theme.override.css';
+        $abs = public_dir() . '/assets/css/theme.override.css';
         if (!is_file($abs)) {
             return '';
         }

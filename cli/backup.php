@@ -1,16 +1,16 @@
 <?php
 // ============================================================
 // Tecplay - DayZ Website Template
-// cli/backup.php — Backup do banco em SQL puro
+// cli/backup.php - Backup do banco em SQL puro
 // ============================================================
 // USO:
 //   php cli/backup.php          → cria backup novo em /storage/backups/
 //   php cli/backup.php --prune  → também apaga backups > 30d
 //
-// CRON (hospedagem cPanel/Hostinger — uma vez ao dia 4h da manhã):
+// CRON (hospedagem cPanel/Hostinger - uma vez ao dia 4h da manhã):
 //   0 4 * * * /usr/bin/php /home/seu_usuario/dayzsite/cli/backup.php --prune
 //
-// SEM dependencia de mysqldump binary — usa PDO + SHOW CREATE TABLE.
+// SEM dependencia de mysqldump binary - usa PDO + SHOW CREATE TABLE.
 // Funciona em qualquer hospedagem PHP/MySQL.
 // ============================================================
 

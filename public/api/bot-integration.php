@@ -251,17 +251,39 @@ case 'grants':
           GROUP BY type",
         [$steamId]
     );
+    // `grants` = TODOS os tipos que o jogador tem (vip, battlepass, skin, killfeed e
+    // qualquer novo que o mod passe a expor). A query acima ja agrupa por tipo; antes
+    // o PHP olhava so vip/battlepass e DESCARTAVA o resto, por isso skin e killfeed
+    // apareciam como "Pendente" no painel mesmo estando no JSON do mod.
+    // `vip` e `battlepass` ficam no payload por COMPATIBILIDADE: bots/versoes antigas
+    // leem esses campos. Cliente novo deve preferir `grants`.
+    $grants = [];
     $vip = null; $battlepass = null;
     foreach ($rows as $r) {
-        if ($r['type'] === 'vip') {
+        $tipo = (string) $r['type'];
+        if ($tipo === '') {
+            continue;
+        }
+        $grants[$tipo] = [
+            'active'          => true,
+            'tier'            => $r['tier'],
+            'expiration_date' => $r['expiration_date'],
+        ];
+        if ($tipo === 'vip') {
             $vip = ['active' => true, 'tier' => $r['tier'], 'expiration_date' => $r['expiration_date']];
-        } elseif ($r['type'] === 'battlepass') {
+        } elseif ($tipo === 'battlepass') {
             $battlepass = ['active' => true, 'expiration_date' => $r['expiration_date']];
         }
     }
     _mark_last_ok();
     _log_call('grants', 200);
-    die(json_encode(['ok' => true, 'steam_id' => $steamId, 'vip' => $vip, 'battlepass' => $battlepass]));
+    die(json_encode([
+        'ok'          => true,
+        'steam_id'    => $steamId,
+        'vip'         => $vip,
+        'battlepass'  => $battlepass,
+        'grants'      => $grants,
+    ]));
 
 case 'player':
     $steamId = trim((string) ($_GET['steam_id'] ?? ''));

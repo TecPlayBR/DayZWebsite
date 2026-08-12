@@ -24,15 +24,27 @@ $czErrMsg = [
     'upload'      => 'Falha no envio do arquivo. Tente de novo.',
     'size'        => 'Arquivo grande demais pro limite desse item.',
     'type'        => 'Formato não suportado. Use PNG, JPG, WEBP ou GIF.',
-    'move'        => 'Não consegui salvar - dê permissão de escrita à pasta public/assets/img/custom/ (chmod 755; se o seu host roda o PHP em usuário separado, use 775).',
+    'move'        => 'Não consegui salvar - dê permissão de escrita à pasta assets/img/custom/ dentro da sua pasta pública (chmod 755; se o seu host roda o PHP em usuário separado, use 775).',
     'theme'       => 'Nenhuma cor válida pra salvar.',
-    'theme_write' => 'Não consegui gravar o tema - dê permissão de escrita à pasta public/assets/css/ (chmod 755; se não resolver, 775).',
+    'theme_write' => 'Não consegui gravar o tema - dê permissão de escrita à pasta assets/css/ dentro da sua pasta pública (chmod 755; se não resolver, 775).',
 ];
 ?>
 <?php if (isset($czOkMsg[$czOk])): ?>
     <div class="cz-banner cz-ok"><?= e($czOkMsg[$czOk]) ?></div>
 <?php elseif ($czErr): ?>
     <div class="cz-banner cz-err">✕ <?= e($czErrMsg[$czErr] ?? 'Erro ao processar.') ?></div>
+<?php endif; ?>
+<?php
+// Cores que vieram num formato ilegivel: o resto foi salvo, mas o cliente precisa
+// saber QUAIS ficaram de fora (antes eram descartadas em silencio).
+$czHexRuim = array_filter(array_map('trim', explode(',', (string)($_GET['hexruim'] ?? ''))));
+?>
+<?php if ($czHexRuim): ?>
+    <div class="cz-banner cz-err">
+        ✕ Estas cores não foram salvas porque o código HEX está incompleto:
+        <strong><?= e(implode(', ', array_map(fn($v) => '--' . $v, $czHexRuim))) ?></strong>.
+        Use 6 dígitos, no formato <code>#e01b1b</code>.
+    </div>
 <?php endif; ?>
 
 <?php
@@ -120,6 +132,8 @@ $brandCard = function(string $slot, string $label, string $help, string $type = 
     <p style="color: var(--dim); font-size: 0.9rem; margin-bottom: 1rem;">
         Escolha as cores e clique em <strong>Salvar cores</strong>. Aplica na hora, no site inteiro e no painel.
         Fica guardado isolado (<code>theme.override.css</code>) e <strong>não é perdido em update</strong>.
+        <br>Pode clicar no quadradinho pra escolher visualmente <strong>ou digitar o código HEX</strong>
+        (ex: <code>#e01b1b</code>) se você já tem a cor da sua marca.
     </p>
     <?php
     /** @var array $themeColors */
@@ -139,14 +153,25 @@ $brandCard = function(string $slot, string $label, string $help, string $type = 
     <form method="POST" action="/admin/customize/theme" id="theme-form">
         <?= \App\Csrf::field() ?>
         <div class="palette-grid">
-            <?php foreach ($palette as [$var, $label]): $val = $themeColors[$var] ?? '#000000'; ?>
-                <label class="palette-chip">
-                    <input type="color" class="palette-input" name="c_<?= e(ltrim($var, '-')) ?>" value="<?= e($val) ?>">
+            <?php foreach ($palette as [$var, $label]): $val = $themeColors[$var] ?? '#000000';
+                  $slug = e(ltrim($var, '-')); ?>
+                <?php /* div, nao label: com <label> em volta, clicar no campo HEX abria
+                         o seletor de cor em vez de deixar digitar. O name fica no campo
+                         HEX (funciona sem JS); o quadradinho espelha ele. */ ?>
+                <div class="palette-chip">
+                    <input type="color" class="palette-input" id="sw_<?= $slug ?>"
+                           data-alvo="hx_<?= $slug ?>" value="<?= e($val) ?>"
+                           aria-label="Escolher <?= e($label) ?> visualmente">
                     <div class="palette-meta">
                         <span class="palette-label"><?= e($label) ?></span>
+                        <input type="text" class="palette-hex" id="hx_<?= $slug ?>"
+                               name="c_<?= $slug ?>" value="<?= e($val) ?>"
+                               data-alvo="sw_<?= $slug ?>" maxlength="7" spellcheck="false"
+                               autocomplete="off" placeholder="#000000"
+                               aria-label="<?= e($label) ?> em codigo HEX">
                         <code class="palette-var"><?= e($var) ?></code>
                     </div>
-                </label>
+                </div>
             <?php endforeach; ?>
         </div>
         <div class="cz-theme-actions">
@@ -285,9 +310,22 @@ $brandCard = function(string $slot, string $label, string $help, string $type = 
     background: var(--bg-1);
     border: 1px solid var(--border);
     padding: 0.6rem 0.8rem;
-    cursor: pointer;
 }
 .palette-chip:hover { border-color: var(--rust); }
+.palette-meta { min-width: 0; flex: 1; }
+.palette-hex {
+    width: 100%; max-width: 110px;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    text-transform: lowercase;
+    padding: 0.28rem 0.45rem;
+    background: var(--bg-2);
+    color: var(--bone);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+}
+.palette-hex:focus { outline: none; border-color: var(--rust); }
+.palette-hex.hex-ruim { border-color: var(--rust-2); color: var(--text-danger); }
 .palette-input {
     width: 42px; height: 42px;
     padding: 0; border: 1px solid var(--border); border-radius: 3px;
@@ -310,5 +348,63 @@ $brandCard = function(string $slot, string $label, string $help, string $type = 
     display: flex; gap: 0.6rem; margin-top: 1.2rem;
 }
 </style>
+
+<script>
+// Espelha o quadradinho de cor <-> o campo HEX, nos dois sentidos.
+// O painel navega por PJAX e o layout RE-EXECUTA os <script> do conteudo trocado,
+// entao o listener e delegado no document e guardado por flag: sem duplicar handler.
+(function () {
+    if (window.__paletaHexPronta) return;
+    window.__paletaHexPronta = true;
+
+    var RE_HEX = /^#[0-9a-fA-F]{6}$/;
+
+    // Aceita o que o cliente costuma colar da identidade da marca:
+    // "e01b1b", "#E01B1B", "#e11" (atalho de 3) e espaco sobrando.
+    function normaliza(v) {
+        v = String(v || '').trim().replace(/^#+/, '');
+        if (/^[0-9a-fA-F]{3}$/.test(v)) {
+            v = v[0] + v[0] + v[1] + v[1] + v[2] + v[2];
+        }
+        return '#' + v.toLowerCase();
+    }
+
+    document.addEventListener('input', function (ev) {
+        var el = ev.target;
+        if (!el || !el.classList) return;
+
+        if (el.classList.contains('palette-input')) {
+            var hex = document.getElementById(el.getAttribute('data-alvo'));
+            if (hex) { hex.value = el.value.toLowerCase(); hex.classList.remove('hex-ruim'); }
+            return;
+        }
+
+        if (el.classList.contains('palette-hex')) {
+            var cand = normaliza(el.value);
+            var sw = document.getElementById(el.getAttribute('data-alvo'));
+            if (RE_HEX.test(cand)) {
+                if (sw) sw.value = cand;
+                el.classList.remove('hex-ruim');
+            } else {
+                el.classList.add('hex-ruim');
+            }
+        }
+    });
+
+    // Ao sair do campo, arruma a forma final (o servidor tambem normaliza, mas
+    // o cliente ve na hora que o valor foi aceito).
+    document.addEventListener('blur', function (ev) {
+        var el = ev.target;
+        if (!el || !el.classList || !el.classList.contains('palette-hex')) return;
+        var cand = normaliza(el.value);
+        if (RE_HEX.test(cand)) {
+            el.value = cand;
+            el.classList.remove('hex-ruim');
+            var sw = document.getElementById(el.getAttribute('data-alvo'));
+            if (sw) sw.value = cand;
+        }
+    }, true);
+})();
+</script>
 
 <?php \App\View::endSection(); ?>

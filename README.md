@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🏴 Tecplay — DayZ Website Template
+# 🏴 Tecplay - DayZ Website Template
 
 **Site completo, gratuito e profissional para servidores DayZ brasileiros.**
 Tema apocalipse · Painel admin completo · Mercado Pago · Login Steam · Multi-idioma · Multi-server.
@@ -19,7 +19,7 @@ Tema apocalipse · Painel admin completo · Mercado Pago · Login Steam · Multi
 
 ---
 
-## ⚠️ LICENÇA — GRATUITO MAS NÃO COMERCIAL
+## ⚠️ LICENÇA - GRATUITO MAS NÃO COMERCIAL
 
 Este template é **GRATUITO** para qualquer dono de servidor DayZ instalar e usar.
 
@@ -28,18 +28,18 @@ A venda não autorizada é **crime** previsto no **Art. 184 §2º do Código Pen
 
 🛠️ **Modificações:** permitidas para uso próprio, mas perdem o direito a suporte oficial.
 
-📜 Leia o **[LICENSE.txt](LICENSE.txt)** completo antes de instalar — você concorda com ele ao instalar.
+📜 Leia o **[LICENSE.txt](LICENSE.txt)** completo antes de instalar - você concorda com ele ao instalar.
 
 ---
 
-## 🧩 IMPORTANTE — o que é grátis × o que entrega no jogo
+## 🧩 IMPORTANTE - o que é grátis × o que entrega no jogo
 
-O **site é grátis** e faz a loja, o painel, a carteira de moedas e o leaderboard. Mas **o site sozinho NÃO entrega as moedas/itens dentro do jogo** — ele registra a compra e credita o saldo. Quem **entrega no DayZ automaticamente** é uma destas peças (separadas do site):
+O **site é grátis** e faz a loja, o painel, a carteira de moedas e o leaderboard. Mas **o site sozinho NÃO entrega as moedas/itens dentro do jogo**: ele registra a compra e credita o saldo. Quem **entrega no DayZ automaticamente** é uma destas peças (separadas do site):
 
 | Peça | O que faz | Custo |
 |---|---|---|
 | **Site (este template)** | Loja, checkout, painel admin, carteira de moedas, leaderboard, perfis | **Grátis** |
-| **Tecplay Agent** (`.exe`) | Lê as compras do site e **entrega as moedas/itens no servidor** (roda na máquina do servidor de jogo) | **Pago** — R$49,90/mês ou R$700 vitalício |
+| **Tecplay Agent** (`.exe`) | Lê as compras do site e **entrega as moedas/itens no servidor** (roda na máquina do servidor de jogo) | **Pago**: R$49,90/mês ou R$700 vitalício |
 | **Bot Discord Tecplay** | Integra o site + entrega in-game (alternativa pra quem **não tem servidor dedicado**) | Pago (planos) |
 
 > 👉 **Sem o Agent ou o Bot, o jogador paga e a moeda NÃO chega no jogo sozinha** (a liberação seria manual). Por isso o site **não promete "liberação automática"** enquanto não detecta um entregador, e o **painel admin avisa** quando a entrega in-game não está ativa.
@@ -53,9 +53,9 @@ O **site é grátis** e faz a loja, o painel, a carteira de moedas e o leaderboa
 
 - **Landing page apocalipse** com hero animado, contador de wipe e status do servidor ao vivo (BattleMetrics)
 - **Loja** com 6 pacotes seedados (R$ 9,99 a R$ 149,90), bônus, combos e cupons
-- **Checkout transparente — PIX + Cartão** (QR/copia-e-cola **e** cartão de crédito **dentro do site**, sem sair pro Mercado Pago; o cartão é tokenizado no navegador, o número **não toca o servidor** — PCI SAQ-A). Cupom compartilhado, parcelamento com mínimo configurável. **Webhook auto-credit** de moedas
+- **Checkout transparente - PIX + Cartão** (QR/copia-e-cola **e** cartão de crédito **dentro do site**, sem sair pro Mercado Pago; o cartão é tokenizado no navegador, o número **não toca o servidor** - PCI SAQ-A). Cupom compartilhado, parcelamento com mínimo configurável. **Webhook auto-credit** de moedas
 - **🎁 Caixas / Lootboxes** (`/caixas`): abre com moedas ou diária grátis, **carrossel "sorteando prêmio"**, **raridade que define a chance**, **countdown ao vivo** da diária, e o item **cai no jogo via CFTools** (fila pendente + blindagem de restart)
-- **📦 Histórico de Caixas** no perfil do jogador (recebidas + pendentes, com horário) — transparência do que caiu
+- **📦 Histórico de Caixas** no perfil do jogador (recebidas + pendentes, com horário) - transparência do que caiu
 - **🗓 Eventos & Sorteios** (`/eventos`): ativos / em breve / encerrados + teaser na home
 - **Login Steam OpenID 2.0** com pré-fill automático no checkout
 - **Multi-idioma** PT-BR + EN-US (dropdown elegante no header)
@@ -64,14 +64,14 @@ O **site é grátis** e faz a loja, o painel, a carteira de moedas e o leaderboa
 - **Galeria** de screenshots com lightbox e setas
 - **Hall da Fama** dos jogadores (top coins + top apoiadores)
 - **Sistema de avaliações** dos jogadores
-- **15 conquistas automáticas** — 12 de loja/atividade (Primeiro Sangue, Veterano, Padroeiro, Lendário, Tubarão, Madrugador, Insone, Colecionador, Persistência, Generoso, Tiro Rápido, Veterano de Guerra) + **3 de gameplay** via CFTools (🎯 Franco-Atirador, ☣ Exterminador, ⏳ Veterano de Chernarus) — totalmente i18n, com **recompensa configurável em moedas** (admin define +X por conquista, liga/desliga; pago 1x por jogador "por conta da casa")
-- **🪙 Aba VIP** (`/vip`) — venda de **VIP/BattlePass por moedas** (30/60/90 dias, renovação soma dias); o jogador paga com a moeda que tem e o agent aplica no jogo
-- **🛡 Clãs** (`/clans`) — jogadores registram clã (nome, TAG, logo, Discord), entram por **pedido ou convite com aceite** (consentimento/LGPD), 1 clã por jogador, dono gerencia membros; aparece no perfil; admin modera
-- **⚔️ Eventos de Clã** (aba **Clãs** do `/ranking`, só pra quem tem clã) — competições entre clãs por período (ex: "Mate o máximo de zumbis") com **placar por delta** (conta só o que rolar dentro do evento), inscrição pelo líder, congela no fim e **botão Premiar** credita moedas a cada membro do clã vencedor
-- **📚 Central de Ajuda** (`/ajuda`) — guia/tutoriais por categoria, com **vídeo do YouTube embutido** + imagem por artigo; editável no painel (SEO + onboarding)
+- **15 conquistas automáticas** - 12 de loja/atividade (Primeiro Sangue, Veterano, Padroeiro, Lendário, Tubarão, Madrugador, Insone, Colecionador, Persistência, Generoso, Tiro Rápido, Veterano de Guerra) + **3 de gameplay** via CFTools (🎯 Franco-Atirador, ☣ Exterminador, ⏳ Veterano de Chernarus) - totalmente i18n, com **recompensa configurável em moedas** (admin define +X por conquista, liga/desliga; pago 1x por jogador "por conta da casa")
+- **🪙 Aba VIP** (`/vip`) - venda de **VIP/BattlePass por moedas** (30/60/90 dias, renovação soma dias); o jogador paga com a moeda que tem e o agent aplica no jogo
+- **🛡 Clãs** (`/clans`) - jogadores registram clã (nome, TAG, logo, Discord), entram por **pedido ou convite com aceite** (consentimento/LGPD), 1 clã por jogador, dono gerencia membros; aparece no perfil; admin modera
+- **⚔️ Eventos de Clã** (aba **Clãs** do `/ranking`, só pra quem tem clã) - competições entre clãs por período (ex: "Mate o máximo de zumbis") com **placar por delta** (conta só o que rolar dentro do evento), inscrição pelo líder, congela no fim e **botão Premiar** credita moedas a cada membro do clã vencedor
+- **📚 Central de Ajuda** (`/ajuda`) - guia/tutoriais por categoria, com **vídeo do YouTube embutido** + imagem por artigo; editável no painel (SEO + onboarding)
 - **Reviews públicas** em `/depoimentos` (qualquer visitante envia, admin modera) + `AggregateRating` Schema.org pro Google
 - **Wishlist** de pacotes pros jogadores logados
-- **Perfil do jogador unificado** (`/player/{steamid}`): visitante vê o público (stats de combate + conquistas); o **dono logado** vê também o privado no mesmo lugar (saldo, compras, histórico de caixas, loja in-game, streamer) — sem página separada, sem vazar financeiro pra visitante
+- **Perfil do jogador unificado** (`/player/{steamid}`): visitante vê o público (stats de combate + conquistas); o **dono logado** vê também o privado no mesmo lugar (saldo, compras, histórico de caixas, loja in-game, streamer) - sem página separada, sem vazar financeiro pra visitante
 - **Páginas dinâmicas** (Termos, Privacidade LGPD, Regras, Reembolso) editáveis no admin
 - **SEO completo**: Open Graph, Twitter Card, JSON-LD, sitemap.xml, robots.txt
 
@@ -79,19 +79,19 @@ O **site é grátis** e faz a loja, o painel, a carteira de moedas e o leaderboa
 
 - **Dashboard** com gráfico de vendas 30 dias (Chart.js)
 - **CRUD completo** de Jogadores, Pacotes, Combos, Cupons, Páginas, Anúncios, Reviews, Servidores, Galeria
-- **Loja in-game** (🛒) — cadastre itens que o jogador compra com moeda no Discord (`/loja`): SKU, custo e o que é entregue in-game (classnames). O bot debita e o servidor dropa o item
-- **🎁 Caixas** — cria caixas (custo/diária + imagem, **ordem na vitrine**, cooldown opcional) e o pool de itens com **raridade que define a chance** (peso auto-preenchido + % ao vivo). Drop in-game via CFTools GameLabs. **📜 Log de aberturas** pesquisável por SteamID com o horário exato do drop (resolve disputa anti-golpista)
-- **🗓 Eventos** — cria eventos/sorteios (datas, prêmio, vencedor); status calculado pelas datas
-- **🏆 Recompensas com agendamento** — premia o top do ranking em moedas: cadência Manual/Semanal/Mensal, **auto-creditar** (cron) ou botão **"Premiar agora"** (idempotente) + histórico. Premiação **liga/desliga por categoria**.
-- **👁 Abas do ranking configuráveis** — escolha quais categorias aparecem no `/ranking` público (esconda "Zumbis", "Tempo online" ou "Investimento" se não fizerem sentido pro seu servidor) — independente da premiação
-- **🎮 Entrega Sparda nativa** — gera as URLs pro mod entregar moeda in-game sem o Agent pago
-- **🏅 Bônus por conquista** — define +X moedas por conquista (liga/desliga); credita 1x por jogador automaticamente, com log no painel (idempotente, teto anti-abuso)
-- **🪙 Venda de VIP/Passe por moedas** — liga/desliga + tabela de preço (tier × 30/60/90 dias) em moedas; o jogador compra na aba `/vip` e o agent aplica no Sparda
-- **🏠 Seção da Home editável** — edite os cards de "O Que Você Vai Encontrar" (título, subtítulo, até 12 cards) direto no painel, sem mexer em código
-- **🔑 Log de logins** — quem entrou via Steam (SteamID/nick/IP/navegador), com busca por SteamID (auditoria/privacidade; ranking segue público)
-- **📊 Tabelas ordenáveis + filtráveis** — clique no cabeçalho ordena (número/texto/data); filtro instantâneo multi-termo nas listas grandes (Jogadores, Compras, Pacotes…)
+- **Loja in-game** (🛒) - cadastre itens que o jogador compra com moeda no Discord (`/loja`): SKU, custo e o que é entregue in-game (classnames). O bot debita e o servidor dropa o item
+- **🎁 Caixas**: cria caixas (custo/diária + imagem, **ordem na vitrine**, cooldown opcional) e o pool de itens com **raridade que define a chance** (peso auto-preenchido + % ao vivo). Drop in-game via CFTools GameLabs. **📜 Log de aberturas** pesquisável por SteamID com o horário exato do drop (resolve disputa anti-golpista)
+- **🗓 Eventos**: cria eventos/sorteios (datas, prêmio, vencedor); status calculado pelas datas
+- **🏆 Recompensas com agendamento**: premia o top do ranking em moedas: cadência Manual/Semanal/Mensal, **auto-creditar** (cron) ou botão **"Premiar agora"** (idempotente) + histórico. Premiação **liga/desliga por categoria**.
+- **👁 Abas do ranking configuráveis** - escolha quais categorias aparecem no `/ranking` público (esconda "Zumbis", "Tempo online" ou "Investimento" se não fizerem sentido pro seu servidor) - independente da premiação
+- **🎮 Entrega Sparda nativa**: gera as URLs pro mod entregar moeda in-game sem o Agent pago
+- **🏅 Bônus por conquista**: define +X moedas por conquista (liga/desliga); credita 1x por jogador automaticamente, com log no painel (idempotente, teto anti-abuso)
+- **🪙 Venda de VIP/Passe por moedas**: liga/desliga + tabela de preço (tier × 30/60/90 dias) em moedas; o jogador compra na aba `/vip` e o agent aplica no Sparda
+- **🏠 Seção da Home editável**: edite os cards de "O Que Você Vai Encontrar" (título, subtítulo, até 12 cards) direto no painel, sem mexer em código
+- **🔑 Log de logins**: quem entrou via Steam (SteamID/nick/IP/navegador), com busca por SteamID (auditoria/privacidade; ranking segue público)
+- **📊 Tabelas ordenáveis + filtráveis**: clique no cabeçalho ordena (número/texto/data); filtro instantâneo multi-termo nas listas grandes (Jogadores, Compras, Pacotes…)
 - **➕ Criar pacote de moeda** e **✏️ editar item de caixa** direto no painel (sem precisar deletar e refazer)
-- **🛟 Install à prova de defasagem** — o `install.php` roda as migrations sobre o `schema.sql`, então uma instalação do zero nasce **completa** (nenhuma tabela faltando pro cliente)
+- **🛟 Install à prova de defasagem**: o `install.php` roda as migrations sobre o `schema.sql`, então uma instalação do zero nasce **completa** (nenhuma tabela faltando pro cliente)
 - **Audit log** de toda ação administrativa
 - **Histórico granular de saldo** por jogador
 - **Console de logs PHP** integrado ao painel
@@ -103,10 +103,10 @@ O **site é grátis** e faz a loja, o painel, a carteira de moedas e o leaderboa
 
 ### 🔌 Integrações nativas
 
-- **`tecplay-agent.exe`** — sincronização de moedas in-game ↔ site (`/api/sync-players.php`)
-- **Bot Discord Tecplay** — endpoint `/notify/purchase` notifica bot quando venda aprovada; `/api/bot-integration.php` expõe saldo, compra de coins (`/comprar`) e **loja in-game** (`/loja`: `shop_items` + `spend`)
-- **BattleMetrics API** — status servidor live com cache 60s
-- **Steam Web API** — avatar e display name dos jogadores
+- **`tecplay-agent.exe`**: sincronização de moedas in-game ↔ site (`/api/sync-players.php`)
+- **Bot Discord Tecplay**: endpoint `/notify/purchase` notifica bot quando venda aprovada; `/api/bot-integration.php` expõe saldo, compra de coins (`/comprar`) e **loja in-game** (`/loja`: `shop_items` + `spend`)
+- **BattleMetrics API**: status servidor live com cache 60s
+- **Steam Web API**: avatar e display name dos jogadores
 
 ### 🔐 Segurança hardened
 
@@ -122,12 +122,12 @@ O **site é grátis** e faz a loja, o painel, a carteira de moedas e o leaderboa
 - Cookies de sessão com `HttpOnly`, `SameSite=Lax`, `Secure` em HTTPS
 - Senhas bcrypt (PASSWORD_BCRYPT)
 - Cap de 64KB no payload de webhooks
-- **Rate-limit anti-bruteforce** nos endpoints `/api/*` — conta **só falhas de auth** por IP, então o mod/agent legítimo (token válido) nunca é limitado
+- **Rate-limit anti-bruteforce** nos endpoints `/api/*`: conta **só falhas de auth** por IP, então o mod/agent legítimo (token válido) nunca é limitado
 - **Abertura de caixa serializada** (`GET_LOCK`) contra race de duplo-clique na diária
 - `session_regenerate_id` no login Steam (anti session-fixation); health-check sem métricas de negócio; JSON-LD com `JSON_HEX_TAG`
-- **CSP em modo `Report-Only`** + coletor de violações (`/api/csp-report.php`) — fase 1 pré-enforce, com allowlist do Mercado Pago/Steam
+- **CSP em modo `Report-Only`** + coletor de violações (`/api/csp-report.php`) - fase 1 pré-enforce, com allowlist do Mercado Pago/Steam
 - **`install.php` retorna 404** quando já instalado (não vaza estrutura/instrução); arquivos sensíveis (`.env`/`.sql`/`.bak`/`.git`) negados/ausentes do docroot
-- **Anti-underpay no webhook MP** — confere `valor pago ≥ preço` antes de creditar (redundância sobre o preço, que já é sempre server-side); validação Steam OpenID re-checada na origem; upload valida MIME real + nome aleatório
+- **Anti-underpay no webhook MP**: confere `valor pago ≥ preço` antes de creditar (redundância sobre o preço, que já é sempre server-side); validação Steam OpenID re-checada na origem; upload valida MIME real + nome aleatório
 - **Pagamento com cartão PCI SAQ-A**: tokenização client-side (Secure Fields do MP), o PAN nunca passa pelo servidor
 
 ### ⚡ Performance otimizada
@@ -143,14 +143,17 @@ O **site é grátis** e faz a loja, o painel, a carteira de moedas e o leaderboa
 
 ## 🚀 Instalação
 
-**Tempo total:** 30 a 45 minutos · **Conhecimento necessário:** zero. Se sabe usar cPanel e FileZilla, consegue.
+**Tempo total:** de 40 minutos a 1h30 · **Conhecimento necessário:** saber mexer no painel da hospedagem e num programa de FTP. O passo que dá trabalho é decidir onde cada pasta vai.
 
 📖 **Veja o guia completo em [INSTALACAO.md](INSTALACAO.md)** (passo a passo com prints).
 
 ### TL;DR pra quem é experiente
 
 ```bash
-# 1. Sobe via FTP — public/ vai pro public_html, resto fica um nível acima
+# 1. Sobe via FTP: o CONTEUDO de public/ vai pro public_html,
+#    (index.php, install.php, update.php, .htaccess, assets/, api/)
+#    e src/ views/ lang/ config/ migrations/ cli/ storage/ schema.sql
+#    ficam na pasta que CONTEM o public_html
 # 2. Cria database MySQL no cPanel
 # 3. Acessa https://seudominio.com/install.php
 # 4. Wizard cria config.php + admin + AGENT_TOKEN + opcional MP
@@ -167,7 +170,10 @@ O **site é grátis** e faz a loja, o painel, a carteira de moedas e o leaderboa
 
 ## 🔄 Atualizar (GARANTIDO sem perder seus dados)
 
-Atualizar pra uma versão nova **nunca apaga seus dados nem sua personalização** — desde que você siga a regra de ouro abaixo. Banco, config, skin, logos e uploads ficam intactos.
+Atualizar pra uma versão nova **não apaga seus dados nem sua personalização**: desde que você siga a regra de ouro abaixo. Banco, config, skin, logos e uploads ficam intactos.
+
+> ℹ️ Única exceção declarada: a migration `v2.18.0_remove_points.sql` remove as tabelas do
+> **Sistema de Pontos**, aposentado de propósito. Nenhuma outra migration apaga nada.
 
 ### 🛑 Regra de ouro: NUNCA sobrescreva estes (são SEUS, não do template)
 
@@ -176,40 +182,40 @@ Ao subir os arquivos novos, **pule / não sobrescreva**:
 | Item | O que é | Vem no ZIP? |
 |---|---|---|
 | `config/config.php` | suas credenciais de banco, tokens, Mercado Pago | ❌ não (gitignored) |
-| `public/assets/css/theme.override.css` | suas cores (painel Personalização) | ❌ não |
-| `public/assets/img/custom/` | logo/favicon/backgrounds enviados pelo **painel** | ❌ não |
-| `public/assets/img/gallery/` | suas screenshots da galeria | ❌ não |
+| `assets/css/theme.override.css` (na pasta pública) | suas cores (painel Personalização) | ❌ não |
+| `assets/img/custom/` (na pasta pública) | logo/favicon/backgrounds enviados pelo **painel** | ❌ não |
+| `assets/img/gallery/` (na pasta pública) | suas screenshots da galeria | ❌ não |
 | `storage/` | cache, logs, backups, rate-limit | ❌ não |
 | `.htaccess` | **se você editou à mão** (HTTPS, regras próprias) | ⚠️ vem um padrão |
 | `lang/pt-br.php` · `lang/en-us.php` | **só se editou textos à mão** (melhor usar o painel) | ⚠️ vem |
-| **`public/assets/img/logo*.png`, `background*.png`, `favicon.ico`** | **logos/fundos trocados DIRETO no arquivo (método antigo)** | ⚠️ **VÊM e sobrescrevem!** |
+| **`assets/img/logo*.png`, `background*.png`** (na pasta pública) | **logos/fundos trocados DIRETO no arquivo (método antigo)** | ⚠️ **VÊM e sobrescrevem!** |
 
-> ✅ Os 5 primeiros são **gitignored** — nem estão no ZIP do GitHub, então um upload normal **não os toca**.
+> ✅ Os 5 primeiros são **gitignored**: nem estão no ZIP do GitHub, então um upload normal **não os toca**.
 > ⚠️ Os 3 últimos **vêm no pacote**. Em especial: **se você trocou seu logo/fundo substituindo o arquivo direto** em `assets/img/` (método antigo), faça **backup deles antes** ou eles voltam pro padrão do template.
-> 💡 **A prova de update de vez:** mande seu logo/favicon/fundos e cores pelo painel **Admin → Personalização** — eles passam a ficar em `custom/` (gitignored) e **nunca mais** são sobrescritos por nenhum update.
+> 💡 **A prova de update de vez:** mande seu logo/favicon/fundos e cores pelo painel **Admin → Personalização**: eles passam a ficar em `custom/` (gitignored) e **nunca mais** são sobrescritos por nenhum update.
 
 ### Passo a passo
 
 1. **Backup primeiro** (sempre). Duas formas:
    - Banco: `php cli/backup.php` (gera um `.sql` em `storage/backups/`), ou exporte pelo phpMyAdmin.
-   - Arquivos: baixe por FTP uma cópia de `config/`, `lang/`, `public/assets/css/theme.override.css` e `public/assets/img/custom/`.
-2. **Suba os arquivos novos por FTP.** Conteúdo de `public/` → raiz pública (`public_html`); o resto (`src/ views/ lang/ config/ migrations/ cli/ schema.sql`) → **um nível acima**, ao lado de `src/`. Suba **todas** as pastas — se faltar uma, o site quebra silenciosamente (ex.: sem `lang/`, o menu vira **NAV.RULES**). **Respeite a regra de ouro acima.**
-3. **Atualize o banco** — rode UMA vez:
-   ```
-   php cli/migrate.php
-   ```
-   Roda só as migrations que faltam, é **idempotente** e **nunca apaga dados** (só adiciona tabela/coluna que falta). Sem SSH? Use **Cron Jobs** do painel: agende um cron "uma vez" com `php /home/SEU_USER/public_html/cli/migrate.php`, rode e remova.
-4. **Confira o deploy:** abra a **home**, a **loja** e faça **login no `/admin`**. Se o menu aparecer como `NAV.RULES`/`SHOP.TITLE`, a pasta `lang/` não subiu — reenvie ela. O resto está no banco e segue intacto.
+   - Arquivos: baixe por FTP uma cópia de `config/`, `lang/` e, de dentro da sua pasta pública, `assets/css/theme.override.css` e `assets/img/custom/`.
+2. **Suba os arquivos novos por FTP.** Conteúdo de `public/` → sua pasta pública (`public_html`); o resto (`src/ views/ lang/ config/ migrations/ cli/ storage/ schema.sql`) → na pasta que **contém** a pública, exatamente onde já estão hoje. Suba **todas** as pastas - se faltar uma, o site quebra silenciosamente (ex.: sem `lang/`, o menu vira **NAV.RULES**). **Respeite a regra de ouro acima.**
+3. **Atualize o banco**: faça login no painel e abra **`seusite.com/update.php`**. A tela
+   lista as atualizações pendentes pelo nome, você confirma e ela aplica. Exige sessão de
+   `super_admin`, então ninguém de fora roda. Com SSH, o equivalente é `php cli/migrate.php`
+   (mesmo motor).
+   Roda só as migrations que faltam, é **idempotente** e **nunca apaga dados** (só adiciona tabela/coluna que falta). Sem SSH? Use **Cron Jobs** do painel: agende um cron "uma vez", rode e remova. ⚠️ O `cli/` fica **fora** do `public_html` (é pasta privada), então o caminho é `php /home/SEU_USER/domains/SEUDOMINIO.com/cli/migrate.php` em conta com domínio próprio, ou `php /home/SEU_USER/cli/migrate.php` sem domínio próprio. Veja `ATUALIZAR.md`.
+4. **Confira o deploy:** abra a **home**, a **loja** e faça **login no `/admin`**. Se o menu aparecer como `NAV.RULES`/`SHOP.TITLE`, a pasta `lang/` não subiu - reenvie ela. O resto está no banco e segue intacto.
 
-> 🚨 **NUNCA use o `install.php` pra atualizar, e NUNCA apague o `config.php` pra "reinstalar".** O `install.php` é **só pra instalação do ZERO**. Num site já instalado ele se recusa a rodar (`Já instalado`) — mas se você apagar o `config.php` pra forçar, ele roda do zero e **pode apagar tudo o que você tem** (páginas, pacotes, jogadores, configs). Pra atualizar é **sempre**: subir arquivos (respeitando a Regra de Ouro) **+ `php cli/migrate.php`**. Nunca o install.
+> 🚨 **NUNCA use o `install.php` pra atualizar, e NUNCA apague o `config.php` pra "reinstalar".** O `install.php` é **só pra instalação do ZERO**. Num site já instalado ele se recusa a rodar (`Já instalado`) - mas se você apagar o `config.php` pra forçar, ele roda do zero e **pode apagar tudo o que você tem** (páginas, pacotes, jogadores, configs). Pra atualizar é **sempre**: subir arquivos (respeitando a Regra de Ouro) **+ `php cli/migrate.php`**. Nunca o install.
 
 ## 🔑 Esqueci a senha do admin (recuperação)
 
 Travou fora do painel? Três caminhos, do mais simples ao mais robusto:
 
 1. **Outro admin:** se existe outra conta admin, ela entra em `/admin/team` e reseta a sua.
-2. **"Esqueci minha senha"** no `/admin/login` → link por email. *(Precisa de email configurado e funcionando — em hospedagem compartilhada o `mail()` às vezes não sai ou cai no spam.)*
-3. **À prova de tudo — reset por linha de comando (NÃO depende de email):**
+2. **"Esqueci minha senha"** no `/admin/login` → link por email. *(Precisa de email configurado e funcionando - em hospedagem compartilhada o `mail()` às vezes não sai ou cai no spam.)*
+3. **À prova de tudo - reset por linha de comando (NÃO depende de email):**
    ```
    php cli/reset-password.php <usuario> <nova_senha>
    ```
@@ -221,11 +227,11 @@ Travou fora do painel? Três caminhos, do mais simples ao mais robusto:
 
 Tudo pelo painel, em **Admin → Personalização Visual** (`/admin/customize`). O que você muda aqui **sobrevive a updates** (fica isolado do template):
 
-- **Logo, logo pequeno e favicon** — botão "Enviar", escolhe a imagem, pronto. "Voltar ao padrão" desfaz.
-- **Backgrounds** (hero, login, loja, 404, páginas) — mesmo esquema. Otimize imagens grandes no [TinyPNG](https://tinypng.com) antes (background pesado deixa o site lento).
-- **Cores do site** — color picker com 10 cores (principal, acento, fundos, texto…). Clica em "Salvar cores" e aplica na hora, no site e no painel.
+- **Logo, logo pequeno e favicon**: botão "Enviar", escolhe a imagem, pronto. "Voltar ao padrão" desfaz.
+- **Backgrounds** (hero, login, loja, 404, páginas) - mesmo esquema. Otimize imagens grandes no [TinyPNG](https://tinypng.com) antes (background pesado deixa o site lento).
+- **Cores do site**: color picker com 10 cores (principal, acento, fundos, texto…). Clica em "Salvar cores" e aplica na hora, no site e no painel.
 
-Textos do site (nome, tagline, links sociais, regras, termos, anúncios) ficam em **Admin → Configurações** e **Páginas** — também à prova de update (ficam no banco).
+Textos do site (nome, tagline, links sociais, regras, termos, anúncios) ficam em **Admin → Configurações** e **Páginas**: também à prova de update (ficam no banco).
 
 > Se você der "Enviar" e a imagem não mudar na hora, dê **Ctrl+F5** (cache do navegador). É normal.
 
@@ -240,24 +246,24 @@ Textos do site (nome, tagline, links sociais, regras, termos, anúncios) ficam e
 | **"Banco indisponível"** | Credenciais erradas em `config/config.php` ou banco fora do ar | Confira host/usuário/senha do banco no `config/config.php`. |
 | **500 só em `/loja` ou `/perfil`** | Faltou rodar as migrations (tabela nova ausente) | Rode `php cli/migrate.php` (veja a seção Atualizar). |
 | **Email de recuperação não chega** | `mail()` do PHP é instável em hospedagem compartilhada (cai em spam ou não sai) | Use o reset por CLI: `php cli/reset-password.php <usuario> <senha>` (não depende de email). |
-| **Logo/cores sumiram após atualizar** | Sobrescreveu os arquivos do cliente no upload | Reenvie `public/assets/img/custom/` e `theme.override.css` do seu backup. Veja a "Regra de ouro" em Atualizar. |
+| **Logo/cores sumiram após atualizar** | Sobrescreveu os arquivos do cliente no upload | Reenvie `assets/img/custom/` e `assets/css/theme.override.css` (da sua pasta pública) a partir do backup. Veja a "Regra de ouro" em Atualizar. |
 | **Travei fora do admin** | Perdeu a senha e não tem outro admin | `php cli/reset-password.php <usuario> <nova_senha>` (via SSH ou Cron Jobs). |
 | Compra fica **"pendente" pra sempre** | Webhook do Mercado Pago não chegou (token/URL errados) | Confira o webhook no painel do Mercado Pago e o `access_token` no `config/config.php`. |
 
 ---
 
-## 📊 Ativar leaderboard + estatísticas (CFTools — opcional)
+## 📊 Ativar leaderboard + estatísticas (CFTools - opcional)
 
-Quer mostrar **kills, K/D, tempo online e armas** do seu servidor no `/ranking` e no perfil de cada jogador (`/player/SEU_STEAMID`)? O site puxa isso direto do **CFTools Cloud** — você usa o **SEU próprio app** (o segredo fica só com você, controlando só o seu servidor).
+Quer mostrar **kills, K/D, tempo online e armas** do seu servidor no `/ranking` e no perfil de cada jogador (`/player/SEU_STEAMID`)? O site puxa isso direto do **CFTools Cloud**: você usa o **SEU próprio app** (o segredo fica só com você, controlando só o seu servidor).
 
-> ⚠️ **Atenção (causa de 90% da confusão):** as **Aplicações** ficam no **PORTAL DE DESENVOLVEDOR**, que é **um site separado** do painel normal de servidores. Muita gente procura em `app.cftools.cloud` (o painel dos servidores) e não acha — o lugar certo é **`developer.cftools.cloud`**.
+> ⚠️ **Atenção (causa de 90% da confusão):** as **Aplicações** ficam no **PORTAL DE DESENVOLVEDOR**, que é **um site separado** do painel normal de servidores. Muita gente procura em `app.cftools.cloud` (o painel dos servidores) e não acha - o lugar certo é **`developer.cftools.cloud`**.
 
 **Passo a passo:**
-1. Tenha o **CFTools** ativo no seu servidor DayZ (o agente CFTools rodando — é o que coleta os stats).
+1. Tenha o **CFTools** ativo no seu servidor DayZ (o agente CFTools rodando - é o que coleta os stats).
 2. **Criar a Aplicação (pega o `app_id` + `secret`):**
    - Abra **https://developer.cftools.cloud** e faça login com a sua conta CFTools (a MESMA que é dona do servidor).
    - No menu, vá em **Applications** → **Create application** (dê um nome, ex: "Meu Site").
-   - Copie o **Application ID** e o **Secret** (o Secret só aparece uma vez — guarde).
+   - Copie o **Application ID** e o **Secret** (o Secret só aparece uma vez - guarde).
 3. **Autorizar a Aplicação a ver seu servidor (Grant):**
    - Ainda na página da sua Application no `developer.cftools.cloud`, vai ter uma **Grant URL** (botão/link tipo "Authorize" ou "Grant access").
    - Abra essa Grant URL **logado na conta dona do servidor** e confirme. Sem isso, a API responde `no-grant`.
@@ -266,7 +272,7 @@ Quer mostrar **kills, K/D, tempo online e armas** do seu servidor no `/ranking` 
    - O **Server API ID** é o identificador (UUID, tipo `ad221e8f-8c63-...`) que fica em **Settings/Manage do servidor** (ou no endereço da página de gerenciamento dele). É esse valor que vai em `server_api_id`.
 5. Preencha as 3 credenciais (`app_id`, `secret`, `server_api_id`). Tem **dois jeitos** (escolha um):
    - **Pelo painel (mais fácil, recomendado):** entre em **Admin → Configurações → 🎮 Integração CFTools** e cole os 3 valores. Salvou, ativou. Sem mexer em arquivo.
-   - **Pelo `config/config.php`** (se preferir fixar no arquivo — tem prioridade sobre o painel):
+   - **Pelo `config/config.php`** (se preferir fixar no arquivo - tem prioridade sobre o painel):
      ```php
      'cftools' => [
          'app_id'        => 'SEU_APPLICATION_ID',
@@ -274,17 +280,17 @@ Quer mostrar **kills, K/D, tempo online e armas** do seu servidor no `/ranking` 
          'server_api_id' => 'SEU_SERVER_API_ID',
      ],
      ```
-6. Pronto. O site cacheia as respostas (respeita os limites do CFTools) e as stats aparecem sozinhas no ranking e nos perfis. **O CFTools também é o que faz os itens das CAIXAS caírem no jogo** — sem ele preenchido, as caixas abrem mas ficam pendentes. **Sem CFTools, o site funciona normal — só não mostra stats de gameplay nem entrega caixas in-game.**
+6. Pronto. O site cacheia as respostas (respeita os limites do CFTools) e as stats aparecem sozinhas no ranking e nos perfis. **O CFTools também é o que faz os itens das CAIXAS caírem no jogo** - sem ele preenchido, as caixas abrem mas ficam pendentes. **Sem CFTools, o site funciona normal - só não mostra stats de gameplay nem entrega caixas in-game.**
 
-## 🎮 Programa de afiliado / streamer ("Apoie seu Streamer") — opcional
+## 🎮 Programa de afiliado / streamer ("Apoie seu Streamer") - opcional
 
 Contratou um streamer pra divulgar o servidor? Dá pra **pagar cachê por venda** que veio dele, automaticamente rastreado.
 
 1. Ative em **Admin → Configurações → 🎮 Programa de afiliado**. (Lá também: "permitir o cliente trocar de streamer".)
-2. Em **Admin → Cupons**, crie o cupom do streamer e abra a seção **"Programa de afiliado"**: preencha o **nome do streamer** e o **% de cachê** por recorrência do cliente — **1ª compra / 2ª compra / 3ª+ compra** (ex: `5 / 10 / 0` = ganha 5% na 1ª, 10% na 2ª e nada da 3ª em diante, quando o cliente "já consolidou").
-3. O streamer divulga o código. O cliente digita uma vez (no checkout ou no painel **"Apoie seu Streamer"**) e fica **atrelado a ele** — 1 streamer por vez.
-4. O **cachê** é calculado **sobre o valor cheio** (antes do desconto), só em **compra paga**. O **benefício pro cliente** (definido no cupom: % off, R$ off ou **🪙 moedas bônus**) vale **1x** — não repete na recorrência, então não corrói sua margem.
-5. Veja quanto deve pra cada um em **Admin → Streamers**: faturamento gerado e **cachê a pagar** (total e por mês), além das vendas individuais. O site só mostra o valor — você paga o streamer por fora.
+2. Em **Admin → Cupons**, crie o cupom do streamer e abra a seção **"Programa de afiliado"**: preencha o **nome do streamer** e o **% de cachê** por recorrência do cliente - **1ª compra / 2ª compra / 3ª+ compra** (ex: `5 / 10 / 0` = ganha 5% na 1ª, 10% na 2ª e nada da 3ª em diante, quando o cliente "já consolidou").
+3. O streamer divulga o código. O cliente digita uma vez (no checkout ou no painel **"Apoie seu Streamer"**) e fica **atrelado a ele**: 1 streamer por vez.
+4. O **cachê** é calculado **sobre o valor cheio** (antes do desconto), só em **compra paga**. O **benefício pro cliente** (definido no cupom: % off, R$ off ou **🪙 moedas bônus**) vale **1x**: não repete na recorrência, então não corrói sua margem.
+5. Veja quanto deve pra cada um em **Admin → Streamers**: faturamento gerado e **cachê a pagar** (total e por mês), além das vendas individuais. O site só mostra o valor - você paga o streamer por fora.
 
 > 🔒 O `secret` é seu e fica só no seu `config/config.php` (que é gitignored e nunca vai pro repositório).
 
@@ -292,13 +298,13 @@ Contratou um streamer pra divulgar o servidor? Dá pra **pagar cachê por venda*
 
 ## 🎁 Ativar Caixas + Recompensas automáticas (opcional)
 
-As **Caixas** dropam o item no jogo usando a **API GameLabs do CFTools** — então precisa do **mod GameLabs** instalado no seu servidor (Workshop `2464526692`) + o CFTools configurado (acima). Sem GameLabs, a caixa registra a abertura como **pendente** (não dropa). Player precisa estar **online** pra receber; se estiver offline ou perto do restart, fica pendente e cai depois.
+As **Caixas** dropam o item no jogo usando a **API GameLabs do CFTools**: então precisa do **mod GameLabs** instalado no seu servidor (Workshop `2464526692`) + o CFTools configurado (acima). Sem GameLabs, a caixa registra a abertura como **pendente** (não dropa). Player precisa estar **online** pra receber; se estiver offline ou perto do restart, fica pendente e cai depois.
 
 - **Caixas:** Admin → **🎁 Caixas** → cria a caixa + adiciona itens (classname DayZ, quantidade, peso). Ative quando estiver pronta.
 - **Restart (blindagem do drop):** Admin → **Configurações** → ligue e informe os horários de restart (ex: `00:00, 04:00, ...`). Perto do restart o drop vira pendente pra não cair no limbo.
 
 ### ⏱ Cron opcional (Painel → Cron Jobs)
-**Não é obrigatório** — sem cron o site funciona (entrega pendente cai ao abrir `/caixas`, placar de evento de clã atualiza no tráfego, premiação pelo botão **"Premiar agora"**). O cron só deixa tudo mais **pontual**. Recomendado: **UM cron** a cada **2 min** que cobre tudo (caixas + eventos de clã + premiação):
+**Não é obrigatório**: sem cron o site funciona (entrega pendente cai ao abrir `/caixas`, placar de evento de clã atualiza no tráfego, premiação pelo botão **"Premiar agora"**). O cron só deixa tudo mais **pontual**. Recomendado: **UM cron** a cada **2 min** que cobre tudo (caixas + eventos de clã + premiação):
 ```
 curl -s "https://SEUSITE/api/cron.php?token=SEU_AGENT_TOKEN"
 ```
@@ -311,14 +317,14 @@ curl -s "https://SEUSITE/api/award-rewards.php?token=SEU_AGENT_TOKEN"   # premia
 
 ---
 
-## 🛒 Loja in-game — o `/loja` do Discord (Bot Pro)
+## 🛒 Loja in-game - o `/loja` do Discord (Bot Pro)
 
-A seção **Admin → 🛒 Loja in-game** é o **catálogo do comando `/loja` do Bot Tecplay (Pro)** — não é do site/Sparda. A divisão é:
+A seção **Admin → 🛒 Loja in-game** é o **catálogo do comando `/loja` do Bot Tecplay (Pro)**: não é do site/Sparda. A divisão é:
 
 - **Site** = fonte da verdade: guarda o catálogo de itens e o **saldo de moedas** do jogador.
 - **Bot Pro** = o rosto no Discord: mostra o `/loja`, processa a compra (chama o site via `bot-integration.php?action=spend` pra debitar) e manda o servidor **entregar o item in-game**.
 
-**Pré-requisito:** o **Bot Pro** rodando e integrado (Admin → 🤖 Integração Discord). Sem o bot, os itens daqui não fazem nada — pra dropar item **pelo site sem bot**, use as **🎁 Caixas**.
+**Pré-requisito:** o **Bot Pro** rodando e integrado (Admin → 🤖 Integração Discord). Sem o bot, os itens daqui não fazem nada - pra dropar item **pelo site sem bot**, use as **🎁 Caixas**.
 
 **Como cadastrar um item:** Admin → 🛒 Loja in-game → Novo item. Preencha nome, SKU (id único), custo em moedas, e monte a **entrega** no formulário (o JSON é gerado sozinho):
 
@@ -327,10 +333,10 @@ A seção **Admin → 🛒 Loja in-game** é o **catálogo do comando `/loja` do
 | **Classname** | o item DayZ que será dado (ex: `M4A1`, `BarrelLong`) |
 | **Qtd** | quantas unidades |
 | **Anexos** | peças da arma, separadas por vírgula (ex: `M4_Suppressor, M4_RISHndgrd`) |
-| **Cargo (avançado)** | itens DENTRO do item — **só roupa/mochila** (arma com cargo dá erro no jogo) |
+| **Cargo (avançado)** | itens DENTRO do item - **só roupa/mochila** (arma com cargo dá erro no jogo) |
 | **Vida** | 0 a 1 (1 = novo) |
 
-Um item ("kit") pode entregar vários classnames — é só adicionar mais linhas.
+Um item ("kit") pode entregar vários classnames - é só adicionar mais linhas.
 
 ---
 
@@ -338,7 +344,7 @@ Um item ("kit") pode entregar vários classnames — é só adicionar mais linha
 
 Você pode rodar este template em qualquer hospedagem PHP. Recomendações **Tecplay-tested**:
 
-### 🟢 Easy Mode — AWS Lightsail $10/mês
+### 🟢 Easy Mode - AWS Lightsail $10/mês
 
 Blueprint **LAMP_PHP_8** vem com Apache + PHP 8.1 + MariaDB + phpMyAdmin pré-instalado. Você só:
 
@@ -352,7 +358,7 @@ Specs: **2 GB RAM · 2 vCPU burst · 60 GB SSD · 3 TB transfer**. Aguenta 100-5
 
 🔗 https://aws.amazon.com/lightsail/pricing/
 
-### 🔵 Power Mode — Hetzner Cloud CPX21 ~$8/mês
+### 🔵 Power Mode - Hetzner Cloud CPX21 ~$8/mês
 
 Melhor custo-benefício do mercado se você topa rodar `apt install lamp-server^`. Você precisa:
 
@@ -362,7 +368,7 @@ Melhor custo-benefício do mercado se você topa rodar `apt install lamp-server^
 4. Cria DB MySQL local, importa `schema.sql`
 5. Configura virtualhost Apache, roda Certbot
 
-Specs: **3 GB RAM · 3 vCPU AMD · 80 GB NVMe**. Latência BR ~110ms (Ashburn) — coloca Cloudflare na frente como CDN pra esconder isso.
+Specs: **3 GB RAM · 3 vCPU AMD · 80 GB NVMe**. Latência BR ~110ms (Ashburn) - coloca Cloudflare na frente como CDN pra esconder isso.
 
 🔗 https://www.hetzner.com/cloud/
 
@@ -384,7 +390,7 @@ Tempo total: 2-4h trabalho + ~30min downtime real. Pontos de atenção:
 - Router próprio + View engine com sections/layouts (estilo Blade simplificado)
 - Steam OpenID 2.0 + Mercado Pago REST API + BattleMetrics API
 - Chart.js via CDN (zero build step)
-- **Sem npm, sem composer, sem Docker** — sobe direto
+- **Sem npm, sem composer, sem Docker**: sobe direto
 
 ```
 DayZWebsite/
@@ -441,7 +447,7 @@ Quer algo específico só para o seu servidor (integração, mod, sistema própr
 
 Este é um repositório **privado** e **proprietário**. Não aceitamos PRs ou issues de terceiros.
 
-Se você é parceiro Tecplay e precisa relatar bug ou sugerir feature, **abra um ticket** pelo Discord oficial ou e-mail acima — assim entra no roadmap formal.
+Se você é parceiro Tecplay e precisa relatar bug ou sugerir feature, **abra um ticket** pelo Discord oficial ou e-mail acima - assim entra no roadmap formal.
 
 ---
 

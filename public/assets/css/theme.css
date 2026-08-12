@@ -3,24 +3,24 @@
    Tema oficial: "Tecplay Brand" (roxo + lilás + accent dourado)
    Espelha o site institucional tecplay.inf.br
    ============================================================
-   Paleta default (Tecplay) — cliente pode override em
+   Paleta default (Tecplay) - cliente pode override em
    `theme.override.css` (gitignored, carregado automaticamente se
    existir):
 
-     --bg-0   #0a0612  (noite profunda — fundo principal)
-     --bg-1   #120a1f  (carvão violeta — cards)
-     --bg-2   #1c1230  (concreto violeta — surfaces)
+     --bg-0   #0a0612  (noite profunda - fundo principal)
+     --bg-1   #120a1f  (carvão violeta - cards)
+     --bg-2   #1c1230  (concreto violeta - surfaces)
      --bg-3   #271942  (camada elevada)
-     --rust   #a855f7  (brand-500 — roxo Tecplay principal)
-     --rust-2 #c084fc  (lilac — destaques suaves / hover)
-     --bone   #ede9fe  (osso lilás — texto claro)
-     --moss   #16a34a  (verde sucesso — preserved semantics)
-     --hazard #facc15  (accent dourado — raio do logo Tecplay)
+     --rust   #a855f7  (brand-500 - roxo Tecplay principal)
+     --rust-2 #c084fc  (lilac - destaques suaves / hover)
+     --bone   #ede9fe  (osso lilás - texto claro)
+     --moss   #16a34a  (verde sucesso - preserved semantics)
+     --hazard #facc15  (accent dourado - raio do logo Tecplay)
      --dim    #a1a1aa  (texto secundário)
    ============================================================
    Notas pra integradores:
    - Os NOMES das vars (--rust, --bone, --moss…) são preservados
-     por compatibilidade — não renomear o que já está espalhado em
+     por compatibilidade - não renomear o que já está espalhado em
      258+ lugares no CSS. Para skin customizada, faça override de
      valor em :root no theme.override.css.
    - Veja exemplo completo de override de skin em
@@ -41,11 +41,11 @@
     --dim:    #a1a1aa;
     --border: rgba(237,233,254,0.10);
 
-    /* Vars novas v1.1.1 — texto de status (antes hardcoded Tailwind red-300/green-300) */
+    /* Vars novas v1.1.1 - texto de status (antes hardcoded Tailwind red-300/green-300) */
     --text-danger:  #fca5a5;   /* texto erro/aviso vermelho */
     --text-success: #86efac;   /* texto sucesso verde */
 
-    /* Vars novas v1.1.1 — overlays/backgrounds translucidos (skinaveis via override) */
+    /* Vars novas v1.1.1 - overlays/backgrounds translucidos (skinaveis via override) */
     --danger-overlay: rgba(231,76,60,0.12);   /* fundo banner erro/aviso */
     --danger-border:  rgba(231,76,60,0.4);    /* borda mini-buttons danger */
     --hazard-overlay: rgba(212,160,23,0.08);  /* fundo banner accent */
@@ -252,7 +252,7 @@ h1, h2, h3, h4 {
     color: #fff;
 }
 
-/* ============ LANG SELECTOR (legacy bandeiras inline — usado no drawer mobile) ============ */
+/* ============ LANG SELECTOR (legacy bandeiras inline - usado no drawer mobile) ============ */
 .lang-select { display: flex; gap: 0.4rem; align-items: center; }
 .lang-flag {
     display: inline-flex;
@@ -399,7 +399,7 @@ h1, h2, h3, h4 {
     /* Compensa o header fixo + folga extra pra não cortar o botão CTA */
     margin-top: 92px;
 }
-/* Header retraído quando rola — ajusta margem dinamicamente */
+/* Header retraído quando rola - ajusta margem dinamicamente */
 .site-header.scrolled ~ main .announcements-strip,
 body:has(.site-header.scrolled) .announcements-strip {
     margin-top: 78px;
@@ -805,7 +805,7 @@ body:has(.site-header.scrolled) .announcements-strip {
 .social-icon.social-whatsapp:hover { color: #25D366; border-color: #25D366; }
 
 /* ============ Payment logos no rodapé ============ */
-/* Maiores e bem visíveis — boa prática de transparência ao consumidor (CDC/Procon):
+/* Maiores e bem visíveis - boa prática de transparência ao consumidor (CDC/Procon):
    formas de pagamento aceitas devem estar claras ao olho. */
 .payment-logos {
     display: flex; gap: 0.7rem; align-items: center; flex-wrap: wrap;
@@ -1022,12 +1022,12 @@ body:has(.site-header.scrolled) .announcements-strip {
     .footer-bottom { flex-direction: column; text-align: center; }
 }
 
-/* Hero em telas muito altas (≥1080) — limita altura mas mantém min 100vh */
+/* Hero em telas muito altas (≥1080) - limita altura mas mantém min 100vh */
 @media (min-height: 1080px) and (min-width: 861px) {
     .hero { min-height: 80vh; max-height: 1000px; }
 }
 
-/* Footer em telas muito largas — limita pra nao ficar com colunas vazias */
+/* Footer em telas muito largas - limita pra nao ficar com colunas vazias */
 @media (min-width: 1600px) {
     .footer-grid { max-width: 1400px; margin: 0 auto 3rem; }
 }
@@ -1046,7 +1046,7 @@ body:has(.site-header.scrolled) .announcements-strip {
     }
 }
 
-/* TAG do clã clicável antes do nick (ex: [RVH] Bryan) — pelo site todo. */
+/* TAG do clã clicável antes do nick (ex: [RVH] Bryan) - pelo site todo. */
 .clan-tag { color: var(--hazard); text-decoration: none; font-family: var(--font-mono); font-weight: 700; }
 .clan-tag:hover { text-decoration: underline; }
 

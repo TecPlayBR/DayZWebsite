@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS shop_items (
     enabled      TINYINT(1)   NOT NULL DEFAULT 1,
     sort_order   INT          NOT NULL DEFAULT 0,
     -- deliver[] = [{classname, quantity, attachments[], cargo[], health}]
-    -- formato travado com o Claude dos Mods (o PBO lê isso pra dropar).
+    -- formato fechado junto com o mod: o PBO lê isso pra dropar o item no jogo.
     deliver_json JSON         NOT NULL,
     created_at   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_enabled_order (enabled, sort_order)

@@ -7,9 +7,9 @@
    1. Copie este arquivo pra `theme.override.css` (mesma pasta).
    2. Edite os valores. As únicas vars que importa trocar estão
       no bloco :root abaixo.
-   3. Salve. Pronto — refresh o site e a paleta aplica.
+   3. Salve. Pronto - refresh o site e a paleta aplica.
 
-   IMPORTANTE: o arquivo `theme.override.css` é GITIGNORED — fica
+   IMPORTANTE: o arquivo `theme.override.css` é GITIGNORED - fica
    só na sua instalação, não vai pro repositório público.
    ============================================================
    v1.1.1: template ~98% skinável (refactor de cores hardcoded
@@ -40,7 +40,7 @@
      --dark-overlay                    (modal/dropdown backdrop)
    ============================================================ */
 
-/* -------- EXEMPLO 1 — "Apocalipse rust" (original DayZ vibe) -------- */
+/* -------- EXEMPLO 1 - "Apocalipse rust" (original DayZ vibe) -------- */
 /*
 :root {
     --bg-0:   #050608;
@@ -57,7 +57,7 @@
 }
 */
 
-/* -------- EXEMPLO 2 — "Sangue + esmeralda" (vibe danone apocalíptica) -------- */
+/* -------- EXEMPLO 2 - "Sangue + esmeralda" (vibe danone apocalíptica) -------- */
 /*
 :root {
     --bg-0:   #0a0405;
@@ -74,7 +74,7 @@
 }
 */
 
-/* -------- EXEMPLO 3 — "Cyan tactical" (HUD militar) -------- */
+/* -------- EXEMPLO 3 - "Cyan tactical" (HUD militar) -------- */
 /*
 :root {
     --bg-0:   #020617;
@@ -91,7 +91,7 @@
 }
 */
 
-/* -------- EXEMPLO 4 — "Toxic green" (radiation) -------- */
+/* -------- EXEMPLO 4 - "Toxic green" (radiation) -------- */
 /*
 :root {
     --bg-0:   #0a0f08;

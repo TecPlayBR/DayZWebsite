@@ -33,7 +33,7 @@ $barColor = !$syncTs ? 'var(--rust)' : ($stale ? 'var(--hazard)' : 'var(--moss)'
         <span style="color:var(--dim);">Ainda não rodou. Compras feitas <strong>direto no jogo</strong> (VIP/Passe/Skin/KillFeed) só aparecem no site depois que o agent/reconciliador sincroniza. Se acabou de instalar, aguarde alguns minutos.</span>
     <?php else: ?>
         <span style="color:var(--dim);">Última sync: <strong><?= $mins < 1 ? 'agora mesmo' : ('há ' . $mins . ' min') ?></strong> · <?= $igCount ?> benefício(s) in-game refletido(s) no site.
-        <?php if ($stale): ?><br><span style="color:var(--hazard);">⚠️ Faz mais de 30 min desde a última sync — o reconciliador/agent pode estar parado. Compras in-game recentes podem não estar aparecendo.</span><?php endif; ?>
+        <?php if ($stale): ?><br><span style="color:var(--hazard);">⚠️ Faz mais de 30 min desde a última sync: o reconciliador/agent pode estar parado. Compras in-game recentes podem não estar aparecendo.</span><?php endif; ?>
         </span>
     <?php endif; ?>
 </div>

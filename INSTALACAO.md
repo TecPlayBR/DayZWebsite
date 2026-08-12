@@ -1,14 +1,16 @@
-# 🚀 Guia de Instalação — Do Zero Absoluto
+# 🚀 Guia de Instalação - Do Zero Absoluto
 
 > Você baixou o ZIP do **Tecplay DayZ Website Template** e não sabe por onde começar?
 > Tá no lugar certo. Vamos do passo 1.
 
-**Tempo total estimado:** 30 a 45 minutos
-**Conhecimento necessário:** zero. Se você sabe usar cPanel e FileZilla, consegue.
+**Tempo total estimado:** de 40 minutos a 1h30, contando criar o banco e subir os arquivos.
+**Conhecimento necessário:** saber mexer no painel da hospedagem e num programa de FTP.
+O passo que mais dá trabalho é o Passo 2 (onde cada pasta vai). Leia ele com calma:
+é ali que quase todo problema de instalação nasce.
 
 ---
 
-## ⚠️ LEIA PRIMEIRO — Licença e Suporte (importante)
+## ⚠️ LEIA PRIMEIRO - Licença e Suporte (importante)
 
 Este Template é **GRATUITO**. Você pode baixar, instalar e usar livremente no SEU servidor DayZ. Mas tem regras importantes que você precisa saber **ANTES** de instalar:
 
@@ -51,22 +53,22 @@ Este Template é **GRATUITO**. Você pode baixar, instalar e usar livremente no 
 
 ---
 
-## 📋 Antes de começar — checklist
+## 📋 Antes de começar - checklist
 
 - [ ] Você baixou e extraiu o ZIP do template
 - [ ] Você tem (ou vai contratar) uma hospedagem web com PHP 8.0+ e MySQL
 - [ ] Você tem (ou vai contratar) um domínio (ex: `meuservidor.com.br`)
-- [ ] Você tem uma conta no Mercado Pago (opcional — pode configurar depois)
+- [ ] Você tem uma conta no Mercado Pago (opcional - pode configurar depois)
 
 ---
 
-## 🌐 Passo 0 — Hospedagem (se você ainda não tem)
+## 🌐 Passo 0 - Hospedagem (se você ainda não tem)
 
 Você pode usar **qualquer hospedagem com PHP 8.0+ e MySQL**. Nossa recomendação pra quem está começando:
 
 ### Hostinger (recomendado, opcional)
 
-Plano básico já funciona. **Use este link de afiliado se quiser apoiar o projeto Tecplay** — você paga o mesmo, mas a gente recebe uma comissão:
+Plano básico já funciona. **Use este link de afiliado se quiser apoiar o projeto Tecplay**: você paga o mesmo, mas a gente recebe uma comissão:
 
 🔗 **https://www.hostinger.com/br?REFERRALCODE=ITGTECPLANYS**
 
@@ -82,7 +84,7 @@ KingHost, Locaweb, HostGator, UolHost, ou qualquer hospedagem que tenha:
 
 ---
 
-## 🗄️ Passo 1 — Criar a database MySQL
+## 🗄️ Passo 1 - Criar a database MySQL
 
 1. Acesse o **cPanel** da sua hospedagem (link e senha vêm no e-mail de boas-vindas)
 2. Procure pela seção **"Banco de Dados"** ou **"MySQL"**
@@ -97,7 +99,7 @@ KingHost, Locaweb, HostGator, UolHost, ou qualquer hospedagem que tenha:
 
 ---
 
-## 📤 Passo 2 — Subir os arquivos pro servidor
+## 📤 Passo 2 - Subir os arquivos pro servidor
 
 Você pode usar **FTP** (recomendado, FileZilla é grátis) ou o **Gerenciador de Arquivos do cPanel**.
 
@@ -107,11 +109,13 @@ O template tem essa estrutura:
 
 ```
 DayZWebsite/        ← o que você baixou e extraiu
-├── public/         ← SÓ ISSO vai pra dentro do public_html
+├── public/         ← SÓ O CONTEÚDO daqui vai pra dentro do public_html
 ├── src/            ← um nível ACIMA do public_html
 ├── views/          ← um nível ACIMA do public_html
 ├── lang/           ← um nível ACIMA do public_html
 ├── config/         ← um nível ACIMA do public_html
+├── migrations/     ← um nível ACIMA do public_html
+├── cli/            ← um nível ACIMA do public_html (é ela que atualiza o site depois)
 ├── storage/        ← um nível ACIMA do public_html
 ├── schema.sql      ← um nível ACIMA do public_html
 └── README.md, LICENSE.txt, ...
@@ -119,14 +123,61 @@ DayZWebsite/        ← o que você baixou e extraiu
 
 ### Cenário A: hospedagens onde o `public_html` é fixo (Hostinger, KingHost, Locaweb)
 
-1. Conecte via FTP na raiz da hospedagem
-2. **Suba TUDO menos a pasta `public/`** pra dentro da raiz (`home/seuusuario/` ou similar — **um nível acima do `public_html`**)
-3. **Suba o CONTEÚDO da pasta `public/`** (não a pasta em si, só o que tá dentro) pra dentro do `public_html`
+> ⚠️ **Leia isto antes de arrastar qualquer arquivo.** A regra abaixo vale sempre, mas
+> **o caminho muda de conta pra conta** na mesma hospedagem. Não presuma, olhe.
 
-Resultado final no servidor:
+**A regra que nunca muda, e é a única que importa:**
+
+1. O `install.php` tem que ficar **direto dentro da pasta pública**, nunca dentro de outra pasta
+2. `src/ views/ lang/ config/ migrations/ cli/ storage/ schema.sql` ficam **na pasta que CONTÉM a pasta pública**
+
+**Suba o CONTEÚDO das pastas, nunca as pastas em si.** Se você arrastar a pasta `public`
+inteira, vai virar `public_html/public/` e o site não sobe. Mesma coisa se arrastar a pasta
+`DayZWebsite` inteira.
+
+#### Passo 1: descubra onde fica a sua pasta pública
+
+Conecte no FTP e olhe o que aparece. Na Hostinger existem **dois layouts diferentes**:
+
+**Layout 1 - conta sem domínio próprio (subdomínio de teste):** o login já mostra o `public_html`.
 
 ```
-/home/seu_usuario/                ← raiz
+/                                 ← onde o FTP te deixa
+├── public_html/                  ← a pasta pública
+└── (outros arquivos da conta)
+```
+A pasta que contém a pública é a **própria raiz** `/`.
+
+**Layout 2 - conta com domínio próprio (o mais comum em cliente real):** existe uma pasta
+`domains/` no meio.
+
+```
+/                                 ← onde o FTP te deixa
+└── domains/
+    └── SEUDOMINIO.com/           ← É ESTA que contém a pública
+        ├── public_html/          ← a pasta pública
+        └── DO_NOT_UPLOAD_HERE
+```
+A pasta que contém a pública é **`/domains/SEUDOMINIO.com/`**, e **não** a raiz do FTP.
+
+> 📌 A Hostinger cria um arquivo chamado `DO_NOT_UPLOAD_HERE` dentro de
+> `domains/SEUDOMINIO.com/`. Ele avisa pra você não colocar ali os arquivos **do site**
+> (esses vão em `public_html`). As pastas privadas do template (`src/`, `views/`, ...)
+> vão ali sim, porque elas **precisam** ficar fora do alcance da web. Pode ignorar o aviso
+> pra elas.
+
+#### Passo 2: suba
+
+- **Conteúdo de `public/`** (index.php, install.php, update.php, .htaccess, assets/, api/) → dentro de `public_html/`
+- **Todo o resto** (src/, views/, lang/, config/, migrations/, **cli/**, storage/, schema.sql) → na pasta que contém o `public_html` (a que você descobriu no passo 1)
+
+> 🚨 **Não esqueça a pasta `cli/`.** Sem ela os dados de exemplo não são criados e, pior,
+> você não consegue rodar `php cli/migrate.php` pra atualizar o site nas próximas versões.
+
+Resultado no **Layout 2** (conta com domínio próprio):
+
+```
+/domains/SEUDOMINIO.com/
 ├── public_html/                  ← document root (acessível pela web)
 │   ├── index.php
 │   ├── install.php
@@ -137,9 +188,26 @@ Resultado final no servidor:
 ├── views/
 ├── lang/
 ├── config/
+├── migrations/
+├── cli/
 ├── storage/
 └── schema.sql
 ```
+
+No **Layout 1** é a mesma coisa, trocando `/domains/SEUDOMINIO.com/` pela raiz `/`.
+
+#### Passo 3: confira antes de abrir o instalador
+
+Se qualquer um destes for verdade, **está errado** e o site não vai funcionar:
+
+- [ ] existe uma pasta `public` **dentro** do `public_html` → mova o conteúdo dela pra cima e apague a pasta
+- [ ] existe uma pasta com o nome do template (ex: `DayZWebsite`) ao lado do `public_html` → mova o conteúdo dela pra cima e apague a pasta
+- [ ] o `install.php` só abre em `seudominio.com/public/install.php` → ele deveria abrir em `seudominio.com/install.php`
+- [ ] **não existe** a pasta `cli/` ao lado de `src/` → suba ela (o instalador avisa, mas confira)
+
+> Se você errar mesmo assim, tudo bem: o `install.php` detecta esses dois casos e te diz
+> exatamente o que mover, com o nome da pasta que ele encontrou. Ele **não** manda reenviar
+> tudo, porque os arquivos já estão lá.
 
 ### Cenário B: VPS ou hospedagem onde você controla o document root
 
@@ -147,11 +215,11 @@ Aponte o document root direto pra pasta `public/` do template. Outros diretório
 
 ---
 
-## ⚙️ Passo 3 — Rodar o instalador (parte mágica)
+## ⚙️ Passo 3 - Rodar o instalador (parte mágica)
 
 1. Abra o navegador
 2. Acesse: **`https://seudominio.com.br/install.php`**
-3. Você vai ver um wizard bonito com 5 cards:
+3. Você vai ver o instalador dividido em **5 etapas**, com uma barra de progresso no topo. Os campos são estes:
 
 ### Card 1: Site
 - **Nome do site:** algo como "MEU DAYZ" ou "[NOME] Server"
@@ -165,6 +233,10 @@ Use as 4 informações que você anotou no Passo 1:
 - **Usuário:** o que você criou
 - **Senha:** a que você definiu
 
+> 💡 Clique em **"Testar conexão agora"** antes de seguir. Ele diz na hora se conectou, qual
+> a versão do MySQL e se o banco está vazio. Erro de banco é a falha nº 1 da instalação, e
+> assim você descobre antes de preencher o resto.
+
 ### Card 3: Admin do Painel
 - **Usuário:** sugestão: `admin`
 - **E-mail:** opcional, pra contato
@@ -172,15 +244,15 @@ Use as 4 informações que você anotou no Passo 1:
 - **Confirmar senha:** repita
 
 > 🛡 **Papéis (RBAC):** o usuário do install nasce como `super_admin` (acesso total). Depois você cria os outros membros da equipe em `Admin → Equipe` escolhendo o papel:
-> - **finance** — só compras/pacotes/cupons (financeiro)
-> - **support** — só atende jogadores e modera reviews (não vê valor financeiro)
-> - **editor** — só conteúdo do site (páginas, galeria, anúncios)
+> - **finance**: só compras/pacotes/cupons (financeiro)
+> - **support**: só atende jogadores e modera reviews (não vê valor financeiro)
+> - **editor**: só conteúdo do site (páginas, galeria, anúncios)
 
 ### Card 4: AGENT_TOKEN
-O wizard **já sugere um token aleatório forte**. Clique no campo amarelo pra copiar o valor sugerido pro input abaixo. Anote esse token! Você vai precisar dele depois pra configurar o `tecplay-agent.exe`.
+O wizard **já gera um token aleatório forte** (48 caracteres). Tem os botões **Copiar** e **Gerar outra** do lado. Anote esse token: você vai precisar dele depois pra configurar o `tecplay-agent.exe` e a integração Sparda.
 
 ### Card 5: Mercado Pago
-**Opcional agora.** Pode deixar vazio se ainda não tem conta MP — você configura depois pelo painel admin. Se já tem:
+**Opcional agora.** Pode deixar vazio se ainda não tem conta MP - você configura depois pelo painel admin. Se já tem:
 - **Access Token:** começa com `TEST-` (testes) ou `APP_USR-` (produção)
 - **Webhook Secret:** opcional, mas recomendado em produção
 
@@ -200,12 +272,12 @@ E o `install.php` **se auto-renomeia** pra um arquivo com timestamp (segurança)
 
 ---
 
-## 🧪 Passo 4 — Testar se funcionou
+## 🧪 Passo 4 - Testar se funcionou
 
-1. Acesse `https://seudominio.com.br/` — você deve ver a landing apocalipse
-2. Acesse `https://seudominio.com.br/admin/login` — faça login com o usuário e senha do passo 3
+1. Acesse `https://seudominio.com.br/`: você deve ver a landing apocalipse
+2. Acesse `https://seudominio.com.br/admin/login`: faça login com o usuário e senha do passo 3
 3. No painel admin você vê:
-   - Dashboard com stats — **com dados de exemplo** se você deixou o Card 7 marcado (jogadores/compras fictícios), ou **zerados** se instalou limpo
+   - Dashboard com stats - **com dados de exemplo** se você deixou o Card 7 marcado (jogadores/compras fictícios), ou **zerados** se instalou limpo
    - Lista de pacotes (6 seedados)
    - Configurações
 
@@ -215,9 +287,9 @@ E o `install.php` **se auto-renomeia** pra um arquivo com timestamp (segurança)
 
 ---
 
-## 🎨 Passo 5 — Customizar (mínimo necessário antes de divulgar)
+## 🎨 Passo 5 - Customizar (mínimo necessário antes de divulgar)
 
-### 5.1 — Configurar redes sociais
+### 5.1 - Configurar redes sociais
 
 `Admin → Configurações → Redes Sociais`
 
@@ -227,22 +299,22 @@ Cole os links que tiver:
 
 Os ícones aparecem automaticamente no rodapé. Deixe vazio pra esconder.
 
-### 5.2 — Logo, favicon, backgrounds e cores (tudo pelo painel)
+### 5.2 - Logo, favicon, backgrounds e cores (tudo pelo painel)
 
 `Admin → Personalização Visual` (`/admin/customize`). **Não precisa mais de FTP nem editar arquivo:**
-- **Logo, logo pequeno, favicon** — botão "Enviar" em cada um. PNG transparente (~250×250 pro logo principal).
-- **Backgrounds** (hero, login, loja, 404, páginas) — botão "Enviar". Mínimo 1920×1080; **otimize antes** no [TinyPNG](https://tinypng.com) ou [Squoosh](https://squoosh.app) (de 2MB pra ~300KB sem perda visual).
-- **Cores do site** — color picker com 10 cores; "Salvar cores" aplica na hora.
+- **Logo, logo pequeno, favicon**: botão "Enviar" em cada um. PNG transparente (~250×250 pro logo principal).
+- **Backgrounds** (hero, login, loja, 404, páginas) - botão "Enviar". Mínimo 1920×1080; **otimize antes** no [TinyPNG](https://tinypng.com) ou [Squoosh](https://squoosh.app) (de 2MB pra ~300KB sem perda visual).
+- **Cores do site**: 10 cores. Dá pra escolher no quadradinho **ou digitar o código HEX** da sua marca (ex: `#e01b1b`); "Salvar cores" aplica na hora, no site e no painel.
 
 > Tudo que você envia/edita aqui fica isolado (`assets/img/custom/` + `theme.override.css`) e **NÃO é perdido quando você atualizar o template**. Botão "Voltar ao padrão" desfaz qualquer item.
 
-### 5.4 — Configurar IP/porta do servidor DayZ
+### 5.3 - Configurar IP/porta do servidor DayZ
 
 `Admin → Configurações → Servidor DayZ`
 - IP público
 - Porta (geralmente 2302)
 
-### 5.5 — Editar páginas legais
+### 5.4 - Editar páginas legais
 
 `Admin → Páginas`
 
@@ -250,7 +322,7 @@ Os arquivos `terms`, `privacy`, `refund` já foram seedados em PT-BR e EN-US. **
 
 ---
 
-## 💳 Passo 6 — Configurar Mercado Pago (pra começar a vender)
+## 💳 Passo 6 - Configurar Mercado Pago (pra começar a vender)
 
 ### Se você não fez no install
 
@@ -275,14 +347,14 @@ Isso faz o site receber notificação quando o pagamento confirma, e creditar as
 
 1. Vai no `/shop`
 2. Escolhe um pacote, informa um SteamID válido (17 dígitos começando com 7656119)
-3. Clica em COMPRAR — você é redirecionado pro Mercado Pago
+3. Clica em COMPRAR - você é redirecionado pro Mercado Pago
 4. Faz um pagamento PIX (modo TEST não cobra de verdade)
 5. Volta pro site e confere em `Admin → Compras` que o status mudou pra `approved`
 6. Confere em `Admin → Jogadores` que o saldo foi creditado
 
 ---
 
-## 🎮 Passo 7 — Integrar com o Tecplay Agent
+## 🎮 Passo 7 - Integrar com o Tecplay Agent
 
 > Este passo só é necessário se você tem o `tecplay-agent.exe` instalado no servidor DayZ.
 
@@ -296,40 +368,40 @@ Isso faz o site receber notificação quando o pagamento confirma, e creditar as
 
 ---
 
-## 🎮 Passo 7B — Entrega in-game NATIVA pelo mod Sparda (grátis, sem o Agent)
+## 🎮 Passo 7B - Entrega in-game NATIVA pelo mod Sparda (grátis, sem o Agent)
 
-Se o seu servidor usa o **mod Sparda** (com WebsiteAPI), dá pra entregar as moedas **direto pelo mod** — sem precisar do `tecplay-agent.exe` pago nem do Bot. O site vende e credita o saldo; o mod **lê e grava** esse saldo direto na API do site.
+Se o seu servidor usa o **mod Sparda** (com WebsiteAPI), dá pra entregar as moedas **direto pelo mod**: sem precisar do `tecplay-agent.exe` pago nem do Bot. O site vende e credita o saldo; o mod **lê e grava** esse saldo direto na API do site.
 
 ### Como ligar (2 minutos)
 
 1. **Abra** no painel: **Admin → 🎮 Integração Sparda**.
-2. A página já mostra **2 URLs prontas** — com o seu `agent_token` **já embutido** e terminando em `&steamid=`:
-   - **Api_Get** — o mod **lê** o saldo do jogador.
-   - **Api_Post** — o mod **grava** o saldo depois que o jogador gasta in-game.
-   > Você **não copia o token separado** — ele já vem dentro das URLs. **Não remova o final `&steamid=`** (o mod cola o SteamID do jogador ali sozinho).
-3. **Copie** as duas URLs e **cole** na config do mod Sparda, nos campos correspondentes. Garanta `EnableWebsiteAPI = 1` (o nome exato do campo varia com a versão do mod — o que importa é ligar a integração web e apontar GET/POST pras URLs).
+2. A página já mostra **2 URLs prontas**: com o seu `agent_token` **já embutido** e terminando em `&steamid=`:
+   - **Api_Get**: o mod **lê** o saldo do jogador.
+   - **Api_Post**: o mod **grava** o saldo depois que o jogador gasta in-game.
+   > Você **não copia o token separado**: ele já vem dentro das URLs. **Não remova o final `&steamid=`** (o mod cola o SteamID do jogador ali sozinho).
+3. **Copie** as duas URLs e **cole** na config do mod Sparda, nos campos correspondentes. Garanta `EnableWebsiteAPI = 1` (o nome exato do campo varia com a versão do mod - o que importa é ligar a integração web e apontar GET/POST pras URLs).
 4. **Pronto.** Compre uma moeda no site e veja o saldo aparecer in-game. A própria página mostra as **"Últimas movimentações via Sparda"** pra você confirmar que está conversando.
 
-> ⚠️ Se a página avisar que o `agent_token` ainda está no **valor padrão**, troque por um token forte no `config/config.php` (os endpoints devolvem **401** até lá). Numa instalação normal o wizard já gerou um token forte — então geralmente já está pronto.
+> ⚠️ Se a página avisar que o `agent_token` ainda está no **valor padrão**, troque por um token forte no `config/config.php` (os endpoints devolvem **401** até lá). Numa instalação normal o wizard já gerou um token forte - então geralmente já está pronto.
 
-### "Já tenho o site rodando e vou atualizar — perco meu token / minha config?"
+### "Já tenho o site rodando e vou atualizar - perco meu token / minha config?"
 
-**Não.** O `agent_token` mora no `config/config.php`, e **atualizar nunca encosta nesse arquivo**: o `php cli/migrate.php` só mexe no **banco**, de forma aditiva (*"NUNCA apaga nem altera dados existentes"*). Depois de atualizar, é só abrir **Admin → 🎮 Integração Sparda** e copiar as URLs — elas já saem com o **seu token de sempre**. Nada é resetado, nem suas moedas, jogadores, páginas ou cores.
+**Não.** O `agent_token` mora no `config/config.php`, e **atualizar nunca encosta nesse arquivo**: o `php cli/migrate.php` só mexe no **banco**, e só adiciona o que falta (nunca apaga seus dados: moedas, jogadores, compras, páginas e pacotes ficam intactos). Depois de atualizar, é só abrir **Admin → 🎮 Integração Sparda** e copiar as URLs - elas já saem com o **seu token de sempre**. Nada é resetado, nem suas moedas, jogadores, páginas ou cores.
 
 ---
 
-## 🔐 Passo 8 — HTTPS e segurança final
+## 🔐 Passo 8 - HTTPS e segurança final
 
 ### Habilitar HTTPS
 
 Quase toda hospedagem moderna tem **Let's Encrypt grátis** no cPanel:
 1. cPanel → SSL/TLS → **AutoSSL** ou **Let's Encrypt**
 2. Selecione seu domínio e ative
-3. Aguarde 10–30 minutos pra propagar
+3. Aguarde 10-30 minutos pra propagar
 
 ### Forçar redirect HTTP → HTTPS
 
-No arquivo `public_html/.htaccess`, descomente as 3 linhas:
+No arquivo `.htaccess` da sua pasta pública, descomente estas 2 linhas (tire o `#` da frente):
 
 ```apache
 RewriteCond %{HTTPS} off
@@ -339,6 +411,8 @@ RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 ### Conferir checklist de segurança
 
 - [ ] `install.php` foi removido ou auto-renomeado
+- [ ] o `update.php` **pode ficar** no servidor: ele exige login de `super_admin` e é como
+      você vai atualizar o site nas próximas versões
 - [ ] Admin com senha forte (12+ caracteres)
 - [ ] AGENT_TOKEN com 32+ caracteres (o wizard gera assim)
 - [ ] HTTPS ativo
@@ -352,7 +426,7 @@ RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 - Geralmente é PHP < 8.0 ou `.htaccess` não suportado
 - Confirme com a hospedagem que tem PHP 8.0+ e `mod_rewrite`
 
-### "DB unavailable"
+### "Banco indisponivel."
 - Credenciais erradas no `config.php`
 - Confirma `host`, `name`, `user`, `pass` contra o que cPanel mostra
 
@@ -360,8 +434,11 @@ RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 - O `.htaccess` não está sendo lido (servidor sem `mod_rewrite`)
 - Pede pra hospedagem habilitar `mod_rewrite` e `AllowOverride All`
 
-### `install.php` sai com erro "DB ja tem tabelas"
-- Use uma database vazia, ou apague as tabelas existentes antes
+### `install.php` diz que "esse banco JÁ TEM dados"
+- É proteção, não defeito: o instalador se recusa a rodar num banco com dados pra não apagar
+  nada. Use uma database **vazia**.
+- Se o que você quer é **atualizar** um site que já existe, não use o `install.php`:
+  suba os arquivos novos e rode `php cli/migrate.php` (veja o `ATUALIZAR.md`).
 
 ### Login admin não funciona após install
 - Confere se o cookie de sessão está sendo aceito (HTTPS bloqueia cookies `Secure` em HTTP)

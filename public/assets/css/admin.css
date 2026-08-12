@@ -411,7 +411,7 @@
 .admin-alert.error { border-left-color: var(--rust-2); background: var(--danger-overlay); color: var(--text-danger); }
 .admin-alert.ok    { border-left-color: var(--moss);   background: rgba(74,93,58,0.12); color: var(--bone); }
 
-/* details (collapsible) — usado no "+ Adicionar novo" */
+/* details (collapsible) - usado no "+ Adicionar novo" */
 .admin-card[open] > summary,
 .admin-card > summary {
     cursor: pointer;
@@ -437,14 +437,14 @@
     .admin-form-actions .btn-mini { width: 100%; justify-content: center; }
 }
 
-/* ============ MOBILE ADMIN — drawer pattern (patchH refatorado) ============
+/* ============ MOBILE ADMIN - drawer pattern (patchH refatorado) ============
    Em < 960px: troca grid pra block flow simples, sidebar off-canvas fixed.
    patchG original quebrou com backdrop-filter + body overflow hidden no Edge 60. */
 
 .admin-hamburger {
     display: none;
     position: fixed;
-    top: 10px; right: 10px; /* canto superior DIREITO — não cobre título do main */
+    top: 10px; right: 10px; /* canto superior DIREITO - não cobre título do main */
     z-index: 200;
     background: var(--bg-1);
     border: 1px solid var(--rust);
@@ -470,7 +470,7 @@
     background: rgba(0,0,0,0.35);
     z-index: 100;
     touch-action: none;
-    /* Fade-in junto com sidebar — não aparece preto instantâneo antes do drawer entrar */
+    /* Fade-in junto com sidebar - não aparece preto instantâneo antes do drawer entrar */
     opacity: 0;
     pointer-events: none;
     visibility: hidden;
@@ -492,7 +492,7 @@
         top: 0; left: 0; bottom: 0;
         width: 280px;
         max-width: 85vw;
-        height: 100dvh; /* dynamic viewport — respeita bottom nav bar Android (Moto Edge 60 etc) */
+        height: 100dvh; /* dynamic viewport - respeita bottom nav bar Android (Moto Edge 60 etc) */
         z-index: 200;
         transform: translateX(-100%);
         transition: transform 0.18s ease-out;
