@@ -5,6 +5,59 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [3.1.0] - 2026-08-12
+
+> Versão de correção de **instalação e atualização**. Se você já tem o site rodando, o mais
+> importante aqui é a nova tela `update.php` e o fato de que uploads pelo painel agora
+> funcionam em qualquer layout de hospedagem. Rode as migrations normalmente (agora dá pra
+> fazer pelo navegador).
+
+### Corrigido (crítico)
+
+- **Uploads do painel iam pra uma pasta fora do site.** O código assumia que a pasta pública
+  se chama `public`. Em conta com domínio próprio ela se chama `public_html`, e o arquivo era
+  gravado em `<raiz>/public/...`, fora do alcance do navegador: o painel dizia "atualizado" e
+  a imagem aparecia quebrada. Afetava logo, favicon, cores, imagem de pacote, caixa, logo de
+  clã, central de ajuda, galeria e VIP. Agora existe um `public_dir()` que descobre a pasta
+  pública de verdade.
+- **Instalação morria quando a pasta `cli/` não tinha subido.** O checkbox de dados de exemplo
+  vem marcado por padrão e o `require` do seed abortava a instalação depois de criar o banco e
+  o admin, sem gravar o `config.php`. Na segunda tentativa a proteção anti-destruição via o
+  banco com dados e recusava. O instalador agora segue sem os dados fictícios e avisa.
+- **O ZIP de distribuição saía sem nenhuma migration.** As migrations são `.sql` e caíam numa
+  regra que excluía todo `.sql`. Instalar funcionava (o `schema.sql` cobre), mas o cliente
+  ficava sem a pasta `migrations/` e portanto sem como atualizar depois.
+- **Ordem das migrations era alfabética, não por versão**, o que colocava a `v2.10.0` antes da
+  `v2.2.0`. Sem efeito em instalação nova, mas a fila saía fora de ordem em quem vinha de
+  versão antiga.
+- **Fontes do site não existiam no pacote.** O layout apontava para `assets/fonts/*.woff2` e
+  `assets/css/fonts.css`, que nunca tinham sido versionados: 4 requisições 404 por página e
+  nenhuma fonte carregada, caindo no Impact do sistema. Incluídas (subset latin, SIL OFL).
+
+### Adicionado
+
+- **`update.php`**: tela de atualização do banco pelo navegador, no mesmo padrão do
+  instalador. Mostra quantas atualizações faltam e quais, você confirma e ela aplica. Exige
+  sessão de `super_admin`, CSRF e confirmação explícita; sem login não expõe nada. Quem tem
+  SSH continua podendo usar `php cli/migrate.php` (é o mesmo motor).
+- **Campo HEX na paleta de cores**: além do seletor visual, dá pra digitar o código da sua
+  marca. Aceita `#e01b1b`, `e01b1b`, maiúsculo e o atalho de 3 dígitos. Valor ilegível agora
+  avisa qual cor ficou de fora, em vez de ser descartado em silêncio.
+- **"Testar conexão agora"** na etapa do banco do instalador, com aviso se o banco não estiver
+  vazio.
+- Instalador redesenhado em 5 etapas, com barra de progresso, medidor de força de senha e
+  botões de copiar/gerar o token do agent.
+
+### Alterado
+
+- Logos padrão do template substituídos por um emblema neutro, e criado o
+  `logo_semfundo_small.png`, que o painel pedia e não existia no pacote.
+- Documentação (`INSTALACAO.md`, `ATUALIZAR.md`, `README.md`) revisada contra o código: 30
+  correções, entre elas a pasta `cli/` que faltava nas listas de arquivos a subir, caminhos
+  que só existiam no layout `public/` e mensagens de erro que não existem no código.
+
+---
+
 ## [3.0.1] - 2026-07-28
 
 > Versão de consolidação (quase release final): integração in-game pelo Discord, ponte de saldos nos dois sentidos, colar imagem no editor e correção de segurança. Nada de migration manual além do `migrate.php` de sempre - e atualizar **não perde dados** (validado num site real 4 versões atrás).

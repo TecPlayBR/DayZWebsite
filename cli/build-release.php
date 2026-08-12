@@ -20,7 +20,16 @@ if (!class_exists('ZipArchive')) {
 }
 
 $ROOT    = dirname(__DIR__);
-$version = $argv[1] ?? '1.0';
+// Versao: usa o argumento, senao le a ultima do CHANGELOG.md. Antes era '1.0'
+// chumbado e o ZIP saia nomeado v1.0 com o template na 3.x.
+$version = $argv[1] ?? null;
+if (!$version) {
+    $version = '0.0.0';
+    if (is_readable($ROOT . '/CHANGELOG.md')) {
+        $cab = (string) file_get_contents($ROOT . '/CHANGELOG.md', false, null, 0, 2048);
+        if (preg_match('/^##\s*\[?v?([0-9]+\.[0-9]+\.[0-9]+)/m', $cab, $m)) $version = $m[1];
+    }
+}
 $date    = date('Y-m-d');
 $zipName = "DayZWebsite-v{$version}-{$date}.zip";
 $zipPath = $ROOT . '/' . $zipName;
@@ -72,6 +81,15 @@ $forceInclude = [
     'schema.sql',                    // schema é fundamental
 ];
 
+// Padroes que SEMPRE entram, mesmo batendo em excludePatterns.
+// As migrations sao .sql e caiam na exclusao generica de '#\.sql$#i': o ZIP do
+// cliente saia com ZERO migrations. Instalar funcionava (o schema.sql cobre), mas
+// o cliente ficava sem a pasta migrations/ e portanto SEM COMO ATUALIZAR depois.
+// Descoberto em 2026-08-12 abrindo o ZIP de verdade.
+$forceIncludePatterns = [
+    '#^/migrations/.+\.sql$#i',
+];
+
 // ============ COLETA OS ARQUIVOS ============
 $files = [];
 $rootReal = realpath($ROOT);
@@ -101,7 +119,13 @@ foreach ($it as $f) {
     if (in_array($rel, $excludeFiles, true)) { $skipped++; continue; }
 
     // Skip por pattern (a menos que esteja no force-include)
-    if (!in_array($rel, $forceInclude, true)) {
+    $forcado = in_array($rel, $forceInclude, true);
+    if (!$forcado) {
+        foreach ($forceIncludePatterns as $pat) {
+            if (preg_match($pat, '/' . $rel)) { $forcado = true; break; }
+        }
+    }
+    if (!$forcado) {
         foreach ($excludePatterns as $pat) {
             if (preg_match($pat, '/' . $rel)) { $skip = true; break; }
         }
