@@ -329,11 +329,17 @@ Os arquivos `terms`, `privacy`, `refund` já foram seedados em PT-BR e EN-US. **
 1. Crie conta em https://www.mercadopago.com.br/
 2. Acesse o painel de desenvolvedores: https://www.mercadopago.com.br/developers/panel
 3. Crie uma aplicação
-4. Pegue o **Access Token** (use o de produção `APP_USR-...` quando estiver pronto pra vender de verdade)
-5. **Edite `config/config.php`** (no servidor, via FTP) e cole o token:
-   ```php
-   'access_token' => 'APP_USR-1234567890-...',
-   ```
+4. Pegue o **Access Token** e a **Public Key** (use os de produção `APP_USR-...` quando estiver pronto pra vender de verdade)
+5. **Cole no painel:** `Admin → Configurações → 💳 Mercado Pago`. Não precisa de FTP nem editar arquivo.
+
+> 🔒 **Por que essa parte pede sua senha de novo:** esses campos decidem **para qual conta o
+> dinheiro vai**. Por isso só o `super_admin` mexe, o site confirma sua senha, testa o token
+> no Mercado Pago antes de salvar, registra quem trocou e avisa no seu Discord de vendas.
+> O valor salvo nunca mais aparece na tela: pra trocar, você digita o novo inteiro.
+>
+> 💡 Você pode trocar de conta quando quiser (mudou de titular, abriu MEI, rotacionou a
+> chave) **sem depender de suporte**. Se preferir fixar no arquivo, o `config/config.php`
+> continua tendo prioridade sobre o painel.
 
 ### Configurar o webhook
 

@@ -193,6 +193,28 @@ if (empty($cftoolsCfg['app_id']) || empty($cftoolsCfg['secret']) || empty($cftoo
 }
 \App\CFTools::init($cftoolsCfg, $ROOT . '/storage/cache');
 
+// Mercado Pago: mesma ideia do CFTools acima, e pelo mesmo motivo de justiça com o dono
+// do site. Até 2026-08-12 as credenciais de pagamento SÓ existiam no config/config.php,
+// que fica fora da pasta pública: trocar de conta MP exigia FTP e editar PHP na mão, então
+// o cliente dependia de suporte pago pra uma tarefa corriqueira (trocar de conta, abrir
+// MEI, rotacionar chave). Incoerente, ainda por cima, com o CFTools, cujo SECRET ele já
+// digitava no painel.
+//
+// Precedência: o config.php VENCE. Assim toda instalação existente continua exatamente
+// como está, e o painel só entra em cena pra quem não fixou no arquivo.
+$mpCfg = $config['mercado_pago'] ?? [];
+foreach (['access_token' => 'mp_access_token',
+          'public_key'   => 'mp_public_key',
+          'webhook_secret' => 'mp_webhook_secret'] as $campo => $chave) {
+    if (trim((string) ($mpCfg[$campo] ?? '')) === '') {
+        $salvo = trim((string) \App\Settings::get($chave, ''));
+        if ($salvo !== '') {
+            $mpCfg[$campo] = $salvo;
+        }
+    }
+}
+$config['mercado_pago'] = $mpCfg;
+
 // Sessão Steam: completa nome/foto se faltar (sessões antigas / fetch que falhou no login).
 \App\SteamAuth::enrich($config['steam_api_key'] ?? null);
 
@@ -2461,10 +2483,17 @@ $collectDashboardData = function() {
     // está sobrescrevendo os campos do painel (aí o que vale é o arquivo).
     $cf = $config['cftools'] ?? [];
     $cftoolsViaConfig = !empty($cf['app_id']) && !empty($cf['secret']) && !empty($cf['server_api_id']);
+    // Mercado Pago: mesma logica do CFTools. Mandamos so BOOLEANOS pra tela, nunca o
+    // valor: o painel deixa de ser um lugar onde da pra LER a credencial de pagamento.
+    $mpArquivo = $config['mercado_pago'] ?? [];
     \App\View::display('admin.settings', [
         'config' => $config, 'settings' => $map,
         'cftools_secret_set' => ($map['cftools_secret'] ?? '') !== '',
         'cftools_via_config' => $cftoolsViaConfig,
+        'mp_access_token_set'   => ($map['mp_access_token'] ?? '') !== '',
+        'mp_public_key_set'     => ($map['mp_public_key'] ?? '') !== '',
+        'mp_webhook_secret_set' => ($map['mp_webhook_secret'] ?? '') !== '',
+        'mp_via_config'         => trim((string) ($mpArquivo['access_token'] ?? '')) !== '',
     ]);
 });
 
@@ -2498,6 +2527,85 @@ $collectDashboardData = function() {
     // tela por segurança - não echoamos o secret salvo). Vazio = mantém o atual.
     if (isset($_POST['cftools_secret']) && trim((string)$_POST['cftools_secret']) !== '') {
         \App\Settings::set('cftools_secret', trim((string)$_POST['cftools_secret']));
+    }
+
+    // ---------------- Mercado Pago: CAMINHO DE DINHEIRO ----------------
+    // Trocar estas credenciais muda PRA ONDE O DINHEIRO VAI. Antes elas só existiam no
+    // config/config.php (exigia FTP), o que prendia o cliente ao suporte pago pra uma
+    // troca corriqueira de conta. Trazer pro painel é justo, mas baixa a barra de um
+    // ataque de redirecionamento de pagamento: agora basta a sessão do painel.
+    // Por isso este bloco, e não um campo solto:
+    //   1. exige a SENHA do admin logado de novo (sessão sequestrada não troca em silêncio)
+    //   2. VALIDA o token contra a API do MP antes de gravar (typo não derruba a venda)
+    //   3. AUDITA quem trocou e quando, sempre mascarado
+    //   4. AVISA no Discord na hora, pra o dono saber mesmo se não foi ele
+    $mpCampos = ['mp_access_token' => 'access_token',
+                 'mp_public_key' => 'public_key',
+                 'mp_webhook_secret' => 'webhook_secret'];
+    $mpMudou = [];
+    foreach ($mpCampos as $post => $_) {
+        if (isset($_POST[$post]) && trim((string) $_POST[$post]) !== '') {
+            $mpMudou[$post] = trim((string) $_POST[$post]);
+        }
+    }
+
+    if ($mpMudou) {
+        $mascara = function (string $v): string {
+            return strlen($v) <= 8 ? '••••' : substr($v, 0, 8) . '…' . substr($v, -4);
+        };
+
+        // 1. senha do admin logado
+        $u = \App\Auth::user();
+        $senha = (string) ($_POST['mp_confirma_senha'] ?? '');
+        $hash = \App\Database::pdo()->prepare("SELECT password_hash FROM admin_users WHERE id = ?");
+        $hash->execute([$u['id'] ?? 0]);
+        $atual = (string) ($hash->fetchColumn() ?: '');
+        if ($senha === '' || $atual === '' || !password_verify($senha, $atual)) {
+            header('Location: /admin/settings?err=mp_senha');
+            exit;
+        }
+
+        // 2. valida o token novo (ou o já salvo, se ele só mudou a public key)
+        if (isset($mpMudou['mp_access_token'])) {
+            $teste = new \App\MercadoPago($mpMudou['mp_access_token']);
+            $r = $teste->validarCredencial();
+            if (!$r['ok'] && strpos($r['erro'], 'nao_consegui_verificar') !== 0) {
+                // recusa só quando o MP DISSE que o token é ruim. Se a API estiver fora,
+                // não travamos o cliente por instabilidade de terceiro.
+                header('Location: /admin/settings?err=mp_token&msg=' . urlencode($r['erro']));
+                exit;
+            }
+        }
+
+        // 3. grava + audita (nunca o valor)
+        $diff = [];
+        foreach ($mpMudou as $post => $valor) {
+            $antes = (string) \App\Settings::get($post, '');
+            \App\Settings::set($post, $valor);
+            $diff[$post] = ($antes === '' ? '(vazio)' : $mascara($antes)) . ' -> ' . $mascara($valor);
+        }
+        try {
+            \App\AuditLog::record('settings.mercadopago', 'settings', null, [
+                'por'    => $u['username'] ?? '?',
+                'mudou'  => $diff,
+                'aviso'  => 'credencial de PAGAMENTO alterada pelo painel',
+            ]);
+        } catch (\Throwable $e) { /* auditoria não bloqueia */ }
+
+        // 4. avisa na hora, mesmo canal das vendas
+        $wh = trim((string) \App\Settings::get('discord_sales_webhook', ''));
+        if ($wh !== '') {
+            $txt = "⚠️ **Credencial de pagamento alterada** no site por **"
+                 . ($u['username'] ?? '?') . "** em " . date('d/m/Y H:i') . ".\n"
+                 . implode("\n", array_map(fn($k, $v) => "• `$k`: $v", array_keys($diff), $diff))
+                 . "\nSe não foi você, troque a senha do painel e revise a conta no Mercado Pago.";
+            $ch = curl_init($wh);
+            curl_setopt_array($ch, [CURLOPT_POST => true, CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 8, CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+                CURLOPT_POSTFIELDS => json_encode(['content' => $txt])]);
+            @curl_exec($ch);
+            @curl_close($ch);
+        }
     }
     // Mudou config do CFTools -> invalida o cache (token/lookup velhos batem no app
     // antigo). Sem isso, trocar o app CFTools "nao funciona" ate limpar storage/cache

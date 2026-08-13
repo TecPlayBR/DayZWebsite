@@ -76,6 +76,15 @@ class Settings {
         'cftools_app_id'           => 'string',
         'cftools_secret'           => 'string',
         'cftools_server_api_id'    => 'string',
+
+        // Mercado Pago pelo painel (2026-08-12). Antes só existia no config/config.php e
+        // o dono do site precisava de FTP pra trocar de conta, o que o prendia ao suporte.
+        // O config.php continua VENCENDO: estes só valem se lá estiver vazio.
+        // Gravados por um bloco separado no handler, que exige a senha do admin, valida o
+        // token contra a API do MP, audita e avisa no Discord. Não caem no laço genérico.
+        'mp_access_token'          => 'string',
+        'mp_public_key'            => 'string',
+        'mp_webhook_secret'        => 'string',
         // Programa de afiliado/streamer ("Apoie seu Streamer").
         'affiliate_enabled'        => 'bool',
         'affiliate_allow_switch'   => 'bool',

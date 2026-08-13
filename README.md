@@ -248,7 +248,7 @@ Textos do site (nome, tagline, links sociais, regras, termos, anúncios) ficam e
 | **Email de recuperação não chega** | `mail()` do PHP é instável em hospedagem compartilhada (cai em spam ou não sai) | Use o reset por CLI: `php cli/reset-password.php <usuario> <senha>` (não depende de email). |
 | **Logo/cores sumiram após atualizar** | Sobrescreveu os arquivos do cliente no upload | Reenvie `assets/img/custom/` e `assets/css/theme.override.css` (da sua pasta pública) a partir do backup. Veja a "Regra de ouro" em Atualizar. |
 | **Travei fora do admin** | Perdeu a senha e não tem outro admin | `php cli/reset-password.php <usuario> <nova_senha>` (via SSH ou Cron Jobs). |
-| Compra fica **"pendente" pra sempre** | Webhook do Mercado Pago não chegou (token/URL errados) | Confira o webhook no painel do Mercado Pago e o `access_token` no `config/config.php`. |
+| Compra fica **"pendente" pra sempre** | Webhook do Mercado Pago não chegou (token/URL errados) | Confira o webhook no painel do Mercado Pago e o Access Token em `Admin → Configurações → Mercado Pago` (ou no `config/config.php`, que tem prioridade). |
 
 ---
 

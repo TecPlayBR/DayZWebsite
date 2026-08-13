@@ -159,7 +159,7 @@ curl -s "https://seusite.com/api/award-rewards.php?token=SEU_AGENT_TOKEN"   # s�
 
 Esta versão **não tem migration** (não precisa rodar nada no banco) - só subir os arquivos. Pra aproveitar o que chegou:
 
-- **💳 Cartão de crédito dentro do site:** adicione sua **Public Key** do Mercado Pago no `config/config.php`, no bloco `mercado_pago`:
+- **💳 Cartão de crédito dentro do site:** adicione sua **Public Key** do Mercado Pago em `Admin → Configurações → 💳 Mercado Pago` (a partir da v3.2.0 não precisa mais de FTP). Se preferir o arquivo, o `config/config.php` continua valendo e tem prioridade:
   ```php
   'mercado_pago' => [
       'access_token' => 'APP_USR-...',   // (você já tinha)

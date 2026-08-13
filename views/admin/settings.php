@@ -108,6 +108,67 @@
             </p>
         </div>
 
+        <!-- ================= Mercado Pago ================= -->
+        <div style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.2rem;">
+            <label style="display:block; font-size:0.9rem; color:var(--bone); margin-bottom:0.5rem;">
+                💳 Mercado Pago <span style="color:var(--dim); font-weight:400;">(a conta que RECEBE o dinheiro)</span>
+            </label>
+
+            <?php if (!empty($mp_via_config)): ?>
+                <p style="margin:0.2rem 0 0.8rem; font-size:0.8rem; color:var(--hazard);">
+                    ⚙️ O Mercado Pago está configurado pelo <code>config.php</code> - esses campos do painel ficam ignorados enquanto o arquivo tiver as credenciais.
+                </p>
+            <?php endif; ?>
+
+            <?php if (($_GET['err'] ?? '') === 'mp_senha'): ?>
+                <p style="margin:0 0 0.8rem; padding:0.6rem 0.8rem; border-left:3px solid var(--rust-2); background:var(--danger-overlay); font-size:0.85rem; color:var(--text-danger);">
+                    Senha incorreta. As credenciais de pagamento <strong>não</strong> foram alteradas.
+                </p>
+            <?php elseif (($_GET['err'] ?? '') === 'mp_token'): ?>
+                <p style="margin:0 0 0.8rem; padding:0.6rem 0.8rem; border-left:3px solid var(--rust-2); background:var(--danger-overlay); font-size:0.85rem; color:var(--text-danger);">
+                    O Mercado Pago recusou esse Access Token, então não salvei nada.
+                    <?= !empty($_GET['msg']) ? '<br><small>' . e((string) $_GET['msg']) . '</small>' : '' ?>
+                </p>
+            <?php endif; ?>
+
+            <div style="margin-bottom:0.8rem;">
+                <label style="display:block; font-size:0.82rem; color:var(--dim); margin-bottom:0.25rem;">
+                    Access Token <?= !empty($mp_access_token_set) ? '<span style="color:var(--moss);">- já salvo (deixe vazio pra manter)</span>' : '' ?>
+                </label>
+                <input type="password" name="mp_access_token" value="" placeholder="<?= !empty($mp_access_token_set) ? '•••••••••• (salvo)' : 'APP_USR-...' ?>" autocomplete="new-password" style="width:100%; padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:var(--font-mono);">
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.8rem;">
+                <div>
+                    <label style="display:block; font-size:0.82rem; color:var(--dim); margin-bottom:0.25rem;">
+                        Public Key <?= !empty($mp_public_key_set) ? '<span style="color:var(--moss);">- já salva</span>' : '' ?>
+                    </label>
+                    <input type="password" name="mp_public_key" value="" placeholder="<?= !empty($mp_public_key_set) ? '•••••••••• (salva)' : 'APP_USR-... (libera o cartão)' ?>" autocomplete="new-password" style="width:100%; padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:var(--font-mono);">
+                </div>
+                <div>
+                    <label style="display:block; font-size:0.82rem; color:var(--dim); margin-bottom:0.25rem;">
+                        Webhook Secret <?= !empty($mp_webhook_secret_set) ? '<span style="color:var(--moss);">- já salvo</span>' : '' ?>
+                    </label>
+                    <input type="password" name="mp_webhook_secret" value="" placeholder="<?= !empty($mp_webhook_secret_set) ? '•••••••••• (salvo)' : 'opcional, recomendado' ?>" autocomplete="new-password" style="width:100%; padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:var(--font-mono);">
+                </div>
+            </div>
+
+            <div style="margin-top:0.9rem; padding:0.8rem; border:1px solid var(--hazard-border); background:var(--hazard-overlay);">
+                <label style="display:block; font-size:0.82rem; color:var(--hazard); margin-bottom:0.25rem;">
+                    🔒 Sua senha do painel <span style="color:var(--dim); font-weight:400;">(só se você mudou algum campo acima)</span>
+                </label>
+                <input type="password" name="mp_confirma_senha" value="" autocomplete="new-password" placeholder="confirme quem é você" style="width:100%; max-width:320px; padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone);">
+                <p style="margin:0.5rem 0 0; font-size:0.78rem; color:var(--dim);">
+                    Estes campos decidem <strong>para qual conta o dinheiro vai</strong>, então pedimos a senha de novo. A troca é registrada e avisada no seu Discord de vendas.
+                </p>
+            </div>
+
+            <p style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--dim);">
+                Pegue as chaves em <a href="https://www.mercadopago.com.br/developers/panel" target="_blank" rel="noopener" style="color: var(--hazard);">mercadopago.com.br/developers/panel</a>, em Credenciais de produção.
+                <strong>Sem o Access Token</strong> o site funciona mas não vende. <strong>Sem a Public Key</strong> só aparece PIX, sem cartão.
+                Você pode trocar de conta aqui a qualquer momento, sem mexer em arquivo nenhum.
+            </p>
+        </div>
+
         <div style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.2rem;">
             <label style="display:block; font-size:0.9rem; color:var(--bone); margin-bottom:0.5rem;">
                 🛡️ Privacidade do ranking <small style="color: var(--dim); font-weight: 400;">- controla a lista de quem está online</small>

@@ -23,6 +23,46 @@ class MercadoPago {
     }
 
     /**
+     * Confere se o access token funciona DE VERDADE, batendo na API do Mercado Pago.
+     *
+     * Existe pra não deixar o dono do site salvar um token com erro de digitação e só
+     * descobrir quando um jogador reclamar que a compra não vai. Consulta os métodos de
+     * pagamento da conta: é GET, não cria nada, não move dinheiro.
+     *
+     * @return array{ok:bool, erro:string} `ok=false` com o motivo em português.
+     */
+    public function validarCredencial(): array {
+        if (!$this->isConfigured()) {
+            return ['ok' => false, 'erro' => 'token vazio'];
+        }
+        $ch = curl_init($this->baseUrl . '/v1/payment_methods');
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER     => ['Authorization: Bearer ' . $this->accessToken],
+            CURLOPT_CONNECTTIMEOUT => 8,
+            CURLOPT_TIMEOUT        => 15,
+        ]);
+        $body = curl_exec($ch);
+        $http = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $errc = curl_error($ch);
+        curl_close($ch);
+
+        if ($body === false || $http === 0) {
+            // Sem internet/API fora: NÃO é token inválido. Quem chama decide se deixa
+            // salvar mesmo assim; travar aqui deixaria o cliente refém de instabilidade.
+            return ['ok' => false, 'erro' => 'nao_consegui_verificar: ' . ($errc ?: 'sem resposta')];
+        }
+        if ($http === 401 || $http === 403) {
+            return ['ok' => false, 'erro' => 'o Mercado Pago recusou esse token (401/403). '
+                                           . 'Confira se copiou o Access Token inteiro e da conta certa.'];
+        }
+        if ($http >= 400) {
+            return ['ok' => false, 'erro' => 'o Mercado Pago respondeu HTTP ' . $http];
+        }
+        return ['ok' => true, 'erro' => ''];
+    }
+
+    /**
      * Cria uma preference de checkout. Retorna ['init_point' => '...', 'id' => '...'] ou null em erro.
      * Mais info: https://www.mercadopago.com.br/developers/pt/reference/preferences/_checkout_preferences/post
      */

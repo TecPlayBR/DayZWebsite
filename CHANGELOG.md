@@ -5,6 +5,42 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [3.2.0] - 2026-08-12
+
+> **Autonomia sobre o seu dinheiro.** Agora dá pra trocar a conta do Mercado Pago pelo
+> painel, sem FTP e sem depender de suporte.
+
+### Adicionado
+
+- **Mercado Pago no painel** (`Admin → Configurações → 💳 Mercado Pago`): Access Token,
+  Public Key e Webhook Secret. Até esta versão eles só existiam no `config/config.php`, que
+  fica fora da pasta pública: trocar de conta exigia FTP e editar PHP na mão, então uma
+  tarefa corriqueira (mudar de titular, abrir MEI, rotacionar a chave) virava chamado de
+  suporte. Era também incoerente com o CFTools, cujo **Secret** o dono do site já digitava
+  no painel.
+
+  Como estes campos decidem **para onde o dinheiro vai**, eles vêm com proteção que os
+  outros não têm:
+  - só o papel `super_admin` acessa;
+  - o site **pede sua senha de novo** na hora de salvar, pra sessão sequestrada não trocar
+    a conta em silêncio;
+  - o Access Token é **testado contra a API do Mercado Pago** antes de gravar, pra um erro
+    de digitação não derrubar as vendas sem ninguém perceber (se a API estiver fora, o
+    site não te trava por instabilidade de terceiro);
+  - a troca vai pro **log de auditoria** e é **avisada no seu Discord de vendas** na hora,
+    sempre com o valor mascarado;
+  - o valor salvo **nunca é devolvido pra tela**: pra trocar, digite o novo inteiro.
+
+  O `config/config.php` continua tendo **prioridade**: quem já fixou no arquivo não muda
+  nada e o painel fica só informando isso.
+
+### Corrigido
+
+- Documentação: `INSTALACAO.md`, `ATUALIZAR.md` e `README.md` mandavam editar o
+  `config/config.php` por FTP pra configurar pagamento. Atualizados pro caminho do painel.
+
+---
+
 ## [3.1.0] - 2026-08-12
 
 > Versão de correção de **instalação e atualização**. Se você já tem o site rodando, o mais
