@@ -40,9 +40,9 @@
                             <div class="review-id">
                                 <?php if ($rAv !== '' && preg_match('#^https?://#i', $rAv)): ?>
                                     <img class="review-avatar" src="<?= e($rAv) ?>" alt="<?= e($rName) ?>" loading="lazy" referrerpolicy="no-referrer"
-                                         onerror="this.outerHTML='<span class=\'review-avatar review-avatar-letter\'><?= $rLetter ?></span>'">
+                                         onerror="this.outerHTML='<span class=\'review-avatar review-avatar-letter\'><?= e($rLetter) ?></span>'">
                                 <?php else: ?>
-                                    <span class="review-avatar review-avatar-letter"><?= $rLetter ?></span>
+                                    <span class="review-avatar review-avatar-letter"><?= e($rLetter) ?></span>
                                 <?php endif; ?>
                                 <div class="review-id-text">
                                     <strong class="review-author"><?= e($rName) ?></strong>

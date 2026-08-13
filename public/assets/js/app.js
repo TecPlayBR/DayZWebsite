@@ -183,3 +183,64 @@
         });
     });
 })();
+
+/* ============================================================================
+   COPIAR PRA AREA DE TRANSFERENCIA  (delegado, um listener pra toda a pagina)
+
+   POR QUE DELEGADO E NAO onclick INLINE
+   -------------------------------------
+   O botao antigo montava o handler dentro do atributo:
+
+       onclick="navigator.clipboard.writeText(<?= json_encode($token) ?>)..."
+
+   `json_encode` devolve o valor JA COM ASPAS DUPLAS, e o atributo tambem e delimitado
+   por aspas duplas. A primeira aspa do token FECHAVA o atributo, o `>` seguinte fechava
+   a tag, e todo o resto do JavaScript aparecia como TEXTO na tela do cliente. Foi o que
+   aconteceu na aba Integracao Discord e na aba Sparda.
+
+   Aqui o valor viaja num `data-copiar`, que o PHP escapa com `e()` como qualquer outro
+   texto, e nao existe mais JavaScript dentro de atributo pra quebrar.
+
+   Delegado no `document` de proposito: o admin navega por PJAX e script inline NAO roda
+   ao trocar de aba. Um listener so, registrado no carregamento inteiro da pagina, funciona
+   pra qualquer botao que apareca depois.
+   ========================================================================== */
+(function () {
+    function avisa(btn, texto) {
+        const antes = btn.dataset.rotuloOriginal || btn.textContent;
+        btn.dataset.rotuloOriginal = antes;
+        btn.textContent = texto;
+        setTimeout(() => { btn.textContent = btn.dataset.rotuloOriginal; }, 1500);
+    }
+
+    document.addEventListener('click', function (ev) {
+        const btn = ev.target.closest('[data-copiar]');
+        if (!btn) return;
+        ev.preventDefault();
+        const valor = btn.getAttribute('data-copiar') || '';
+        if (!valor) return;
+
+        // `navigator.clipboard` só existe em contexto seguro (HTTPS ou localhost). Em HTTP
+        // ele é `undefined` e o botão morria calado; o fallback mantém o copiar funcionando.
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(valor)
+                .then(() => avisa(btn, '✓ Copiado!'))
+                .catch(() => avisa(btn, 'Nao deu, copie a mao'));
+            return;
+        }
+        try {
+            const ta = document.createElement('textarea');
+            ta.value = valor;
+            ta.setAttribute('readonly', '');
+            ta.style.position = 'fixed';
+            ta.style.left = '-9999px';
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            avisa(btn, '✓ Copiado!');
+        } catch (e) {
+            avisa(btn, 'Nao deu, copie a mao');
+        }
+    });
+})();

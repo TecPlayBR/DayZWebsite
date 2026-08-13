@@ -5,6 +5,28 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [3.2.1] - 2026-08-13
+
+> **Correcao dos botoes de Copiar do painel.** Cinco botoes nao copiavam nada e ainda
+> vazavam codigo na tela.
+
+### Corrigido
+
+- **Botoes "Copiar" do painel admin nao funcionavam** e mostravam um trecho de codigo solto
+  no meio da pagina. Afetava 5 botoes: o token da aba *Integracao Discord*, e o token, as
+  duas URLs e o bloco JSON da aba *Sparda*. O valor era inserido dentro do atributo
+  `onclick` ja com aspas, o que fechava o atributo antes da hora e cortava a tag no meio.
+  Agora o valor viaja escapado num atributo de dado e um unico script trata todos os
+  botoes, entao nao ha mais codigo dentro de atributo pra quebrar.
+- **Copiar passou a funcionar em HTTP**, nao so em HTTPS. A API de area de transferencia do
+  navegador so existe em contexto seguro; sem alternativa, o botao morria calado em
+  instalacao sem certificado.
+- **Botao Copiar do token do agent** (aba *Servidores*) unificado no mesmo caminho.
+- **Escape na inicial do nome** nos depoimentos da home e da pagina de avaliacoes: o valor
+  vinha do nome do usuario e era inserido sem escape num atributo.
+
+---
+
 ## [3.2.0] - 2026-08-12
 
 > **Autonomia sobre o seu dinheiro.** Agora dá pra trocar a conta do Mercado Pago pelo

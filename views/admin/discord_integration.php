@@ -50,7 +50,7 @@
             <code id="tok-display" style="background:var(--bg-0); padding:0.6rem 0.9rem; border-radius:6px; flex:1; font-family:var(--font-mono); font-size:0.95rem; user-select:all;">
                 <?= e($tokenMasked) ?>
             </code>
-            <button type="button" onclick="navigator.clipboard.writeText(<?= json_encode($token) ?>).then(() => { this.textContent='✓ Copiado!'; setTimeout(()=>this.textContent='📋 Copiar', 1500); })" style="padding:0.6rem 1rem; background:var(--hazard); color:#000; border:none; border-radius:6px; cursor:pointer; font-weight:600;">📋 Copiar</button>
+            <button type="button" data-copiar="<?= e($token) ?>" style="padding:0.6rem 1rem; background:var(--hazard); color:#000; border:none; border-radius:6px; cursor:pointer; font-weight:600;">📋 Copiar</button>
         </div>
         <div style="font-size:0.8rem; color:var(--dim);">
             Token completo (clica em "Copiar"): <strong style="color:var(--hazard);"><?= strlen($token) ?> caracteres</strong>

@@ -401,9 +401,9 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
                         <?php $av = trim((string)($r['avatar'] ?? '')); $letter = e(mb_strtoupper(mb_substr($name, 0, 1))); ?>
                         <?php if ($av !== '' && preg_match('#^https?://#i', $av)): ?>
                             <img class="testimonial-avatar" src="<?= e($av) ?>" alt="<?= e($name) ?>" loading="lazy" referrerpolicy="no-referrer"
-                                 onerror="this.outerHTML='<span class=\'testimonial-avatar testimonial-avatar-letter\'><?= $letter ?></span>'">
+                                 onerror="this.outerHTML='<span class=\'testimonial-avatar testimonial-avatar-letter\'><?= e($letter) ?></span>'">
                         <?php else: ?>
-                            <span class="testimonial-avatar testimonial-avatar-letter"><?= $letter ?></span>
+                            <span class="testimonial-avatar testimonial-avatar-letter"><?= e($letter) ?></span>
                         <?php endif; ?>
                         <span class="testimonial-author">
                             <strong><?= e($name) ?></strong>

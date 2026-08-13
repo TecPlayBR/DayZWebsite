@@ -59,7 +59,7 @@
         <code style="background:var(--bg-0); padding:0.6rem 0.9rem; border-radius:6px; flex:1; font-family:var(--font-mono); font-size:0.95rem; user-select:all;">
             <?= e($tokenMasked) ?>
         </code>
-        <button type="button" onclick="navigator.clipboard.writeText(<?= json_encode($token) ?>).then(() => { this.textContent='✓ Copiado!'; setTimeout(()=>this.textContent='📋 Copiar', 1500); })" style="padding:0.6rem 1rem; background:var(--hazard); color:#000; border:none; border-radius:6px; cursor:pointer; font-weight:600;">📋 Copiar</button>
+        <button type="button" data-copiar="<?= e($token) ?>" style="padding:0.6rem 1rem; background:var(--hazard); color:#000; border:none; border-radius:6px; cursor:pointer; font-weight:600;">📋 Copiar</button>
     </div>
 </div>
 
@@ -73,7 +73,7 @@
         <div style="font-size:0.8rem; color:var(--hazard); font-weight:700; margin-bottom:0.3rem;">Api_Get (lê o saldo)</div>
         <div style="display:flex; gap:0.5rem; align-items:center;">
             <code style="background:var(--bg-0); padding:0.6rem 0.9rem; border-radius:6px; flex:1; font-family:var(--font-mono); font-size:0.85rem; user-select:all; word-break:break-all;"><?= e($apiGet) ?></code>
-            <button type="button" onclick="navigator.clipboard.writeText(<?= json_encode($apiGet) ?>).then(() => { this.textContent='✓'; setTimeout(()=>this.textContent='📋', 1500); })" style="padding:0.6rem 0.9rem; background:var(--hazard); color:#000; border:none; border-radius:6px; cursor:pointer; font-weight:600;">📋</button>
+            <button type="button" data-copiar="<?= e($apiGet) ?>" style="padding:0.6rem 0.9rem; background:var(--hazard); color:#000; border:none; border-radius:6px; cursor:pointer; font-weight:600;">📋</button>
         </div>
     </div>
 
@@ -81,7 +81,7 @@
         <div style="font-size:0.8rem; color:var(--hazard); font-weight:700; margin-bottom:0.3rem;">Api_Post (grava o saldo depois que gasta)</div>
         <div style="display:flex; gap:0.5rem; align-items:center;">
             <code style="background:var(--bg-0); padding:0.6rem 0.9rem; border-radius:6px; flex:1; font-family:var(--font-mono); font-size:0.85rem; user-select:all; word-break:break-all;"><?= e($apiPost) ?></code>
-            <button type="button" onclick="navigator.clipboard.writeText(<?= json_encode($apiPost) ?>).then(() => { this.textContent='✓'; setTimeout(()=>this.textContent='📋', 1500); })" style="padding:0.6rem 0.9rem; background:var(--hazard); color:#000; border:none; border-radius:6px; cursor:pointer; font-weight:600;">📋</button>
+            <button type="button" data-copiar="<?= e($apiPost) ?>" style="padding:0.6rem 0.9rem; background:var(--hazard); color:#000; border:none; border-radius:6px; cursor:pointer; font-weight:600;">📋</button>
         </div>
     </div>
 </div>
@@ -93,7 +93,7 @@
     </p>
     <div style="display:flex; gap:0.5rem; align-items:flex-start;">
         <pre style="background:var(--bg-0); padding:0.8rem 0.9rem; border-radius:6px; flex:1; font-family:var(--font-mono); font-size:0.8rem; overflow-x:auto; margin:0; user-select:all;"><?= e($jsonSnippet) ?></pre>
-        <button type="button" onclick="navigator.clipboard.writeText(<?= json_encode($jsonSnippet) ?>).then(() => { this.textContent='✓'; setTimeout(()=>this.textContent='📋', 1500); })" style="padding:0.6rem 0.9rem; background:var(--hazard); color:#000; border:none; border-radius:6px; cursor:pointer; font-weight:600;">📋</button>
+        <button type="button" data-copiar="<?= e($jsonSnippet) ?>" style="padding:0.6rem 0.9rem; background:var(--hazard); color:#000; border:none; border-radius:6px; cursor:pointer; font-weight:600;">📋</button>
     </div>
     <p style="color:var(--dim); font-size:0.78rem; margin-top:0.6rem;">
         Os nomes exatos dos campos dependem da versão do mod. O que importa: ligar a integração web e apontar GET/POST pras URLs acima.

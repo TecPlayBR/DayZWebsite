@@ -79,7 +79,7 @@
                 <div class="server-token-label">Agent Token</div>
                 <code class="server-token-code"><?= e($s['agent_token']) ?></code>
                 <button type="button" class="btn-mini outline"
-                        onclick="navigator.clipboard.writeText('<?= e($s['agent_token']) ?>'); this.textContent='✓ Copiado'; setTimeout(()=>this.textContent='Copiar', 1500);">
+                        data-copiar="<?= e($s['agent_token']) ?>">
                     Copiar
                 </button>
             </div>
