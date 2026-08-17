@@ -660,6 +660,10 @@ $config['mercado_pago'] = $mpCfg;
 
 // ============ CAIXAS / LOOTBOXES (player) ============
 \App\Router::get('/caixas', function() use ($config) {
+    // Caixas gastam a moeda do site. Quando o saldo mora no servidor de jogo, gastar aqui
+    // nao vale (o espelho devolveria o valor), entao a pagina sai do ar sozinha nesse modo.
+    if (\App\Settings::saldoVemDoJogo()) { header('Location: /'); exit; }
+
     // Entrega oportunista: aproveita o page-load pra dropar pendências de quem está online.
     try { \App\Boxes::deliverPending(20); } catch (\Throwable $e) {}
 

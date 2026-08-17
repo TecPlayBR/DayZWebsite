@@ -15,6 +15,13 @@ namespace App;
 class Settings {
     /** Whitelist + tipo de cada setting editável. Adicionar setting nova = só aqui. */
     public const SCHEMA = [
+        // Marca de quando o bot espelhou por ultimo o saldo que vale dentro do jogo.
+        // NAO e um interruptor: e um sinal que EXPIRA. Enquanto o bot esta espelhando, o
+        // site sabe que a moeda mora no servidor e esconde as telas de gasto. Se a entrega
+        // for desligada, o bot simplesmente para de espelhar e o site volta ao normal
+        // sozinho, sem ninguem ter que desligar uma segunda chave aqui. Duas chaves
+        // separadas divergem, e divergir sobre onde mora a moeda custa dinheiro.
+        'saldo_ingame_visto_em'    => 'int',
         'site_name'                => 'string',
         'site_tagline'             => 'string',
         'site_tagline_enus'        => 'string',
@@ -111,6 +118,21 @@ class Settings {
         if (!array_key_exists($key, self::$cache)) return $default;
         $v = self::$cache[$key];
         return $v === '1' || $v === 1 || $v === true || $v === 'true';
+    }
+
+    /**
+     * O saldo mostrado no site vem do servidor de jogo?
+     *
+     * Verdadeiro enquanto o bot espelhou o saldo recentemente. E deliberadamente um sinal
+     * que expira: se a entrega dentro do jogo for desligada, o bot para de espelhar e isto
+     * volta a ser falso sem ninguem precisar lembrar de mexer em nada.
+     *
+     * Quando verdadeiro, gastar moeda NO SITE nao vale (o proximo espelho devolveria o
+     * valor), entao as telas de gasto ficam escondidas.
+     */
+    public static function saldoVemDoJogo(int $validadeSegundos = 1800): bool {
+        $visto = self::getInt('saldo_ingame_visto_em', 0);
+        return $visto > 0 && (time() - $visto) < $validadeSegundos;
     }
 
     public static function getInt(string $key, int $default = 0): int {

@@ -163,6 +163,15 @@ class Vip {
         $price = self::priceFor($type, $tier, $days);
         if ($price === null || $price <= 0) return ['ok' => false, 'error' => 'not_for_sale'];
 
+        // ⚠️ Gastar moeda NO SITE nao vale quando o saldo mora no servidor de jogo: o
+        // proximo espelho do bot devolveria o valor descontado, e o jogador ficaria com o
+        // item E com a moeda. Recusar aqui e a unica forma honesta: o dinheiro dele esta
+        // dentro do jogo e e la que ele gasta. Ver Settings::saldoVemDoJogo().
+        if (Settings::saldoVemDoJogo()) {
+            return ['ok' => false, 'error' => 'saldo_no_jogo',
+                    'mensagem' => 'Suas moedas ficam no servidor. Gaste pela loja dentro do jogo.'];
+        }
+
         $pdo = Database::pdo();
         try {
             $pdo->beginTransaction();

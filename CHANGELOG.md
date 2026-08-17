@@ -5,6 +5,29 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [3.2.3] - 2026-08-17
+
+> **Uma moeda, o mesmo número em todo lugar.** Quando a moeda é entregue dentro do jogo, o
+> saldo que aparece no site passa a ser o saldo real do servidor, e acompanha o que o
+> jogador gasta na loja de dentro do jogo.
+
+### Adicionado
+
+- **Saldo do site espelhando o servidor.** O jogador compra, recebe dentro do jogo, e o
+  número que ele vê no site é o mesmo. Quando ele compra um item na loja de dentro do jogo,
+  o saldo do site acompanha a redução.
+
+### Mudado
+
+- **Gastar moeda no site fica indisponível** enquanto o saldo mora no servidor: caixas e
+  compra de VIP com moeda saem do ar e a aba deixa de aparecer. Sem isso o jogador abriria
+  uma caixa e a moeda voltaria no espelho seguinte, ficando com o item e com o valor.
+- Isso é ligado e desligado sozinho: enquanto o saldo estiver sendo espelhado, o site sabe
+  que a moeda mora no servidor. Se a entrega dentro do jogo for desligada, o site volta ao
+  normal por conta própria, sem ninguém precisar mexer em nada.
+
+---
+
 ## [3.2.2] - 2026-08-17
 
 > **Uma carteira só.** Quando a moeda comprada no site é entregue dentro do jogo, o site

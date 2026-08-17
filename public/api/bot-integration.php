@@ -362,6 +362,81 @@ case 'link_player':
         'origin'    => 'bot',
     ]));
 
+case 'espelhar_saldo':
+    // ESPELHO do saldo que vale dentro do jogo.
+    //
+    // Existe pra dar ao servidor de arquivo o mesmo comportamento que o de API sempre teve:
+    // uma moeda so, o mesmo numero no site, no Discord e no jogo. Nos mods com API o proprio
+    // mod le e escreve o saldo aqui, entao isso e automatico. No mod que so tem arquivo,
+    // quem le o arquivo e o bot, e e ele que traz o numero pra ca.
+    //
+    // ⚠️ VALOR ABSOLUTO, nao soma. A verdade e o arquivo do servidor: o jogador ganha
+    // comprando e perde gastando dentro do jogo, e nada disso passa por aqui. Somar exigiria
+    // adivinhar a diferenca, e adivinhar errado inventa ou apaga moeda. Por isso tambem NAO
+    // ha idempotencia por referencia: reenviar o mesmo valor absoluto e inofensivo por
+    // natureza, ao contrario de reenviar uma soma.
+    //
+    // Enquanto isto estiver em uso, gastar moeda NO SITE nao vale: o proximo espelho
+    // devolveria o valor. Por isso as telas de gasto ficam escondidas nesse modo.
+    if ($method !== 'POST') {
+        _bail(405, 'method_not_allowed', 'espelhar_saldo');
+    }
+    $raw  = file_get_contents('php://input') ?: '';
+    $body = json_decode($raw, true) ?: [];
+    $steamId = trim((string) ($body['steam_id'] ?? ''));
+    $coins   = (int) ($body['coins'] ?? -1);
+    if (!preg_match('/^7656119\d{10}$/', $steamId)) _bail(400, 'invalid_steam_id', 'espelhar_saldo');
+    if ($coins < 0) _bail(400, 'invalid_coins', 'espelhar_saldo');
+
+    $p = \App\Database::fetchOne(
+        "SELECT id, coins FROM players WHERE steam_id = ? LIMIT 1", [$steamId]);
+    if (!$p) {
+        // Jogador que comprou no site mas ainda nao tinha cadastro: cria com o saldo do jogo.
+        \App\Database::query(
+            "INSERT INTO players (steam_id, display_name, coins, total_spent_brl, last_seen_at, origin)
+             VALUES (?, NULL, ?, 0.00, NOW(), 'bot')",
+            [$steamId, $coins]
+        );
+        $antes = 0;
+    } else {
+        $antes = (int) $p['coins'];
+        if ($antes !== $coins) {
+            \App\Database::query("UPDATE players SET coins = ? WHERE id = ?",
+                                 [$coins, (int) $p['id']]);
+        }
+    }
+
+    // Só registra no extrato quando MUDOU, senão o histórico do jogador vira uma parede de
+    // linhas iguais a cada ciclo de sincronização.
+    if ($antes !== $coins) {
+        try {
+            \App\BalanceLog::record(
+                (int) ($p['id'] ?? \App\Database::pdo()->lastInsertId()), $steamId,
+                $antes, $coins, 'sync',
+                'ingame', null,
+                $coins > $antes ? 'Moeda recebida no servidor' : 'Moeda gasta no servidor'
+            );
+        } catch (\Throwable $e) {
+            // Extrato é histórico, não pode derrubar o espelho do saldo.
+            error_log('[espelhar_saldo] extrato falhou: ' . $e->getMessage());
+        }
+    }
+
+    // Marca que o saldo do site esta vindo do jogo. E o que faz o site esconder as telas de
+    // gasto de moeda. Sinal que EXPIRA: se o bot parar de espelhar, o site volta ao normal
+    // sozinho (ver Settings::saldoVemDoJogo).
+    try { \App\Settings::set('saldo_ingame_visto_em', (string) time()); }
+    catch (\Throwable $e) { error_log('[espelhar_saldo] marca falhou: ' . $e->getMessage()); }
+
+    _mark_last_ok();
+    _log_call('espelhar_saldo', 200);
+    die(json_encode([
+        'ok'      => true,
+        'antes'   => $antes,
+        'agora'   => $coins,
+        'mudou'   => $antes !== $coins,
+    ]));
+
 case 'import_coins':
     // Ponte bot->site: credita `coins` em players.coins de forma IDEMPOTENTE por `ref`.
     // Usado 1x na migracao de saldo quando um guild que era so-bot conecta o site.

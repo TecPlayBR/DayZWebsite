@@ -120,6 +120,15 @@ class Boxes {
         $won = self::draw($items);
         if (!$won) return ['ok' => false, 'error' => 'Não foi possível sortear um item.'];
 
+        // ⚠️ Gastar moeda NO SITE nao vale quando o saldo mora no servidor de jogo: o
+        // proximo espelho do bot devolveria o valor descontado, e o jogador ficaria com o
+        // item E com a moeda. Recusar aqui e a unica forma honesta: o dinheiro dele esta
+        // dentro do jogo e e la que ele gasta. Ver Settings::saldoVemDoJogo().
+        if (Settings::saldoVemDoJogo()) {
+            return ['ok' => false, 'error' => 'saldo_no_jogo',
+                    'mensagem' => 'Suas moedas ficam no servidor. Gaste pela loja dentro do jogo.'];
+        }
+
         // Debita moedas (caixa paga) - com log.
         if ($cost > 0) {
             $player = $player ?? Database::fetchOne("SELECT id, coins FROM players WHERE steam_id = ? LIMIT 1", [$steamId]);

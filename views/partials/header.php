@@ -13,7 +13,9 @@
             <ul class="nav-main">
                 <li><a href="/"><?= e(__('nav.home')) ?></a></li>
                 <li><a href="/shop"><?= e(__('nav.shop')) ?></a></li>
+                <?php if (!\App\Settings::saldoVemDoJogo()): ?>
                 <li><a href="/caixas"><?= e(__('nav.boxes')) ?></a></li>
+                <?php endif; ?>
                 <?php if (\App\Vip::enabled()): ?><li><a href="/vip"><?= e(__('nav.vip', [], 'VIP')) ?></a></li><?php endif; ?>
                 <li><a href="/ranking"><?= e(__('nav.ranking')) ?></a></li>
                 <li class="nav-drop">
@@ -106,7 +108,9 @@
     <ul>
         <li><a href="/" data-close><?= e(__('nav.home')) ?></a></li>
         <li><a href="/shop" data-close><?= e(__('nav.shop')) ?></a></li>
+        <?php if (!\App\Settings::saldoVemDoJogo()): ?>
         <li><a href="/caixas" data-close><?= e(__('nav.boxes')) ?></a></li>
+        <?php endif; ?>
         <?php if (\App\Vip::enabled()): ?><li><a href="/vip" data-close><?= e(__('nav.vip', [], 'VIP')) ?></a></li><?php endif; ?>
         <li><a href="/eventos" data-close><?= e(__('nav.events')) ?></a></li>
         <?php if (\App\Servers::isMulti()): ?>
