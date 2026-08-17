@@ -202,6 +202,84 @@ if ($status === 'approved' && empty($purchase['delivered_at'])) {
         } catch (\Throwable $e) { return null; }
     };
 
+    // ================= AVISA O BOT ANTES DE CREDITAR =================
+    // A ORDEM AQUI E O QUE IMPEDE MOEDA EM DOBRO.
+    //
+    // Antes: creditava a carteira do site e SO DEPOIS avisava o bot. Com a entrega in-game
+    // ligada, o jogador recebia nos dois lugares: 100 na loja do site e 100 dentro do jogo,
+    // pagando por 100. Nao se autocorrige, porque cada lado tem contabilidade propria.
+    //
+    // Agora o bot responde `entrega_ingame` dizendo se ELE ficou responsavel pela moeda.
+    // Se ficou, o site NAO soma no saldo dele: existe UMA carteira, a do servidor.
+    //
+    // Quem manda na decisao e o bot (config por servidor), nao uma segunda chave aqui. Duas
+    // chaves separadas divergem, e divergir aqui significa creditar duas vezes.
+    //
+    // Falhou, deu timeout, bot fora do ar? `$entregaIngame` fica vazio e o site credita
+    // normalmente, exatamente como sempre fez. Perder a moeda do jogador seria pior que a
+    // moeda ficar no lugar de antes.
+    $entregaIngame = null;
+    $botEndpoint = trim(($config['bot']['endpoint'] ?? '') ?: ($config['settings']['bot_endpoint'] ?? ''));
+    $botToken    = trim(($config['bot']['token']    ?? '') ?: ($config['settings']['bot_token']    ?? ''));
+    if ($botEndpoint && $botToken) {
+        $packageRow = \App\Database::fetchOne(
+            "SELECT name, icon FROM packages WHERE id = ? LIMIT 1",
+            [$purchase['package_id']]
+        );
+        $payload = json_encode([
+            // site_token = quem ESTE site e (o discord_integration_token dele). O bot usa
+            // pra rotear a venda pra guild CERTA (multi-tenant) e nao vazar pra outra.
+            'site_token'     => trim((string)($config['settings']['discord_integration_token'] ?? '')),
+            'purchase_id'    => (int)$purchase['id'],
+            'steam_id'       => $purchase['steam_id'],
+            'player_name'    => $existing['display_name'] ?? null,
+            'package_name'   => $packageRow['name']        ?? $purchase['package_id'],
+            'package_icon'   => $packageRow['icon']        ?? '🪙',
+            'coins_total'    => (int)$purchase['coins_total'],
+            'price_brl'      => (float)$purchase['price_brl'],
+            'payment_method' => $purchase['payment_method'] ?? $paymentMethod,
+        ]);
+        $ch = curl_init(rtrim($botEndpoint, '/') . '/notify/purchase');
+        curl_setopt_array($ch, [
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => $payload,
+            CURLOPT_HTTPHEADER => [
+                'Content-Type: application/json',
+                'X-Tecplay-Token: ' . $botToken,
+            ],
+            CURLOPT_RETURNTRANSFER => true,
+            // Curto de proposito. Esta chamada agora fica NA FRENTE do credito, entao
+            // todo segundo aqui e um segundo que a venda do cliente demora a ser creditada.
+            // O bot so faz um INSERT e responde (a entrega dele vai em segundo plano):
+            // medido em 0,03s. 5s e margem de 150x, e se estourar o site credita sozinho.
+            CURLOPT_TIMEOUT => 5,
+            CURLOPT_CONNECTTIMEOUT => 2,
+        ]);
+        $respostaBot = curl_exec($ch);
+        $httpBot = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        if ($respostaBot !== false && $httpBot === 200) {
+            $dadosBot = json_decode((string)$respostaBot, true);
+            $marca = $dadosBot['entrega_ingame'] ?? null;
+            // `enfileirada` = o bot assumiu agora. `ja_entregue` = ele ja tinha assumido numa
+            // chamada anterior (retry do MP). Nos dois casos a moeda e dele.
+            if (in_array($marca, ['enfileirada', 'ja_entregue'], true)) {
+                $entregaIngame = $marca;
+            }
+        } else {
+            error_log("[MP webhook] bot nao respondeu (http {$httpBot}) na compra "
+                      . $purchase['id'] . " - creditando no site como sempre");
+        }
+    }
+
+    // Quanto vai pro saldo DO SITE. Zero quando o bot ficou com a moeda: a linha do player
+    // e o total gasto continuam sendo atualizados (ranking e faturamento nao podem perder
+    // isso), so o saldo nao soma.
+    $coinsToWallet = $entregaIngame ? 0 : $coinsToAdd;
+    $motivoLog = $entregaIngame
+        ? "Pacote {$purchase['package_id']} via MP - moeda entregue IN-GAME"
+        : "Pacote {$purchase['package_id']} via MP";
+
     if ($existing) {
         $oldCoins = (int)($existing['coins'] ?? 0);
         $fetchedName = empty($existing['display_name']) ? $steamName($purchase['steam_id']) : null;
@@ -213,26 +291,26 @@ if ($status === 'approved' && empty($purchase['delivered_at'])) {
                     display_name = COALESCE(display_name, ?),
                     last_seen_at = NOW()
               WHERE id = ?",
-            [$coinsToAdd, $price, $fetchedName, (int)$existing['id']]
+            [$coinsToWallet, $price, $fetchedName, (int)$existing['id']]
         );
         \App\BalanceLog::record(
             (int)$existing['id'], $purchase['steam_id'],
-            $oldCoins, $oldCoins + $coinsToAdd, 'payment',
+            $oldCoins, $oldCoins + $coinsToWallet, 'payment',
             'purchase', $purchase['id'],
-            "Pacote {$purchase['package_id']} via MP"
+            $motivoLog
         );
     } else {
         \App\Database::query(
             "INSERT INTO players (steam_id, display_name, coins, total_spent_brl, origin, last_seen_at)
              VALUES (?, ?, ?, ?, 'payment', NOW())",
-            [$purchase['steam_id'], $steamName($purchase['steam_id']), $coinsToAdd, $price]
+            [$purchase['steam_id'], $steamName($purchase['steam_id']), $coinsToWallet, $price]
         );
         $newId = (int)\App\Database::pdo()->lastInsertId();
         \App\BalanceLog::record(
             $newId, $purchase['steam_id'],
-            0, $coinsToAdd, 'payment',
+            0, $coinsToWallet, 'payment',
             'purchase', $purchase['id'],
-            "Player criado via MP, pacote {$purchase['package_id']}"
+            "Player criado via MP - " . $motivoLog
         );
     }
     // (delivered_at já foi setado pelo claim atômico acima)
@@ -257,48 +335,6 @@ if ($status === 'approved' && empty($purchase['delivered_at'])) {
         @\App\DiscordWebhook::notifySale($discordWebhook, $purchase, $config);
     }
 
-    // Notifica o bot Tecplay (se rodando no mesmo host). Bot embeleza e posta em #vendas.
-    // Configure em config.php: 'bot' => ['endpoint' => 'http://127.0.0.1:8765', 'token' => '...']
-    // ou em settings: bot_endpoint + bot_token.
-    $botEndpoint = trim(($config['bot']['endpoint'] ?? '') ?: ($config['settings']['bot_endpoint'] ?? ''));
-    $botToken    = trim(($config['bot']['token']    ?? '') ?: ($config['settings']['bot_token']    ?? ''));
-    if ($botEndpoint && $botToken) {
-        $playerRow = \App\Database::fetchOne(
-            "SELECT display_name FROM players WHERE steam_id = ? LIMIT 1",
-            [$purchase['steam_id']]
-        );
-        $packageRow = \App\Database::fetchOne(
-            "SELECT name, icon FROM packages WHERE id = ? LIMIT 1",
-            [$purchase['package_id']]
-        );
-        $payload = json_encode([
-            // site_token = quem ESTE site e (o discord_integration_token dele). O bot usa
-            // pra rotear a venda pra guild CERTA (multi-tenant) e nao vazar pra outra.
-            'site_token'     => trim((string)($config['settings']['discord_integration_token'] ?? '')),
-            'purchase_id'    => (int)$purchase['id'],
-            'steam_id'       => $purchase['steam_id'],
-            'player_name'    => $playerRow['display_name'] ?? null,
-            'package_name'   => $packageRow['name']        ?? $purchase['package_id'],
-            'package_icon'   => $packageRow['icon']        ?? '🪙',
-            'coins_total'    => (int)$purchase['coins_total'],
-            'price_brl'      => (float)$purchase['price_brl'],
-            'payment_method' => $purchase['payment_method'] ?? $paymentMethod,
-        ]);
-        $ch = curl_init(rtrim($botEndpoint, '/') . '/notify/purchase');
-        curl_setopt_array($ch, [
-            CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => $payload,
-            CURLOPT_HTTPHEADER => [
-                'Content-Type: application/json',
-                'X-Tecplay-Token: ' . $botToken,
-            ],
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT => 3,
-            CURLOPT_CONNECTTIMEOUT => 2,
-        ]);
-        @curl_exec($ch); // best-effort: nao bloqueia se bot estiver fora
-        curl_close($ch);
-    }
 }
 
 // ============ Forward pra matriz/Financeiro (opcional, config-driven) ============

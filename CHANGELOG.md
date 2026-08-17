@@ -5,6 +5,29 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [3.2.2] - 2026-08-17
+
+> **Uma carteira só.** Quando a moeda comprada no site é entregue dentro do jogo, o site
+> deixa de somar no saldo dele: o jogador tem um saldo, não dois.
+
+### Corrigido
+
+- **Moeda contada duas vezes** quando a entrega dentro do jogo está ligada. O site somava a
+  moeda no saldo dele e o servidor recebia a mesma moeda, então o jogador pagava uma vez e
+  tinha o valor para gastar duas. Agora o site consulta quem ficou responsável pela moeda
+  antes de creditar, e some apenas quem não foi entregue no servidor.
+
+### Mudado
+
+- A notificação da venda passou a acontecer **antes** do crédito, porque é a resposta dela
+  que decide onde a moeda entra. Se ela falhar, der tempo esgotado ou vier inválida, o site
+  credita normalmente como sempre fez: moeda parada no lugar de antes é ruim, moeda que
+  desaparece é pior.
+- O cadastro do jogador e o total gasto continuam sendo atualizados nos dois casos, então
+  ranking e faturamento não perdem nada.
+
+---
+
 ## [3.2.1] - 2026-08-13
 
 > **Correcao dos botoes de Copiar do painel.** Cinco botoes nao copiavam nada e ainda
