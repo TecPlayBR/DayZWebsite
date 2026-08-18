@@ -147,6 +147,8 @@ O **site é grátis** e faz a loja, o painel, a carteira de moedas e o leaderboa
 
 📖 **Veja o guia completo em [INSTALACAO.md](INSTALACAO.md)** (passo a passo com prints).
 
+🎮 **Usa a loja da FlameHost no servidor?** Veja [ENTREGA-IN-GAME.md](ENTREGA-IN-GAME.md): o jogador compra moeda no site e recebe dentro do jogo, com um saldo so.
+
 ### TL;DR pra quem é experiente
 
 ```bash

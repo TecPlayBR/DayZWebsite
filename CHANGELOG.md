@@ -5,6 +5,25 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [3.2.4] - 2026-08-17
+
+### Corrigido
+
+- **Moeda dada pelo painel do admin sumia** quando a entrega dentro do jogo estava ligada. O
+  painel escrevia só no site e, minutos depois, o saldo do servidor voltava por cima: quem
+  operava dava a moeda, via a confirmação, e ela não existia em lugar nenhum. Agora o ajuste
+  vai direto pro servidor. Se não der pra aplicar lá, o painel avisa o motivo e não grava
+  nada, em vez de mostrar um valor que não existe no jogo.
+
+### Adicionado
+
+- **Guia [ENTREGA-IN-GAME.md](ENTREGA-IN-GAME.md)**: como ligar a venda de moeda com entrega
+  dentro do jogo, o que muda no site depois de ligar, e o que fazer quando algo não sai.
+- **`cli/conformidade.py`**: compara a sua instalação com o template e diz, arquivo por
+  arquivo, o que está numa versão antiga e o que foi alterado à mão. Só leitura por padrão.
+
+---
+
 ## [3.2.3] - 2026-08-17
 
 > **Uma moeda, o mesmo número em todo lugar.** Quando a moeda é entregue dentro do jogo, o
