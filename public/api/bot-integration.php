@@ -48,6 +48,11 @@ require $ROOT . '/src/Database.php';
 require $ROOT . '/src/MercadoPago.php';
 require $ROOT . '/src/Coupon.php';
 require $ROOT . '/src/Servers.php';
+// Settings entra aqui porque este arquivo NAO tem autoloader: ele da require numa
+// lista fixa. Sem esta linha, `\App\Settings::set()` estourava com "class not found"
+// e o try/catch em volta engolia. Falha silenciosa: a acao respondia ok e a marca
+// nunca era gravada. Classe usada aqui = classe requerida aqui.
+require $ROOT . '/src/Settings.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
@@ -425,8 +430,19 @@ case 'espelhar_saldo':
     // Marca que o saldo do site esta vindo do jogo. E o que faz o site esconder as telas de
     // gasto de moeda. Sinal que EXPIRA: se o bot parar de espelhar, o site volta ao normal
     // sozinho (ver Settings::saldoVemDoJogo).
-    try { \App\Settings::set('saldo_ingame_visto_em', (string) time()); }
-    catch (\Throwable $e) { error_log('[espelhar_saldo] marca falhou: ' . $e->getMessage()); }
+    //
+    // ⚠️ A falha vai na RESPOSTA, nao so no error_log. Este mesmo bloco ja falhou calado por
+    // uma semana inteira: a classe nao estava carregada, o catch engolia, a acao respondia
+    // `ok` e a marca nunca gravava. Quem chama nao tinha como saber. Agora o bot ve.
+    $marca_ok = false;
+    $marca_erro = null;
+    try {
+        $marca_ok = \App\Settings::set('saldo_ingame_visto_em', (string) time());
+        if (!$marca_ok) { $marca_erro = 'set_recusado'; }   // chave fora do SCHEMA
+    } catch (\Throwable $e) {
+        $marca_erro = substr(get_class($e) . ': ' . $e->getMessage(), 0, 120);
+        error_log('[espelhar_saldo] marca falhou: ' . $marca_erro);
+    }
 
     _mark_last_ok();
     _log_call('espelhar_saldo', 200);
@@ -435,6 +451,8 @@ case 'espelhar_saldo':
         'antes'   => $antes,
         'agora'   => $coins,
         'mudou'   => $antes !== $coins,
+        'marca'   => $marca_ok,          // false = o site NAO sabe que o saldo vem do jogo
+        'marca_erro' => $marca_erro,
     ]));
 
 case 'import_coins':
