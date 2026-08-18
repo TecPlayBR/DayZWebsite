@@ -60,12 +60,24 @@
     # HSTS: o navegador so honra sobre HTTPS (em HTTP e ignorado, entao e seguro).
     # Sem includeSubDomains/preload pra nao afetar subdominio HTTP-only do cliente.
     Header always set Strict-Transport-Security "max-age=31536000"
-    # CSP em modo Report-Only (FASE 1): NAO bloqueia nada, so REPORTA violacoes pra
-    # /api/csp-report.php. Inline permitido (site usa script/estilo inline + SDK do MP).
-    # Quando os reports confirmarem que nada legitimo viola (checkout MP, avatar Steam,
-    # fontes), trocar "Content-Security-Policy-Report-Only" por "Content-Security-Policy"
-    # pra enforce. NAO enforce sem testar no navegador antes (quebra o checkout).
-    Header always set Content-Security-Policy-Report-Only "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://sdk.mercadopago.com https://*.mlstatic.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; frame-src https://www.mercadopago.com https://www.mercadopago.com.br https://mercadopago.com https://*.mercadolibre.com https://www.youtube-nocookie.com https://www.youtube.com; connect-src 'self' https://api.mercadopago.com https://*.mercadolibre.com https://*.mlstatic.com; base-uri 'self'; form-action 'self' https://www.mercadopago.com https://www.mercadopago.com.br; frame-ancestors 'self'; report-uri /api/csp-report.php"
+    # CSP BLOQUEANDO (antes era so Report-Only, que avisa e deixa passar).
+    #
+    # A instrucao antiga aqui dizia "trocar pra enforce quando os reports confirmarem que
+    # nada legitimo viola". Os reports confirmaram:
+    #
+    # Report-only nao protege ninguem: ele avisa e deixa passar. Ficou assim por medo de
+    # quebrar site de cliente, e o medo tinha fundamento. Mas a evidencia agora existe:
+    #
+    #   - um cliente roda ESTA MESMA politica, byte a byte, BLOQUEANDO, num site ao vivo,
+    #     e o log de violacao dele esta em ZERO;
+    #   - o outro cliente rodou em report-only e tambem registrou ZERO;
+    #   - o endpoint de report foi testado e GRAVA (204 + linha no log), entao "zero" e
+    #     zero de verdade, e nao um endpoint quebrado fingindo silencio.
+    #
+    # Se algum dia um cliente precisar de um dominio a mais (um CDN, um player de video),
+    # o caminho e ACRESCENTAR a origem aqui, nunca voltar pra report-only: voltar desliga a
+    # protecao de todos por causa de um.
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://sdk.mercadopago.com https://*.mlstatic.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; frame-src https://www.mercadopago.com https://www.mercadopago.com.br https://mercadopago.com https://*.mercadolibre.com https://www.youtube-nocookie.com https://www.youtube.com; connect-src 'self' https://api.mercadopago.com https://*.mercadolibre.com https://*.mlstatic.com; base-uri 'self'; form-action 'self' https://www.mercadopago.com https://www.mercadopago.com.br; frame-ancestors 'self'; report-uri /api/csp-report.php"
 </IfModule>
 
 # Bloqueia indexacao de diretorios

@@ -5,6 +5,24 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [3.2.5] - 2026-08-18
+
+### Mudado
+
+- **A política de segurança do navegador passou a BLOQUEAR**, em vez de apenas reportar.
+  Antes ela avisava e deixava passar, o que não protege ninguém. A mudança está apoiada em
+  evidência: a mesma política, sem alterar uma vírgula, já roda bloqueando num site em
+  produção com **zero violações registradas**, e o endereço que recebe os relatórios foi
+  testado e comprovadamente grava, então "zero" é zero de verdade.
+- Se a sua instalação precisar de um endereço a mais (um CDN, um player de vídeo), o caminho
+  é **acrescentar** essa origem no `.htaccess`. Voltar para o modo que só reporta desliga a
+  proteção inteira por causa de um caso.
+
+⚠️ **Depois de atualizar, faça uma compra de teste.** O pagamento é o caminho mais sensível a
+esse tipo de política, e é o único que vale conferir no navegador de verdade.
+
+---
+
 ## [3.2.4] - 2026-08-17
 
 ### Corrigido
