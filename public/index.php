@@ -2116,7 +2116,57 @@ $collectDashboardData = function() {
     $newCoins = max(0, (int)($_POST['coins'] ?? 0));
     $player = \App\Database::fetchOne("SELECT coins, steam_id FROM players WHERE id = ?", [(int)$id]);
     $oldCoins = (int)($player['coins'] ?? 0);
-    \App\Database::query("UPDATE players SET coins = ?, origin = 'panel' WHERE id = ?", [$newCoins, (int)$id]);
+
+    // ⚠️ QUANDO A MOEDA MORA NO SERVIDOR DE JOGO, O AJUSTE TEM QUE IR PRA LA.
+    //
+    // Antes isto escrevia so na tabela do site. Com o saldo espelhado, o ciclo seguinte
+    // trazia de volta o valor do jogo e a moeda que o admin deu SUMIA, sem nunca ter
+    // chegado no servidor. Pelo lado de quem opera: da 100 pro jogador, o painel confirma,
+    // e minutos depois nao ha 100 em lugar nenhum.
+    //
+    // Agora o ajuste vai pro arquivo do servidor e o espelho traz o mesmo numero de volta.
+    // Se nao der pra aplicar la, o site NAO grava nada: melhor o admin ver o erro e tentar
+    // de novo do que a tela mostrar um valor que nao existe no jogo.
+    if (\App\Settings::saldoVemDoJogo()) {
+        $endpoint = trim(($config['bot']['endpoint'] ?? '') ?: ($config['settings']['bot_endpoint'] ?? ''));
+        $botToken = trim(($config['bot']['token']    ?? '') ?: ($config['settings']['bot_token']    ?? ''));
+        if (!$endpoint || !$botToken) {
+            header('Location: /admin/players?err=bot_nao_configurado');
+            exit;
+        }
+        $ch = curl_init(rtrim($endpoint, '/') . '/notify/definir-saldo');
+        curl_setopt_array($ch, [
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => json_encode([
+                'site_token' => trim((string)($config['settings']['discord_integration_token'] ?? '')),
+                'steam_id'   => $player['steam_id'] ?? '',
+                'coins'      => $newCoins,
+                'ator'       => 'painel:' . (\App\Auth::user()['username'] ?? 'admin'),
+            ]),
+            CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'X-Tecplay-Token: ' . $botToken],
+            CURLOPT_RETURNTRANSFER => true,
+            // Escrever no servidor de jogo passa por FTP e pode levar alguns segundos.
+            // Aqui da pra esperar: e uma acao manual do admin, nao um webhook de pagamento.
+            CURLOPT_TIMEOUT => 25,
+            CURLOPT_CONNECTTIMEOUT => 5,
+        ]);
+        $resp = curl_exec($ch);
+        $http = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        $dados = is_string($resp) ? json_decode($resp, true) : null;
+        if ($http !== 200 || empty($dados['ok'])) {
+            $motivo = $dados['mensagem'] ?? ($dados['error'] ?? 'sem resposta do servidor');
+            \App\AuditLog::record('player.coins_falhou', 'player', $id, [
+                'alvo' => $newCoins, 'motivo' => substr((string)$motivo, 0, 180),
+            ]);
+            header('Location: /admin/players?err=' . rawurlencode(substr((string)$motivo, 0, 120)));
+            exit;
+        }
+        // Aplicado no jogo. O espelho ja escreveu o valor aqui; nao gravamos por fora.
+        $newCoins = (int)($dados['coins'] ?? $newCoins);
+    } else {
+        \App\Database::query("UPDATE players SET coins = ?, origin = 'panel' WHERE id = ?", [$newCoins, (int)$id]);
+    }
     \App\AuditLog::record('player.coins_changed', 'player', $id, [
         'before' => $oldCoins, 'after' => $newCoins, 'delta' => $newCoins - $oldCoins,
     ]);
