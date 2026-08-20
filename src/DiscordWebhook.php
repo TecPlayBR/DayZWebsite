@@ -20,7 +20,7 @@ class DiscordWebhook {
             return false;
         }
 
-        $siteName = $config['settings']['site_name'] ?? ($config['site_name'] ?? 'TECPLAY');
+        $siteName = self::nomeDoSite($config, 'TECPLAY');
         $coinsTotal = (int)$purchase['coins_total'];
         $coinsBonus = (int)$purchase['coins_bonus'];
         $price = number_format((float)$purchase['price_brl'], 2, ',', '.');
@@ -76,5 +76,26 @@ class DiscordWebhook {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Nome do site, garantido NAO vazio.
+     *
+     * Duplicado de proposito (existe igual no helper global `site_name()` e na
+     * outra classe): esta classe e carregada por `public/api/mp-webhook.php`, que
+     * NAO tem autoloader e NAO faz require de `helpers.php` nem de `Settings.php`.
+     * Chamar o helper daqui seria erro fatal num caminho de dinheiro. Tres linhas
+     * repetidas custam menos que isso.
+     *
+     * E `??` sozinho nao serve: ele nao cai no fallback quando o valor e string
+     * VAZIA, so quando e null. Nome apagado no painel mandaria e-mail com
+     * remetente em branco, que servidor de SMTP recusa.
+     */
+    private static function nomeDoSite(array $config, string $fallback): string {
+        foreach ([$config['settings']['site_name'] ?? null, $config['site_name'] ?? null] as $v) {
+            $v = trim((string) $v);
+            if ($v !== '') return $v;
+        }
+        return $fallback;
     }
 }

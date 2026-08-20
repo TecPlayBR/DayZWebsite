@@ -325,7 +325,11 @@ if ($status === 'approved' && empty($purchase['delivered_at'])) {
     if ($payerEmail && filter_var($payerEmail, FILTER_VALIDATE_EMAIL)) {
         $purchase['mp_payment_id'] = (string)$paymentId;
         $html = \App\Mailer::purchaseReceiptHtml($purchase, $config);
-        $subject = '✓ Recibo de compra - ' . ($config['settings']['site_name'] ?? 'Tecplay');
+        // Inline: este arquivo tambem nao carrega helpers.php (ver bot-integration).
+        $nomeSite = trim((string)($config['settings']['site_name'] ?? '')) !== ''
+                    ? trim((string)$config['settings']['site_name'])
+                    : (trim((string)($config['site_name'] ?? '')) !== '' ? trim((string)$config['site_name']) : 'Tecplay');
+        $subject = '✓ Recibo de compra - ' . $nomeSite;
         @\App\Mailer::send($payerEmail, $subject, $html);
     }
 

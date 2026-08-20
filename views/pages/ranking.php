@@ -9,7 +9,7 @@ $stat           = $stat ?? 'invest';
 $rewards        = $rewards ?? [];
 $online         = $online ?? [];
 // SEO: título/descrição únicos por aba (investimento vs gameplay).
-$rkSite = $config['settings']['site_name'] ?? $config['site_name'] ?? 'Servidor';
+$rkSite = site_name('Servidor', $config); // NAO usar `?? 'Servidor'`: `??` nao pega string vazia (ver helpers.php)
 if ($mode === 'gameplay') {
     \App\View::with('title', 'Ranking ' . ($gameplay_stats[$stat] ?? 'Gameplay') . ' - ' . $rkSite . ' DayZ BR');
     \App\View::with('description', 'Os melhores do ' . $rkSite . ' em ' . ($gameplay_stats[$stat] ?? 'combate') . ' - ranking ao vivo, direto do servidor DayZ brasileiro.');
