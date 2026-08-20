@@ -52,6 +52,7 @@
             ['pages',               '/admin/releases',           '📢 Novidades',           str_starts_with($current, '/admin/releases')],
             ['servers',             '/admin/servers',            '🛰 Integração Agent',    str_starts_with($current, '/admin/servers')],
             ['servers',             '/admin/sparda',             '🎮 Integração Sparda',   str_starts_with($current, '/admin/sparda')],
+            ['servers',             '/admin/flamehost',          '🔥 Integração FlameHost',str_starts_with($current, '/admin/flamehost')],
             ['discord_integration', '/admin/discord-integration','🤖 Integração Discord',  str_starts_with($current, '/admin/discord-integration')],
             ['combos',              '/admin/combos',             '🎁 Combos',              str_starts_with($current, '/admin/combos')],
             ['settings',            '/admin/rewards',            '🏆 Recompensas',         str_starts_with($current, '/admin/rewards')],
