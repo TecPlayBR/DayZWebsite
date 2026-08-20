@@ -181,6 +181,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$structureMissing) {
     if ($admin_pass !== $admin_pass2) $errors[] = 'Senhas admin nao batem.';
     if (strlen($agent_token) < 16) $errors[] = 'AGENT_TOKEN precisa de pelo menos 16 caracteres (sugestao automatica abaixo).';
 
+    // Mercado Pago: preencher o Access Token e DEIXAR o Webhook Secret vazio e o
+    // pior estado possivel, e nao um estado incompleto.
+    //
+    // Em producao o `api/mp-webhook.php` REJEITA toda notificacao com 503 quando o
+    // secret esta vazio, e nao existe reconciliador que pegue o pagamento perdido
+    // depois. Ou seja: a loja abre, o jogador PAGA, e a moeda nunca cai -- pra
+    // sempre. Sem token nenhum e melhor: o checkout mostra "modo dev" e nenhum
+    // dinheiro se move.
+    //
+    // Achado em 2026-08-19 num cliente a dois dias de lancar, porque este mesmo
+    // formulario dizia "(opcional)" no campo.
+    if ($mp_token !== '' && $mp_webhook_sec === '') {
+        $errors[] = 'Webhook Secret do Mercado Pago obrigatorio quando ha Access Token: '
+                  . 'sem ele o site RECUSA toda notificacao de pagamento (503) e o jogador '
+                  . 'paga sem receber, sem recuperacao automatica. Pegue a "Assinatura secreta" '
+                  . 'em Suas integracoes > sua aplicacao > Webhooks, apontando pra '
+                  . '<sua-url>/api/mp-webhook.php. Ou deixe o Access Token vazio e configure '
+                  . 'os dois depois, juntos.';
+    }
+
     // Conecta no banco e importa schema
     if (!$errors) {
         try {
@@ -873,13 +893,18 @@ footer b{color:var(--brand-2)}
                         <input type="text" name="mp_public" value="<?= htmlspecialchars($_POST['mp_public'] ?? '') ?>">
                     </div>
                     <div>
-                        <label>Webhook Secret <small>(opcional)</small></label>
+                        <label>Webhook Secret <small>(obrigatorio se preencher o Access Token)</small></label>
                         <input type="text" name="mp_webhook_sec" value="<?= htmlspecialchars($_POST['mp_webhook_sec'] ?? '') ?>">
                     </div>
                 </div>
                 <div class="hint">Pega as duas chaves em
                 <a href="https://www.mercadopago.com.br/developers/panel" target="_blank" rel="noopener">mercadopago.com.br/developers/panel</a>.
-                Sem elas o site funciona, só não vende.</div>
+                Sem elas o site funciona, só não vende — e isso é seguro.
+                <strong>O que NÃO é seguro é preencher o Access Token sem o Webhook Secret:</strong>
+                aí a loja abre, o jogador paga e a moeda nunca cai, porque o site recusa a
+                notificação do Mercado Pago. Pegue a <em>Assinatura secreta</em> em
+                <em>Suas integrações &rarr; sua aplicação &rarr; Webhooks</em>, apontando o webhook
+                pra <code>&lt;seu-site&gt;/api/mp-webhook.php</code> no evento <em>Pagamentos</em>.</div>
             </div>
 
             <div class="card">
