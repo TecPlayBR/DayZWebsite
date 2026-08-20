@@ -179,6 +179,33 @@ if (preg_match("/'access_token'\s*=>\s*'([^']*)'/", $ex, $m)) {
     falha('nao achei o access_token no config.example.php');
 }
 
+// ------------------------------------------------- o instalador de cliente novo
+echo "\n6. O instalador nao deixa cair no estado perigoso\n";
+
+// Token SEM secret e o PIOR estado: a loja abre, o jogador paga, o webhook
+// responde 503, e nao existe reconciliador. Sem token nenhum e MELHOR (modo dev,
+// nenhum dinheiro se move). O formulario chamava o secret de "(opcional)", e foi
+// assim que um cliente chegou a dois dias do lancamento com essa bomba armada.
+$inst = file_get_contents($ROOT . '/public/install.php');
+
+if (strpos($inst, "mp_webhook_sec === ''") !== false && strpos($inst, "mp_token !== ''") !== false) {
+    ok('o instalador RECUSA Access Token sem Webhook Secret');
+} else {
+    falha('o instalador aceita Access Token sem Webhook Secret',
+          'loja abre, jogador paga, moeda nunca cai, e nada recupera');
+}
+if (strpos($inst, 'name="mp_webhook_sec"') !== false
+    && strpos($inst, 'Webhook Secret <small>(opcional)') === false) {
+    ok('o rotulo do campo nao diz mais "opcional"');
+} else {
+    falha('o campo ainda se chama "(opcional)"', 'o rotulo convida o instalador ao erro');
+}
+if (strpos($inst, 'api/mp-webhook.php') !== false) {
+    ok('o formulario diz ONDE apontar o webhook no painel do MP');
+} else {
+    falha('o formulario nao diz onde apontar o webhook');
+}
+
 echo "\n" . str_repeat('-', 62) . "\n";
 if ($falhas === 0) {
     echo "TUDO OK - placeholder nao passa por token e nao sombreia o painel.\n";
