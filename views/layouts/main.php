@@ -4,14 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= e($title ?? ($config['site_name'] ?? 'DayZ Server')) ?></title>
+    <title><?= e(($title ?? '') !== '' ? $title : site_name('DayZ Server', $config)) ?></title>
     <meta name="description" content="<?= e($description ?? ($config['settings']['site_tagline'] ?? $config['site_tagline'] ?? 'Sobreviva. Construa. Domine. A apocalipse não espera.')) ?>">
 
     <link rel="icon" type="image/png" href="<?= asset('img/logo.png') ?>">
 
     <?php
     // ============ Meta tags sociais (OG/Twitter) + canonical ============
-    $siteName  = $config['settings']['site_name'] ?? $config['site_name'] ?? 'DayZ Server';
+    $siteName  = site_name('DayZ Server', $config);
     $pageTitle = $title ?? $siteName;
     $pageDesc  = $description ?? ($config['settings']['site_tagline'] ?? $config['site_tagline'] ?? 'Sobreviva. Construa. Domine. A apocalipse não espera.');
     // URL absoluta: site_url do config + path atual

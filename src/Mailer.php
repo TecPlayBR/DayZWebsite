@@ -78,7 +78,7 @@ class Mailer {
      * Template HTML do recibo de compra (estilo apocalipse).
      */
     public static function purchaseReceiptHtml(array $purchase, array $config): string {
-        $siteName = $config['settings']['site_name'] ?? ($config['site_name'] ?? 'TECPLAY');
+        $siteName = self::nomeDoSite($config, 'TECPLAY');
         $siteUrl  = $config['site_url'] ?? '';
         $coins    = (int)$purchase['coins_total'];
         $bonus    = (int)$purchase['coins_bonus'];
@@ -133,5 +133,26 @@ class Mailer {
             . '</p>'
             . '</td></tr></table></td></tr></table></body></html>';
         return $base;
+    }
+
+    /**
+     * Nome do site, garantido NAO vazio.
+     *
+     * Duplicado de proposito (existe igual no helper global `site_name()` e na
+     * outra classe): esta classe e carregada por `public/api/mp-webhook.php`, que
+     * NAO tem autoloader e NAO faz require de `helpers.php` nem de `Settings.php`.
+     * Chamar o helper daqui seria erro fatal num caminho de dinheiro. Tres linhas
+     * repetidas custam menos que isso.
+     *
+     * E `??` sozinho nao serve: ele nao cai no fallback quando o valor e string
+     * VAZIA, so quando e null. Nome apagado no painel mandaria e-mail com
+     * remetente em branco, que servidor de SMTP recusa.
+     */
+    private static function nomeDoSite(array $config, string $fallback): string {
+        foreach ([$config['settings']['site_name'] ?? null, $config['site_name'] ?? null] as $v) {
+            $v = trim((string) $v);
+            if ($v !== '') return $v;
+        }
+        return $fallback;
     }
 }

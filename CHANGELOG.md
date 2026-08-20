@@ -5,6 +5,55 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [3.2.6] - 2026-08-19
+
+### Corrigido
+
+- **Nome do servidor aparecia em branco no site.** Encontrado num servidor real: a página de
+  ranking mostrava *"Hall of Fame do  - ranking ao vivo..."*, sem o nome no meio.
+
+  A causa não estava na página. O template lia o nome do site com `??`, e `??` só usa o valor
+  reserva quando o campo está **ausente**, nunca quando ele está **vazio**. Quem limpou o campo
+  "Nome do site" no painel e salvou gravou um vazio, e a partir daí **46 lugares** passaram a
+  imprimir nada: o título da aba do navegador, o nome que aparece quando o link é compartilhado,
+  o remetente dos e-mails, o nome no aviso do Discord e — o pior — **o texto que aparece na
+  fatura do cartão do jogador**.
+
+  Agora o painel **recusa** salvar o nome vazio e mantém o anterior, e a leitura trata vazio
+  como ausente. São duas barreiras de propósito: a primeira impede que aconteça de novo, e a
+  segunda faz quem já está com o campo vazio voltar a mostrar algo.
+
+  ⚠️ **Se o seu site está com o nome em branco agora**, entre em *Configurações*, digite o nome
+  e salve. O conserto impede gravar vazio, mas não adivinha o nome que você quer.
+
+- **Ajuste de moedas no painel não aplicava e o valor voltava sozinho**, sem dizer por quê.
+  Acontece nos servidores em que a moeda mora **dentro do jogo**: o site precisa avisar o bot
+  pra escrever no servidor, e faltavam duas configurações pra isso — que **não existiam no
+  painel**. A única forma de preenchê-las era mexer no banco direto.
+
+  Agora existe o bloco **🤖 Aviso pro bot do Discord** em *Configurações*, com **um botão de
+  testar a conexão** que diz qual é o problema: token recusado, endereço inalcançável, ou tudo
+  certo. E a tela de Jogadores passou a **mostrar o motivo** quando o ajuste não é aplicado, em
+  vez de deixar o número voltar em silêncio.
+
+- **Chave de exemplo do Mercado Pago esquecida no `config.php` bloqueava o painel.** Se o
+  arquivo tinha o texto `ALTERE_AQUI_ACCESS_TOKEN_MP`, o token digitado no painel era ignorado
+  pra sempre — mesmo o painel tendo validado ele contra o Mercado Pago antes de salvar. Pior:
+  o site achava que estava configurado e o jogador recebia um erro da API no meio da compra, em
+  vez da tela clara de "não configurado". Agora texto de exemplo conta como vazio, e o painel
+  assume. Arquivo com token de verdade continua tendo precedência, como sempre.
+
+### Adicionado
+
+- **Bloco "📤 O site avisando o bot"** dentro de *Integração Discord* — a mesma tela onde já
+  ficava o token que o bot usa pra ler o site. Faltava a outra metade do link: o endereço e o
+  token que o **site** usa pra falar com o bot. Sem eles, a confirmação de compra não chega ao
+  Discord e o ajuste de moedas não se aplica nos servidores em que a moeda mora dentro do jogo.
+- **Botão "Testar a conexão"** ali do lado. Só pergunta, não altera nada, e diz **qual** é o
+  problema: token recusado, endereço inalcançável, ou tudo certo.
+
+---
+
 ## [3.2.5] - 2026-08-18
 
 ### Mudado

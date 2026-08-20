@@ -18,8 +18,45 @@ class MercadoPago {
         $this->webhookSecret = $webhookSecret ?: null;
     }
 
+    /**
+     * Reconhece os textos de EXEMPLO que o template distribui, pra nao tratar
+     * placeholder como token de verdade.
+     *
+     * Existia um so, `<MP_ACCESS_TOKEN>`, mas o `config.example.php` passou a
+     * enviar `ALTERE_AQUI_ACCESS_TOKEN_MP` e ninguem atualizou a lista. Duas
+     * consequencias, as duas caras:
+     *
+     *   1. `isConfigured()` dizia SIM pro placeholder, entao em vez da tela clara
+     *      de "MP nao configurado" o jogador levava um erro da API do Mercado Pago.
+     *   2. o merge do painel (public/index.php) tem precedencia "config.php vence",
+     *      e placeholder e nao-vazio — ou seja, o token digitado no painel ficava
+     *      eternamente sombreado por um texto de exemplo. O dono do site salvava,
+     *      o painel validava contra a API do MP, e o checkout continuava sem token.
+     *
+     * Por isso a lista virou uma constante publica: quem decide "esta configurado"
+     * e quem decide "o painel pode assumir" tem que usar o MESMO critério.
+     */
+    public const PLACEHOLDERS = [
+        '<MP_ACCESS_TOKEN>',
+        'ALTERE_AQUI_ACCESS_TOKEN_MP',
+        'ALTERE_AQUI',
+        'SEU_ACCESS_TOKEN',
+        'TEST-XXXX',
+    ];
+
+    /** Diz se o valor e vazio ou um dos textos de exemplo do template. */
+    public static function ehPlaceholder(?string $valor): bool {
+        $v = trim((string) $valor);
+        if ($v === '') return true;
+        foreach (self::PLACEHOLDERS as $ph) {
+            if (strcasecmp($v, $ph) === 0) return true;
+        }
+        // qualquer coisa que comece com ALTERE_AQUI e placeholder
+        return stripos($v, 'ALTERE_AQUI') === 0;
+    }
+
     public function isConfigured(): bool {
-        return $this->accessToken !== '' && $this->accessToken !== '<MP_ACCESS_TOKEN>';
+        return !self::ehPlaceholder($this->accessToken);
     }
 
     /**

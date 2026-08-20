@@ -206,9 +206,16 @@ $mpCfg = $config['mercado_pago'] ?? [];
 foreach (['access_token' => 'mp_access_token',
           'public_key'   => 'mp_public_key',
           'webhook_secret' => 'mp_webhook_secret'] as $campo => $chave) {
-    if (trim((string) ($mpCfg[$campo] ?? '')) === '') {
+    // "config.php vence" continua valendo, mas PLACEHOLDER nao vence nada: um
+    // texto de exemplo esquecido no arquivo sombreava pra sempre o token que o
+    // dono do site digitou no painel. Vazio e placeholder contam igual aqui.
+    $atual = (string) ($mpCfg[$campo] ?? '');
+    $vazio = $campo === 'access_token'
+             ? \App\MercadoPago::ehPlaceholder($atual)
+             : trim($atual) === '' || stripos(trim($atual), 'ALTERE_AQUI') === 0;
+    if ($vazio) {
         $salvo = trim((string) \App\Settings::get($chave, ''));
-        if ($salvo !== '') {
+        if ($salvo !== '' && stripos($salvo, 'ALTERE_AQUI') !== 0) {
             $mpCfg[$campo] = $salvo;
         }
     }
@@ -1285,7 +1292,7 @@ $config['mercado_pago'] = $mpCfg;
     // QR copia-e-cola gerado aqui; o jogador paga sem deixar a página. O mp-webhook.php
     // credita os coins na aprovação. Cartão/boleto ficam no fallback /shop/card/{id}.
     $expires = gmdate("Y-m-d\\TH:i:s.000P", time() + 1800); // QR válido ~30 min
-    $siteName = $config['settings']['site_name'] ?? ($config['site_name'] ?? 'Loja');
+    $siteName = site_name('Loja');
     $pay = $mp->createPixPayment([
         'transaction_amount' => round($priceBrl, 2),
         'description'        => $siteName . ' - ' . $pkg['name'] . ' (' . $coinsTotal . ' moedas)',
@@ -1376,7 +1383,7 @@ $config['mercado_pago'] = $mpCfg;
         ],
         'auto_return'    => 'approved',
         'notification_url' => $siteUrl . '/api/mp-webhook.php',
-        'statement_descriptor' => $config['settings']['site_name'] ?? $config['site_name'] ?? 'DAYZ',
+        'statement_descriptor' => site_name('DAYZ'), // NAO usar `??`: nome vazio ia pro descritor da fatura
         'metadata' => ['server_slug' => trim($config['matriz']['server_slug'] ?? ''), 'kind' => 'loja'],
     ]);
     if (!$pref || empty($pref['init_point'])) {
@@ -1423,7 +1430,7 @@ $config['mercado_pago'] = $mpCfg;
     $siteUrl = rtrim($config['site_url'] ?? ('https://' . $_SERVER['HTTP_HOST']), '/');
 
     $cardPkg = \App\Database::fetchOne("SELECT name FROM packages WHERE id = ? LIMIT 1", [$p['package_id']]);
-    $cardSite = $config['settings']['site_name'] ?? ($config['site_name'] ?? 'Loja');
+    $cardSite = site_name('Loja');
     $payload = [
         'transaction_amount' => round((float)$p['price_brl'], 2),
         'token'              => $token,
@@ -1821,7 +1828,7 @@ $config['mercado_pago'] = $mpCfg;
             );
             $siteUrl = rtrim($config['site_url'] ?? '', '/');
             $link    = $siteUrl . '/admin/reset?token=' . $token;
-            $siteName = htmlspecialchars($config['site_name'] ?? 'seu site');
+            $siteName = htmlspecialchars(site_name('seu site')); // e-mail de reset de senha do admin
             require_once $ROOT . '/src/Mailer.php';
             \App\Mailer::init($config['mail'] ?? []);
             $html = '<div style="font-family:Arial,sans-serif;background:#0d0d10;padding:24px;color:#d4d4d8;">'
@@ -2534,6 +2541,47 @@ $collectDashboardData = function() {
         ], ';');
     }
     fclose($out);
+    exit;
+});
+
+// Testa o aviso site -> bot SEM mudar nada.
+//
+// Existe porque "salvei o token" e "o bot recebe" sao coisas diferentes, e a
+// diferenca entre as duas so aparecia na hora que uma venda de verdade nao
+// chegava, ou que um ajuste de moeda "voltava sozinho". Uma pergunta de leitura
+// ao /health do bot separa "endereco/token errado" de "bot fora do ar" em um
+// clique, e antes de alguem depender disso.
+\App\Router::get('/admin/discord-integration/testar-bot', function() use ($config) {
+    \App\Auth::requireCan('discord_integration');
+    $endpoint = trim(($config['bot']['endpoint'] ?? '') ?: ($config['settings']['bot_endpoint'] ?? ''));
+    $token    = trim(($config['bot']['token']    ?? '') ?: ($config['settings']['bot_token']    ?? ''));
+    if ($endpoint === '' || $token === '') {
+        header('Location: /admin/discord-integration?bot=falta');
+        exit;
+    }
+    $ch = curl_init(rtrim($endpoint, '/') . '/health');
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER     => ['X-Tecplay-Token: ' . $token],
+        CURLOPT_TIMEOUT        => 10,
+        CURLOPT_CONNECTTIMEOUT => 5,
+    ]);
+    $resp = curl_exec($ch);
+    $http = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $erroRede = curl_error($ch);
+    curl_close($ch);
+
+    // Cada resultado tem um nome, porque "nao funcionou" nao ajuda ninguem:
+    // 401 e token errado, 0 e endereco/rede, 200 e ok.
+    if ($http === 401 || $http === 403) {
+        header('Location: /admin/discord-integration?bot=token');
+    } elseif ($http === 0) {
+        header('Location: /admin/discord-integration?bot=rede&msg=' . rawurlencode(substr($erroRede ?: 'sem resposta', 0, 90)));
+    } elseif ($http >= 200 && $http < 300) {
+        header('Location: /admin/discord-integration?bot=ok');
+    } else {
+        header('Location: /admin/discord-integration?bot=http&msg=' . $http);
+    }
     exit;
 });
 
@@ -4448,8 +4496,20 @@ $BRAND_SLOTS = [
 
     $publicUrl = rtrim(($config['app_url'] ?? ('https://' . ($_SERVER['HTTP_HOST'] ?? 'localhost'))), '/');
 
+    // Sentido site -> bot. Fica NESTA tela, e nao em Configuracoes, porque e a
+    // mesma integracao: aqui o cliente ja vem cuidar do link com o bot. Enterrar
+    // metade do link em outra pagina foi o que fez isso ficar invisivel.
+    $botEndpoint = (string) (\App\Database::fetchColumn(
+        "SELECT `value` FROM settings WHERE `key` = 'bot_endpoint'"
+    ) ?: '');
+    $botTokenSet = trim((string) (\App\Database::fetchColumn(
+        "SELECT `value` FROM settings WHERE `key` = 'bot_token'"
+    ) ?: '')) !== '';
+
     \App\View::display('admin.discord_integration', [
         'config' => $config,
+        'bot_endpoint' => $botEndpoint,
+        'bot_token_set' => $botTokenSet,
         'token' => $token,
         'tokenMasked' => $tokenMasked,
         'lastOk' => $lastOk,
@@ -4458,6 +4518,27 @@ $BRAND_SLOTS = [
         'log' => $log,
         'publicUrl' => $publicUrl,
     ]);
+});
+
+\App\Router::post('/admin/discord-integration/bot-link', function() {
+    \App\Auth::requireCan('discord_integration');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
+
+    // Endereco: campo vazio APAGA (o dono pode querer desligar o aviso).
+    if (isset($_POST['bot_endpoint'])) {
+        \App\Settings::set('bot_endpoint', trim((string) $_POST['bot_endpoint']));
+    }
+    // Token: campo vazio MANTEM. A tela nunca echoa o token salvo, entao tratar
+    // vazio como "apagar" faria quem so mexeu no endereco perder o token.
+    if (isset($_POST['bot_token']) && trim((string) $_POST['bot_token']) !== '') {
+        \App\Settings::set('bot_token', trim((string) $_POST['bot_token']));
+    }
+    \App\AuditLog::record('bot_link.updated', 'settings', 0, [
+        'endpoint' => trim((string) ($_POST['bot_endpoint'] ?? '')),
+        'token_trocado' => isset($_POST['bot_token']) && trim((string) $_POST['bot_token']) !== '',
+    ]);
+    header('Location: /admin/discord-integration?bot=salvo');
+    exit;
 });
 
 \App\Router::post('/admin/discord-integration/regenerate', function() use ($config) {

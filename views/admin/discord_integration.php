@@ -122,4 +122,83 @@
     <?php endif; ?>
 </div>
 
+
+<?php
+// Resultado do teste e do salvamento. Cada caso com nome proprio: dizer so
+// "falhou" faria o dono do site adivinhar entre token, endereco e bot fora do ar.
+$botR = $_GET['bot'] ?? null;
+$botMsg = match ($botR) {
+    'salvo' => ['moss',   'Salvo. Clica em "Testar a conexao" pra confirmar que o bot responde.'],
+    'ok'    => ['moss',   'O bot respondeu. O aviso do site pro bot esta funcionando.'],
+    'token' => ['rust-2', 'O bot respondeu, mas RECUSOU o token (401). O endereco esta certo e o token nao.'],
+    'rede'  => ['rust-2', 'Nao consegui alcancar o endereco: ' . (string) ($_GET['msg'] ?? '') . '. Confira o endereco, ou o bot esta fora do ar.'],
+    'http'  => ['rust-2', 'O bot respondeu com HTTP ' . (string) ($_GET['msg'] ?? '?') . '. Endereco alcancado, resposta inesperada.'],
+    'falta' => ['rust-2', 'Preencha o endereco E o token antes de testar.'],
+    default => null,
+};
+$botEndpoint = $bot_endpoint ?? '';
+$botTokenSet = !empty($bot_token_set);
+$botPronto   = trim((string) $botEndpoint) !== '' && $botTokenSet;
+?>
+
+<!-- ============ O OUTRO SENTIDO: o site avisando o bot ============ -->
+<div class="stat-card" style="padding:1.5rem; margin-top:2rem;">
+    <h2 style="margin:0 0 0.3rem;">📤 O site avisando o bot</h2>
+    <p style="color:var(--dim); margin:0 0 1rem; font-size:0.9rem;">
+        O bloco acima e o bot <strong>lendo</strong> o site. Este e o caminho contrario: o site
+        <strong>contando</strong> pro bot que uma venda foi aprovada, que um VIP mudou, e que
+        voce ajustou moedas no painel.
+    </p>
+
+    <?php if (!$botPronto): ?>
+        <div style="background:var(--danger-overlay); border-left:3px solid var(--rust-2); padding:0.8rem 1rem; margin-bottom:1rem;">
+            <strong>Falta configurar.</strong> Sem isso, nada do site chega ao bot: a confirmacao de
+            compra nao aparece no Discord e — se a moeda do seu servidor mora <em>dentro do jogo</em> —
+            <strong>o ajuste de moedas no painel nao se aplica</strong> e o valor volta ao que estava,
+            porque o site nao tem como escrever no servidor sozinho.
+        </div>
+    <?php else: ?>
+        <div style="background:var(--bg-0); border-left:3px solid var(--moss); padding:0.8rem 1rem; margin-bottom:1rem;">
+            Endereco e token preenchidos. <strong>Testar</strong> e o que prova que funciona.
+        </div>
+    <?php endif; ?>
+
+    <?php if ($botMsg): ?>
+        <div style="background:var(--bg-0); border-left:3px solid var(--<?= e($botMsg[0]) ?>); padding:0.8rem 1rem; margin-bottom:1rem;">
+            <?= e($botMsg[1]) ?>
+        </div>
+    <?php endif; ?>
+
+    <form method="POST" action="/admin/discord-integration/bot-link">
+        <?= \App\Csrf::field() ?>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.8rem;">
+            <div>
+                <label style="display:block; font-size:0.82rem; color:var(--dim); margin-bottom:0.25rem;">Endereco do bot</label>
+                <input type="text" name="bot_endpoint" value="<?= e($botEndpoint) ?>"
+                       placeholder="https://bot.tecplay.inf.br"
+                       style="width:100%; padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:var(--font-mono);">
+            </div>
+            <div>
+                <label style="display:block; font-size:0.82rem; color:var(--dim); margin-bottom:0.25rem;">
+                    Token do bot <?= $botTokenSet ? '<span style="color:var(--moss);">- ja salvo (deixe vazio pra manter)</span>' : '' ?>
+                </label>
+                <input type="password" name="bot_token" value="" autocomplete="new-password"
+                       placeholder="<?= $botTokenSet ? '•••••••••• (salvo)' : 'cole o token aqui' ?>"
+                       style="width:100%; padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:var(--font-mono);">
+            </div>
+        </div>
+        <div style="margin-top:1rem; display:flex; gap:0.8rem; align-items:center;">
+            <button type="submit" style="padding:0.6rem 1rem; background:var(--hazard); color:#000; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Salvar</button>
+            <?php if ($botPronto): ?>
+                <a href="/admin/discord-integration/testar-bot" style="color:var(--hazard);">Testar a conexao →</a>
+                <span style="color:var(--dim); font-size:0.82rem;">(nao muda nada, so pergunta se ele responde)</span>
+            <?php endif; ?>
+        </div>
+    </form>
+    <p style="margin-top:0.8rem; font-size:0.8rem; color:var(--dim);">
+        Os dois valores sao especificos do <strong>seu</strong> bot: peca ao suporte. O token
+        nunca e exibido de volta nesta tela.
+    </p>
+</div>
+
 <?php \App\View::endSection(); ?>

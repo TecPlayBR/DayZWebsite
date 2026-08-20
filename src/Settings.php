@@ -82,6 +82,14 @@ class Settings {
         // admin OU config.php (config.php tem prioridade - ver bootstrap do index.php).
         'cftools_app_id'           => 'string',
         'cftools_secret'           => 'string',
+        // Aviso site -> bot (venda confirmada, VIP, ajuste de moeda quando o saldo
+        // mora no jogo). Estavam FORA do whitelist, e como `set()` rejeita chave
+        // fora do SCHEMA, era literalmente impossivel salvar os dois pelo painel:
+        // so INSERT direto no banco. Cada cliente novo precisa dos dois, entao a
+        // ausencia aqui virava um passo manual invisivel — e um cliente sem eles
+        // ve o ajuste de moeda "voltar sozinho" sem nenhuma explicacao.
+        'bot_endpoint'             => 'url',
+        'bot_token'                => 'string',
         'cftools_server_api_id'    => 'string',
 
         // Mercado Pago pelo painel (2026-08-12). Antes só existia no config/config.php e
@@ -171,6 +179,9 @@ class Settings {
     public static function set(string $key, string $raw): bool {
         if (!isset(self::SCHEMA[$key])) return false;
         $value = self::normalize(self::SCHEMA[$key], $raw);
+        // Chave que NAO pode virar vazia: recusa a gravacao e mantem o valor atual.
+        // Ver NUNCA_VAZIO pro porque.
+        if (in_array($key, self::NUNCA_VAZIO, true) && $value === '') return false;
         Database::query(
             "INSERT INTO settings (`key`, `value`) VALUES (?, ?)
              ON DUPLICATE KEY UPDATE `value` = VALUES(`value`)",
@@ -179,6 +190,22 @@ class Settings {
         self::$cache[$key] = $value;
         return true;
     }
+
+    /**
+     * Chaves que NUNCA podem ficar vazias, porque o site inteiro le elas com
+     * `?? 'fallback'` — e `??` so cai no fallback quando o valor e NULL ou
+     * ausente, nunca quando e string VAZIA.
+     *
+     * O estrago real: um admin que limpa "Nome do site" e salva grava `''`, e a
+     * partir dai 46 lugares passam a imprimir vazio em vez do fallback. Vira
+     * `<title>` vazio, `og:site_name` vazio, "Hall of Fame do  -" sem nome, nome
+     * do remetente do e-mail vazio, e — o pior — `statement_descriptor` vazio na
+     * cobranca do cartao, que e o texto que aparece na fatura do jogador.
+     *
+     * Consertar nos 46 leitores seria caçar sintoma. A causa e deixar gravar
+     * vazio, e e aqui que ela morre: `set()` recusa e o valor anterior fica.
+     */
+    public const NUNCA_VAZIO = ['site_name'];
 
     private static function normalize(string $type, string $raw): string {
         $v = trim($raw);

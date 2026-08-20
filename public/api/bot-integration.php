@@ -650,7 +650,15 @@ case 'create_checkout':
         ],
         'auto_return'          => 'approved',
         'notification_url'     => $siteUrl . '/api/mp-webhook.php',
-        'statement_descriptor' => $config['site_name'] ?? 'DAYZ',
+        // Inline de proposito: este arquivo NAO carrega helpers.php, entao o
+        // helper site_name() nao existe aqui e chamar ele seria erro fatal num
+        // caminho de dinheiro. `??` sozinho nao serve: nome vazio nao cai no
+        // fallback e o descritor da fatura do jogador sairia em branco.
+        'statement_descriptor' => (trim((string)($config['settings']['site_name'] ?? '')) !== ''
+                                    ? trim((string)$config['settings']['site_name'])
+                                    : (trim((string)($config['site_name'] ?? '')) !== ''
+                                        ? trim((string)$config['site_name'])
+                                        : 'DAYZ')),
     ]);
     if (!$pref || empty($pref['init_point'])) {
         _bail(502, 'preference_failed', 'create_checkout');

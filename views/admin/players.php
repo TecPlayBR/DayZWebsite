@@ -14,7 +14,28 @@
     </div>
 </div>
 
-<?php if (!empty($_GET['ok'])): ?>
+<?php
+// O handler do ajuste de moedas redireciona pra ca com `?err=<motivo>` quando NAO
+// consegue aplicar no servidor de jogo — e esta tela nao mostrava esse motivo.
+//
+// O efeito pra quem operava: digita 100, salva, e o valor volta pro que estava.
+// Sem banner nenhum, isso le como "salvou e o saldo e esse", quando na verdade
+// nada foi aplicado em lugar nenhum. Foi assim que o "cravado em 65" apareceu.
+$errBruto = isset($_GET['err']) ? (string) $_GET['err'] : '';
+$errMsg = match ($errBruto) {
+    ''  => null,
+    'bot_nao_configurado' =>
+        'A moeda deste servidor mora DENTRO DO JOGO, e o site nao tem como falar com o bot pra aplicar o ajuste. '
+        . 'Preencha o endereco e o token do bot em Configuracoes -> Integracao. Enquanto isso, nada foi alterado.',
+    'csrf' => 'Sessao expirada. Recarregue a pagina e tente de novo.',
+    default => 'Nao deu pra aplicar o ajuste no servidor de jogo: ' . $errBruto . '. Nada foi alterado aqui.',
+};
+?>
+<?php if ($errMsg !== null): ?>
+    <div style="background:var(--danger-overlay);border-left:3px solid var(--rust-2);padding:0.8rem 1rem;margin-bottom:1.5rem;color:var(--text-danger);">
+        <strong>O ajuste NAO foi aplicado.</strong><br><?= e($errMsg) ?>
+    </div>
+<?php elseif (!empty($_GET['ok'])): ?>
     <div class="alert-toast">Atualizado.</div>
 <?php endif; ?>
 

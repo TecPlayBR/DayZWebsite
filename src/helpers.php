@@ -240,6 +240,37 @@ if (!function_exists('public_dir')) {
     }
 }
 
+if (!function_exists('site_name')) {
+    /**
+     * Nome do site, garantido NAO vazio.
+     *
+     * Existe porque o padrao espalhado pelo template era
+     * `$config['settings']['site_name'] ?? $config['site_name'] ?? 'Servidor'`,
+     * e `??` NAO cai no fallback quando o valor e string vazia — so quando e null
+     * ou ausente. Um "Nome do site" apagado no painel virava texto vazio em 46
+     * lugares, incluindo o descritor que aparece na fatura do cartao do jogador.
+     *
+     * `Settings::NUNCA_VAZIO` ja impede gravar vazio; este helper e a segunda
+     * barreira, pra instalacao que ja gravou vazio ANTES do conserto (foi o caso
+     * do renascerz) continuar renderizando algo em vez de um buraco.
+     */
+    function site_name(string $fallback = 'Servidor', ?array $cfg = null): string {
+        // Aceita o array explicitamente: dentro de uma view existe um `$config`
+        // LOCAL (o View faz extract), e depender do global aqui criaria a chance
+        // silenciosa de ler um valor diferente do que a pagina esta usando. Hoje
+        // as rotas passam o mesmo array, mas isso e coincidencia, nao contrato.
+        if ($cfg === null) {
+            global $config;
+            $cfg = is_array($config ?? null) ? $config : [];
+        }
+        foreach ([$cfg['settings']['site_name'] ?? null, $cfg['site_name'] ?? null] as $v) {
+            $v = trim((string) $v);
+            if ($v !== '') return $v;
+        }
+        return $fallback;
+    }
+}
+
 if (!function_exists('asset')) {
     function asset(string $path): string {
         $rel = ltrim($path, '/');
