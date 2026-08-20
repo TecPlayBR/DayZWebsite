@@ -142,6 +142,23 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
                 <div class="profile-card-label"><?= e(__('profile.balance')) ?></div>
                 <div class="profile-card-value" style="color: var(--hazard);"><?= number_format((int)($player['coins'] ?? 0), 0, ',', '.') ?></div>
                 <div class="profile-card-suffix"><?= e(__('profile.coins')) ?></div>
+                <?php if (\App\Settings::saldoVemDoJogo()): ?>
+                    <?php
+                    // Quando a moeda mora DENTRO do jogo, este numero e um espelho, e
+                    // espelho tem atraso: o mod desconta no arquivo do servidor e nao avisa
+                    // ninguem, entao a unica forma de saber e o bot reler de tempo em tempo.
+                    //
+                    // Sem esta linha o jogador gasta no jogo, abre o site, ve o numero antigo
+                    // e conclui que o site esta quebrado. Aconteceu com o proprio dono do
+                    // servidor, que ajudou a CONSTRUIR isso. Dizer que atrasa custa uma
+                    // frase; parecer quebrado custa confianca e ticket de suporte.
+                    ?>
+                    <div style="margin-top:0.4rem; font-size:0.72rem; color:var(--dim); line-height:1.35;">
+                        Este saldo vem do <strong>jogo</strong> e é conferido a cada poucos minutos.
+                        Se você acabou de gastar ou receber algo lá dentro, o número aqui pode
+                        demorar um pouco pra acompanhar — o que vale é sempre o do jogo.
+                    </div>
+                <?php endif; ?>
             </div>
             <div class="profile-card">
                 <div class="profile-card-label"><?= e(__('profile.invested')) ?></div>

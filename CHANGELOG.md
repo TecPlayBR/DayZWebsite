@@ -51,6 +51,15 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
   Agora o instalador **recusa** salvar Access Token sem Webhook Secret, e diz onde pegar a
   *Assinatura secreta* e para qual endereço apontar o webhook.
 
+- **O saldo do jogador parecia travado depois de ele gastar dentro do jogo.** Não estava: nos
+  servidores em que a moeda mora no jogo, o número no site é um espelho, e o mod não avisa
+  ninguém quando o jogador compra algo na loja in-game — a única forma de saber é o bot reler
+  de tempo em tempo. Só que a tela não dizia isso, então o número antigo lia como site quebrado.
+
+  Agora a tela do jogador **diz** que aquele saldo vem do jogo e é conferido a cada poucos
+  minutos, e que o que vale é sempre o do jogo. A releitura também passou de 5 para **3
+  minutos**.
+
 ### Adicionado
 
 - **Bloco "📤 O site avisando o bot"** dentro de *Integração Discord* — a mesma tela onde já
