@@ -62,6 +62,17 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ### Adicionado
 
+- **Aba 🔥 Integração FlameHost** no painel do site, junto das outras (Agent, Sparda, Discord).
+  A configuração do FTP do servidor de jogo continua no painel do **bot** — é o bot que escreve
+  nos arquivos do servidor, e o site nunca toca neles, então não faz sentido o site guardar uma
+  segunda cópia da senha. Mas faltava a aba: quem abre as integrações do site via três e não
+  achava justamente a que entrega a moeda dele.
+
+  A página é só leitura, aponta pro lugar certo, e mostra o **estado real** da entrega usando um
+  dado que o site já tinha: a marca que o bot grava a cada espelho. Se o link com o bot estiver
+  faltando, ela avisa que a compra não vai chegar no jogo.
+
+
 - **Bloco "📤 O site avisando o bot"** dentro de *Integração Discord* — a mesma tela onde já
   ficava o token que o bot usa pra ler o site. Faltava a outra metade do link: o endereço e o
   token que o **site** usa pra falar com o bot. Sem eles, a confirmação de compra não chega ao

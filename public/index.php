@@ -4561,6 +4561,28 @@ $BRAND_SLOTS = [
     exit;
 });
 
+// FlameHost: pagina SO-LEITURA que aponta pro painel do bot e mostra o estado real.
+//
+// Por que existe: a credencial de FTP do servidor de jogo mora no painel do BOT (e o bot que
+// escreve nos arquivos; o site nunca toca neles). Mas o dono do servidor abre as integracoes
+// DO SITE, ve Agent/Sparda/Discord, e nao acha a que entrega a moeda dele -- aconteceu de
+// verdade. Apontar pro lugar certo custa uma pagina.
+//
+// O estado vem de um dado que o site JA tem: `saldo_ingame_visto_em`, a marca que o bot grava
+// a cada espelho. Zero plumbing novo, e nao e um interruptor: expira sozinho.
+\App\Router::get('/admin/flamehost', function() use ($config) {
+    \App\Auth::requireCan('servers');
+    $vistoEm = (int) \App\Settings::get('saldo_ingame_visto_em', '0');
+    \App\View::display('admin.flamehost', [
+        'config'      => $config,
+        'ativo'       => \App\Settings::saldoVemDoJogo(),
+        'vistoEm'     => $vistoEm,
+        'idadeSeg'    => $vistoEm > 0 ? max(0, time() - $vistoEm) : 0,
+        'botUrl'      => trim((string) (($config['bot']['endpoint'] ?? '') ?: ($config['settings']['bot_endpoint'] ?? ''))),
+        'botTokenSet' => trim((string) (($config['bot']['token'] ?? '') ?: ($config['settings']['bot_token'] ?? ''))) !== '',
+    ]);
+});
+
 \App\Router::get('/admin/sparda', function() use ($config) {
     \App\Auth::requireCan('servers');
 
