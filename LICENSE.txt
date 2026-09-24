@@ -288,7 +288,6 @@ ILICITO do Template, sujeito as penalidades previstas em lei.
   Suporte:   https://tecplay.inf.br/suporte/
   Servicos:  https://tecplay.inf.br/servicos/#web
   E-mail:    suporte@tecplay.inf.br
-  Discord:   https://discord.gg/uwSE3WSjNH
 
 ================================================================
   Versao desta licenca: 2.0 (2026-05-27)

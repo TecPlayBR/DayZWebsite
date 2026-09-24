@@ -475,7 +475,6 @@ Inclui:
 ### Canais
 
 - 📧 **E-mail:** suporte@tecplay.inf.br
-- 💬 **Discord:** https://discord.gg/uwSE3WSjNH
 - 🌐 **Site:** https://tecplay.inf.br
 
 > ⚠️ Pedidos de suporte para versões modificadas pelo cliente serão automaticamente direcionados ao serviço de modificação sob demanda. Não há como diagnosticar/atualizar código alterado por terceiros.

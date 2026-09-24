@@ -126,7 +126,7 @@ class Mailer {
             $base .= '<p style="text-align:center;margin:0 0 20px;"><a href="' . $esc($siteUrl) . '/my-purchases" style="display:inline-block;background:' . $cRust . ';color:#ffffff;padding:12px 28px;text-decoration:none;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:bold;">Ver minhas compras</a></p>';
         }
         $support = ($config['settings']['social_discord'] ?? '') ?: ($config['settings']['discord_invite'] ?? '');
-        $supportHtml = $support !== '' ? $esc($support) : '<a href="https://discord.gg/uwSE3WSjNH" style="color:' . $cLink . ';">Discord Tecplay</a>';
+        $supportHtml = $support !== '' ? $esc($support) : '<a href="https://tecplay.inf.br/suporte/" style="color:' . $cLink . ';">Suporte Tecplay</a>';
         $base .= '<p style="color:' . $cDim . ';font-size:12px;text-align:center;margin:0;line-height:1.6;">'
             . 'Este é um e-mail automático de <strong style="color:' . $cBone . ';">' . $esc($siteName) . '</strong>. Não responda.<br>'
             . 'Suporte: ' . $supportHtml

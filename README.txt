@@ -94,7 +94,6 @@ Modificacoes/customizacoes sob demanda (servico pago):
 
 Canais:
   E-mail:  suporte@tecplay.inf.br
-  Discord: https://discord.gg/uwSE3WSjNH
   Site:    https://tecplay.inf.br
 
 VERSOES MODIFICADAS NAO RECEBEM SUPORTE OFICIAL.

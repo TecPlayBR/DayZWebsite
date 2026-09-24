@@ -441,7 +441,6 @@ Quer algo específico só para o seu servidor (integração, mod, sistema própr
 |---|---|
 | 🌐 Site | [tecplay.inf.br](https://tecplay.inf.br) |
 | 📧 E-mail | suporte@tecplay.inf.br |
-| 💬 Discord | [discord.gg/uwSE3WSjNH](https://discord.gg/uwSE3WSjNH) |
 
 ---
 

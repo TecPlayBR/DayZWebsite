@@ -183,7 +183,6 @@ MODIFICACOES SOB DEMANDA (servico pago):
   https://tecplay.inf.br/servicos/#web
 
 E-mail:  suporte@tecplay.inf.br
-Discord: https://discord.gg/uwSE3WSjNH
 
 ================================================================
   Versao: {$version}
