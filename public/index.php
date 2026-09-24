@@ -1031,6 +1031,15 @@ $config['mercado_pago'] = $mpCfg;
 });
 
 // ============ LOJA ============
+// Apelido PT: /loja -> /shop (301), preservando a query string.
+// O site e em portugues, entao `/loja` e o palpite natural de quem digita a URL
+// na mao ou manda o link no Discord. Antes disso dava 404 seco.
+\App\Router::get('/loja', function() {
+    $qs = $_SERVER['QUERY_STRING'] ?? '';
+    header('Location: /shop' . ($qs !== '' ? '?' . $qs : ''), true, 301);
+    exit;
+});
+
 \App\Router::get('/shop', function() use ($config) {
     $packages = \App\Database::fetchAll(
         "SELECT * FROM packages WHERE enabled = 1 ORDER BY sort_order ASC"
