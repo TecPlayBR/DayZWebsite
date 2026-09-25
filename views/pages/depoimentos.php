@@ -40,7 +40,7 @@
                             <div class="review-id">
                                 <?php if ($rAv !== '' && preg_match('#^https?://#i', $rAv)): ?>
                                     <img class="review-avatar" src="<?= e($rAv) ?>" alt="<?= e($rName) ?>" loading="lazy" referrerpolicy="no-referrer"
-                                         onerror="this.outerHTML='<span class=\'review-avatar review-avatar-letter\'><?= e($rLetter) ?></span>'">
+                                         data-img-falha="trocar" data-img-tag="span" data-img-classe="review-avatar review-avatar-letter" data-img-texto="<?= e($rLetter) ?>">
                                 <?php else: ?>
                                     <span class="review-avatar review-avatar-letter"><?= e($rLetter) ?></span>
                                 <?php endif; ?>
@@ -127,7 +127,7 @@
     </div>
 </section>
 
-<script>
+<script nonce="<?= csp_nonce() ?>">
 // Star picker: cinza por default. Hover ilumina preview 1-N. Click fixa o rating.
 (function() {
     const wrap = document.getElementById('public-review-stars');

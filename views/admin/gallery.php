@@ -76,7 +76,7 @@ $nextSort = ($existingOrders ? max($existingOrders) : 0) + 1;
                 <div class="row">
                     <button type="submit" class="btn-mini">Salvar</button>
                     <button type="submit" formaction="/admin/gallery/delete" class="btn-mini danger"
-                            onclick="return confirm('Apagar essa imagem? Ação irreversível.')">Excluir</button>
+                            data-confirm="Apagar essa imagem? Ação irreversível.">Excluir</button>
                 </div>
             </form>
         </div>
@@ -131,7 +131,7 @@ $nextSort = ($existingOrders ? max($existingOrders) : 0) + 1;
 .btn-mini.danger { background: var(--rust-2); border-color: var(--rust-2); }
 </style>
 
-<script>
+<script nonce="<?= csp_nonce() ?>">
 (function(){
     var inp = document.getElementById('g-sort'), warn = document.getElementById('g-sort-warn');
     if (!inp || !warn) return;

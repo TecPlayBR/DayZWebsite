@@ -33,7 +33,7 @@
                 <td><?= (int)$a['published'] ? '<span class="badge success">visível</span>' : '<span class="badge danger">oculto</span>' ?></td>
                 <td style="white-space:nowrap;">
                     <a href="/admin/help/<?= (int)$a['id'] ?>/edit" class="btn-mini outline">Editar</a>
-                    <form method="POST" action="/admin/help/<?= (int)$a['id'] ?>/delete" style="display:inline;" onsubmit="return confirm('Excluir o artigo &quot;<?= e(addslashes($a['title'])) ?>&quot;?');">
+                    <form method="POST" action="/admin/help/<?= (int)$a['id'] ?>/delete" style="display:inline;" data-confirm="Excluir o artigo &quot;<?= e($a['title']) ?>&quot;?">
                         <?= \App\Csrf::field() ?>
                         <button type="submit" class="btn-mini outline" style="color:var(--rust-2);border-color:var(--rust-2);">Excluir</button>
                     </form>

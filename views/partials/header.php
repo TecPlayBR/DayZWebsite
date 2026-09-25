@@ -79,7 +79,7 @@
                     <?php if (!empty($steamUser['avatar'])): ?>
                         <img src="<?= e($steamUser['avatar']) ?>" alt="<?= e('Avatar de ' . $steamName) ?>" class="user-pill-avatar"
                              loading="lazy" referrerpolicy="no-referrer"
-                             onerror="this.outerHTML='<span class=\'user-pill-avatar user-pill-avatar-fallback\' aria-hidden=\'true\'>&#9881;</span>'">
+                             data-img-falha="trocar" data-img-tag="span" data-img-classe="user-pill-avatar user-pill-avatar-fallback" data-img-texto="&#9881;" data-img-oculto>
                     <?php else: ?>
                         <span class="user-pill-avatar user-pill-avatar-fallback" aria-hidden="true">⚙</span>
                     <?php endif; ?>

@@ -129,7 +129,7 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
              data-next="<?= (int)$rs['next_ts'] ?>" data-warn="<?= (int)($rs['warn_min'] ?? 5) ?>" data-at="<?= e($rs['at']) ?>">
             <span class="dot"></span><span class="hr-text">🔄 <?= e(__('restart.next')) ?>: <strong><?= e($rs['at']) ?></strong></span>
         </div>
-        <script>
+        <script nonce="<?= csp_nonce() ?>">
         (function(){
             var el = document.getElementById('hero-restart'); if (!el) return;
             var next = +el.dataset.next, warn = +el.dataset.warn || 5, at = el.dataset.at, reloaded = false;
@@ -302,7 +302,7 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
 .live-purchase-coins { color: var(--bone); font-weight: 700; }
 .live-purchase-ago { color: var(--dim); margin-left: auto; font-size: 0.75rem; }
 </style>
-<script>
+<script nonce="<?= csp_nonce() ?>">
 (function() {
     const section = document.getElementById('live-purchases');
     const rail = document.getElementById('live-purchases-rail');
@@ -406,7 +406,7 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
                         <?php $av = trim((string)($r['avatar'] ?? '')); $letter = e(mb_strtoupper(mb_substr($name, 0, 1))); ?>
                         <?php if ($av !== '' && preg_match('#^https?://#i', $av)): ?>
                             <img class="testimonial-avatar" src="<?= e($av) ?>" alt="<?= e($name) ?>" loading="lazy" referrerpolicy="no-referrer"
-                                 onerror="this.outerHTML='<span class=\'testimonial-avatar testimonial-avatar-letter\'><?= e($letter) ?></span>'">
+                                 data-img-falha="trocar" data-img-tag="span" data-img-classe="testimonial-avatar testimonial-avatar-letter" data-img-texto="<?= e($letter) ?>">
                         <?php else: ?>
                             <span class="testimonial-avatar testimonial-avatar-letter"><?= e($letter) ?></span>
                         <?php endif; ?>
@@ -596,7 +596,7 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
 .spot-dot.active { background:var(--hazard); }
 @media (max-width:560px){ .spot-slide{flex-direction:column;text-align:center;} .spot-avatar{margin:0 auto;} }
 </style>
-<script>
+<script nonce="<?= csp_nonce() ?>">
 (function(){
   var box=document.querySelector('.streamer-spotlight'); if(!box) return;
   var slides=box.querySelectorAll('.spot-slide'); if(slides.length<2) return;

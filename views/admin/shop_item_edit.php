@@ -86,7 +86,7 @@
         <button type="submit" class="btn-mini" style="padding: 0.7rem 1.6rem;">Salvar</button>
         <a href="/admin/shop" class="btn-mini outline" style="padding:0.7rem 1.6rem; text-decoration:none; display:inline-flex; align-items:center;">Cancelar</a>
         <?php if (!$isNew): ?>
-            <form method="POST" action="/admin/shop/<?= (int)$item['id'] ?>/delete" style="margin-left:auto;" onsubmit="return confirm('Excluir este item da loja? O bot deixa de listá-lo.');">
+            <form method="POST" action="/admin/shop/<?= (int)$item['id'] ?>/delete" style="margin-left:auto;" data-confirm="Excluir este item da loja? O bot deixa de listá-lo.">
                 <?= \App\Csrf::field() ?>
                 <button type="submit" class="btn-mini outline" style="padding:0.7rem 1.2rem; color:var(--text-danger); border-color:var(--rust-2);">Excluir</button>
             </form>
@@ -101,7 +101,7 @@
 .deliver-head { display:grid; grid-template-columns: 1.4fr 70px 1.4fr 1.2fr 70px 34px; gap:0.5rem; font-size:0.7rem; color:var(--dim); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.2rem; }
 @media (max-width:720px){ .deliver-row, .deliver-head { grid-template-columns: 1fr 1fr; } .deliver-head { display:none; } }
 </style>
-<script>
+<script nonce="<?= csp_nonce() ?>">
 (function(){
     const rows = document.getElementById('deliver-rows');
     const form = rows.closest('form');

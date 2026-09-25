@@ -89,7 +89,7 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
     @keyframes ppToastOut { to { opacity: 0; transform: translateX(28px); } }
     @media (max-width: 560px) { .pp-toast { top: 74px; left: 12px; right: 12px; width: auto; } }
     </style>
-    <script>
+    <script nonce="<?= csp_nonce() ?>">
     (function () {
         var t = document.getElementById('pp-flash');
         if (!t) return;
@@ -109,7 +109,7 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
                 <?php if (!empty($avatar)): ?>
                     <img class="pp-avatar" src="<?= e($avatar) ?>" alt="<?= e(__('profile.pub_avatar_alt', ['name' => $display_name])) ?>"
                          referrerpolicy="no-referrer"
-                         onerror="this.outerHTML='<div class=\'pp-avatar pp-avatar-fb\'>&#9881;</div>'">
+                         data-img-falha="trocar" data-img-tag="div" data-img-classe="pp-avatar pp-avatar-fb" data-img-texto="&#9881;">
                 <?php else: ?>
                     <div class="pp-avatar pp-avatar-fb">⚙</div>
                 <?php endif; ?>
@@ -121,7 +121,7 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
                 <a class="pp-steam-link" href="https://steamcommunity.com/profiles/<?= e($player['steam_id']) ?>" target="_blank" rel="noopener"><?= e(__('profile.pub_view_steam')) ?> →</a>
                 <?php if ($clan): ?>
                     <a href="/clan/<?= (int)$clan['id'] ?>" class="pp-clan-head">
-                        <?php if (!empty($clan['logo'])): ?><img src="<?= e($clan['logo']) ?>" alt="" onerror="this.remove()"><?php endif; ?>
+                        <?php if (!empty($clan['logo'])): ?><img src="<?= e($clan['logo']) ?>" alt="" data-img-falha="remover"><?php endif; ?>
                         <span>🛡 [<?= e($clan['tag']) ?>] <?= e($clan['name']) ?></span>
                     </a>
                 <?php elseif ($is_owner): ?>

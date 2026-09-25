@@ -40,7 +40,7 @@
     <meta name="keywords" content="<?= e($seoKeywords) ?>">
 
     <!-- Schema.org JSON-LD: GameServer + Organization pra rich snippets do Google -->
-    <script type="application/ld+json"><?= json_encode([
+    <script nonce="<?= csp_nonce() ?>" type="application/ld+json"><?= json_encode([
         '@context' => 'https://schema.org',
         '@graph' => [
             [
@@ -98,7 +98,7 @@
     <meta name="twitter:image"       content="<?= e($ogImage) ?>">
 
     <!-- JSON-LD: identidade do site pra Google entender -->
-    <script type="application/ld+json"><?= json_encode([
+    <script nonce="<?= csp_nonce() ?>" type="application/ld+json"><?= json_encode([
         '@context'    => 'https://schema.org',
         '@type'       => 'WebSite',
         'name'        => $siteName,
@@ -108,7 +108,7 @@
         'image'       => $ogImage,
     ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) ?></script>
     <?php if (!empty($jsonld)): // página filha pode adicionar JSON-LD próprio (ex: Product no shop) ?>
-        <script type="application/ld+json"><?= json_encode($jsonld, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) ?></script>
+        <script nonce="<?= csp_nonce() ?>" type="application/ld+json"><?= json_encode($jsonld, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) ?></script>
     <?php endif; ?>
 
     <?php
@@ -125,7 +125,7 @@
             if ($reviewCount > 0):
                 $ratingValue = round((float)$agg['avg_rating'], 2);
     ?>
-    <script type="application/ld+json"><?= json_encode([
+    <script nonce="<?= csp_nonce() ?>" type="application/ld+json"><?= json_encode([
         '@context' => 'https://schema.org',
         '@type'    => 'VideoGameSeries',
         'name'     => $siteName . ' DayZ Server',
@@ -207,6 +207,6 @@ if ($_avisoOn && $_avisoTxt !== ''):
     <button type="button" id="cookie-banner-ok" class="btn-mini" style="flex-shrink: 0;">Entendi</button>
 </div>
 
-<script src="<?= asset('js/app.js') ?>"></script>
+<script nonce="<?= csp_nonce() ?>" src="<?= asset('js/app.js') ?>"></script>
 </body>
 </html>

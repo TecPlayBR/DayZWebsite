@@ -50,7 +50,7 @@ if ($mode === 'gameplay') {
                     <?php foreach ($online as $o): ?>
                         <a class="online-player" href="/player/<?= e($o['steam_id']) ?>" title="<?= e($o['name']) ?><?= $o['ping'] ? ' · ping ' . (int)$o['ping'] . 'ms' : '' ?>">
                             <?php if (!empty($o['avatar'])): ?>
-                                <img src="<?= e($o['avatar']) ?>" alt="" width="22" height="22" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.style.display='none'">
+                                <img src="<?= e($o['avatar']) ?>" alt="" width="22" height="22" loading="lazy" decoding="async" referrerpolicy="no-referrer" data-img-falha="esconder">
                             <?php endif; ?>
                             <?php // O nome in-game (CFTools) ja vem com o tag do cla; nao prefixar (duplicava). ?>
                             <span><?= e($o['name']) ?></span>
@@ -184,7 +184,7 @@ if ($mode === 'gameplay') {
     </div>
 </section>
 
-<script>
+<script nonce="<?= csp_nonce() ?>">
 // Troca de aba do ranking SEM recarregar a página (mantém o scroll, atualiza a URL).
 // Fallback: se o fetch falhar ou JS estiver off, os links funcionam normal.
 (function(){

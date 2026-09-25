@@ -32,7 +32,7 @@ $errMsg = match($_GET['err'] ?? '') {
                 </div>
                 <div>
                     <label style="display:block;font-size:.78rem;color:var(--dim);margin-bottom:.3rem;">TAG</label>
-                    <input type="text" name="tag" required minlength="2" maxlength="6" placeholder="RVH" oninput="this.value=this.value.replace(/[^A-Za-z0-9]/g,'').toUpperCase()" class="field mono upper" style="width:100%;text-align:center;">
+                    <input type="text" name="tag" required minlength="2" maxlength="6" placeholder="RVH" data-filtro="tag" class="field mono upper" style="width:100%;text-align:center;">
                 </div>
             </div>
             <div>

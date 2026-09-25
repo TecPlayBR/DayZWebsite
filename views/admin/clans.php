@@ -30,7 +30,7 @@
                 <td><?php if (!empty($c['discord_url'])): ?><a href="<?= e($c['discord_url']) ?>" target="_blank" rel="noopener" style="color:var(--hazard);font-size:.8rem;">link</a><?php else: ?><span class="dim">-</span><?php endif; ?></td>
                 <td class="dim" style="font-size:.8rem;"><?= e(substr($c['created_at'],0,10)) ?></td>
                 <td style="white-space:nowrap;">
-                    <form method="POST" action="/admin/clans/<?= (int)$c['id'] ?>/remove" style="display:inline;" onsubmit="return confirm('Remover (dissolver) o clã [<?= e($c['tag']) ?>] <?= e(addslashes($c['name'])) ?>? Libera os membros e não dá pra desfazer.');">
+                    <form method="POST" action="/admin/clans/<?= (int)$c['id'] ?>/remove" style="display:inline;" data-confirm="Remover (dissolver) o clã [<?= e($c['tag']) ?>] <?= e($c['name']) ?>? Libera os membros e não dá pra desfazer.">
                         <?= \App\Csrf::field() ?>
                         <button type="submit" class="btn-mini outline" style="color:var(--rust-2);border-color:var(--rust-2);">Remover</button>
                     </form>

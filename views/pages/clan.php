@@ -26,7 +26,7 @@ $errMsg = ($_GET['err'] ?? '') !== '' ? \App\Clan::errorMessage($_GET['err']) : 
     <div class="container hero-content" style="display:flex;gap:1.4rem;align-items:center;flex-wrap:wrap;">
         <div class="clan-hero-logo">
             <?php if (!empty($clan['logo'])): ?>
-                <img src="<?= e($clan['logo']) ?>" alt="<?= e($clan['name']) ?>" onerror="this.outerHTML='<span class=\'clan-hero-fb\'><?= e(mb_strtoupper(mb_substr($clan['tag'],0,2))) ?></span>'">
+                <img src="<?= e($clan['logo']) ?>" alt="<?= e($clan['name']) ?>" data-img-falha="trocar" data-img-tag="span" data-img-classe="clan-hero-fb" data-img-texto="<?= e(mb_strtoupper(mb_substr($clan['tag'],0,2))) ?>">
             <?php else: ?>
                 <span class="clan-hero-fb"><?= e(mb_strtoupper(mb_substr($clan['tag'],0,2))) ?></span>
             <?php endif; ?>
@@ -60,7 +60,7 @@ $errMsg = ($_GET['err'] ?? '') !== '' ? \App\Clan::errorMessage($_GET['err']) : 
             <?php if (!$steam_user): ?>
                 <a href="/auth/steam" class="btn btn-steam">Entrar com Steam pra pedir entrada</a>
             <?php elseif ($inThisClan && !$is_owner): ?>
-                <form method="POST" action="/clans/<?= (int)$clan['id'] ?>/leave" onsubmit="return confirm('Sair do clã [<?= e($clan['tag']) ?>]?');" style="display:inline;">
+                <form method="POST" action="/clans/<?= (int)$clan['id'] ?>/leave" data-confirm="Sair do clã [<?= e($clan['tag']) ?>]?" style="display:inline;">
                     <?= \App\Csrf::field() ?><button class="btn-mini danger">Sair do clã</button>
                 </form>
             <?php elseif ($inOtherClan): ?>
@@ -73,7 +73,7 @@ $errMsg = ($_GET['err'] ?? '') !== '' ? \App\Clan::errorMessage($_GET['err']) : 
                             <?= \App\Csrf::field() ?><input type="hidden" name="clan_id" value="<?= (int)$clan['id'] ?>">
                             <button class="btn">Aceitar convite</button>
                         </form>
-                        <form method="POST" action="/clan-invite/reject" style="margin:0;" onsubmit="return confirm('Recusar o convite do clã [<?= e($clan['tag']) ?>]?');">
+                        <form method="POST" action="/clan-invite/reject" style="margin:0;" data-confirm="Recusar o convite do clã [<?= e($clan['tag']) ?>]?">
                             <?= \App\Csrf::field() ?><input type="hidden" name="clan_id" value="<?= (int)$clan['id'] ?>">
                             <button class="btn-mini outline">Recusar</button>
                         </form>
@@ -106,7 +106,7 @@ $errMsg = ($_GET['err'] ?? '') !== '' ? \App\Clan::errorMessage($_GET['err']) : 
                         <?php endif; ?>
                     </div>
                     <?php if ($is_owner && $m['role'] !== 'owner'): ?>
-                        <form method="POST" action="/clans/<?= (int)$clan['id'] ?>/kick" onsubmit="return confirm('Remover <?= e(addslashes($nm)) ?> do clã?');" style="margin:0;">
+                        <form method="POST" action="/clans/<?= (int)$clan['id'] ?>/kick" data-confirm="Remover <?= e($nm) ?> do clã?" style="margin:0;">
                             <?= \App\Csrf::field() ?><input type="hidden" name="steam_id" value="<?= e($m['steam_id']) ?>">
                             <button class="clan-kick" title="Remover" aria-label="Remover <?= e($nm) ?> do clã">✕</button>
                         </form>
@@ -172,7 +172,7 @@ $errMsg = ($_GET['err'] ?? '') !== '' ? \App\Clan::errorMessage($_GET['err']) : 
                 <?php foreach ($sent_invites as $iv): $in = $iv['display_name'] ?: $iv['steam_id']; ?>
                     <div class="clan-req">
                         <a href="/player/<?= e($iv['steam_id']) ?>" style="color:var(--bone);"><?= e($in) ?></a>
-                        <form method="POST" action="/clans/<?= (int)$clan['id'] ?>/invite-cancel" style="margin:0;" onsubmit="return confirm('Revogar o convite pra <?= e(addslashes($in)) ?>?');">
+                        <form method="POST" action="/clans/<?= (int)$clan['id'] ?>/invite-cancel" style="margin:0;" data-confirm="Revogar o convite pra <?= e($in) ?>?">
                             <?= \App\Csrf::field() ?><input type="hidden" name="steam_id" value="<?= e($iv['steam_id']) ?>">
                             <button class="btn-mini danger">Revogar</button>
                         </form>
@@ -194,7 +194,7 @@ $errMsg = ($_GET['err'] ?? '') !== '' ? \App\Clan::errorMessage($_GET['err']) : 
                 <?php $others = array_values(array_filter($members, fn($m) => $m['role'] !== 'owner')); ?>
                 <?php if ($others): ?>
                 <h3 class="clan-h3">Passar liderança</h3>
-                <form method="POST" action="/clans/<?= (int)$clan['id'] ?>/transfer" onsubmit="return confirm('Passar a liderança do clã pra esse membro? Você vira membro comum e não dá pra desfazer sozinho.');" style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;">
+                <form method="POST" action="/clans/<?= (int)$clan['id'] ?>/transfer" data-confirm="Passar a liderança do clã pra esse membro? Você vira membro comum e não dá pra desfazer sozinho." style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;">
                     <?= \App\Csrf::field() ?>
                     <select name="steam_id" required class="field grow">
                         <option value="">Escolha um membro…</option>
@@ -209,7 +209,7 @@ $errMsg = ($_GET['err'] ?? '') !== '' ? \App\Clan::errorMessage($_GET['err']) : 
 
                 <!-- Dissolver -->
                 <h3 class="clan-h3" style="color:var(--rust-2);">Zona de perigo</h3>
-                <form method="POST" action="/clans/<?= (int)$clan['id'] ?>/disband" onsubmit="return confirm('DISSOLVER o clã [<?= e($clan['tag']) ?>]? Isso remove todos os membros e não dá pra desfazer.');">
+                <form method="POST" action="/clans/<?= (int)$clan['id'] ?>/disband" data-confirm="DISSOLVER o clã [<?= e($clan['tag']) ?>]? Isso remove todos os membros e não dá pra desfazer.">
                     <?= \App\Csrf::field() ?><button class="btn-mini danger">Dissolver clã</button>
                 </form>
             </div>

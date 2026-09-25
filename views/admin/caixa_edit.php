@@ -79,7 +79,7 @@
 .bi-form label { font-size:0.78rem; color:var(--dim); display:flex; flex-direction:column; gap:0.2rem; }
 .bi-form input, .bi-form select { width:100%; padding:0.45rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); }
 </style>
-<script>
+<script nonce="<?= csp_nonce() ?>">
 (function(){
     var t=document.getElementById('bi-type'), classL=document.getElementById('bi-class-l'), qtyL=document.getElementById('bi-qty-l'), hint=document.getElementById('bi-hint');
     if(!t) return;
@@ -102,7 +102,7 @@
     chance();
 })();
 </script>
-<script>
+<script nonce="<?= csp_nonce() ?>">
 /* Editar item do pool: clica no ✎ → preenche o form com os dados + manda item_id (o
    backend faz UPDATE; imagem vazia = mantém a atual). Usa EVENT DELEGATION no document
    porque a tabela dos botões vem DEPOIS deste script no HTML (querySelector direto
@@ -171,7 +171,7 @@
                             data-enabled="<?= (int)$it['enabled'] ?>"
                             data-sort="<?= (int)($it['sort_order'] ?? 0) ?>"
                             style="background:none;border:none;color:var(--rust-2);cursor:pointer;margin-right:8px;font-size:0.95rem;">✎</button>
-                        <form method="POST" action="/admin/caixas/<?= (int)$box['id'] ?>/items/<?= (int)$it['id'] ?>/delete" style="display:inline;" onsubmit="return confirm('Remover <?= e(addslashes($it['name'])) ?>?');">
+                        <form method="POST" action="/admin/caixas/<?= (int)$box['id'] ?>/items/<?= (int)$it['id'] ?>/delete" style="display:inline;" data-confirm="Remover <?= e($it['name']) ?>?">
                             <?= \App\Csrf::field() ?>
                             <button type="submit" style="background:none;border:none;color:var(--rust-2);cursor:pointer;" title="Remover">✕</button>
                         </form>
@@ -183,7 +183,7 @@
     <?php endif; ?>
 </div>
 
-<form method="POST" action="/admin/caixas/<?= (int)$box['id'] ?>/delete" style="margin-top:1.5rem;" onsubmit="return confirm('Excluir a caixa inteira e todos os itens?');">
+<form method="POST" action="/admin/caixas/<?= (int)$box['id'] ?>/delete" style="margin-top:1.5rem;" data-confirm="Excluir a caixa inteira e todos os itens?">
     <?= \App\Csrf::field() ?>
     <button type="submit" style="background:var(--rust);color:#fff;border:none;padding:0.5rem 1rem;border-radius:4px;cursor:pointer;">🗑 Excluir caixa</button>
 </form>

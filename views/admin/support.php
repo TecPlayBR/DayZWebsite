@@ -51,7 +51,7 @@
         <li>
             <strong>Abre um ticket</strong> com o assunto:
             <code class="support-tag">SUPORTE WEBSITE BY TECPLAY</code>
-            <button class="copy-tag-btn" onclick="navigator.clipboard.writeText('SUPORTE WEBSITE BY TECPLAY').then(() => this.textContent = '✓ Copiado')">📋 Copiar</button>
+            <button class="copy-tag-btn" data-copiar="SUPORTE WEBSITE BY TECPLAY">📋 Copiar</button>
         </li>
         <li>
             <strong>Descreve o problema</strong> com o máximo de detalhe:

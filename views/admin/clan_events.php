@@ -61,7 +61,7 @@ $inp = 'width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--
             <?php if (!empty($edit['rewarded_at'])): ?>
                 <p style="color:var(--text-success);font-size:.9rem;">✓ Premiação já entregue em <?= e(date('d/m H:i', strtotime($edit['rewarded_at']))) ?> (<?= (int)$edit['prize_coins'] ?> moedas por membro).</p>
             <?php elseif (\App\ClanEvent::canReward($edit)): ?>
-                <form method="POST" action="/admin/clan-events/<?= (int)$edit['id'] ?>/reward" onsubmit="return confirm('Creditar <?= (int)$edit['prize_coins'] ?> moedas pra CADA membro do clã <?= e(addslashes($edit['winner_name'])) ?>? Não dá pra desfazer.');" style="margin:.6rem 0;">
+                <form method="POST" action="/admin/clan-events/<?= (int)$edit['id'] ?>/reward" data-confirm="Creditar <?= (int)$edit['prize_coins'] ?> moedas pra CADA membro do clã <?= e($edit['winner_name']) ?>? Não dá pra desfazer." style="margin:.6rem 0;">
                     <?= \App\Csrf::field() ?>
                     <button type="submit" class="btn">🏆 Premiar clã vencedor (<?= (int)$edit['prize_coins'] ?> moedas/membro)</button>
                 </form>
@@ -99,7 +99,7 @@ $inp = 'width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--
                 <td><?= $stTxt ?></td>
                 <td style="text-align:right;white-space:nowrap;">
                     <a href="/admin/clan-events/<?= (int)$ev['id'] ?>" class="btn btn-sm">Editar</a>
-                    <form method="POST" action="/admin/clan-events/<?= (int)$ev['id'] ?>/delete" style="display:inline;" onsubmit="return confirm('Excluir este evento de clã e todos os dados de placar dele?');">
+                    <form method="POST" action="/admin/clan-events/<?= (int)$ev['id'] ?>/delete" style="display:inline;" data-confirm="Excluir este evento de clã e todos os dados de placar dele?">
                         <?= \App\Csrf::field() ?>
                         <button type="submit" style="background:none;border:none;color:var(--rust-2);cursor:pointer;">✕</button>
                     </form>

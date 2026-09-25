@@ -116,7 +116,7 @@ $barColor = !$syncTs ? 'var(--rust)' : ($stale ? 'var(--hazard)' : 'var(--moss)'
                     <td><span style="color:<?= $cor ?>; font-weight:600;"><?= e($lbl) ?></span></td>
                     <td style="text-align:right;">
                         <?php if (in_array($g['status'], ['pending','applied'], true)): ?>
-                            <form method="POST" action="/admin/entitlements/revoke" style="display:inline;" onsubmit="return confirm('Revogar este VIP/Passe?');">
+                            <form method="POST" action="/admin/entitlements/revoke" style="display:inline;" data-confirm="Revogar este VIP/Passe?">
                                 <?= \App\Csrf::field() ?>
                                 <input type="hidden" name="id" value="<?= (int)$g['id'] ?>">
                                 <button type="submit" class="btn btn-sm" style="background:var(--rust);">Revogar</button>

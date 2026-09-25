@@ -12,6 +12,16 @@ if (!function_exists('__')) {
     }
 }
 
+if (!function_exists('csp_nonce')) {
+    // Nonce da CSP desta resposta. TODA tag <script> das views leva
+    // o atributo nonce com csp_nonce() (tests/csp-nonce.php reprova tag sem). Sem ele o navegador
+    // bloqueia o script. Nunca carimbar o nonce no HTML pronto: um <script> injetado por
+    // XSS ganharia o nonce junto e a CSP deixaria de proteger.
+    function csp_nonce(): string {
+        return \App\Csp::nonce();
+    }
+}
+
 if (!function_exists('e')) {
     // HTML escape (atalho)
     function e(?string $s): string {

@@ -90,6 +90,7 @@ require $ROOT . '/src/Help.php';
 require $ROOT . '/src/Releases.php';
 require $ROOT . '/src/Events.php';
 require $ROOT . '/src/Html.php';
+require $ROOT . '/src/Csp.php';
 require $ROOT . '/src/helpers.php';
 
 // Carrega config se existir, senao redireciona pro instalador
@@ -115,6 +116,9 @@ header('Content-Type: text/html; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: SAMEORIGIN');
 header('Referrer-Policy: strict-origin-when-cross-origin');
+// CSP com nonce por resposta (src/Csp.php). Mora no PHP porque o nonce muda a cada
+// requisicao; o .htaccess nao seta mais CSP global (o "always set" dele apagaria esta).
+\App\Csp::enviar();
 
 // Cookies de sessao com flags de seguranca (Secure, HttpOnly, SameSite=Lax)
 $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')

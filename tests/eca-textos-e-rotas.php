@@ -48,7 +48,7 @@ if ($v !== '') ok('views/pages/idade.php existe'); else falha('views/pages/idade
 if (preg_match('/name="cpf"[^>]*autocomplete="off"/', $v)) ok('campo CPF com autocomplete=off'); else falha('campo CPF sem autocomplete=off');
 // Bryan (25/09): mascara 000.000.000-00 montando sozinha, so digitos, 11 fixos, sem deixar o usuario errar ponto/traco.
 if (preg_match('/name="cpf"[^>]*data-cpf-mask/', $v) && preg_match('/name="cpf"[^>]*maxlength="14"/', $v)) ok('campo CPF com data-cpf-mask e 14 chars (11 digitos + pontuacao)'); else falha('campo CPF sem mascara declarada');
-if (preg_match('/data-cpf-mask.*?<script>.*?replace\(\/\\\\D\/g|<script>.*?data-cpf-mask.*?replace\(\/\\\\D/s', $v) && str_contains($v, 'slice(0, 11)')) ok('script da mascara tira tudo que nao e digito e corta em 11'); else falha('script da mascara ausente ou nao limita a 11 digitos');
+if (preg_match('/data-cpf-mask.*?<script\b.*?replace\(\/\\\\D\/g|<script\b.*?data-cpf-mask.*?replace\(\/\\\\D/s', $v) && str_contains($v, 'slice(0, 11)')) ok('script da mascara tira tudo que nao e digito e corta em 11'); else falha('script da mascara ausente ou nao limita a 11 digitos');
 if (preg_match('/name="terms_ok"[^>]*type="checkbox"|type="checkbox"[^>]*name="terms_ok"/', $v)) ok('checkbox real de termos'); else falha('sem checkbox real de termos');
 
 echo "\n" . str_repeat('-', 62) . "\n";

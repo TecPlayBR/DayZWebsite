@@ -75,7 +75,7 @@
                 <td><?= e($r['created_at']) ?></td>
                 <td>
                     <?php if (!$r['revoked_at'] && $r['result'] === 'adulto' && $r['method'] !== 'declaracao'): ?>
-                    <form method="POST" action="/admin/eca/revogar" onsubmit="return confirm('Revogar esta verificação?');" style="display:flex; gap:.3rem;">
+                    <form method="POST" action="/admin/eca/revogar" data-confirm="Revogar esta verificação?" style="display:flex; gap:.3rem;">
                         <?= \App\Csrf::field() ?><input type="hidden" name="id" value="<?= (int) $r['id'] ?>">
                         <input name="motivo" placeholder="motivo" required maxlength="160" style="padding:.3rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone);">
                         <button class="btn btn-sm" type="submit">Revogar</button>

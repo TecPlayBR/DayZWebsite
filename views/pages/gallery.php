@@ -186,7 +186,7 @@
 }
 </style>
 
-<script>
+<script nonce="<?= csp_nonce() ?>">
 (function(){
     const lb    = document.getElementById('gallery-lightbox');
     const img   = document.getElementById('gallery-lightbox-img');

@@ -45,6 +45,6 @@ $discord = ($config['settings']['social_discord'] ?? '') ?: ($config['settings']
         <?php endif; ?>
     </div>
 </section>
-<script src="<?= asset('js/app.js') ?>"></script>
+<script nonce="<?= csp_nonce() ?>" src="<?= asset('js/app.js') ?>"></script>
 </body>
 </html>

@@ -5,6 +5,38 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [3.3.2] - 2026-09-26
+
+### Segurança
+
+- **CSP de verdade contra XSS.** A política antiga liberava `'unsafe-inline'` e `'unsafe-eval'`
+  no script, então qualquer texto que escapasse para o HTML e virasse `<script>` executava. Agora
+  só roda script marcado com um **nonce novo a cada resposta**, e atributo de evento no HTML
+  (`onclick`, `onerror`...) não roda mais (`script-src-attr 'none'`).
+- A CSP saiu do `.htaccess` e passou a ser montada pelo PHP (`src/Csp.php`), porque o nonce muda
+  a cada requisição. O `.htaccess` agora só fecha arquivo estático que o navegador abre como
+  documento (SVG, HTML).
+- **Chart.js servido pelo próprio site** (`assets/js/lib/`), não mais pelo jsdelivr: o painel
+  deixou de depender de uma CDN de terceiro para executar script.
+- O PJAX do painel só re-executa script que veio com o nonce da própria resposta; um `<script>`
+  injetado no conteúdo não roda nem ao navegar pelo menu.
+
+### Alterado
+
+- Os 50 `onclick`/`onsubmit`/`oninput`/`onerror` das telas viraram atributos (`data-confirm`,
+  `data-filtro`, `data-img-falha`, `data-recarregar`, `data-copiar`) atendidos pelo `app.js`.
+  Para quem usa o site nada muda: as confirmações, a limpeza do que se digita e a troca de
+  imagem quebrada funcionam igual. O filtro de digitação agora mantém o cursor onde estava.
+- O pagamento por cartão passa o nonce ao antifraude do Mercado Pago
+  (`deviceProfileCspNonce`), que continua enviando o perfil do dispositivo.
+
+### Para quem personalizou o template
+
+- Script próprio colado numa view precisa de `nonce="<?= csp_nonce() ?>"` na tag, senão o
+  navegador bloqueia. Origem externa nova (CDN, player) entra na lista de `src/Csp.php`.
+
+---
+
 ## [3.3.1] - 2026-09-26
 
 ### Adicionado

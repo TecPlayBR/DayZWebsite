@@ -100,7 +100,7 @@ $dtL  = fn($v) => $v ? e(date('Y-m-d\TH:i', strtotime((string)$v))) : '';
                 </td>
                 <td style="white-space:nowrap;">
                     <a href="/admin/announcements?edit=<?= (int)$a['id'] ?>#ann-form" class="btn-mini outline" style="text-decoration:none;">✎ Editar</a>
-                    <form method="POST" action="/admin/announcements/<?= (int)$a['id'] ?>/delete" style="display:inline;" onsubmit="return confirm('Apagar este anúncio?');">
+                    <form method="POST" action="/admin/announcements/<?= (int)$a['id'] ?>/delete" style="display:inline;" data-confirm="Apagar este anúncio?">
                         <?= \App\Csrf::field() ?>
                         <button type="submit" class="btn-mini outline" style="border-color: var(--danger-border); color: var(--text-danger);">✕</button>
                     </form>

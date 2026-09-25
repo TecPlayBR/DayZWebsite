@@ -39,7 +39,7 @@ $activeTab = ((($active_tab ?? 'pix') === 'card') && $cardAvailable) ? 'card' : 
                 <?php else: ?>
                     <div class="pix-coupon-row">
                         <input type="text" name="coupon_code" placeholder="<?= e(__('pix.coupon_ph')) ?>" maxlength="40"
-                               oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9_-]/g,'')">
+                               data-filtro="codigo">
                         <button type="submit"><?= e(__('pix.coupon_apply')) ?></button>
                     </div>
                 <?php endif; ?>
@@ -227,7 +227,7 @@ $activeTab = ((($active_tab ?? 'pix') === 'card') && $cardAvailable) ? 'card' : 
 }
 </style>
 
-<script>
+<script nonce="<?= csp_nonce() ?>">
 (function(){
     var PURCHASE = <?= (int)$purchase_id ?>;
     var EXPIRES  = <?= json_encode($expires_at) ?>;
@@ -294,8 +294,8 @@ $activeTab = ((($active_tab ?? 'pix') === 'card') && $cardAvailable) ? 'card' : 
 </script>
 
 <?php if ($cardAvailable): ?>
-<script src="https://sdk.mercadopago.com/js/v2"></script>
-<script>
+<script nonce="<?= csp_nonce() ?>" src="https://sdk.mercadopago.com/js/v2"></script>
+<script nonce="<?= csp_nonce() ?>">
 (function(){
     // Troca de abas Pix <-> Cartão
     var btns = document.querySelectorAll('.pay-tab-btn');
@@ -348,7 +348,9 @@ $activeTab = ((($active_tab ?? 'pix') === 'card') && $cardAvailable) ? 'card' : 
     var submitBtn = document.getElementById('cf-submit');
     if (!window.MercadoPago) { if (statusEl) statusEl.textContent = 'Não foi possível carregar o pagamento por cartão. Use o Pix.'; return; }
 
-    var mp = new MercadoPago(PUBKEY, { locale: 'pt-BR' });
+    // deviceProfileCspNonce: o SDK injeta um <script> inline de perfil de dispositivo (antifraude
+    // do MP). Sem o nonce a CSP bloqueia esse script e a analise de fraude perde o dado.
+    var mp = new MercadoPago(PUBKEY, { locale: 'pt-BR', deviceProfileCspNonce: <?= json_encode(csp_nonce()) ?> });
     var cardForm = mp.cardForm({
         amount: AMOUNT,
         iframe: false, // campos nativos -> autofill do navegador funciona; o cartão ainda é tokenizado no browser e vai direto pro MP (PAN não toca o servidor)

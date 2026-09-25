@@ -30,7 +30,7 @@
             <label style="display:block; font-size:0.75rem; color:var(--dim); margin-bottom:0.3rem; text-transform: uppercase;">Slug</label>
             <input type="text" name="slug" required placeholder="combo-veterano"
                    style="width:100%; padding:0.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:var(--font-mono);"
-                   oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9-]/g, '')">
+                   data-filtro="slug">
         </div>
         <div>
             <label style="display:block; font-size:0.75rem; color:var(--dim); margin-bottom:0.3rem; text-transform: uppercase;">Nome do combo</label>
@@ -116,7 +116,7 @@
                         <?= \App\Csrf::field() ?>
                         <button type="submit" class="btn-mini outline"><?= (int)$c['enabled'] ? 'Desativar' : 'Ativar' ?></button>
                     </form>
-                    <form method="POST" action="/admin/combos/<?= (int)$c['id'] ?>/delete" style="display:inline;" onsubmit="return confirm('Apagar?');">
+                    <form method="POST" action="/admin/combos/<?= (int)$c['id'] ?>/delete" style="display:inline;" data-confirm="Apagar?">
                         <?= \App\Csrf::field() ?>
                         <button type="submit" class="btn-mini outline" style="border-color: var(--danger-border); color: var(--text-danger);">✕</button>
                     </form>

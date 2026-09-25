@@ -60,7 +60,7 @@ $dt = fn($k) => !empty($e[$k]) ? date('Y-m-d\TH:i', strtotime((string) $e[$k])) 
                 <td><?= $stTxt ?></td>
                 <td style="text-align:right;white-space:nowrap;">
                     <a href="/admin/eventos/<?= (int)$ev['id'] ?>" class="btn btn-sm">Editar</a>
-                    <form method="POST" action="/admin/eventos/<?= (int)$ev['id'] ?>/delete" style="display:inline;" onsubmit="return confirm('Excluir este evento?');">
+                    <form method="POST" action="/admin/eventos/<?= (int)$ev['id'] ?>/delete" style="display:inline;" data-confirm="Excluir este evento?">
                         <?= \App\Csrf::field() ?>
                         <button type="submit" style="background:none;border:none;color:var(--rust-2);cursor:pointer;">✕</button>
                     </form>

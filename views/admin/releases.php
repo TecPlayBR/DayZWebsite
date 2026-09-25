@@ -33,7 +33,7 @@
                 <td><?= (int)$r['published'] ? '<span style="color:var(--moss);">✓ Publicada</span>' : '<span style="color:var(--dim);">Rascunho</span>' ?></td>
                 <td style="text-align:right;white-space:nowrap;">
                     <a href="/admin/releases/<?= (int)$r['id'] ?>/edit" class="btn-mini outline">Editar</a>
-                    <form method="POST" action="/admin/releases/<?= (int)$r['id'] ?>/delete" style="display:inline;" onsubmit="return confirm('Apagar essa novidade?');">
+                    <form method="POST" action="/admin/releases/<?= (int)$r['id'] ?>/delete" style="display:inline;" data-confirm="Apagar essa novidade?">
                         <?= \App\Csrf::field() ?><button class="btn-mini outline" style="color:var(--rust-2);border-color:var(--rust-2);">Apagar</button>
                     </form>
                 </td>

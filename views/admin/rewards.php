@@ -128,7 +128,7 @@ function _rw($cats, $key, $place) { return (int)($cats[$key]['coins'][(string)$p
         É seguro clicar mais de uma vez: cada posição/período só é paga <strong>uma vez</strong> (sem crédito duplo).
         <?php if ($awarded_period): ?><br>⚠ O período <code><?= e($period_label) ?></code> já teve premiação - clicar de novo não credita de novo (só posições ainda não pagas).<?php endif; ?>
     </p>
-    <form method="POST" action="/admin/rewards/award-now" onsubmit="return confirm('Creditar as moedas do top atual agora? As posições já pagas neste período são ignoradas.');">
+    <form method="POST" action="/admin/rewards/award-now" data-confirm="Creditar as moedas do top atual agora? As posições já pagas neste período são ignoradas.">
         <?= \App\Csrf::field() ?>
         <button type="submit" class="btn" <?= $cftools_on ? '' : 'disabled title="CFTools off"' ?>>🏆 Premiar agora</button>
     </form>

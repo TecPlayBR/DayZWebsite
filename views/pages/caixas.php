@@ -132,7 +132,7 @@ $rarityLabel = [
                                 ?>
                                     <li class="caixa-item-row" style="--rc:<?= $rc ?>">
                                         <?php if (!$isCoins && !empty($it['image'])): ?>
-                                            <img class="caixa-item-ico" src="<?= e($it['image']) ?>" alt="" width="30" height="30" loading="lazy" decoding="async" onerror="this.style.display='none'">
+                                            <img class="caixa-item-ico" src="<?= e($it['image']) ?>" alt="" width="30" height="30" loading="lazy" decoding="async" data-img-falha="esconder">
                                         <?php else: ?>
                                             <span class="caixa-item-dot"></span>
                                         <?php endif; ?>
@@ -259,7 +259,7 @@ $rarityLabel = [
 #box-close { margin-top:1.5rem; }
 </style>
 
-<script>
+<script nonce="<?= csp_nonce() ?>">
 (function(){
     const RC = <?= json_encode($rarityColor) ?>;
     const CSRF = <?= json_encode(\App\Csrf::token()) ?>;

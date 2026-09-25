@@ -39,7 +39,7 @@ $okMsg = match($_GET['ok'] ?? '') {
                 <a class="clan-card" href="/clan/<?= (int)$c['id'] ?>">
                     <div class="clan-logo">
                         <?php if (!empty($c['logo'])): ?>
-                            <img src="<?= e($c['logo']) ?>" alt="<?= e($c['name']) ?>" loading="lazy" decoding="async" onerror="this.outerHTML='<span class=\'clan-logo-fb\'><?= e(mb_strtoupper(mb_substr($c['tag'],0,2))) ?></span>'">
+                            <img src="<?= e($c['logo']) ?>" alt="<?= e($c['name']) ?>" loading="lazy" decoding="async" data-img-falha="trocar" data-img-tag="span" data-img-classe="clan-logo-fb" data-img-texto="<?= e(mb_strtoupper(mb_substr($c['tag'],0,2))) ?>">
                         <?php else: ?>
                             <span class="clan-logo-fb"><?= e(mb_strtoupper(mb_substr($c['tag'],0,2))) ?></span>
                         <?php endif; ?>

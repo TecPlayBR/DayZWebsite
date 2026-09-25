@@ -46,7 +46,7 @@
                 <td class="dim"><?= e($p['updated_at']) ?></td>
                 <td>
                     <a href="/admin/pages/<?= (int)$p['id'] ?>/edit" class="btn-mini outline">Editar</a>
-                    <form method="POST" action="/admin/pages/<?= (int)$p['id'] ?>/delete" style="display:inline;" onsubmit="return confirm('Apagar página &quot;<?= e($p['slug']) ?>&quot;?');">
+                    <form method="POST" action="/admin/pages/<?= (int)$p['id'] ?>/delete" style="display:inline;" data-confirm="Apagar página &quot;<?= e($p['slug']) ?>&quot;?">
                         <?= \App\Csrf::field() ?>
                         <button type="submit" class="btn-mini outline" style="border-color: var(--danger-border); color: var(--text-danger);">✕</button>
                     </form>

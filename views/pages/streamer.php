@@ -201,7 +201,7 @@ $siteName = $config['settings']['site_name'] ?? ($config['site_name'] ?? 'Servid
   .st-lb-nav { width:44px; height:44px; }
 }
 </style>
-<script>
+<script nonce="<?= csp_nonce() ?>">
 (function(){
   var gal=document.getElementById('st-gallery'); if(!gal) return;
   var shots=[].slice.call(gal.querySelectorAll('.st-shot'));

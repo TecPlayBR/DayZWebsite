@@ -18,7 +18,7 @@
 
 <!-- Botão de atualizar (a nav do admin é SPA e não recarrega sozinha; isto força o
      recarregamento dos dados da tela atual sem precisar de F5). Vale em toda tela. -->
-<button type="button" id="admin-refresh" onclick="location.reload()"
+<button type="button" id="admin-refresh" data-recarregar
         title="Atualizar os dados desta tela" aria-label="Atualizar"
         style="position:fixed;right:18px;bottom:18px;z-index:60;width:46px;height:46px;border-radius:50%;
                border:1px solid var(--hazard,#c9a961);background:var(--panel,#15130f);color:var(--hazard,#c9a961);
@@ -122,8 +122,8 @@
 
 </div>
 
-<script src="<?= asset('js/app.js') ?>"></script>
-<script>
+<script nonce="<?= csp_nonce() ?>" src="<?= asset('js/app.js') ?>"></script>
+<script nonce="<?= csp_nonce() ?>">
 // 3.3.1: ao salvar, destaca os campos obrigatorios vazios, rola ate o primeiro e avisa.
 // O navegador ja barra o envio pelo `required`; isto so deixa OBVIO o que faltou.
 (function () {
@@ -149,7 +149,7 @@
     });
 })();
 </script>
-<script>
+<script nonce="<?= csp_nonce() ?>">
 // ============ MOBILE DRAWER ============
 (function() {
     const shell = document.getElementById('admin-shell');
@@ -222,7 +222,7 @@
     }, { passive: true });
 })();
 </script>
-<script>
+<script nonce="<?= csp_nonce() ?>">
 // ============ PJAX-lite admin ============
 // Intercepta clicks na sidebar e troca só o <main> via fetch - sem refresh.
 // Mantém scroll por path no sessionStorage, restaura ao revisitar.
@@ -238,10 +238,23 @@
         window.scrollTo(0, v ? parseInt(v, 10) : 0);
     };
 
-    function reExecuteScripts(container) {
+    // Nonce da CSP da PAGINA ABERTA. O script re-executado precisa DESTE nonce: o que veio
+    // na resposta buscada so valeria se ela fosse carregada como documento, e nao e.
+    const NONCE_PAGINA = (document.currentScript && document.currentScript.nonce) || '';
+    function nonceDe(res) {
+        const m = (res.headers.get('Content-Security-Policy') || '').match(/'nonce-([^']+)'/);
+        return m ? m[1] : '';
+    }
+
+    function reExecuteScripts(container, nonceResposta) {
         container.querySelectorAll('script').forEach(old => {
+            // So roda o script que o SERVIDOR marcou nesta resposta. Sem o nonce dela, o
+            // <script> veio de texto injetado (XSS) e morre aqui, como morreria num F5.
+            // Compara pela propriedade .nonce: o atributo chega vazio depois do innerHTML.
+            if (!nonceResposta || old.nonce !== nonceResposta) { old.remove(); return; }
             const s = document.createElement('script');
-            for (const a of old.attributes) s.setAttribute(a.name, a.value);
+            for (const a of old.attributes) if (a.name !== 'nonce') s.setAttribute(a.name, a.value);
+            s.nonce = NONCE_PAGINA;
             s.textContent = old.textContent;
             old.parentNode.replaceChild(s, old);
         });
@@ -280,7 +293,7 @@
                 history.pushState({ pjax: true }, '', url);
             }
             main.innerHTML = newMain.innerHTML;
-            reExecuteScripts(main);
+            reExecuteScripts(main, nonceDe(res));
             const t = doc.querySelector('title'); if (t) document.title = t.textContent;
             setActive(location.pathname);
             if (fromPop) restoreScroll(); else window.scrollTo(0, 0);
@@ -325,7 +338,7 @@ table.admin-table thead th[data-sortable]:hover { color: var(--bone); }
 }
 .tbl-filter .tbl-count { color: var(--dim); font-size: .78rem; margin-left: .6rem; }
 </style>
-<script>
+<script nonce="<?= csp_nonce() ?>">
 /* Componente: torna qualquer table.admin-table ordenável (clique no cabeçalho) +
    filtrável (campo de busca multi-termo). Progressive enhancement: se o JS falhar,
    a tabela continua funcionando normal. Re-aplica no PJAX via MutationObserver. */
@@ -399,7 +412,7 @@ table.admin-table thead th[data-sortable]:hover { color: var(--bone); }
     new MutationObserver(scan).observe(host, { childList: true, subtree: true });
 })();
 </script>
-<script>
+<script nonce="<?= csp_nonce() ?>">
 // Aviso de data (todos os forms admin): se a data de FIM estiver no passado ou
 // antes do inicio, avisa antes de salvar. Pega o typo tipo "2025" que faz o
 // aviso/evento nao aparecer no site. Delegacao no document = cobre todo form.
@@ -427,7 +440,7 @@ document.addEventListener('submit', function (e) {
     }
 }, true);
 </script>
-<script>
+<script nonce="<?= csp_nonce() ?>">
 // Editor rico (Ajuda + Novidades): toolbar de insercao + preview ao vivo + upload
 // de imagem inline. GLOBAL e por DELEGACAO porque o admin usa PJAX (innerHTML nao
 // roda <script> do conteudo trocado). Elementos marcados com data-ed-* dentro de .rich-editor.

@@ -472,7 +472,7 @@
     </form>
 </div>
 
-<script>
+<script nonce="<?= csp_nonce() ?>">
 (function(){
     var inp = document.getElementById('restart_times'), hint = document.getElementById('restart-hint');
     if (!inp || !hint) return;

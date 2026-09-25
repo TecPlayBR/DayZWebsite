@@ -79,7 +79,7 @@ $brandCard = function(string $slot, string $label, string $help, string $type = 
             </form>
             <?php if ($active): ?>
                 <form method="POST" action="/admin/customize/reset" class="cz-form-reset"
-                      onsubmit="return confirm('Voltar pra imagem padrão do template?');">
+                      data-confirm="Voltar pra imagem padrão do template?">
                     <?= \App\Csrf::field() ?>
                     <input type="hidden" name="slot" value="<?= e($slot) ?>">
                     <button type="submit" class="btn-mini btn-mini-ghost">Voltar ao padrão</button>
@@ -178,7 +178,7 @@ $brandCard = function(string $slot, string $label, string $help, string $type = 
             <button type="submit" class="btn-mini">Salvar cores</button>
             <?php if (!empty($themeActive)): ?>
                 <button type="submit" name="reset_theme" value="1" class="btn-mini btn-mini-ghost"
-                        onclick="return confirm('Voltar as cores pro padrão do template?');">Voltar ao padrão</button>
+                        data-confirm="Voltar as cores pro padrão do template?">Voltar ao padrão</button>
             <?php endif; ?>
         </div>
     </form>
@@ -349,7 +349,7 @@ $brandCard = function(string $slot, string $label, string $help, string $type = 
 }
 </style>
 
-<script>
+<script nonce="<?= csp_nonce() ?>">
 // Espelha o quadradinho de cor <-> o campo HEX, nos dois sentidos.
 // O painel navega por PJAX e o layout RE-EXECUTA os <script> do conteudo trocado,
 // entao o listener e delegado no document e guardado por flag: sem duplicar handler.

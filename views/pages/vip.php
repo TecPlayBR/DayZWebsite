@@ -144,7 +144,7 @@ $imgSrc = function ($img) {
                                     <a href="/auth/steam" class="btn-mini outline">Entrar</a>
                                 <?php elseif ($afford): ?>
                                     <form method="POST" action="/vip/buy" style="margin:0;"
-                                          onsubmit="return confirm('Comprar <?= e($c['label']) ?> por <?= (int)$d ?> dias gastando <?= number_format($price,0,',','.') ?> moedas?<?= $activeUntil ? ' (soma aos dias que você já tem)' : '' ?>');">
+                                          data-confirm="Comprar <?= e($c['label']) ?> por <?= (int)$d ?> dias gastando <?= number_format($price,0,',','.') ?> moedas?<?= $activeUntil ? ' (soma aos dias que você já tem)' : '' ?>">
                                         <?= \App\Csrf::field() ?>
                                         <input type="hidden" name="type" value="<?= e($c['type']) ?>">
                                         <?php if ($c['tier']): ?><input type="hidden" name="tier" value="<?= e($c['tier']) ?>"><?php endif; ?>

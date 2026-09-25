@@ -142,7 +142,7 @@ $hoje = date('Y-m-d');
     .idade-form .btn { justify-self: stretch; text-align: center; }
 }
 </style>
-<script>
+<script nonce="<?= csp_nonce() ?>">
 // Mascara do CPF: so digitos, 11 fixos, pontuacao montada sozinha (000.000.000-00).
 // O usuario nunca digita ponto ou traco; colar com mascara ou sem funciona igual.
 (function () {

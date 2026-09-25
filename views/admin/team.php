@@ -134,7 +134,7 @@ $roles = \App\Auth::availableRoles();
 
                     <?php if ((int)$a['id'] !== (int)($me['id'] ?? 0)): ?>
                         <form method="POST" action="/admin/team/<?= (int)$a['id'] ?>/delete" style="display: inline;"
-                              onsubmit="return confirm('Remover admin <?= e($a['username']) ?> permanentemente?');">
+                              data-confirm="Remover admin <?= e($a['username']) ?> permanentemente?">
                             <?= \App\Csrf::field() ?>
                             <button type="submit" class="btn-mini outline" style="border-color: var(--danger-border); color: var(--text-danger);">✕ Remover</button>
                         </form>

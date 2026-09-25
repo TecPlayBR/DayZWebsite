@@ -90,12 +90,12 @@
             <div class="admin-form-actions">
                 <button type="submit" class="btn-mini">Salvar alterações</button>
                 <button type="submit" formaction="/admin/servers/regen-token" class="btn-mini outline"
-                        onclick="return confirm('Regenerar o token? O agente vai precisar do novo token pra continuar funcionando.');">
+                        data-confirm="Regenerar o token? O agente vai precisar do novo token pra continuar funcionando.">
                     Regenerar token
                 </button>
                 <?php if (count($servers) > 1): ?>
                     <button type="submit" formaction="/admin/servers/delete" class="btn-mini danger"
-                            onclick="return confirm('Excluir esse servidor? Só funciona se ainda não houver compras vinculadas.');">
+                            data-confirm="Excluir esse servidor? Só funciona se ainda não houver compras vinculadas.">
                         Excluir servidor
                     </button>
                 <?php endif; ?>

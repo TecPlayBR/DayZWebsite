@@ -18,6 +18,13 @@
 declare(strict_types=1);
 
 $ROOT       = dirname(__DIR__);
+
+// CSP com nonce por resposta (src/Csp.php). Checa o arquivo antes: instalacao com upload
+// pela metade nao pode virar erro fatal aqui (mesmo cuidado do cli/ mais abaixo).
+if (is_file($ROOT . '/src/Csp.php')) { require_once $ROOT . '/src/Csp.php'; \App\Csp::enviar(); }
+if (!function_exists('csp_nonce')) {
+    function csp_nonce(): string { return class_exists('\App\Csp') ? \App\Csp::nonce() : ''; }
+}
 $configFile = $ROOT . '/config/config.php';
 
 // Sem config = site nao instalado. Manda instalar, nao atualizar.
@@ -214,7 +221,14 @@ footer b{color:var(--brand-2)}
 <div class="wrap">
 
 <header class="brand">
-    <img class="brand-mark" src="assets/img/tecplay.png" alt="Tecplay" onerror="this.style.display='none'">
+    <img class="brand-mark" src="assets/img/tecplay.png" alt="Tecplay">
+    <script nonce="<?= csp_nonce() ?>">
+    (function () { // logo ausente some (era onerror inline, que a CSP nao deixa rodar)
+        var img = document.currentScript.previousElementSibling;
+        function some() { img.style.display = 'none'; }
+        if (img.complete && img.naturalWidth === 0) some(); else img.addEventListener('error', some);
+    })();
+    </script>
     <div class="brand-txt">
         <h1>ATUALIZAÇÃO</h1>
         <p>DayZ Website Template<?= $versao ? '<span class="pill">' . htmlspecialchars($versao) . '</span>' : '' ?></p>
@@ -370,7 +384,7 @@ footer b{color:var(--brand-2)}
 <footer>Powered by <b>Tecplay</b> · Site para servidores de DayZ</footer>
 </div>
 
-<script>
+<script nonce="<?= csp_nonce() ?>">
 document.documentElement.classList.remove('nojs');
 // So libera o botao depois da confirmacao. Sem JS o botao nasce habilitado
 // pelo atributo ser removido abaixo, e o PHP ainda exige o checkbox marcado.

@@ -96,8 +96,8 @@
 }
 </style>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script>
+<script nonce="<?= csp_nonce() ?>" src="<?= asset('js/lib/chart.umd.min.js') ?>"></script>
+<script nonce="<?= csp_nonce() ?>">
 (async function() {
     // Mobile: pula o chart inteiro (DOM escondido via CSS, mas evita fetch desnecessário)
     if (window.matchMedia('(max-width: 760px)').matches) return;
@@ -244,7 +244,7 @@ $insMeta = ['pay'=>'💳 Forma de pagamento','pkgs'=>'🏆 Top pacotes','status'
 .ins-cfg label { display:flex; align-items:center; gap:0.5rem; padding:0.35rem 0; color:var(--bone); font-size:0.85rem; cursor:pointer; }
 .ins-cfg input { accent-color:var(--moss); }
 </style>
-<script>
+<script nonce="<?= csp_nonce() ?>">
 (async function(){
     let d;
     try { d = await (await fetch('/admin/insights.json', {credentials:'same-origin'})).json(); }
@@ -413,7 +413,7 @@ $insMeta = ['pay'=>'💳 Forma de pagamento','pkgs'=>'🏆 Top pacotes','status'
 </table>
 </div>
 
-<script>
+<script nonce="<?= csp_nonce() ?>">
 // ============ Auto-refresh do dashboard ============
 (function() {
     const REFRESH_MS = 30000;

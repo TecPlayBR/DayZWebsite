@@ -244,3 +244,91 @@
         }
     });
 })();
+
+/* ============================================================================
+   O QUE MORAVA EM onclick / onsubmit / oninput / onerror  (delegado, um listener por tipo)
+
+   A CSP do site (src/Csp.php) tem script-src-attr 'none': atributo de evento escrito no
+   HTML NAO roda. Isso fecha a porta de XSS mais comum (texto de fora que vira
+   <img onerror=...>), mas obriga o comportamento legitimo a morar aqui. Os atributos:
+
+     data-confirm="Texto"        em <form>: pergunta antes de enviar.
+                                 em <button>/<a>: pergunta antes do clique seguir.
+     data-filtro="slug|codigo|tag"  limpa o que o usuario digita no <input>.
+     data-img-falha="esconder|remover|trocar"  o que fazer quando a <img> nao carrega.
+                                 "trocar" usa data-img-tag (span|div), data-img-classe,
+                                 data-img-texto e, se presente, data-img-oculto (aria-hidden).
+     data-recarregar             botao que recarrega a pagina.
+     data-copiar="texto"         (secao acima) copia pra area de transferencia.
+
+   Delegado no document: vale pra conteudo que chega depois (PJAX do admin) sem registrar
+   nada de novo.
+   ========================================================================== */
+(function () {
+    function perguntaOuCancela(el, ev) {
+        if (window.confirm(el.getAttribute('data-confirm') || '')) return;
+        ev.preventDefault();
+        ev.stopImmediatePropagation();   // cancelou: nenhum outro handler (ex.: "Enviando...") roda
+    }
+
+    // Captura: roda antes dos handlers do proprio formulario.
+    document.addEventListener('click', function (ev) {
+        const el = ev.target.closest('[data-confirm]');
+        if (!el || el.tagName === 'FORM') return;
+        perguntaOuCancela(el, ev);
+    }, true);
+    document.addEventListener('submit', function (ev) {
+        const f = ev.target;
+        if (!(f instanceof HTMLFormElement) || !f.hasAttribute('data-confirm')) return;
+        perguntaOuCancela(f, ev);
+    }, true);
+
+    const FILTROS = {
+        'slug':   function (v) { return v.toLowerCase().replace(/[^a-z0-9-]/g, ''); },
+        'codigo': function (v) { return v.toUpperCase().replace(/[^A-Z0-9_-]/g, ''); },
+        'tag':    function (v) { return v.replace(/[^A-Za-z0-9]/g, '').toUpperCase(); },
+    };
+    document.addEventListener('input', function (ev) {
+        const el = ev.target;
+        if (!el || !el.getAttribute) return;
+        const filtro = FILTROS[el.getAttribute('data-filtro')];
+        if (!filtro) return;
+        const novo = filtro(el.value);
+        if (novo === el.value) return;
+        // Mantem o cursor onde estava (o oninput antigo jogava pro fim a cada tecla).
+        const pos = Math.max(0, (el.selectionStart || 0) - (el.value.length - novo.length));
+        el.value = novo;
+        try { el.setSelectionRange(pos, pos); } catch (e) { /* tipo de input sem cursor */ }
+    });
+
+    function imagemFalhou(img) {
+        const modo = img.getAttribute('data-img-falha');
+        if (modo === 'esconder') { img.style.display = 'none'; return; }
+        if (modo === 'remover') { img.remove(); return; }
+        if (modo !== 'trocar') return;
+        const el = document.createElement(img.getAttribute('data-img-tag') === 'div' ? 'div' : 'span');
+        el.className = img.getAttribute('data-img-classe') || '';
+        el.textContent = img.getAttribute('data-img-texto') || '';
+        if (img.hasAttribute('data-img-oculto')) el.setAttribute('aria-hidden', 'true');
+        img.replaceWith(el);
+    }
+    // O evento error NAO borbulha: so a fase de captura enxerga ele no document.
+    function aoFalharImagem(ev) {
+        const img = ev.target;
+        if (img && img.tagName === 'IMG' && img.hasAttribute('data-img-falha')) imagemFalhou(img);
+    }
+    document.addEventListener('error', aoFalharImagem, true);
+    // Este arquivo carrega no fim da pagina: a imagem pode ter falhado ANTES do listener
+    // existir. complete + naturalWidth 0 sugere falha, mas SVG sem tamanho proprio tambem da
+    // 0, entao confirma recarregando a mesma URL (vem do cache) antes de trocar.
+    document.querySelectorAll('img[data-img-falha]').forEach(function (img) {
+        if (!img.complete || img.naturalWidth !== 0) return;
+        const teste = new Image();
+        teste.addEventListener('error', function () { imagemFalhou(img); });
+        teste.src = img.currentSrc || img.getAttribute('src') || '';
+    });
+
+    document.addEventListener('click', function (ev) {
+        if (ev.target.closest('[data-recarregar]')) location.reload();
+    });
+})();

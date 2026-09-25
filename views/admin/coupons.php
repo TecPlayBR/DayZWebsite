@@ -40,7 +40,7 @@ $pkgMap = array_column($packages ?? [], 'name', 'id');
             <label style="display:block; font-size:0.75rem; color:var(--dim); margin-bottom:0.3rem; text-transform: uppercase;">Código</label>
             <input type="text" name="code" required minlength="3" placeholder="BLACKFRIDAY20"
                    style="width:100%; padding:0.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:var(--font-mono); text-transform: uppercase;"
-                   oninput="this.value = this.value.replace(/[^A-Za-z0-9_-]/g, '').toUpperCase()">
+                   data-filtro="codigo">
         </div>
         <div>
             <label style="display:block; font-size:0.75rem; color:var(--dim); margin-bottom:0.3rem; text-transform: uppercase;">Tipo</label>
@@ -199,7 +199,7 @@ $pkgMap = array_column($packages ?? [], 'name', 'id');
                         <button type="submit" class="btn-mini outline"><?= (int)$c['active'] ? 'Desativar' : 'Ativar' ?></button>
                     </form>
                     <form method="POST" action="/admin/coupons/<?= (int)$c['id'] ?>/delete" style="display: inline;"
-                          onsubmit="return confirm('Apagar cupom <?= e($c['code']) ?> permanentemente?');">
+                          data-confirm="Apagar cupom <?= e($c['code']) ?> permanentemente?">
                         <?= \App\Csrf::field() ?>
                         <button type="submit" class="btn-mini outline" style="border-color: var(--danger-border); color: var(--text-danger);">✕</button>
                     </form>

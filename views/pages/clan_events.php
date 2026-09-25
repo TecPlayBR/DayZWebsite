@@ -84,7 +84,7 @@ $myId = $my_clan ? (int)$my_clan['id'] : 0;
                         <?php if ($row['registered']): ?>
                             <span class="ce-reg-on">✓ Seu clã está inscrito</span>
                             <?php if ($phase === 'scheduled' && $is_leader): ?>
-                                <form method="POST" action="/clan-events/<?= (int)$ev['id'] ?>/unregister" onsubmit="return confirm('Cancelar a inscrição do clã nesse evento?');" style="margin:0;">
+                                <form method="POST" action="/clan-events/<?= (int)$ev['id'] ?>/unregister" data-confirm="Cancelar a inscrição do clã nesse evento?" style="margin:0;">
                                     <?= \App\Csrf::field() ?><button class="btn-mini outline">Cancelar inscrição</button>
                                 </form>
                             <?php endif; ?>

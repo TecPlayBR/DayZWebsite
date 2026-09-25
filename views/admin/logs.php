@@ -31,7 +31,7 @@
     <label style="display: inline-flex; align-items: center; gap: 0.3rem; color: var(--bone); font-size: 0.85rem; cursor: pointer;">
         <input type="checkbox" id="log-errors-only"> Só erros (PHP / Fatal / Warning)
     </label>
-    <button onclick="location.reload()" class="btn-mini outline">↻ Recarregar</button>
+    <button data-recarregar class="btn-mini outline">↻ Recarregar</button>
 </div>
 
 <pre id="log-output" style="background: var(--bg-0); border: 1px solid var(--border); padding: 1rem; max-height: 70vh; overflow-y: auto; font-family: var(--font-mono); font-size: 0.78rem; color: var(--bone); line-height: 1.5; white-space: pre-wrap; word-break: break-all;">
@@ -57,7 +57,7 @@
 .log-line.hidden     { display: none; }
 </style>
 
-<script>
+<script nonce="<?= csp_nonce() ?>">
 const filter = document.getElementById('log-filter');
 const errorsOnly = document.getElementById('log-errors-only');
 const output = document.getElementById('log-output');

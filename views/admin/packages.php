@@ -86,7 +86,7 @@
                         </button>
                     </form>
                     <form method="POST" action="/admin/packages/<?= e($p['id']) ?>/delete" style="display: inline;"
-                          onsubmit="return confirm('Excluir o pacote &quot;<?= e(addslashes($p['name'])) ?>&quot;? Isso é permanente. (Pacotes com compras não são apagados - desative-os.)');">
+                          data-confirm="Excluir o pacote &quot;<?= e($p['name']) ?>&quot;? Isso é permanente. (Pacotes com compras não são apagados - desative-os.)">
                         <?= \App\Csrf::field() ?>
                         <button type="submit" class="btn-mini outline" style="color:var(--rust-2); border-color:var(--rust-2);">Excluir</button>
                     </form>

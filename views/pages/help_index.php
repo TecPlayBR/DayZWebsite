@@ -80,7 +80,7 @@
 .help-card-sum { color:var(--dim); font-size:.85rem; line-height:1.5; margin:0 0 .6rem; flex-grow:1; }
 .help-card-tag { font-size:.72rem; color:var(--hazard); font-family:var(--font-mono); margin-top:auto; }
 </style>
-<script>
+<script nonce="<?= csp_nonce() ?>">
 // Se o video for unlisted/privado, a thumb do YouTube volta cinza (120px). Nesse
 // caso removemos a img e fica o placeholder de video (gradiente + play). Se for
 // publico, a capa real (>=480px) aparece sozinha.

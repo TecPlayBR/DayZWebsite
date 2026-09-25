@@ -57,7 +57,7 @@
         </div>
     <?php endif; ?>
 
-    <form method="POST" action="/admin/discord-integration/regenerate" style="margin-top:1rem;" onsubmit="return confirm('Gerar um token NOVO vai invalidar o atual imediatamente. O bot vai perder acesso até você colar o novo token no painel dele.\n\nConfirma?');">
+    <form method="POST" action="/admin/discord-integration/regenerate" style="margin-top:1rem;" data-confirm="Gerar um token NOVO vai invalidar o atual imediatamente. O bot vai perder acesso até você colar o novo token no painel dele.&#10;&#10;Confirma?">
         <?= \App\Csrf::field() ?>
         <button type="submit" style="background:var(--rust); color:#fff; padding:0.6rem 1.2rem; border:none; border-radius:6px; cursor:pointer; font-weight:600;">
             🔄 Gerar novo token

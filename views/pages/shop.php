@@ -455,7 +455,7 @@ if ($prodItems) {
     margin-top: 0.15rem;
 }
 </style>
-<script>
+<script nonce="<?= csp_nonce() ?>">
 // Server selector (multi-server) - sincroniza hidden input em todos os forms
 (function() {
     const pills = document.querySelectorAll('.server-pill');

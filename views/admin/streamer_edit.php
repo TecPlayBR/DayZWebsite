@@ -103,7 +103,7 @@ if ($e) {
                 <td><?= !empty($s['active']) ? 'sim' : 'não' ?></td>
                 <td style="white-space:nowrap;">
                     <a href="/admin/streamers/manage?id=<?= (int)$s['id'] ?>" style="color:var(--hazard);">Editar</a>
-                    <form method="POST" action="/admin/streamers/delete" style="display:inline; margin-left:0.6rem;" onsubmit="return confirm('Remover o streamer <?= e($s['code']) ?>?')">
+                    <form method="POST" action="/admin/streamers/delete" style="display:inline; margin-left:0.6rem;" data-confirm="Remover o streamer <?= e($s['code']) ?>?">
                         <?= \App\Csrf::field() ?>
                         <input type="hidden" name="id" value="<?= (int)$s['id'] ?>">
                         <button type="submit" class="btn-mini outline" style="color:var(--rust);">Remover</button>
