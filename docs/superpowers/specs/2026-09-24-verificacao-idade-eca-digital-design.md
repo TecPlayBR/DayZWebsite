@@ -279,8 +279,8 @@ Curtos, sem juridiquês, e cada um com versão em `stringtable` como o resto do 
 - Ordem: staging da Hostinger com chave sandbox do FlagCheck, depois NomadeZ (cliente que pediu),
   depois Danoninho-Z.
 - O 3.2.8 dos formulários do admin passa a ser **3.3.1**, porque esta versão já mexe nas telas.
-- Comunicado aos clientes: um parágrafo no CHANGELOG e um artigo na Central de Ajuda explicando
-  ao jogador o que mudou.
+- Comunicado aos clientes: um parágrafo no CHANGELOG. Ao jogador, a própria página `/idade`
+  explica o que mudou e o que é guardado (cada site pode complementar na Central de Ajuda).
 
 ## 11. Testes
 
