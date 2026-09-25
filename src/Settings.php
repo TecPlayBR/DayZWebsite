@@ -109,6 +109,15 @@ class Settings {
         // Privacidade: 1 = oculta a LISTA de nomes dos players online no /ranking
         // (mantém só a contagem). Evita exposição/"chororo" de quem está online.
         'hide_online_players'      => 'bool',
+        // Protecao de menores (ECA Digital, 3.3.0). Modo: desligado | declaracao | verificado.
+        // O CPF nunca passa por aqui: so a chave do fornecedor e o sal do hash.
+        'age_gate_mode'            => 'string',
+        'age_provider'             => 'string',   // flagcheck | serpro | cpfhub
+        'age_provider_key'         => 'string',
+        'age_provider_secret'      => 'string',   // so o Serpro (OAuth2) usa
+        'age_daily_box_gated'      => 'bool',     // 1 = a diaria gratis tambem exige verificacao
+        'age_hash_salt'            => 'string',   // gerado na migration; nunca editar pelo painel
+        'terms_version'            => 'string',   // versao dos Termos que o consentimento carimba
     ];
 
     private static array $cache = [];
