@@ -2686,10 +2686,13 @@ $collectDashboardData = function() {
                'maintenance_message','maintenance_eta',
                'discord_sales_webhook','promo_coupon_code','promo_label',
                'restart_times','restart_warn_minutes',
-               'cftools_app_id','cftools_server_api_id'];
+               'cftools_app_id','cftools_server_api_id',
+               // Protecao de menores (ECA Digital): modo e fornecedor. A chave vai num bloco proprio.
+               'age_gate_mode','age_provider'];
     // Toggles (checkbox): se não veio no POST, vira 0
     $toggles = ['maintenance_enabled', 'live_purchases_enabled', 'live_purchases_anonymize', 'live_purchases_show_price',
-                'restart_enabled', 'affiliate_enabled', 'affiliate_allow_switch', 'box_claim_enabled', 'hide_online_players'];
+                'restart_enabled', 'affiliate_enabled', 'affiliate_allow_switch', 'box_claim_enabled', 'hide_online_players',
+                'age_daily_box_gated'];
 
     // Escrita via Settings::set(): valida contra o whitelist (SCHEMA), normaliza
     // por tipo e atualiza o cache em memória. Chave fora do SCHEMA é rejeitada.
@@ -2704,6 +2707,18 @@ $collectDashboardData = function() {
     if (isset($_POST['cftools_secret']) && trim((string)$_POST['cftools_secret']) !== '') {
         \App\Settings::set('cftools_secret', trim((string)$_POST['cftools_secret']));
     }
+
+    // ECA Digital: chave/segredo do fornecedor so gravam se digitados (o form nao ecoa o salvo).
+    $ecaMudou = [];
+    foreach (['age_provider_key', 'age_provider_secret'] as $k) {
+        if (isset($_POST[$k]) && trim((string)$_POST[$k]) !== '') { \App\Settings::set($k, trim((string)$_POST[$k])); $ecaMudou[] = $k; }
+    }
+    if (!in_array((string)($_POST['age_gate_mode'] ?? ''), \App\AgeGate::MODOS, true)) \App\Settings::set('age_gate_mode', 'declaracao');
+    if (!isset(\App\AgeVerifierFactory::PROVIDERS[(string)($_POST['age_provider'] ?? '')])) \App\Settings::set('age_provider', 'flagcheck');
+    \App\AuditLog::record('age.settings', 'settings', 'eca', [
+        'modo' => \App\Settings::get('age_gate_mode'), 'fornecedor' => \App\Settings::get('age_provider'),
+        'diaria_exige' => \App\Settings::getBool('age_daily_box_gated'), 'chaves_alteradas' => $ecaMudou,
+    ]);
 
     // ---------------- Mercado Pago: CAMINHO DE DINHEIRO ----------------
     // Trocar estas credenciais muda PRA ONDE O DINHEIRO VAI. Antes elas só existiam no
@@ -4252,6 +4267,76 @@ $BRAND_SLOTS = [
     \App\Database::query("DELETE FROM streamers WHERE id = ?", [$id]);
     \App\AuditLog::record('streamer.deleted', 'streamer', $code);
     header('Location: /admin/streamers/manage?ok=1'); exit;
+});
+
+// ============ ADMIN: PROTECAO DE MENORES (ECA Digital) ============
+\App\Router::get('/admin/eca', function() use ($config) {
+    \App\Auth::requireCan('settings');
+    $q = fn(string $sql, array $a = []) => (int) \App\Database::fetchColumn($sql, $a);
+    \App\View::display('admin.eca', [
+        'config' => $config,
+        'modo' => \App\AgeVerification::modo(),
+        'fornecedor' => (string) \App\Settings::get('age_provider', 'flagcheck'),
+        'tem_chave' => trim((string) \App\Settings::get('age_provider_key', '')) !== '',
+        'n_verificados' => $q("SELECT COUNT(*) FROM players WHERE age_status = 'adulto_verificado'"),
+        'n_declarados'  => $q("SELECT COUNT(*) FROM players WHERE age_status = 'adulto_declarado'"),
+        'n_menores'     => $q("SELECT COUNT(*) FROM players WHERE age_status = 'menor'"),
+        'n_falhas_30d'  => $q("SELECT COUNT(*) FROM age_verifications WHERE result = 'falhou' AND created_at >= NOW() - INTERVAL 30 DAY"),
+        'ultimas' => \App\Database::fetchAll(
+            "SELECT id, steam_id, method, result, provider_ref, provider_status, created_at, revoked_at, revoked_reason
+             FROM age_verifications ORDER BY id DESC LIMIT 200"),
+        'teste' => isset($_GET['teste']) ? json_decode((string) $_GET['teste'], true) : null,
+        'ok' => isset($_GET['ok']),
+    ]);
+});
+
+\App\Router::post('/admin/eca/testar-chave', function() use ($config) {
+    \App\Auth::requireCan('settings');
+    if (!\App\Csrf::check()) { header('Location: /admin/eca'); exit; }
+    $r = \App\AgeVerifierFactory::fromSettings()->test();
+    \App\AuditLog::record('age.key_tested', 'settings', 'eca', ['ok' => $r['ok']]);
+    header('Location: /admin/eca?teste=' . rawurlencode(json_encode($r))); exit;
+});
+
+\App\Router::post('/admin/eca/revogar', function() use ($config) {
+    \App\Auth::requireCan('settings');
+    if (!\App\Csrf::check()) { header('Location: /admin/eca'); exit; }
+    $id = (int) ($_POST['id'] ?? 0);
+    $motivo = trim((string) ($_POST['motivo'] ?? ''));
+    if ($id < 1 || $motivo === '') { header('Location: /admin/eca'); exit; }
+    if (\App\AgeVerification::revogar($id, $motivo)) {
+        \App\AuditLog::record('age.revoked', 'age_verification', (string) $id, ['motivo' => $motivo]);
+    }
+    header('Location: /admin/eca?ok=1'); exit;
+});
+
+\App\Router::get('/admin/eca/export.csv', function() use ($config) {
+    \App\Auth::requireCan('settings');
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename="verificacoes-idade-' . date('Ymd') . '.csv"');
+    $out = fopen('php://output', 'w');
+    fputcsv($out, ['id', 'steam_id', 'metodo', 'resultado', 'fornecedor_ref', 'situacao', 'criado_em', 'revogado_em', 'motivo_revogacao']);
+    foreach (\App\Database::fetchAll("SELECT id, steam_id, method, result, provider_ref, provider_status, created_at, revoked_at, revoked_reason FROM age_verifications ORDER BY id") as $r) {
+        fputcsv($out, array_values($r));
+    }
+    fclose($out);
+    \App\AuditLog::record('age.exported', 'age_verification', 'csv');
+    exit;
+});
+
+\App\Router::get('/admin/eca/relatorio', function() use ($config) {
+    \App\Auth::requireCan('settings');
+    \App\View::display('admin.eca_relatorio', [
+        'config' => $config,
+        'site' => site_name('Site'),
+        'modo' => \App\AgeVerification::modo(),
+        'fornecedor' => \App\AgeVerifierFactory::PROVIDERS[(string) \App\Settings::get('age_provider', 'flagcheck')] ?? 'FlagCheck',
+        'diaria_exige' => \App\AgeVerification::diariaExige(),
+        'terms_version' => (string) \App\Settings::get('terms_version', '1'),
+        'ultima_ok' => \App\Database::fetchColumn("SELECT MAX(created_at) FROM age_verifications WHERE result = 'adulto' AND method <> 'declaracao' AND revoked_at IS NULL"),
+        'n_verificados' => (int) \App\Database::fetchColumn("SELECT COUNT(*) FROM players WHERE age_status = 'adulto_verificado'"),
+        'gerado_em' => date('d/m/Y H:i'),
+    ]);
 });
 
 // ============ ADMIN: ENTITLEMENTS (VIP / BattlePass) ============

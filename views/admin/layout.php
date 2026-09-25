@@ -76,6 +76,7 @@
             ['logs',                '/admin/logins',             '🔑 Logins',              str_starts_with($current, '/admin/logins')],
             ['customize',           '/admin/customize',          '🎨 Visual',              str_starts_with($current, '/admin/customize')],
             ['settings',            '/admin/settings',           '⚙️ Config',              str_starts_with($current, '/admin/settings')],
+            ['settings',            '/admin/eca',                '🛡 Conformidade ECA',    str_starts_with($current, '/admin/eca')],
         ];
         ?>
         <nav class="admin-nav">
@@ -100,6 +101,16 @@
     </aside>
 
     <main class="admin-main">
+        <?php $ecaModo = \App\AgeVerification::modo(); if ($ecaModo !== 'verificado'): ?>
+            <div style="margin:0 0 1rem; padding:.7rem 1rem; border-radius:6px; border-left:4px solid <?= $ecaModo === 'desligado' ? 'var(--danger-border)' : 'var(--hazard)' ?>; background:<?= $ecaModo === 'desligado' ? 'var(--danger-overlay)' : 'transparent' ?>;">
+                <?php if ($ecaModo === 'desligado'): ?>
+                    <strong>Não conforme com a Lei 15.211/2025:</strong> caixas de recompensa abertas sem verificação de idade.
+                <?php else: ?>
+                    <strong>ECA Digital em transição:</strong> caixas fechadas até configurar o fornecedor de verificação.
+                <?php endif; ?>
+                <a href="/admin/eca" style="color:var(--hazard); margin-left:.5rem;">Resolver</a>
+            </div>
+        <?php endif; ?>
         <?= \App\View::yield('content') ?>
     </main>
 
