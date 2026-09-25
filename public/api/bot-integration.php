@@ -53,6 +53,10 @@ require $ROOT . '/src/Servers.php';
 // e o try/catch em volta engolia. Falha silenciosa: a acao respondia ok e a marca
 // nunca era gravada. Classe usada aqui = classe requerida aqui.
 require $ROOT . '/src/Settings.php';
+// ECA Digital: a compra pelo Discord obedece a mesma regra de idade do site.
+require_once $ROOT . '/src/AgeGate.php';
+require_once $ROOT . '/src/AgeVerifier.php';
+require_once $ROOT . '/src/AgeVerification.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
@@ -174,6 +178,10 @@ function _prepare_purchase(array $body, string $action): array {
     $packageId = trim((string) ($body['package_id'] ?? ''));
     if (!preg_match('/^7656119\d{10}$/', $steamId)) {
         _bail(400, 'invalid_steam_id', $action);
+    }
+    // ECA Digital: comprar pelo Discord obedece a mesma regra do site. O bot mostra o link.
+    if (!\App\AgeVerification::podeComprar($steamId)) {
+        _bail(403, 'age_required', $action);
     }
     $pkg = \App\Database::fetchOne(
         "SELECT * FROM packages WHERE id = ? AND enabled = 1 LIMIT 1",

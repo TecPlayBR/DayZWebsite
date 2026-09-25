@@ -696,6 +696,8 @@ $config['mercado_pago'] = $mpCfg;
     \App\View::display('pages.caixas', [
         'config' => $config, 'boxes' => $boxes,
         'steam_user' => $steamUser, 'coins' => $coins,
+        'age_status' => $steamUser ? \App\AgeVerification::statusDe($steamUser['steam_id']) : 'desconhecido',
+        'age_mode'   => \App\AgeVerification::modo(),
     ]);
 });
 
@@ -714,6 +716,12 @@ $config['mercado_pago'] = $mpCfg;
 
     $box = \App\Boxes::find($slug);
     if (!$box) { http_response_code(404); echo json_encode(['ok' => false, 'error' => 'Caixa não encontrada.']); return; }
+    // ECA Digital, art. 20 + Decreto art. 23: caixa so pra adulto verificado. Antes do sorteio.
+    if (!\App\AgeVerification::podeAbrirCaixa($steamId, (int) $box['is_daily'] === 1)) {
+        http_response_code(403);
+        echo json_encode(['ok' => false, 'error' => 'age', 'url' => '/idade?motivo=caixa&return=' . rawurlencode('/caixas')]);
+        return;
+    }
 
     try {
         $res = \App\Boxes::open($box, $steamId);
@@ -1139,12 +1147,21 @@ $config['mercado_pago'] = $mpCfg;
 
     $packageId = trim($_POST['package_id'] ?? '');
     $steamId   = preg_replace('/\s+/', '', $_POST['steam_id'] ?? '');
-    $termsAccepted = !empty($_POST['terms_accepted']);
 
-    if (!$termsAccepted) {
-        \App\View::display('pages.checkout_error', ['config' => $config, 'msg' => 'Você precisa aceitar os Termos de Uso e a Política de Reembolso pra continuar.']);
-        return;
+    // ECA Digital: comprar exige declaracao de idade + consentimento REAL da versao atual
+    // dos Termos. O campo oculto terms_accepted=1 morreu na 3.3.0; quem decide e /idade.
+    $termsVersion = (string) \App\Settings::get('terms_version', '1');
+    $retorno = '/shop' . (isset($_POST['server_id']) ? '?server=' . (int) $_POST['server_id'] : '');
+    if (preg_match('/^7656119[0-9]{10}$/', $steamId) && \App\SteamAuth::check() && \App\SteamAuth::steamId() === $steamId) {
+        if (!\App\AgeVerification::podeComprar($steamId) || !\App\AgeVerification::temConsentimento($steamId, 'termos', $termsVersion)) {
+            header('Location: /idade?motivo=comprar&return=' . rawurlencode($retorno)); exit;
+        }
+    } else {
+        // Compra sem login Steam (SteamID digitado): nao ha conta pra declarar. Exige login.
+        $_SESSION['steam_login_return'] = '/idade?motivo=comprar&return=' . rawurlencode($retorno);
+        header('Location: /auth/steam'); exit;
     }
+    $termsAccepted = true;
 
     if (!preg_match('/^7656119[0-9]{10}$/', $steamId)) {
         \App\View::display('pages.checkout_error', ['config' => $config, 'msg' => 'SteamID inválido (formato esperado: 17 dígitos começando com 7656119)']);
@@ -1403,6 +1420,8 @@ $config['mercado_pago'] = $mpCfg;
     if (empty($_SESSION['checkout_pids'][$pid])) { http_response_code(403); echo json_encode(['ok' => false, 'error' => 'Compra não encontrada nesta sessão.']); return; }
     $p = \App\Database::fetchOne("SELECT * FROM purchases WHERE id = ? LIMIT 1", [$pid]);
     if (!$p) { http_response_code(404); echo json_encode(['ok' => false, 'error' => 'Compra não encontrada.']); return; }
+    // ECA Digital: a compra foi criada por quem passou no gate, mas a sessao pode ter mudado.
+    if (!\App\AgeVerification::podeComprar((string) $p['steam_id'])) { http_response_code(403); echo json_encode(['ok' => false, 'error' => 'age', 'url' => '/idade?motivo=comprar&return=/shop']); return; }
     if (!empty($p['delivered_at']) || $p['mp_status'] === 'approved') {
         echo json_encode(['ok' => true, 'status' => 'approved', 'redirect' => '/player/' . $p['steam_id']]); return;
     }

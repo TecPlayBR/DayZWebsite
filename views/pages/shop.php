@@ -180,7 +180,6 @@ if ($prodItems) {
                     <?= \App\Csrf::field() ?>
                     <input type="hidden" name="package_id" value="<?= e($pkg['id']) ?>">
                     <input type="hidden" name="server_id" value="<?= (int)$selected_server_id ?>" data-server-input>
-                    <input type="hidden" name="terms_accepted" value="1">
                     <input type="hidden" name="coupon_code" value="" data-coupon-flag>
                     <?php if ($prefillSteam): ?>
                         <input type="hidden" name="steam_id" value="<?= e($prefillSteam) ?>">
