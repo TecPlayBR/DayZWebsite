@@ -60,15 +60,29 @@ final class Csp
             'form-action'     => "'self' https://www.mercadopago.com https://www.mercadopago.com.br",
             'frame-ancestors' => "'self'",
             'report-uri'      => '/api/csp-report.php',
+            // A Hostinger punha so isto no lugar da nossa CSP; mantemos o que ela queria.
+            'upgrade-insecure-requests' => '',
         ];
         $partes = [];
-        foreach ($diretivas as $k => $v) $partes[] = "$k $v";
+        foreach ($diretivas as $k => $v) $partes[] = $v === '' ? $k : "$k $v";
         return implode('; ', $partes);
     }
 
-    /** Manda o cabecalho. Chamar antes de qualquer saida. */
+    /**
+     * Manda a politica. Chamar antes de qualquer saida.
+     *
+     * Vai em DOIS cabecalhos porque a Hostinger TROCA a Content-Security-Policy que o PHP manda
+     * por "upgrade-insecure-requests" (provado no staging em 26/09/2026: header() direto, com
+     * replace=false, tudo trocado) e respeita a que o .htaccess seta. Entao:
+     *   - X-Tecplay-Csp leva a politica e o public/.htaccess COPIA ele pra CSP e depois apaga;
+     *   - Content-Security-Policy direto fica pra servidor sem .htaccess (nginx), onde vale ele.
+     * Onde as duas chegam (Apache com mod_php), sao identicas e o navegador aplica a mesma coisa.
+     */
     public static function enviar(): void
     {
-        if (!headers_sent()) header('Content-Security-Policy: ' . self::politica());
+        if (headers_sent()) return;
+        $p = self::politica();
+        header('Content-Security-Policy: ' . $p);
+        header('X-Tecplay-Csp: ' . $p);
     }
 }

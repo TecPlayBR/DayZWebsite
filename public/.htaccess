@@ -67,6 +67,14 @@
     # sumiria e todo script da pagina seria bloqueado. Por isso nao existe CSP global neste
     # arquivo. Origem nova (CDN, player de video) entra na lista do src/Csp.php.
     #
+    # EXCECAO, e a unica: copiar a CSP que o PHP montou. A Hostinger troca a CSP que vem do
+    # PHP por "upgrade-insecure-requests" e respeita a do .htaccess, entao o PHP manda a
+    # politica tambem em X-Tecplay-Csp e esta linha so COPIA (nada de texto fixo aqui). Sem o
+    # cabecalho do PHP (arquivo estatico) a condicao -n falha e nada e setado.
+    Header always set Content-Security-Policy "expr=%{resp:X-Tecplay-Csp}" "expr=-n %{resp:X-Tecplay-Csp}"
+    Header always unset X-Tecplay-Csp
+    Header unset X-Tecplay-Csp
+    #
     # Arquivo estatico que o navegador pode abrir como documento (svg, html) ganha uma CSP
     # fechada: SVG pode carregar <script>, e nada estatico do template precisa executar.
     <FilesMatch "\.(svg|html?|xml)$">

@@ -84,8 +84,18 @@ if (str_contains($dir['connect-src'] ?? '', 'api.mercadopago.com')) ok('connect-
 echo "\n3. .htaccess nao sobrescreve a CSP do PHP\n";
 $ht = $ler('public/.htaccess');
 $global = preg_replace('#<FilesMatch\b.*?</FilesMatch>#is', '', $ht);
-$linhasCsp = array_filter(preg_split('/\R/', $global), fn($l) => preg_match('/^\s*Header\b.*Content-Security-Policy/i', $l));
-if (!$linhasCsp) ok('nenhum Header de CSP global (o "always set" do Apache apagaria o nonce)'); else falha('.htaccess ainda seta CSP global', trim(reset($linhasCsp)));
+// A Hostinger TROCA a CSP que o PHP manda por "upgrade-insecure-requests" (provado no staging
+// em 26/09/2026) e respeita a do .htaccess. Entao o PHP manda a politica tambem em X-Tecplay-Csp
+// e o .htaccess so COPIA esse cabecalho pra CSP. Texto fixo de CSP no .htaccess continua proibido.
+$linhasCsp = array_values(array_filter(preg_split('/\R/', $global), fn($l) => preg_match('/^\s*Header\b.*Content-Security-Policy/i', $l)));
+$copia = 'Header always set Content-Security-Policy "expr=%{resp:X-Tecplay-Csp}" "expr=-n %{resp:X-Tecplay-Csp}"';
+$fixas = array_filter($linhasCsp, fn($l) => trim($l) !== $copia);
+if (!$fixas) ok('nenhuma CSP de texto fixo global (apagaria o nonce)'); else falha('.htaccess seta CSP fixa global', trim(reset($fixas)));
+if (count($linhasCsp) === 1 && trim($linhasCsp[0]) === $copia) ok('.htaccess copia X-Tecplay-Csp pra CSP (so quando o PHP mandou)'); else falha('.htaccess nao copia a CSP do PHP', 'na Hostinger a CSP do PHP e trocada por upgrade-insecure-requests');
+if (preg_match('/^\s*Header always unset X-Tecplay-Csp\s*$/m', $global) && preg_match('/^\s*Header unset X-Tecplay-Csp\s*$/m', $global)) ok('cabecalho auxiliar some da resposta (tabelas always e onsuccess)'); else falha('X-Tecplay-Csp vaza na resposta');
+$fonteCsp = $ler('src/Csp.php');
+if (str_contains($fonteCsp, "header('X-Tecplay-Csp: '") && str_contains($fonteCsp, "header('Content-Security-Policy: '")) ok('PHP manda a politica nos dois cabecalhos (nginx usa a direta)'); else falha('PHP nao manda os dois cabecalhos');
+if (array_key_exists('upgrade-insecure-requests', $dir)) ok('upgrade-insecure-requests mantido (era o que a Hostinger punha)'); else falha('perdeu upgrade-insecure-requests');
 if (preg_match('#<FilesMatch "[^"]*svg[^"]*">.*?Content-Security-Policy "default-src \'none\'#is', $ht)) ok('arquivo estatico (svg/html) recebe CSP fechada'); else falha('estatico ficou sem CSP');
 
 echo "\n4. Quem gera HTML manda o cabecalho\n";

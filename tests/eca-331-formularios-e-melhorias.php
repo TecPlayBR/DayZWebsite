@@ -86,8 +86,10 @@ if (preg_match("/export\.csv'.*?csv_seguro/s", $idx)) ok('export.csv usa csv_seg
 
 echo "\nB6. Changelog 3.3.1\n";
 $cl = file_get_contents($ROOT . '/CHANGELOG.md');
-preg_match('/^## \[([0-9.]+)\]/m', $cl, $m);
-if (($m[1] ?? '') === '3.3.1') ok('3.3.1 no topo'); else falha('CHANGELOG sem 3.3.1 no topo');
+// A 3.3.1 deixou de ser a ultima (3.3.2 veio depois): o que importa e a secao existir, com
+// data, e vir logo antes da 3.3.0.
+$i331 = strpos($cl, "\n## [3.3.1] - 2026-09-26"); $i330 = strpos($cl, "\n## [3.3.0]");
+if ($i331 !== false && $i330 !== false && $i331 < $i330) ok('secao 3.3.1 datada, antes da 3.3.0'); else falha('CHANGELOG sem a secao 3.3.1 no lugar');
 $sec = substr($cl, strpos($cl, '## [3.3.1]'), (strpos($cl, "\n## [3.3.0]") ?: strlen($cl)) - strpos($cl, '## [3.3.1]'));
 foreach (['obrigatório', 'upload', 'Discord', 'age_required', 'update.php'] as $t) { if (stripos($sec, $t) !== false) ok("3.3.1 cita '$t'"); else falha("3.3.1 nao cita '$t'"); }
 
