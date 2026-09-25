@@ -280,7 +280,8 @@
                 redirect: 'follow', credentials: 'same-origin',
             });
             // Caiu pra login (302 → /admin/login fora de /admin)? full reload.
-            if (!res.ok || !res.url.includes('/admin') || res.url.includes('/admin/login')) {
+            // Caminho EXATO: outras telas do admin comecam com o mesmo prefixo (/admin/logins).
+            if (!res.ok || !res.url.includes('/admin') || new URL(res.url).pathname === '/admin/login') {
                 location.href = url; return;
             }
             const html = await res.text();

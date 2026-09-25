@@ -58,23 +58,25 @@
 </style>
 
 <script nonce="<?= csp_nonce() ?>">
-const filter = document.getElementById('log-filter');
-const errorsOnly = document.getElementById('log-errors-only');
-const output = document.getElementById('log-output');
-function apply() {
-    const q = filter.value.toLowerCase();
-    const onlyErr = errorsOnly.checked;
-    output.querySelectorAll('.log-line').forEach(l => {
-        const text = l.textContent.toLowerCase();
-        let show = true;
-        if (q && !text.includes(q)) show = false;
-        if (onlyErr && !(l.classList.contains('log-fatal') || l.classList.contains('log-warn'))) show = false;
-        l.classList.toggle('hidden', !show);
-    });
-}
-filter.addEventListener('input', apply);
-errorsOnly.addEventListener('change', apply);
-output.scrollTop = output.scrollHeight;
+(function () { // escopo proprio: o PJAX do admin re-executa este script a cada visita
+    const filter = document.getElementById('log-filter');
+    const errorsOnly = document.getElementById('log-errors-only');
+    const output = document.getElementById('log-output');
+    function apply() {
+        const q = filter.value.toLowerCase();
+        const onlyErr = errorsOnly.checked;
+        output.querySelectorAll('.log-line').forEach(l => {
+            const text = l.textContent.toLowerCase();
+            let show = true;
+            if (q && !text.includes(q)) show = false;
+            if (onlyErr && !(l.classList.contains('log-fatal') || l.classList.contains('log-warn'))) show = false;
+            l.classList.toggle('hidden', !show);
+        });
+    }
+    filter.addEventListener('input', apply);
+    errorsOnly.addEventListener('change', apply);
+    output.scrollTop = output.scrollHeight;
+})();
 </script>
 
 <?php \App\View::endSection(); ?>
