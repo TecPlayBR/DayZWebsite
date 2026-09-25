@@ -23,14 +23,32 @@ function httpFalso(int $status, string $body, array &$log): callable {
     };
 }
 
-echo "\n1. FlagCheck\n";
-$v = AgeVerifierFactory::make('flagcheck', 'chave-x', '', httpFalso(200, json_encode(['maior_de_18' => true, 'status_cpf' => 'regular', 'audit_token' => 'aud_123']), $chamadas));
+echo "\n1. FlagCheck (contrato real: POST /api/felca/age-check, X-API-Key, data.is_adult, meta.request_id)\n";
+$adulto = json_encode(['success' => true, 'data' => ['is_adult' => true, 'age' => 32, 'date_of_birth' => '1993-05-14', 'document' => ['type' => 'CPF', 'valid' => true]],
+                       'meta' => ['request_id' => 'felca_a1b2c3', 'timestamp' => '2026-03-13T14:32:00Z']]);
+$v = AgeVerifierFactory::make('flagcheck', 'chave-x', '', httpFalso(200, $adulto, $chamadas));
 $r = $v->verify($CPF, '2000-01-01');
-if ($r['result'] === 'adulto' && $r['ref'] === 'aud_123' && $r['status'] === 'regular') ok('adulto com audit_token'); else falha('flagcheck adulto', json_encode($r));
-if (($chamadas[0]['m'] ?? '') === 'POST' && str_contains($chamadas[0]['url'], 'flagcheck.com.br')) ok('POST no endpoint do FlagCheck'); else falha('flagcheck: metodo/url errados');
-if (str_contains(implode(' ', $chamadas[0]['h']), 'Bearer chave-x')) ok('manda a chave como Bearer'); else falha('flagcheck sem Bearer');
-$r = AgeVerifierFactory::make('flagcheck', 'k', '', httpFalso(200, json_encode(['maior_de_18' => false, 'status_cpf' => 'regular', 'audit_token' => 'aud_9']), $chamadas))->verify($CPF, null);
-if ($r['result'] === 'menor') ok('menor'); else falha('flagcheck menor', json_encode($r));
+if ($r['result'] === 'adulto' && $r['ref'] === 'felca_a1b2c3' && $r['status'] === 'valid') ok('adulto com request_id como ref e situacao do documento'); else falha('flagcheck adulto', json_encode($r));
+if (($chamadas[0]['m'] ?? '') === 'POST' && str_contains($chamadas[0]['url'], 'api.flagcheck.com.br/api/felca/age-check')) ok('POST no endpoint /api/felca/age-check'); else falha('flagcheck: metodo/url errados', $chamadas[0]['url'] ?? '');
+if (str_contains(implode(' ', $chamadas[0]['h']), 'X-API-Key: chave-x')) ok('manda a chave em X-API-Key'); else falha('flagcheck sem X-API-Key');
+if (json_decode((string) $chamadas[0]['b'], true) === ['cpf' => $CPF]) ok('corpo e {"cpf": ...}'); else falha('corpo errado', (string) $chamadas[0]['b']);
+// Menor: is_adult false e sem age/date_of_birth (LGPD do proprio fornecedor)
+$menor = json_encode(['success' => true, 'data' => ['is_adult' => false, 'document' => ['type' => 'CPF', 'valid' => true]], 'meta' => ['request_id' => 'felca_m9']]);
+$r = AgeVerifierFactory::make('flagcheck', 'k', '', httpFalso(200, $menor, $chamadas))->verify($CPF, null);
+if ($r['result'] === 'menor' && $r['ref'] === 'felca_m9') ok('menor'); else falha('flagcheck menor', json_encode($r));
+// A pagina /api-parceiros mostra a resposta SEM o envelope: {"is_adult": true, "age": 32}. Aceitar os dois.
+$r = AgeVerifierFactory::make('flagcheck', 'k', '', httpFalso(200, json_encode(['is_adult' => true, 'age' => 32]), $chamadas))->verify($CPF, null);
+if ($r['result'] === 'adulto') ok('aceita resposta sem envelope (is_adult no topo)'); else falha('resposta sem envelope nao virou adulto', json_encode($r));
+$r = AgeVerifierFactory::make('flagcheck', 'k', '', httpFalso(200, json_encode(['is_adult' => false]), $chamadas))->verify($CPF, null);
+if ($r['result'] === 'menor') ok('menor sem envelope'); else falha('menor sem envelope', json_encode($r));
+// Codigos documentados: 402 sem credito, 404 CPF nao encontrado, 422 CPF invalido. Nenhum e cobrado; nenhum vira adulto/menor.
+foreach ([[402, 'cr'], [404, 'encontrado'], [422, 'inv']] as [$st, $trecho]) {
+    $r = AgeVerifierFactory::make('flagcheck', 'k', '', httpFalso($st, '{}', $chamadas))->verify($CPF, null);
+    if ($r['result'] === 'falhou' && stripos((string) $r['error'], $trecho) !== false) ok("HTTP $st = falhou com motivo proprio"); else falha("HTTP $st sem motivo proprio", json_encode($r));
+}
+// success:false (CPF inexistente/irregular) = falhou, nunca adulto
+$r = AgeVerifierFactory::make('flagcheck', 'k', '', httpFalso(200, json_encode(['success' => false, 'error' => 'CPF invalido']), $chamadas))->verify($CPF, null);
+if ($r['result'] === 'falhou' && str_contains((string) $r['error'], 'CPF invalido')) ok('success:false = falhou com o motivo'); else falha('success:false nao virou falhou', json_encode($r));
 
 echo "\n2. Serpro v3\n";
 $log = [];

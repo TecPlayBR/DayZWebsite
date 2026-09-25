@@ -82,24 +82,49 @@ abstract class AgeVerifierBase implements AgeVerifier
     }
 }
 
-/** FlagCheck: POST /v1/verify/age {cpf} -> {maior_de_18, status_cpf, audit_token}. So devolve o minimo. */
+/**
+ * FlagCheck, contrato real (docs de 25/09/2026, flagcheck.com.br/blog/age-verification-api-brazil):
+ *   POST https://api.flagcheck.com.br/api/felca/age-check   header X-API-Key   body {"cpf": "..."}
+ *   -> {"success": true, "data": {"is_adult": bool, "age", "date_of_birth", "document": {"type","valid"}},
+ *       "meta": {"request_id": "felca_...", "timestamp": ISO}}
+ * Para menor, age e date_of_birth vem omitidos (LGPD do proprio fornecedor). So guardamos
+ * is_adult, document.valid e o request_id (e o que a ANPD pede pro log de auditoria).
+ */
 class FlagCheckVerifier extends AgeVerifierBase
 {
-    public const URL = 'https://api.flagcheck.com.br/v1/verify/age';
+    public const URL = 'https://api.flagcheck.com.br/api/felca/age-check';
     public function nome(): string { return 'FlagCheck'; }
+
+    private function headers(): array
+    {
+        return ['X-API-Key: ' . $this->key, 'Content-Type: application/json', 'Accept: application/json'];
+    }
 
     public function verify(string $cpf, ?string $nascimentoIso): array
     {
         if ($this->key === '') return self::falhou('chave do FlagCheck nao configurada');
-        $r = $this->req('POST', self::URL,
-            ['Authorization: Bearer ' . $this->key, 'Content-Type: application/json', 'Accept: application/json'],
-            json_encode(['cpf' => $cpf]));
-        if (($r['status'] ?? 0) === 401 || ($r['status'] ?? 0) === 403) return self::falhou('chave do FlagCheck recusada');
+        $r = $this->req('POST', self::URL, $this->headers(), json_encode(['cpf' => $cpf]));
+        // Codigos documentados em /api-parceiros. Nenhum destes e cobrado pelo fornecedor.
+        switch ((int) ($r['status'] ?? 0)) {
+            case 401: case 403: return self::falhou('chave do FlagCheck recusada');
+            case 402: return self::falhou('FlagCheck sem creditos: o site precisa adicionar saldo');
+            case 404: return self::falhou('CPF nao encontrado na base do FlagCheck');
+            case 422: return self::falhou('CPF invalido para o FlagCheck');
+        }
         $d = self::json($r);
-        if ($d === null || !array_key_exists('maior_de_18', $d)) return self::falhou('resposta invalida do FlagCheck (HTTP ' . (int) ($r['status'] ?? 0) . ')');
-        return ['result' => $d['maior_de_18'] ? 'adulto' : 'menor',
-                'ref' => isset($d['audit_token']) ? substr((string) $d['audit_token'], 0, 120) : null,
-                'status' => isset($d['status_cpf']) ? substr((string) $d['status_cpf'], 0, 40) : null,
+        if ($d === null) return self::falhou('resposta invalida do FlagCheck (HTTP ' . (int) ($r['status'] ?? 0) . ')');
+        // Duas paginas deles mostram formatos diferentes: com envelope {success,data:{is_adult}}
+        // e sem envelope {is_adult}. Aceita os dois; recusa success:false explicito.
+        if (array_key_exists('success', $d) && empty($d['success'])) {
+            $motivo = isset($d['error']) ? substr((string) (is_array($d['error']) ? json_encode($d['error']) : $d['error']), 0, 80) : 'sem detalhe';
+            return self::falhou('FlagCheck nao confirmou: ' . $motivo);
+        }
+        $dados = (isset($d['data']) && is_array($d['data'])) ? $d['data'] : $d;
+        if (!array_key_exists('is_adult', $dados)) return self::falhou('FlagCheck nao devolveu is_adult');
+        $valid = $dados['document']['valid'] ?? null;
+        return ['result' => $dados['is_adult'] ? 'adulto' : 'menor',
+                'ref' => isset($d['meta']['request_id']) ? substr((string) $d['meta']['request_id'], 0, 120) : null,
+                'status' => $valid === null ? null : ($valid ? 'valid' : 'invalid'),
                 'error' => null];
     }
 
@@ -107,11 +132,9 @@ class FlagCheckVerifier extends AgeVerifierBase
     {
         if ($this->key === '') return ['ok' => false, 'msg' => 'Cole a chave da API do FlagCheck.'];
         // Testa SO a chave: manda o CPF nulo (000.000.000-00, nao e de ninguem). O fornecedor
-        // responde 4xx de "CPF invalido" com a chave boa e 401/403 com a chave ruim. Nenhuma
-        // pessoa e consultada e nenhuma consulta e cobrada.
-        $r = $this->req('POST', self::URL,
-            ['Authorization: Bearer ' . $this->key, 'Content-Type: application/json', 'Accept: application/json'],
-            json_encode(['cpf' => self::CPF_NULO]));
+        // responde 4xx/success:false com a chave boa e 401/403 com a chave ruim. Nenhuma
+        // pessoa e consultada.
+        $r = $this->req('POST', self::URL, $this->headers(), json_encode(['cpf' => self::CPF_NULO]));
         $st = (int) ($r['status'] ?? 0);
         if ($st === 401 || $st === 403) return ['ok' => false, 'msg' => 'Chave do FlagCheck recusada.'];
         if ($st === 0) return ['ok' => false, 'msg' => 'FlagCheck nao respondeu (rede ou timeout).'];
