@@ -74,6 +74,15 @@ if (($log[0]['m'] ?? '') === 'GET' && str_contains($log[0]['url'], 'api.cpfhub.i
 if (str_contains(implode(' ', $log[0]['h']), 'x-api-key: k')) ok('chave em x-api-key'); else falha('cpfhub sem x-api-key');
 $r = AgeVerifierFactory::make('cpfhub', 'k', '', httpFalso(200, json_encode(['success' => true, 'data' => ['birthDate' => '01/01/2012']]), $log))->verify($CPF, null);
 if ($r['result'] === 'menor') ok('menor por data.birthDate'); else falha('cpfhub menor', json_encode($r));
+// Docs oficiais (25/09): erro e OBJETO {"error":{"message":...}} nos 4xx, e STRING no 401.
+$r = AgeVerifierFactory::make('cpfhub', 'k', '', httpFalso(404, json_encode(['success' => false, 'data' => null, 'error' => ['message' => 'CPF não encontrado']]), $log))->verify($CPF, null);
+if ($r['result'] === 'falhou' && str_contains((string) $r['error'], 'encontrado') && !str_contains((string) $r['error'], 'Array')) ok('erro-objeto vira motivo legivel'); else falha('erro-objeto do CPFHub', json_encode($r));
+$r = AgeVerifierFactory::make('cpfhub', 'k', '', httpFalso(401, json_encode(['success' => false, 'error' => 'API Key inválida']), $log))->verify($CPF, null);
+if ($r['result'] === 'falhou' && str_contains((string) $r['error'], 'recusada')) ok('401 com erro-string = chave recusada'); else falha('401 do CPFHub', json_encode($r));
+$r = AgeVerifierFactory::make('cpfhub', 'k', '', httpFalso(400, json_encode(['success' => false, 'data' => null, 'error' => ['message' => 'CPF inválido']]), $log))->verify($CPF, null);
+if ($r['result'] === 'falhou' && stripos((string) $r['error'], 'CPF inv') !== false && !str_contains((string) $r['error'], 'Array')) ok('400 = CPF invalido (motivo do corpo, sem "Array")'); else falha('400 do CPFHub', json_encode($r));
+$r = AgeVerifierFactory::make('cpfhub', 'k', '', httpFalso(200, json_encode(['success' => false, 'data' => null, 'error' => ['message' => 'Limite excedido']]), $log))->verify($CPF, null);
+if ($r['result'] === 'falhou' && str_contains((string) $r['error'], 'Limite excedido')) ok('erro-objeto com HTTP 200 vira motivo legivel'); else falha('erro-objeto em 200', json_encode($r));
 $r = AgeVerifierFactory::make('cpfhub', 'k', '', httpFalso(200, json_encode(['success' => false, 'message' => 'CPF nao encontrado']), $log))->verify($CPF, null);
 if ($r['result'] === 'falhou') ok('success:false = falhou'); else falha('cpfhub success:false virou ' . $r['result']);
 $r = AgeVerifierFactory::make('cpfhub', 'k', '', httpFalso(200, json_encode(['name' => 'X', 'birthDate' => '01/01/2000']), $log))->verify($CPF, null);

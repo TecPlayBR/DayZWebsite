@@ -192,17 +192,21 @@ class CpfHubVerifier extends AgeVerifierBase
     {
         if ($this->key === '') return self::falhou('chave do CPFHub nao configurada');
         $r = $this->req('GET', self::BASE . $cpf, ['x-api-key: ' . $this->key, 'Accept: application/json']);
+        // Codigos documentados (docs de 25/09): 400 formato, 401 chave, 404 nao encontrado, 429 limite.
         switch ((int) ($r['status'] ?? 0)) {
+            case 400: return self::falhou('CPF invalido para o CPFHub');
             case 401: case 403: return self::falhou('chave do CPFHub recusada');
             case 404: return self::falhou('CPF nao encontrado na base do CPFHub');
             case 429: return self::falhou('CPFHub: limite de consultas do plano atingido');
         }
         $d = self::json($r);
         if ($d === null) return self::falhou('resposta invalida do CPFHub (HTTP ' . (int) ($r['status'] ?? 0) . ')');
-        // Contrato real (docs de 25/09): {"success": true, "data": {"birthDate": "DD/MM/AAAA", ...}}.
-        // Aceita tambem sem envelope, por compatibilidade.
+        // Contrato real: {"success": true, "data": {"birthDate": "DD/MM/AAAA", ...}}. O erro vem
+        // como STRING no 401 e como OBJETO {"message": ...} nos demais. Aceita sem envelope tambem.
         if (array_key_exists('success', $d) && empty($d['success'])) {
-            return self::falhou('CPFHub nao confirmou: ' . substr((string) ($d['message'] ?? $d['error'] ?? 'sem detalhe'), 0, 80));
+            $e = $d['error'] ?? ($d['message'] ?? 'sem detalhe');
+            if (is_array($e)) $e = $e['message'] ?? json_encode($e);
+            return self::falhou('CPFHub nao confirmou: ' . substr((string) $e, 0, 80));
         }
         $dados = (isset($d['data']) && is_array($d['data'])) ? $d['data'] : $d;
         if (empty($dados['birthDate'])) return self::falhou('CPFHub nao devolveu data de nascimento');
