@@ -5,6 +5,39 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [3.3.1] - 2026-09-26
+
+### Adicionado
+
+- **Formulários do admin mais amigáveis.** Campo obrigatório agora tem asterisco no rótulo e
+  o navegador destaca o que faltou ao salvar; a dica de cada campo virou texto visível
+  embaixo dele (antes era placeholder, que some ao digitar). Uma função só desenha os campos
+  (`admin_campo`), então o padrão vale para todo formulário que for migrando.
+- **Upload de imagem onde só existia link**: eventos e imagem social (og:image). O componente
+  de imagem mostra a prévia da atual, aceita upload (PNG, JPG, WEBP, GIF até 5 MB) e explica o
+  que não funciona como link: Discord expira, Google Drive e GitHub entregam página, não imagem.
+- **Camada de banco da verificação de idade testada de verdade** (`tests/eca-camada-banco.php`,
+  SQLite em memória com fornecedor falso): declarar, verificar, revogar, consentir, corrida no
+  CPF, menor redeclarando. A revisão do 3.3.0 tinha pedido isso.
+
+### Corrigido
+
+- Sem fornecedor de verificação configurado, a tela `/idade` e o aviso das caixas **explicam**
+  que a verificação ainda não está disponível, em vez de oferecer um formulário que ia falhar.
+- Erros da tela `/idade` viraram códigos traduzidos pelo stringtable; a URL não reflete mais
+  texto livre numa página que pede CPF.
+- O consentimento passa a carimbar o hash do **conteúdo** dos Termos e da Política (não do rótulo
+  do checkbox), e a versão dos Termos (`terms_version`) é editável nas Configurações.
+- Jogador marcado como menor não vê mais a grade de caixas, só a explicação.
+- Painel Conformidade ECA: contador de aberturas de caixa barradas por idade, histórico de
+  consentimentos por SteamID, e `age.verified` no Audit Log.
+- CSV das verificações neutraliza fórmula (`=`, `+`, `-`, `@`) para abrir seguro no Excel.
+- O bot do Discord (2.x) passa a responder ao `age_required` com o link `/idade` do site.
+- Ordem de atualização: **rode o `/update.php` logo depois de subir os arquivos**; entre uma
+  coisa e outra a loja manda para uma tela que ainda não tem tabela.
+
+---
+
 ## [3.3.0] - 2026-09-25
 
 ### Adicionado

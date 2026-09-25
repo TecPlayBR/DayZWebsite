@@ -698,6 +698,7 @@ $config['mercado_pago'] = $mpCfg;
         'steam_user' => $steamUser, 'coins' => $coins,
         'age_status' => $steamUser ? \App\AgeVerification::statusDe($steamUser['steam_id']) : 'desconhecido',
         'age_mode'   => \App\AgeVerification::modo(),
+        'age_provedor_pronto' => \App\AgeVerification::provedorPronto(),
     ]);
 });
 
@@ -718,6 +719,7 @@ $config['mercado_pago'] = $mpCfg;
     if (!$box) { http_response_code(404); echo json_encode(['ok' => false, 'error' => 'Caixa não encontrada.']); return; }
     // ECA Digital, art. 20 + Decreto art. 23: caixa so pra adulto verificado. Antes do sorteio.
     if (!\App\AgeVerification::podeAbrirCaixa($steamId, (int) $box['is_daily'] === 1)) {
+        \App\AgeVerification::contaBloqueioCaixa();
         http_response_code(403);
         echo json_encode(['ok' => false, 'error' => 'age', 'url' => '/idade?motivo=caixa&return=' . rawurlencode('/caixas')]);
         return;
@@ -1805,24 +1807,23 @@ $idadeReturnSeguro = fn (string $r): string => \App\AgeGate::returnSeguro($r);
         'erro'   => isset($_GET['erro']) ? (string) $_GET['erro'] : null,
         'ok_msg' => isset($_GET['ok']) ? __('idade.verified_ok') : null,
         'tem_consentimento' => \App\AgeVerification::temConsentimento($steamId, 'termos', (string) \App\Settings::get('terms_version', '1')),
+        'provedor_pronto'   => \App\AgeVerification::provedorPronto(),
     ]);
 });
 
-// Mensagem ao jogador: chave do stringtable quando existe (nunca o erro cru do fornecedor).
-$idadeMensagem = function (array $r): string {
-    $cod = (string) ($r['cod'] ?? '');
-    return in_array($cod, ['cpf_taken', 'failed_retry'], true) ? __('idade.' . $cod) : (string) ($r['erro'] ?? '');
-};
+// Erro ao jogador vai como CODIGO (erro=cpf_taken); a view traduz pelo stringtable.
+// Nunca texto refletido na URL: uma pagina que pede CPF nao pode exibir texto de terceiro.
+$idadeMensagem = fn (array $r): string => preg_replace('/[^a-z_]/', '', (string) ($r['cod'] ?? 'generico')) ?: 'generico';
 
 // Aceite dos Termos sem redeclarar nascimento: quem verificou por CPF antes de declarar, ou
 // quem ja declarou e a versao dos Termos mudou. (Revisao 24/09: sem isto a tela ficava vazia.)
 \App\Router::post('/idade/consentir', function() use ($config, $idadeReturnSeguro) {
     if (!\App\SteamAuth::check()) { header('Location: /auth/steam'); exit; }
-    if (!\App\Csrf::check()) { header('Location: /idade?erro=' . rawurlencode('Sessão expirada. Tente de novo.')); exit; }
+    if (!\App\Csrf::check()) { header('Location: /idade?erro=' . 'csrf'); exit; }
     $steamId = \App\SteamAuth::steamId();
     $return  = $idadeReturnSeguro((string) ($_POST['return'] ?? '/'));
     $motivo  = ($_POST['motivo'] ?? '') === 'caixa' ? 'caixa' : 'comprar';
-    if (empty($_POST['terms_ok'])) { header('Location: /idade?motivo=' . $motivo . '&return=' . rawurlencode($return) . '&erro=' . rawurlencode('Você precisa aceitar os Termos para continuar.')); exit; }
+    if (empty($_POST['terms_ok'])) { header('Location: /idade?motivo=' . $motivo . '&return=' . rawurlencode($return) . '&erro=termos'); exit; }
     if (\App\AgeVerification::statusDe($steamId) === 'desconhecido') { header('Location: /idade?motivo=' . $motivo . '&return=' . rawurlencode($return)); exit; }
     \App\AgeVerification::consentirTudo($steamId, __('idade.terms_label'));
     header('Location: ' . ($motivo === 'caixa' ? '/idade?motivo=caixa&return=' . rawurlencode($return) : $return)); exit;
@@ -1830,13 +1831,13 @@ $idadeMensagem = function (array $r): string {
 
 \App\Router::post('/idade/declarar', function() use ($config, $idadeReturnSeguro, $idadeMensagem) {
     if (!\App\SteamAuth::check()) { header('Location: /auth/steam'); exit; }
-    if (!\App\Csrf::check()) { header('Location: /idade?erro=' . rawurlencode('Sessão expirada. Tente de novo.')); exit; }
+    if (!\App\Csrf::check()) { header('Location: /idade?erro=' . 'csrf'); exit; }
     $steamId = \App\SteamAuth::steamId();
     $return  = $idadeReturnSeguro((string) ($_POST['return'] ?? '/'));
     $motivo  = ($_POST['motivo'] ?? '') === 'caixa' ? 'caixa' : 'comprar';
-    if (empty($_POST['terms_ok'])) { header('Location: /idade?motivo=' . $motivo . '&return=' . rawurlencode($return) . '&erro=' . rawurlencode('Você precisa aceitar os Termos para continuar.')); exit; }
+    if (empty($_POST['terms_ok'])) { header('Location: /idade?motivo=' . $motivo . '&return=' . rawurlencode($return) . '&erro=termos'); exit; }
     $r = \App\AgeVerification::declarar($steamId, (string) ($_POST['nascimento'] ?? ''));
-    if (!$r['ok']) { header('Location: /idade?motivo=' . $motivo . '&return=' . rawurlencode($return) . '&erro=' . rawurlencode($idadeMensagem($r))); exit; }
+    if (!$r['ok']) { header('Location: /idade?motivo=' . $motivo . '&return=' . rawurlencode($return) . '&erro=' . $idadeMensagem($r)); exit; }
     \App\AgeVerification::consentirTudo($steamId, __('idade.terms_label'));
     if ($r['status'] === 'menor') { header('Location: /idade'); exit; }
     // Quem veio pra abrir caixa ainda precisa do passo 2.
@@ -1845,7 +1846,7 @@ $idadeMensagem = function (array $r): string {
 
 \App\Router::post('/idade/verificar', function() use ($config, $idadeReturnSeguro, $idadeMensagem) {
     if (!\App\SteamAuth::check()) { header('Location: /auth/steam'); exit; }
-    if (!\App\Csrf::check()) { header('Location: /idade?motivo=caixa&erro=' . rawurlencode('Sessão expirada. Tente de novo.')); exit; }
+    if (!\App\Csrf::check()) { header('Location: /idade?motivo=caixa&erro=' . 'csrf'); exit; }
     $steamId = \App\SteamAuth::steamId();
     $return  = $idadeReturnSeguro((string) ($_POST['return'] ?? '/'));
     // Cada tentativa pode custar uma consulta paga do cliente. Tres freios: 5/h por jogador,
@@ -1854,13 +1855,14 @@ $idadeMensagem = function (array $r): string {
     $rlI = \App\RateLimit::check('idade-verificar-ip:' . \App\RateLimit::clientIp(), 10, 3600);
     $rlS = \App\RateLimit::check('idade-verificar-site', 300, 86400);
     if (empty($rl['allowed']) || empty($rlI['allowed']) || empty($rlS['allowed'])) {
-        header('Location: /idade?motivo=caixa&return=' . rawurlencode($return) . '&erro=' . rawurlencode('Muitas tentativas. Tente de novo mais tarde.')); exit;
+        header('Location: /idade?motivo=caixa&return=' . rawurlencode($return) . '&erro=limite'); exit;
     }
     $r = \App\AgeVerification::verificar($steamId, (string) ($_POST['cpf'] ?? ''), isset($_POST['nascimento']) ? (string) $_POST['nascimento'] : null);
     unset($_POST['cpf'], $_REQUEST['cpf']);
     // Aceite dos Termos no mesmo formulario (quem veio direto pela caixa ainda nao aceitou).
     if ($r['ok'] && !empty($_POST['terms_ok'])) \App\AgeVerification::consentirTudo($steamId, __('idade.terms_label'));
-    if (!$r['ok']) { header('Location: /idade?motivo=caixa&return=' . rawurlencode($return) . '&erro=' . rawurlencode($idadeMensagem($r))); exit; }
+    if ($r['ok']) \App\AuditLog::record('age.verified', 'player', $steamId, ['status' => $r['status'], 'metodo' => (string) \App\Settings::get('age_provider', 'cpfhub')]);
+    if (!$r['ok']) { header('Location: /idade?motivo=caixa&return=' . rawurlencode($return) . '&erro=' . $idadeMensagem($r)); exit; }
     if ($r['status'] === 'menor') { header('Location: /idade'); exit; }
     header('Location: ' . $return . (str_contains($return, '?') ? '&' : '?') . 'idade=ok'); exit;
 });
@@ -2729,8 +2731,8 @@ $collectDashboardData = function() {
                // SEO overrides: os leitores (home.php/main.php) sempre existiram; agora
                // o admin consegue de fato gravar (SCHEMA + form + este whitelist).
                'seo_home_title','seo_home_description','seo_keywords','og_image',
-               // Protecao de menores (ECA Digital): modo e fornecedor. A chave vai num bloco proprio.
-               'age_gate_mode','age_provider'];
+               // Protecao de menores (ECA Digital): modo, fornecedor e versao dos Termos. A chave vai num bloco proprio.
+               'age_gate_mode','age_provider','terms_version'];
     // Toggles (checkbox): se não veio no POST, vira 0
     $toggles = ['maintenance_enabled', 'live_purchases_enabled', 'live_purchases_anonymize', 'live_purchases_show_price',
                 'restart_enabled', 'affiliate_enabled', 'affiliate_allow_switch', 'box_claim_enabled', 'hide_online_players',
@@ -2748,6 +2750,12 @@ $collectDashboardData = function() {
     // tela por segurança - não echoamos o secret salvo). Vazio = mantém o atual.
     if (isset($_POST['cftools_secret']) && trim((string)$_POST['cftools_secret']) !== '') {
         \App\Settings::set('cftools_secret', trim((string)$_POST['cftools_secret']));
+    }
+
+    // Imagem social (og:image): upload vence a URL. Mesmo upload_image() das caixas/streamers.
+    if (!empty($_FILES['og_image_file']['name'])) {
+        $u = upload_image($_FILES['og_image_file'], __DIR__ . '/assets/img/custom', 'og', '/assets/img/custom');
+        if ($u) \App\Settings::set('og_image', $u);
     }
 
     // ECA Digital: chave/segredo do fornecedor so gravam se digitados (o form nao ecoa o salvo).
@@ -3116,10 +3124,16 @@ $REWARD_CATEGORIES = [
     if ($slug === '') $slug = 'evento-' . substr(md5($title), 0, 6);
     $norm = function($v) { $v = trim((string)$v); return $v === '' ? null : date('Y-m-d H:i:s', strtotime($v)); };
     $wsid = trim((string)($_POST['winner_steam_id'] ?? ''));
+    // Imagem: upload vence a URL (3.3.1: antes so aceitava link, e link do Discord expira).
+    $imagem = trim((string)($_POST['image'] ?? '')) ?: null;
+    if (!empty($_FILES['image_file']['name'])) {
+        $u = upload_image($_FILES['image_file'], __DIR__ . '/assets/img/events', 'ev', '/assets/img/events');
+        if ($u) $imagem = $u;
+    }
     $f = [
         $title, $slug,
         in_array($_POST['type'] ?? 'event', ['event','raffle'], true) ? $_POST['type'] : 'event',
-        trim((string)($_POST['image'] ?? '')) ?: null,
+        $imagem,
         trim((string)($_POST['description'] ?? '')) ?: null,
         trim((string)($_POST['prize'] ?? '')) ?: null,
         $norm($_POST['starts_at'] ?? ''),
@@ -4328,6 +4342,12 @@ $BRAND_SLOTS = [
         'n_declarados'  => $q("SELECT COUNT(*) FROM players WHERE age_status = 'adulto_declarado'"),
         'n_menores'     => $q("SELECT COUNT(*) FROM players WHERE age_status = 'menor'"),
         'n_falhas_30d'  => $q("SELECT COUNT(*) FROM age_verifications WHERE result = 'falhou' AND created_at >= NOW() - INTERVAL 30 DAY"),
+        'n_bloqueios'   => \App\Settings::getInt('age_box_blocks', 0),
+        // Consentimentos de UM jogador (busca pelo SteamID): so metadados.
+        'consent_steam' => preg_match('/^7656119[0-9]{10}$/', (string) ($_GET['steam_id'] ?? '')) ? (string) $_GET['steam_id'] : '',
+        'consentimentos' => preg_match('/^7656119[0-9]{10}$/', (string) ($_GET['steam_id'] ?? ''))
+            ? \App\Database::fetchAll("SELECT kind, version, created_at, ip FROM consents WHERE steam_id = ? ORDER BY id DESC LIMIT 50", [(string) $_GET['steam_id']])
+            : [],
         'ultimas' => \App\Database::fetchAll(
             "SELECT id, steam_id, method, result, provider_ref, provider_status, created_at, revoked_at, revoked_reason
              FROM age_verifications ORDER BY id DESC LIMIT 200"),
@@ -4363,7 +4383,7 @@ $BRAND_SLOTS = [
     $out = fopen('php://output', 'w');
     fputcsv($out, ['id', 'steam_id', 'metodo', 'resultado', 'fornecedor_ref', 'situacao', 'criado_em', 'revogado_em', 'motivo_revogacao']);
     foreach (\App\Database::fetchAll("SELECT id, steam_id, method, result, provider_ref, provider_status, created_at, revoked_at, revoked_reason FROM age_verifications ORDER BY id") as $r) {
-        fputcsv($out, array_values($r));
+        fputcsv($out, array_map('csv_seguro', array_values($r)));
     }
     fclose($out);
     \App\AuditLog::record('age.exported', 'age_verification', 'csv');

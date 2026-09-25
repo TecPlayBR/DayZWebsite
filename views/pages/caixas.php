@@ -44,6 +44,13 @@ $rarityLabel = [
                 <p><?= e(__('idade.minor_body')) ?></p>
             </div>
         </div>
+        <?php elseif (empty($age_provedor_pronto)): ?>
+        <div class="caixas-idade caixas-idade-menor" role="status">
+            <div class="caixas-idade-texto">
+                <h3><?= e(__('idade.verify_title')) ?></h3>
+                <p><?= e(__('idade.err_indisponivel')) ?></p>
+            </div>
+        </div>
         <?php else: ?>
         <div class="caixas-idade" role="status">
             <div class="caixas-idade-texto">
@@ -76,7 +83,9 @@ $rarityLabel = [
 
 <section class="section section-bg-2">
     <div class="container">
-        <?php if (empty($boxes)): ?>
+        <?php if (($age_status ?? '') === 'menor'): ?>
+            <?php /* Menor nao ve a grade (spec 5.2.5): a explicacao ja esta no aviso acima. */ ?>
+        <?php elseif (empty($boxes)): ?>
             <p style="text-align:center;color:var(--dim);padding:3rem 0;"><?= e(__('caixas.none_available')) ?></p>
         <?php else: ?>
         <?php if ($steam_user): ?>

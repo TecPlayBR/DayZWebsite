@@ -14,7 +14,7 @@
     <div class="alert-toast">Configurações salvas.</div>
 <?php endif; ?>
 
-<form method="POST" action="/admin/settings" style="max-width: 720px;">
+<form method="POST" action="/admin/settings" enctype="multipart/form-data" style="max-width: 720px;">
     <?= \App\Csrf::field() ?>
 
     <div class="stat-card" style="margin-bottom: 1rem;">
@@ -231,6 +231,10 @@
                 <input type="checkbox" name="age_daily_box_gated" value="1" <?= !empty($settings['age_daily_box_gated']) ? 'checked' : '' ?> style="width:18px;height:18px;">
                 A caixa <strong>diária grátis</strong> também exige verificação (recomendado)
             </label>
+            <div style="margin-top:.8rem; max-width:320px;">
+                <?= admin_campo(['label' => 'Versão dos Termos de Uso', 'name' => 'terms_version', 'value' => (string) ($settings['terms_version'] ?? '1'), 'attrs' => 'maxlength="20"',
+                    'hint' => 'Mude quando alterar o texto dos Termos ou da Privacidade: quem já aceitou a versão antiga aceita a nova na próxima compra.']) ?>
+            </div>
             <p style="margin-top: 0.6rem; font-size: 0.8rem; color: var(--dim);">
                 Depois de salvar, use <strong>Testar chave</strong> na tela <a href="/admin/eca" style="color: var(--hazard);">Conformidade ECA</a>.
                 Sem fornecedor, as caixas ficam fechadas e o site já está conforme (Decreto 12.880, art. 23 § 1º). Cada jogador verifica uma única vez.
@@ -289,10 +293,7 @@
                     <label style="display:block; font-size:0.85rem; color:var(--bone); margin-bottom:0.3rem;">Título da home (tag &lt;title&gt;)</label>
                     <input type="text" name="seo_home_title" value="<?= e($settings['seo_home_title'] ?? '') ?>" maxlength="70" placeholder="Ex: Meu Server DayZ | PVP Chernarus BR" style="width:100%; padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:inherit;">
                 </div>
-                <div>
-                    <label style="display:block; font-size:0.85rem; color:var(--bone); margin-bottom:0.3rem;">Imagem social (og:image, URL)</label>
-                    <input type="url" name="og_image" value="<?= e($settings['og_image'] ?? '') ?>" placeholder="https://seusite.com/assets/img/social.png" style="width:100%; padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:var(--font-mono);">
-                </div>
+                <?= admin_campo_imagem(['label' => 'Imagem social (og:image)', 'name' => 'og_image', 'value' => (string) ($settings['og_image'] ?? '')]) ?>
             </div>
             <div style="margin-top:0.8rem;">
                 <label style="display:block; font-size:0.85rem; color:var(--bone); margin-bottom:0.3rem;">Descrição da home (meta description)</label>

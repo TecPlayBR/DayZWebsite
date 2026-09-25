@@ -507,6 +507,79 @@ if (!function_exists('clan_tag_plain')) {
     }
 }
 
+if (!function_exists('admin_campo')) {
+    /**
+     * Campo de formulario do ADMIN, do jeito que o Bryan pediu na 3.3.1: rotulo com
+     * asterisco quando obrigatorio, dica em TEXTO visivel (nao em placeholder, que some ao
+     * digitar), input com a classe .field. Um jeito so de desenhar campo, em todo formulario.
+     *
+     * $o: label, name, type (text|textarea|select|number|url|date|datetime-local|password|email),
+     *     value, required, hint, placeholder, options ([valor => rotulo], so select), attrs (string), rows
+     */
+    function admin_campo(array $o): string {
+        $name  = (string) ($o['name'] ?? '');
+        $type  = (string) ($o['type'] ?? 'text');
+        $id    = 'f-' . preg_replace('/[^a-z0-9_-]/i', '-', $name);
+        $req   = !empty($o['required']);
+        $value = (string) ($o['value'] ?? '');
+        $attrs = ' ' . trim((string) ($o['attrs'] ?? '')) . ($req ? ' required data-adm-required' : '');
+        $ph    = isset($o['placeholder']) ? ' placeholder="' . e((string) $o['placeholder']) . '"' : '';
+        $rot   = '<label class="adm-label" for="' . e($id) . '">' . e((string) ($o['label'] ?? '')) . ($req ? ' <span class="adm-req" aria-hidden="true">*</span>' : '') . '</label>';
+        if ($type === 'textarea') {
+            $rows = (int) ($o['rows'] ?? 3);
+            $ctl = '<textarea class="field" id="' . e($id) . '" name="' . e($name) . '" rows="' . $rows . '"' . $ph . $attrs . '>' . e($value) . '</textarea>';
+        } elseif ($type === 'select') {
+            $ctl = '<select class="field" id="' . e($id) . '" name="' . e($name) . '"' . $attrs . '>';
+            foreach ((array) ($o['options'] ?? []) as $v => $l) {
+                $ctl .= '<option value="' . e((string) $v) . '"' . ((string) $v === $value ? ' selected' : '') . '>' . e((string) $l) . '</option>';
+            }
+            $ctl .= '</select>';
+        } else {
+            $ctl = '<input class="field" type="' . e($type) . '" id="' . e($id) . '" name="' . e($name) . '" value="' . e($value) . '"' . $ph . $attrs . '>';
+        }
+        $hint = isset($o['hint']) && (string) $o['hint'] !== '' ? '<small class="adm-hint">' . e((string) $o['hint']) . '</small>' : '';
+        return '<div class="adm-campo">' . $rot . $ctl . $hint . '</div>';
+    }
+}
+
+if (!function_exists('admin_campo_imagem')) {
+    /**
+     * Campo de IMAGEM do admin: upload primeiro (o que funciona sempre), link como alternativa,
+     * previa da atual, e a dica fixa que evita o erro classico: link do Discord expira, Google
+     * Drive e GitHub entregam pagina e nao imagem. Gera <input type=file name="<name>_file"> +
+     * <input name="<name>"> (URL). O handler decide: arquivo enviado vence a URL.
+     */
+    function admin_campo_imagem(array $o): string {
+        $name  = (string) ($o['name'] ?? 'image');
+        $value = (string) ($o['value'] ?? '');
+        $id    = 'f-' . preg_replace('/[^a-z0-9_-]/i', '-', $name);
+        $req   = !empty($o['required']);
+        $h  = '<div class="adm-campo adm-imagem">';
+        $h .= '<label class="adm-label" for="' . e($id) . '-file">' . e((string) ($o['label'] ?? 'Imagem')) . ($req ? ' <span class="adm-req" aria-hidden="true">*</span>' : '') . '</label>';
+        $h .= '<div class="adm-imagem-linha">';
+        if ($value !== '') $h .= '<img class="adm-imagem-previa" src="' . e($value) . '" alt="" loading="lazy">';
+        $h .= '<div class="adm-imagem-campos">';
+        $h .= '<input type="file" id="' . e($id) . '-file" name="' . e($name) . '_file" accept="image/png,image/jpeg,image/webp,image/gif">';
+        $h .= '<details class="adm-imagem-url"><summary>ou colar um link</summary>';
+        $h .= '<input class="field mono" type="text" id="' . e($id) . '" name="' . e($name) . '" value="' . e($value) . '" placeholder="/assets/img/... ou https://...">';
+        $h .= '</details></div></div>';
+        $h .= '<small class="adm-hint">Envie do seu computador (PNG, JPG, WEBP ou GIF, até 5 MB). Se usar link, tem que ser link direto e permanente: Discord expira, Google Drive e GitHub não servem.</small>';
+        $h .= '</div>';
+        return $h;
+    }
+}
+
+if (!function_exists('csv_seguro')) {
+    /**
+     * Neutraliza injecao de formula em CSV: valor que comeca com =, +, - ou @ vira formula
+     * no Excel/LibreOffice ao abrir. Um apostrofo na frente faz ele ser lido como texto.
+     */
+    function csv_seguro($v): string {
+        $s = (string) $v;
+        return ($s !== '' && strpbrk($s[0], '=+-@') !== false) ? "'" . $s : $s;
+    }
+}
+
 if (!function_exists('clan_tag_cf')) {
     /** Igual clan_tag(), mas pelo cftools_id (ranking de gameplay). '' se sem clã. */
     function clan_tag_cf(?string $cftoolsId): string {

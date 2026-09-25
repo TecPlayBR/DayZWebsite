@@ -3,7 +3,6 @@
 <?php \App\View::extend('admin.layout'); ?>
 <?php \App\View::section('content'); ?>
 <?php
-$field = 'width:100%; padding:0.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); border-radius:6px;';
 $e = $edit ?? [];
 $photos = '';
 $videos = '';
@@ -41,72 +40,46 @@ if ($e) {
 
 <div class="stat-card" style="margin-bottom:1.5rem;">
     <h3 style="margin-top:0;"><?= $e ? 'Editar: ' . e($e['name']) : 'Novo streamer' ?></h3>
-    <form method="POST" action="/admin/streamers/save" enctype="multipart/form-data" style="max-width:760px;">
+    <p class="adm-legenda"><span class="adm-req">*</span> obrigatório. Só o código e o nome são obrigatórios; o resto melhora a página do streamer.</p>
+    <form method="POST" action="/admin/streamers/save" enctype="multipart/form-data" class="adm-grid-2" style="max-width:760px;" data-adm-form>
         <?= \App\Csrf::field() ?>
         <?php if ($e): ?><input type="hidden" name="id" value="<?= (int)$e['id'] ?>"><?php endif; ?>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-            <div>
-                <label>Código do streamer (apoiar)</label>
-                <input name="code" maxlength="40" value="<?= e($e['code'] ?? '') ?>" placeholder="EX: HARDO" required style="<?= $field ?>">
-            </div>
-            <div>
-                <label>Nome exibido</label>
-                <input name="name" maxlength="80" value="<?= e($e['name'] ?? '') ?>" placeholder="Hardo" required style="<?= $field ?>">
-            </div>
+        <?= admin_campo(['label' => 'Código do streamer', 'name' => 'code', 'value' => (string) ($e['code'] ?? ''), 'required' => true, 'attrs' => 'maxlength="40"', 'placeholder' => 'EX: HARDO',
+            'hint' => 'É o que o jogador digita em "Apoie seu Streamer". Vira maiúsculo. Não é o cupom de desconto.']) ?>
+        <?= admin_campo(['label' => 'Nome exibido', 'name' => 'name', 'value' => (string) ($e['name'] ?? ''), 'required' => true, 'attrs' => 'maxlength="80"', 'placeholder' => 'Hardo',
+            'hint' => 'Aparece na home (se em destaque) e na página do streamer.']) ?>
+        <div class="adm-span-2"><?= admin_campo(['label' => 'Bio', 'name' => 'bio', 'type' => 'textarea', 'rows' => 4, 'value' => (string) ($e['bio'] ?? ''),
+            'hint' => 'Um parágrafo sobre o streamer. Na home corta em 180 letras.']) ?></div>
+        <?= admin_campo_imagem(['label' => 'Avatar', 'name' => 'avatar_url', 'value' => (string) ($e['avatar_url'] ?? '')]) ?>
+        <?= admin_campo(['label' => 'Canal principal', 'name' => 'channel_url', 'type' => 'url', 'value' => (string) ($e['channel_url'] ?? ''), 'attrs' => 'maxlength="300"', 'placeholder' => 'https://twitch.tv/...',
+            'hint' => 'Twitch ou YouTube. Vira o botão principal da página.']) ?>
+        <div class="adm-span-2 adm-campo">
+            <label class="adm-label" for="f-photos">Fotos</label>
+            <input type="file" id="f-photo-files" name="photo_files[]" accept="image/png,image/webp,image/jpeg" multiple>
+            <details class="adm-imagem-url" style="margin-top:.4rem;"><summary>ou colar links (um por linha)</summary>
+                <textarea class="field mono" id="f-photos" name="photos" rows="3" placeholder="/assets/img/streamers/hardo-1.webp"><?= e($photos) ?></textarea>
+            </details>
+            <small class="adm-hint">Galeria da página do streamer. Envie do computador (PNG, JPG ou WEBP, até 5 MB cada); as enviadas somam às que já estão. Link do Discord expira, Google Drive e GitHub não servem.</small>
         </div>
-        <div style="margin-top:1rem;">
-            <label>Bio / textinho sobre o streamer</label>
-            <textarea name="bio" rows="4" placeholder="Conte um pouco sobre o streamer..." style="<?= $field ?>"><?= e($e['bio'] ?? '') ?></textarea>
-        </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem;">
-            <div>
-                <label>Avatar (URL ou upload)</label>
-                <input name="avatar_url" maxlength="300" value="<?= e($e['avatar_url'] ?? '') ?>" placeholder="/assets/img/streamers/hardo.webp" style="<?= $field ?>">
-                <input type="file" name="avatar_file" accept="image/png,image/webp,image/jpeg" style="margin-top:0.4rem; font-size:0.8rem; color:var(--dim);">
-            </div>
-            <div>
-                <label>Canal (Twitch/YouTube)</label>
-                <input name="channel_url" maxlength="300" value="<?= e($e['channel_url'] ?? '') ?>" placeholder="https://twitch.tv/..." style="<?= $field ?>">
-            </div>
-        </div>
-        <div style="margin-top:1rem;">
-            <label>Fotos (uma URL por linha) - ou faça upload abaixo</label>
-            <textarea name="photos" rows="3" placeholder="/assets/img/streamers/hardo-1.webp&#10;/assets/img/streamers/hardo-2.webp" style="<?= $field ?>"><?= e($photos) ?></textarea>
-            <input type="file" name="photo_files[]" accept="image/png,image/webp,image/jpeg" multiple style="margin-top:0.4rem; font-size:0.8rem; color:var(--dim);">
-            <div style="font-size:0.78rem; color:var(--dim); margin-top:0.2rem;">As fotos enviadas somam às URLs acima.</div>
-        </div>
-        <div style="margin-top:1rem;">
-            <label>Vídeos (uma URL por linha)</label>
-            <textarea name="videos" rows="2" placeholder="https://youtu.be/..." style="<?= $field ?>"><?= e($videos) ?></textarea>
-        </div>
-        <div style="margin-top:1rem;">
-            <label>Redes / Canais (preencha só o que tiver, aparece só esses na página)</label>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.7rem; margin-top:0.4rem;">
+        <div class="adm-span-2"><?= admin_campo(['label' => 'Vídeos', 'name' => 'videos', 'type' => 'textarea', 'rows' => 2, 'value' => $videos, 'placeholder' => 'https://youtu.be/...',
+            'hint' => 'Um link por linha (YouTube, Twitch). Só http/https.']) ?></div>
+        <div class="adm-span-2 adm-campo">
+            <label class="adm-label">Redes</label>
+            <div class="adm-grid-2">
                 <?php foreach (\App\Streamer::SOCIAL_PLATFORMS as $sk => $slbl): ?>
-                    <input name="social_<?= e($sk) ?>" maxlength="300" value="<?= e($socialVals[$sk] ?? '') ?>" placeholder="<?= e($slbl) ?> (URL)" style="<?= $field ?>">
+                    <input class="field" name="social_<?= e($sk) ?>" maxlength="300" value="<?= e($socialVals[$sk] ?? '') ?>" placeholder="<?= e($slbl) ?> (link)" aria-label="<?= e($slbl) ?>">
                 <?php endforeach; ?>
             </div>
+            <small class="adm-hint">Preencha só as que existem: aparece um botão para cada uma. Só http/https.</small>
         </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem;">
-            <div>
-                <label>Cupom de desconto vinculado (opcional)</label>
-                <input name="coupon_code" maxlength="40" value="<?= e($e['coupon_code'] ?? '') ?>" placeholder="EX: HARDO15" style="<?= $field ?>">
-                <div style="font-size:0.78rem; color:var(--dim); margin-top:0.3rem;">Quem usar esse cupom OU clicar em Apoiar conta o cachê pro streamer.</div>
-            </div>
-            <div>
-                <label>Ordem</label>
-                <input name="sort_order" type="number" value="<?= (int)($e['sort_order'] ?? 0) ?>" style="<?= $field ?>">
-            </div>
+        <?= admin_campo(['label' => 'Cupom de desconto vinculado', 'name' => 'coupon_code', 'value' => (string) ($e['coupon_code'] ?? ''), 'attrs' => 'maxlength="40"', 'placeholder' => 'EX: HARDO15',
+            'hint' => 'Cupom criado na tela Cupons. Quem usa esse cupom OU clica em Apoiar conta o cachê pro streamer.']) ?>
+        <?= admin_campo(['label' => 'Ordem', 'name' => 'sort_order', 'type' => 'number', 'value' => (string) (int) ($e['sort_order'] ?? 0), 'hint' => 'Menor aparece primeiro.']) ?>
+        <div class="adm-span-2" style="display:flex; gap:1.5rem; flex-wrap:wrap;">
+            <label class="adm-check"><input type="checkbox" name="featured" value="1" <?= !empty($e['featured']) ? 'checked' : '' ?>> Streamer OFICIAL: destaque exclusivo na home. <strong>Sem isso, só aparece em /streamers.</strong></label>
+            <label class="adm-check"><input type="checkbox" name="active" value="1" <?= (!$e || !empty($e['active'])) ? 'checked' : '' ?>> Ativo (desmarcado some de tudo)</label>
         </div>
-        <div style="display:flex; gap:1.5rem; margin-top:1rem;">
-            <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
-                <input type="checkbox" name="featured" value="1" <?= !empty($e['featured']) ? 'checked' : '' ?>> Streamer OFICIAL (destaque exclusivo na home)
-            </label>
-            <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
-                <input type="checkbox" name="active" value="1" <?= (!$e || !empty($e['active'])) ? 'checked' : '' ?>> Ativo
-            </label>
-        </div>
-        <div style="margin-top:1.2rem; display:flex; gap:0.7rem;">
+        <div class="adm-span-2" style="margin-top:.4rem; display:flex; gap:0.7rem;">
             <button type="submit" class="btn-mini" style="padding:0.7rem 1.6rem;">Salvar</button>
             <?php if ($e): ?><a href="/streamer/<?= e(strtolower($e['code'])) ?>" target="_blank" class="btn-mini outline">Ver página →</a><?php endif; ?>
             <a href="/admin/streamers/manage" class="btn-mini outline">Novo / limpar</a>

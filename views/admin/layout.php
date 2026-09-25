@@ -124,6 +124,32 @@
 
 <script src="<?= asset('js/app.js') ?>"></script>
 <script>
+// 3.3.1: ao salvar, destaca os campos obrigatorios vazios, rola ate o primeiro e avisa.
+// O navegador ja barra o envio pelo `required`; isto so deixa OBVIO o que faltou.
+(function () {
+    document.querySelectorAll('form[data-adm-form]').forEach(function (form) {
+        form.addEventListener('submit', function (ev) {
+            var faltando = [];
+            form.querySelectorAll('[data-adm-required]').forEach(function (el) {
+                var vazio = !String(el.value || '').trim();
+                el.classList.toggle('adm-req-erro', vazio);
+                if (vazio) faltando.push(el);
+            });
+            var aviso = form.querySelector('.adm-req-aviso');
+            if (faltando.length) {
+                ev.preventDefault();
+                if (!aviso) { aviso = document.createElement('p'); aviso.className = 'adm-req-aviso'; form.prepend(aviso); }
+                aviso.textContent = 'Preencha os campos marcados com *: ' + faltando.length + ' faltando.';
+                faltando[0].focus(); faltando[0].scrollIntoView({ block: 'center', behavior: 'smooth' });
+            } else if (aviso) { aviso.remove(); }
+        });
+        form.querySelectorAll('[data-adm-required]').forEach(function (el) {
+            el.addEventListener('input', function () { if (String(el.value || '').trim()) el.classList.remove('adm-req-erro'); });
+        });
+    });
+})();
+</script>
+<script>
 // ============ MOBILE DRAWER ============
 (function() {
     const shell = document.getElementById('admin-shell');

@@ -126,6 +126,7 @@ class Settings {
         'age_daily_box_gated'      => 'bool',     // 1 = a diaria gratis tambem exige verificacao
         'age_hash_salt'            => 'string',   // gerado na migration; nunca editar pelo painel
         'terms_version'            => 'string',   // versao dos Termos que o consentimento carimba
+        'age_box_blocks'           => 'int',      // contador: aberturas de caixa barradas por idade
     ];
 
     private static array $cache = [];

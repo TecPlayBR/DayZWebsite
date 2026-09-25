@@ -37,7 +37,8 @@ if (str_contains($cb, 'AgeGate::returnSeguro(')) ok('callback do Steam usa o mes
 if (str_contains($idx, "'/idade?motivo=comprar&return=")) ok('checkout manda pra /idade'); else falha('checkout nao manda pra /idade');
 $shop = file_get_contents($ROOT . '/views/pages/shop.php');
 if (!preg_match('/<input type="text" name="steam_id"/', $shop) && str_contains($shop, '/auth/steam')) ok('loja deslogada mostra Entrar com Steam, nao campo de SteamID'); else falha('loja deslogada ainda pede SteamID digitado', 'o checkout agora exige login: o campo engana');
-if (str_contains($idx, "['cpf_taken', 'failed_retry']") && str_contains($idx, "__('idade.' . \$cod)")) ok('rotas mapeiam cpf_taken/failed_retry pro stringtable, sem erro cru do fornecedor'); else falha('rotas com texto fixo em vez de idade.failed_retry / idade.cpf_taken');
+$vi0 = @file_get_contents($ROOT . '/views/pages/idade.php') ?: '';
+if (str_contains($idx, "\$idadeMensagem = fn (array \$r): string => preg_replace('/[^a-z_]/', ''") && str_contains($vi0, "__('idade.err_'")) ok('rotas mandam so o CODIGO do erro e a view traduz pelo stringtable (sem erro cru do fornecedor, sem texto refletido)'); else falha('erro ao jogador nao e por codigo traduzido');
 
 echo "\n3. A view existe e nao tem input de CPF com autocomplete\n";
 $v0 = @file_get_contents($ROOT . '/views/pages/idade.php') ?: '';

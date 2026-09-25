@@ -28,11 +28,35 @@
     <a class="btn btn-sm" href="/admin/eca/export.csv" style="margin-left:.4rem;">Exportar CSV</a>
 </div>
 
-<div style="display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.2rem;">
+<div style="display:grid; grid-template-columns:repeat(5,1fr); gap:1rem; margin-bottom:1.2rem;">
     <div class="stat-card"><div style="font-size:1.8rem;"><?= (int) $n_verificados ?></div><div style="color:var(--dim);">adultos verificados</div></div>
     <div class="stat-card"><div style="font-size:1.8rem;"><?= (int) $n_declarados ?></div><div style="color:var(--dim);">adultos só declarados</div></div>
     <div class="stat-card"><div style="font-size:1.8rem;"><?= (int) $n_menores ?></div><div style="color:var(--dim);">menores (bloqueados)</div></div>
+    <div class="stat-card"><div style="font-size:1.8rem;"><?= (int) $n_bloqueios ?></div><div style="color:var(--dim);">aberturas de caixa barradas</div></div>
     <div class="stat-card"><div style="font-size:1.8rem;"><?= (int) $n_falhas_30d ?></div><div style="color:var(--dim);">falhas do fornecedor (30 dias)</div></div>
+</div>
+
+<div class="stat-card" style="margin-bottom:1.2rem;">
+    <h3 style="margin-top:0;">Consentimentos de um jogador</h3>
+    <form method="GET" action="/admin/eca" style="display:flex; gap:.5rem; flex-wrap:wrap; align-items:center;">
+        <input class="field mono" name="steam_id" value="<?= e($consent_steam ?? '') ?>" placeholder="SteamID64 (7656119...)" maxlength="17" style="min-width:260px;">
+        <button class="btn btn-sm" type="submit">Buscar</button>
+        <small style="color:var(--dim);">Só metadados: tipo, versão, data, IP.</small>
+    </form>
+    <?php if (!empty($consent_steam)): ?>
+        <?php if (empty($consentimentos)): ?>
+            <p style="color:var(--dim); margin:.8rem 0 0;">Nenhum consentimento registrado para <code><?= e($consent_steam) ?></code>.</p>
+        <?php else: ?>
+        <table class="admin-table" style="width:100%; margin-top:.8rem;">
+            <thead><tr><th>Tipo</th><th>Versão</th><th>Quando</th><th>IP</th></tr></thead>
+            <tbody>
+            <?php foreach ($consentimentos as $c): ?>
+                <tr><td><?= e($c['kind']) ?></td><td><?= e($c['version']) ?></td><td><?= e($c['created_at']) ?></td><td style="font-family:var(--font-mono); font-size:.8rem;"><?= e((string) $c['ip']) ?></td></tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+        <?php endif; ?>
+    <?php endif; ?>
 </div>
 
 <div class="stat-card">

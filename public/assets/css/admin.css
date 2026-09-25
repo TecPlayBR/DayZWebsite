@@ -723,3 +723,23 @@
     .admin-table th, .admin-table td { padding: 0.55rem 0.6rem; }
     .inline-form input[type="number"] { width: 70px; }
 }
+
+/* ============ 3.3.1: campos de formulario do admin (admin_campo / admin_campo_imagem) ============
+   Obrigatorio visivel (asterisco + destaque ao salvar), dica em texto, upload de imagem com previa. */
+.adm-legenda { color: var(--dim); font-size: .82rem; margin: .2rem 0 .9rem; }
+.adm-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem 1rem; align-items: start; }
+.adm-span-2 { grid-column: 1 / -1; }
+.adm-campo { display: flex; flex-direction: column; gap: .3rem; min-width: 0; }
+.adm-label { font-size: .85rem; color: var(--bone); }
+.adm-req { color: var(--hazard); font-weight: 700; }
+.adm-hint { color: var(--dim); font-size: .78rem; line-height: 1.45; }
+.adm-campo .field { width: 100%; }
+.adm-check { display: flex; align-items: center; gap: .5rem; color: var(--bone); font-size: .9rem; cursor: pointer; }
+.adm-req-erro { border-color: var(--text-danger) !important; box-shadow: 0 0 0 2px var(--danger-overlay); }
+.adm-req-aviso { grid-column: 1 / -1; margin: 0; padding: .6rem .9rem; border-radius: 4px; background: var(--danger-overlay); border: 1px solid var(--danger-border); color: var(--text-danger); font-size: .9rem; }
+.adm-imagem-linha { display: flex; gap: .9rem; align-items: flex-start; }
+.adm-imagem-previa { width: 96px; height: 96px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-0); flex: 0 0 auto; }
+.adm-imagem-campos { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: .4rem; }
+.adm-imagem-url summary { cursor: pointer; color: var(--dim); font-size: .8rem; }
+.adm-imagem-url .field { margin-top: .4rem; }
+@media (max-width: 720px) { .adm-grid-2 { grid-template-columns: 1fr; } }

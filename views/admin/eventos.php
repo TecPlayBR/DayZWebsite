@@ -1,8 +1,8 @@
 <?php
 /** @var array $config, $events; @var ?array $edit */
 $e = $edit ?: [];
-$val = fn($k, $d = '') => e((string)($e[$k] ?? $d));
-$dt  = fn($k) => !empty($e[$k]) ? e(date('Y-m-d\TH:i', strtotime((string)$e[$k]))) : '';
+$v  = fn($k, $d = '') => (string) ($e[$k] ?? $d);
+$dt = fn($k) => !empty($e[$k]) ? date('Y-m-d\TH:i', strtotime((string) $e[$k])) : '';
 ?>
 <?php $title = 'Eventos'; ?>
 <?php \App\View::extend('admin.layout'); ?>
@@ -16,30 +16,29 @@ $dt  = fn($k) => !empty($e[$k]) ? e(date('Y-m-d\TH:i', strtotime((string)$e[$k])
 </div>
 
 <?php if (!empty($_GET['ok'])): ?><div class="alert-toast">Salvo!</div><?php endif; ?>
+<?php if (($_GET['err'] ?? '') === 'title'): ?>
+    <div class="stat-card" style="margin-bottom:1.2rem; border-left:3px solid var(--danger-border); background:var(--danger-overlay);"><strong>Não salvou.</strong> O título é obrigatório.</div>
+<?php endif; ?>
 
 <div class="stat-card" style="margin-bottom:1.5rem;">
     <div class="label"><?= $edit ? 'Editar evento' : 'Novo evento' ?></div>
-    <form method="POST" action="/admin/eventos/save" style="margin-top:0.8rem;display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;">
+    <p class="adm-legenda"><span class="adm-req">*</span> obrigatório</p>
+    <form method="POST" action="/admin/eventos/save" enctype="multipart/form-data" class="adm-grid-2" data-adm-form>
         <?= \App\Csrf::field() ?>
         <input type="hidden" name="id" value="<?= (int)($e['id'] ?? 0) ?>">
-        <label>Título<input type="text" name="title" value="<?= $val('title') ?>" required style="width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);"></label>
-        <label>Slug (URL)<input type="text" name="slug" value="<?= $val('slug') ?>" placeholder="auto se vazio" style="width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);"></label>
-        <label>Tipo
-            <select name="type" style="width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);">
-                <option value="event"  <?= ($e['type'] ?? '')==='event'?'selected':'' ?>>Evento</option>
-                <option value="raffle" <?= ($e['type'] ?? '')==='raffle'?'selected':'' ?>>Sorteio</option>
-            </select>
-        </label>
-        <label>Prêmio<input type="text" name="prize" value="<?= $val('prize') ?>" placeholder="ex: 5000 moedas + AKM" style="width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);"></label>
-        <label style="grid-column:1/3;">Imagem (URL)<input type="text" name="image" value="<?= $val('image') ?>" style="width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);"></label>
-        <label style="grid-column:1/3;">Descrição<textarea name="description" rows="3" style="width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);"><?= $val('description') ?></textarea></label>
-        <label>Começa em<input type="datetime-local" name="starts_at" value="<?= $dt('starts_at') ?>" style="width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);"></label>
-        <label>Termina em<input type="datetime-local" name="ends_at" value="<?= $dt('ends_at') ?>" style="width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);"></label>
-        <label>Vencedor - SteamID (sorteio)<input type="text" name="winner_steam_id" value="<?= $val('winner_steam_id') ?>" placeholder="7656119..." style="width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);"></label>
-        <label>Vencedor - Nome<input type="text" name="winner_name" value="<?= $val('winner_name') ?>" style="width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);"></label>
-        <label style="display:flex;align-items:center;gap:0.4rem;"><input type="checkbox" name="enabled" value="1" <?= !isset($e['enabled']) || $e['enabled'] ? 'checked' : '' ?>> Visível</label>
-        <label>Ordem<input type="number" name="sort_order" value="<?= (int)($e['sort_order'] ?? 0) ?>" style="width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);"></label>
-        <div style="grid-column:1/3;display:flex;gap:0.6rem;">
+        <?= admin_campo(['label' => 'Título', 'name' => 'title', 'value' => $v('title'), 'required' => true, 'hint' => 'Como aparece na lista e no destaque da home.']) ?>
+        <?= admin_campo(['label' => 'Slug (URL)', 'name' => 'slug', 'value' => $v('slug'), 'hint' => 'Vazio = gerado do título. Só letras, números e hífen.']) ?>
+        <?= admin_campo(['label' => 'Tipo', 'name' => 'type', 'type' => 'select', 'value' => $v('type', 'event'), 'options' => ['event' => 'Evento', 'raffle' => 'Sorteio']]) ?>
+        <?= admin_campo(['label' => 'Prêmio', 'name' => 'prize', 'value' => $v('prize'), 'hint' => 'Ex.: 5000 moedas + AKM. Aparece no card.']) ?>
+        <div class="adm-span-2"><?= admin_campo_imagem(['label' => 'Imagem do evento', 'name' => 'image', 'value' => $v('image')]) ?></div>
+        <div class="adm-span-2"><?= admin_campo(['label' => 'Descrição', 'name' => 'description', 'type' => 'textarea', 'rows' => 3, 'value' => $v('description'), 'hint' => 'Regras, horário, como participar. Texto simples.']) ?></div>
+        <?= admin_campo(['label' => 'Começa em', 'name' => 'starts_at', 'type' => 'datetime-local', 'value' => $dt('starts_at'), 'hint' => 'Vazio = sem data de início (fica como "em breve").']) ?>
+        <?= admin_campo(['label' => 'Termina em', 'name' => 'ends_at', 'type' => 'datetime-local', 'value' => $dt('ends_at'), 'hint' => 'Depois desta data o evento aparece como encerrado.']) ?>
+        <?= admin_campo(['label' => 'Vencedor: SteamID (sorteio)', 'name' => 'winner_steam_id', 'value' => $v('winner_steam_id'), 'placeholder' => '7656119...', 'hint' => '17 dígitos. Preencha quando o sorteio terminar.']) ?>
+        <?= admin_campo(['label' => 'Vencedor: nome', 'name' => 'winner_name', 'value' => $v('winner_name')]) ?>
+        <label class="adm-check"><input type="checkbox" name="enabled" value="1" <?= !isset($e['enabled']) || $e['enabled'] ? 'checked' : '' ?>> Visível no site</label>
+        <?= admin_campo(['label' => 'Ordem', 'name' => 'sort_order', 'type' => 'number', 'value' => (string) (int) ($e['sort_order'] ?? 0), 'hint' => 'Menor aparece primeiro.']) ?>
+        <div class="adm-span-2" style="display:flex; gap:0.6rem;">
             <button type="submit" class="btn"><?= $edit ? 'Salvar' : 'Criar evento' ?></button>
             <?php if ($edit): ?><a href="/admin/eventos" class="btn btn-outline">+ Novo</a><?php endif; ?>
         </div>

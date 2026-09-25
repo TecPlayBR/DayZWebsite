@@ -13,6 +13,43 @@ namespace App;
 
 class AgeVerification
 {
+    /** Verificador injetado (teste). null = o das settings. */
+    private static ?AgeVerifier $verificador = null;
+
+    public static function usarVerificador(?AgeVerifier $v): void
+    {
+        self::$verificador = $v;
+    }
+
+    /** O fornecedor esta configurado (chave presente)? Sem isso o formulario de CPF nem aparece. */
+    public static function provedorPronto(): bool
+    {
+        $p = (string) Settings::get('age_provider', 'cpfhub');
+        if (trim((string) Settings::get('age_provider_key', '')) === '') return false;
+        if ($p === 'serpro' && trim((string) Settings::get('age_provider_secret', '')) === '') return false;
+        return true;
+    }
+
+    /** Conta um bloqueio de caixa por idade (metrica do painel; sem dado pessoal). */
+    public static function contaBloqueioCaixa(): void
+    {
+        try { Settings::set('age_box_blocks', (string) (Settings::getInt('age_box_blocks', 0) + 1)); } catch (\Throwable $e) {}
+    }
+
+    /**
+     * Texto que o consentimento carimba: o CONTEUDO da pagina legal (terms/privacy), nao o
+     * rotulo do checkbox. Se a pagina nao existir, cai no rotulo (ainda e um registro).
+     */
+    public static function textoTermos(string $kind, string $fallback): string
+    {
+        $slug = $kind === 'privacidade' ? 'privacy' : ($kind === 'termos' ? 'terms' : null);
+        if ($slug === null) return $fallback;
+        try {
+            $c = Database::fetchColumn("SELECT content FROM pages WHERE slug IN ('terms', 'privacy') AND slug = ? LIMIT 1", [$slug]);
+            return is_string($c) && $c !== '' ? $c : $fallback;
+        } catch (\Throwable $e) { return $fallback; }
+    }
+
     public static function modo(): string
     {
         $m = (string) Settings::get('age_gate_mode', 'declaracao');
@@ -118,7 +155,7 @@ class AgeVerification
             return ['ok' => true, 'status' => 'adulto_verificado', 'erro' => null, 'cod' => null];
         }
 
-        $v = AgeVerifierFactory::fromSettings();
+        $v = self::$verificador ?? AgeVerifierFactory::fromSettings();
         $r = $v->verify($limpo, $nascIso);
         unset($cpf, $limpo);   // o CPF acaba aqui
 
@@ -158,7 +195,7 @@ class AgeVerification
     public static function consentirTudo(string $steamId, string $texto): void
     {
         $versao = (string) Settings::get('terms_version', '1');
-        foreach (['termos', 'privacidade', 'idade'] as $k) self::consentir($steamId, $k, $versao, $texto);
+        foreach (['termos', 'privacidade', 'idade'] as $k) self::consentir($steamId, $k, $versao, self::textoTermos($k, $texto));
     }
 
     public static function temConsentimento(string $steamId, string $kind, string $version): bool

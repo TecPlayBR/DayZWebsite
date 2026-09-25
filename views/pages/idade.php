@@ -24,7 +24,7 @@ $hoje = date('Y-m-d');
     <div class="container idade-col">
 
         <?php if ($erro): ?>
-            <div class="idade-msg idade-msg-erro" role="alert"><?= e($erro) ?></div>
+            <div class="idade-msg idade-msg-erro" role="alert"><?= e(__('idade.err_' . preg_replace('/[^a-z_]/', '', (string) $erro), [], __('idade.err_generico'))) ?></div>
         <?php endif; ?>
         <?php if ($ok_msg): ?>
             <div class="idade-msg idade-msg-ok" role="status"><?= e($ok_msg) ?></div>
@@ -76,7 +76,12 @@ $hoje = date('Y-m-d');
             </form>
         <?php endif; ?>
 
-        <?php if (in_array('verificar', $blocos, true)): ?>
+        <?php if (in_array('verificar', $blocos, true) && empty($provedor_pronto)): ?>
+            <div class="idade-card idade-card-menor">
+                <h2><?= e(__('idade.verify_title')) ?></h2>
+                <p><?= e(__('idade.err_indisponivel')) ?></p>
+            </div>
+        <?php elseif (in_array('verificar', $blocos, true)): ?>
             <form method="POST" action="/idade/verificar" class="idade-card idade-form" autocomplete="off">
                 <?= \App\Csrf::field() ?>
                 <input type="hidden" name="return" value="<?= e($return) ?>">
