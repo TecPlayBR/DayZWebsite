@@ -13,9 +13,10 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
   no script, então qualquer texto que escapasse para o HTML e virasse `<script>` executava. Agora
   só roda script marcado com um **nonce novo a cada resposta**, e atributo de evento no HTML
   (`onclick`, `onerror`...) não roda mais (`script-src-attr 'none'`).
-- A CSP saiu do `.htaccess` e passou a ser montada pelo PHP (`src/Csp.php`), porque o nonce muda
-  a cada requisição. O `.htaccess` agora só fecha arquivo estático que o navegador abre como
-  documento (SVG, HTML).
+- A CSP passou a ser montada pelo PHP (`src/Csp.php`), porque o nonce muda a cada requisição.
+  O `.htaccess` não tem mais política fixa: ele só copia a que o PHP montou, porque a Hostinger
+  troca a CSP vinda do PHP por `upgrade-insecure-requests` (que continua dentro da nossa). Ele
+  também fecha arquivo estático que o navegador abre como documento (SVG, HTML).
 - **Chart.js servido pelo próprio site** (`assets/js/lib/`), não mais pelo jsdelivr: o painel
   deixou de depender de uma CDN de terceiro para executar script.
 - O PJAX do painel só re-executa script que veio com o nonce da própria resposta; um `<script>`
