@@ -74,6 +74,9 @@ require $ROOT . '/src/Mailer.php';
 require $ROOT . '/src/Coupon.php';
 require $ROOT . '/src/Affiliate.php';
 require $ROOT . '/src/Streamer.php';
+require $ROOT . '/src/AgeGate.php';
+require $ROOT . '/src/AgeVerifier.php';
+require $ROOT . '/src/AgeVerification.php';
 require $ROOT . '/src/AuditLog.php';
 require $ROOT . '/src/BalanceLog.php';
 require $ROOT . '/src/Achievements.php';
@@ -1753,6 +1756,58 @@ $config['mercado_pago'] = $mpCfg;
     $res = \App\Boxes::deliver($id, $steamId, $op['classname'], (int)$op['quantity']);
     header('Location: /my-purchases?box=' . ($res === 'delivered' ? 'ok' : 'wait') . '#caixas');
     exit;
+});
+
+// ============ VERIFICACAO DE IDADE (ECA Digital, Lei 15.211/2025) ============
+// Regra em AgeGate, persistencia em AgeVerification. O CPF entra no POST /idade/verificar
+// e vai DIRETO pra AgeVerification::verificar(): nao passa por sessao, log ou variavel a mais.
+$idadeReturnSeguro = function (string $r): string {
+    return (str_starts_with($r, '/') && !str_starts_with($r, '//')) ? $r : '/';
+};
+
+\App\Router::get('/idade', function() use ($config, $idadeReturnSeguro) {
+    if (!\App\SteamAuth::check()) { $_SESSION['steam_login_return'] = '/idade?' . http_build_query($_GET); header('Location: /auth/steam'); exit; }
+    $steamId = \App\SteamAuth::steamId();
+    \App\View::display('pages.idade', [
+        'config' => $config,
+        'status' => \App\AgeVerification::statusDe($steamId),
+        'motivo' => ($_GET['motivo'] ?? '') === 'caixa' ? 'caixa' : 'comprar',
+        'return' => $idadeReturnSeguro((string) ($_GET['return'] ?? '/')),
+        'erro'   => isset($_GET['erro']) ? (string) $_GET['erro'] : null,
+        'ok_msg' => isset($_GET['ok']) ? __('idade.verified_ok') : null,
+    ]);
+});
+
+\App\Router::post('/idade/declarar', function() use ($config, $idadeReturnSeguro) {
+    if (!\App\SteamAuth::check()) { header('Location: /auth/steam'); exit; }
+    if (!\App\Csrf::check()) { header('Location: /idade?erro=' . rawurlencode('Sessão expirada. Tente de novo.')); exit; }
+    $steamId = \App\SteamAuth::steamId();
+    $return  = $idadeReturnSeguro((string) ($_POST['return'] ?? '/'));
+    $motivo  = ($_POST['motivo'] ?? '') === 'caixa' ? 'caixa' : 'comprar';
+    if (empty($_POST['terms_ok'])) { header('Location: /idade?motivo=' . $motivo . '&return=' . rawurlencode($return) . '&erro=' . rawurlencode('Você precisa aceitar os Termos para continuar.')); exit; }
+    $r = \App\AgeVerification::declarar($steamId, (string) ($_POST['nascimento'] ?? ''));
+    if (!$r['ok']) { header('Location: /idade?motivo=' . $motivo . '&return=' . rawurlencode($return) . '&erro=' . rawurlencode($r['erro'])); exit; }
+    $versao = (string) \App\Settings::get('terms_version', '1');
+    $texto  = __('idade.terms_label');
+    foreach (['termos', 'privacidade', 'idade'] as $k) \App\AgeVerification::consentir($steamId, $k, $versao, $texto);
+    if ($r['status'] === 'menor') { header('Location: /idade'); exit; }
+    // Quem veio pra abrir caixa ainda precisa do passo 2.
+    header('Location: ' . ($motivo === 'caixa' ? '/idade?motivo=caixa&return=' . rawurlencode($return) : $return)); exit;
+});
+
+\App\Router::post('/idade/verificar', function() use ($config, $idadeReturnSeguro) {
+    if (!\App\SteamAuth::check()) { header('Location: /auth/steam'); exit; }
+    if (!\App\Csrf::check()) { header('Location: /idade?motivo=caixa&erro=' . rawurlencode('Sessão expirada. Tente de novo.')); exit; }
+    $steamId = \App\SteamAuth::steamId();
+    $return  = $idadeReturnSeguro((string) ($_POST['return'] ?? '/'));
+    // Cada tentativa pode custar uma consulta paga do cliente: 5 por hora por jogador.
+    $rl = \App\RateLimit::check('idade-verificar:' . $steamId, 5, 3600);
+    if (empty($rl['allowed'])) { header('Location: /idade?motivo=caixa&erro=' . rawurlencode('Muitas tentativas. Tente de novo em uma hora.')); exit; }
+    $r = \App\AgeVerification::verificar($steamId, (string) ($_POST['cpf'] ?? ''), isset($_POST['nascimento']) ? (string) $_POST['nascimento'] : null);
+    unset($_POST['cpf']);
+    if (!$r['ok']) { header('Location: /idade?motivo=caixa&return=' . rawurlencode($return) . '&erro=' . rawurlencode($r['erro'])); exit; }
+    if ($r['status'] === 'menor') { header('Location: /idade'); exit; }
+    header('Location: ' . $return . (str_contains($return, '?') ? '&' : '?') . 'idade=ok'); exit;
 });
 
 // ============ ADMIN ============
