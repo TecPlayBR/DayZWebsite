@@ -5,6 +5,35 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [3.3.0] - 2026-09-25
+
+### Adicionado
+
+- **Proteção de menores (ECA Digital, Lei 15.211/2025).** Caixas de recompensa passam a abrir
+  só para jogador com idade **verificada por fonte oficial** (CPF conferido num fornecedor
+  externo: FlagCheck, Serpro ou CPFHub, à escolha do site, com a chave dele no painel). Comprar
+  moeda passa a exigir data de nascimento (18+) e aceite **real** dos Termos, com data, hora,
+  IP e versão. O CPF nunca é guardado: fica só o resultado, o método, a data e um hash com sal
+  do site, que impede um CPF de verificar mais de uma conta.
+- Nova tela pública `/idade` e, no painel, **Conformidade ECA** com contadores, últimas
+  verificações (só metadados), exportação CSV, revogação com motivo e um **relatório de
+  conformidade** imprimível que responde aos 11 requisitos do art. 24 do Decreto 12.880/2026.
+- Três modos no painel: `verificado` (conforme), `declaracao` (transição, caixas fechadas) e
+  `desligado` (não conforme, com aviso vermelho fixo). A migration entra em `declaracao`.
+
+### Alterado
+
+- Rode o `/update.php`: migration `v3.3.0_eca_digital.sql` (tabelas `age_verifications` e
+  `consents`, colunas `players.age_status` e `players.age_verified_at`, settings novas).
+- O campo oculto `terms_accepted=1` das telas de compra **foi removido**: o site gravava um
+  aceite que o jogador nunca marcou. Agora o aceite vem da conta, na tela `/idade`.
+- Comprar **sem login Steam** (só digitando o SteamID) deixou de existir: sem conta não há
+  como registrar declaração de idade nem consentimento. O botão leva ao login.
+- O bot do Discord recebe `age_required` (HTTP 403) ao tentar criar cobrança para jogador que
+  ainda não declarou idade; a versão do bot que mostra o link `/idade` sai em separado.
+
+---
+
 ## [3.2.6] - 2026-08-19
 
 ### Corrigido
