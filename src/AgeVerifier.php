@@ -213,14 +213,21 @@ class CpfHubVerifier extends AgeVerifierBase
         return self::porNascimento((string) $dados['birthDate'], 'cpfhub-' . gmdate('YmdHis'), 'ok');
     }
 
+    public const QUOTA = 'https://api.cpfhub.io/quota';
+
     public function test(): array
     {
         if ($this->key === '') return ['ok' => false, 'msg' => 'Cole a chave da API do CPFHub.'];
-        // So a chave, com o CPF nulo (ver FlagCheckVerifier::test).
-        $r = $this->req('GET', self::BASE . self::CPF_NULO, ['x-api-key: ' . $this->key, 'Accept: application/json']);
+        // GET /quota (docs de 25/09): valida a chave e devolve os creditos restantes SEM consumir.
+        $r = $this->req('GET', self::QUOTA, ['x-api-key: ' . $this->key, 'Accept: application/json']);
         $st = (int) ($r['status'] ?? 0);
         if ($st === 401 || $st === 403) return ['ok' => false, 'msg' => 'Chave do CPFHub recusada.'];
         if ($st === 0) return ['ok' => false, 'msg' => 'CPFHub nao respondeu (rede ou timeout).'];
+        $d = self::json($r);
+        $dados = (isset($d['data']) && is_array($d['data'])) ? $d['data'] : (array) $d;
+        if (isset($dados['remainingCredits'])) {
+            return ['ok' => true, 'msg' => 'CPFHub ok: plano ' . (string) ($dados['plan'] ?? '?') . ', restam ' . (int) $dados['remainingCredits'] . ' consultas.'];
+        }
         return ['ok' => true, 'msg' => 'CPFHub aceitou a chave (HTTP ' . $st . ').'];
     }
 }

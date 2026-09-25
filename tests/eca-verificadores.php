@@ -106,7 +106,14 @@ $r = AgeVerifierFactory::make('flagcheck', '', '', httpFalso(200, '{}', $log))->
 if ($r['ok'] === false) ok('test() sem chave diz que nao esta pronto'); else falha('test() sem chave disse ok');
 
 echo "\n6. test() nunca consulta um CPF de pessoa (revisao: LGPD + consulta paga)\n";
-foreach (['flagcheck', 'cpfhub'] as $p) {
+// CPFHub tem GET /quota (docs de 25/09): nao consome credito e devolve remainingCredits.
+$log = [];
+$r = AgeVerifierFactory::make('cpfhub', 'k', '', httpFalso(200, json_encode(['success' => true, 'data' => ['plan' => 'Free', 'remainingCredits' => 47, 'billingStatus' => 'active']]), $log))->test();
+if (($log[0]['m'] ?? '') === 'GET' && str_contains($log[0]['url'] ?? '', 'api.cpfhub.io/quota')) ok('cpfhub: test() usa GET /quota (nao consome credito)'); else falha('cpfhub: test() nao usa /quota', $log[0]['url'] ?? '');
+if ($r['ok'] === true && str_contains($r['msg'], '47')) ok('cpfhub: test() mostra os creditos restantes'); else falha('cpfhub: test() sem creditos restantes', json_encode($r));
+$r = AgeVerifierFactory::make('cpfhub', 'k', '', httpFalso(401, json_encode(['success' => false, 'error' => 'API Key inválida']), $log))->test();
+if ($r['ok'] === false) ok('cpfhub: /quota 401 = chave recusada'); else falha('cpfhub: 401 no /quota deveria recusar');
+foreach (['flagcheck'] as $p) {
     $log = [];
     $r = AgeVerifierFactory::make($p, 'k', '', httpFalso(422, '{"error":"cpf invalido"}', $log))->test();
     $enviado = (string) (($log[0]['b'] ?? '') . ' ' . ($log[0]['url'] ?? ''));
