@@ -81,6 +81,19 @@ class AgeGate
         return $d;
     }
 
+    /**
+     * Caminho de retorno depois do fluxo de idade: SO caminho interno. Fora disso, '/'.
+     * Recusa '//host', '/\host' (o navegador normaliza a barra invertida e vira '//host'),
+     * esquema explicito, host relativo, espaco e quebra de linha (injecao de header).
+     */
+    public static function returnSeguro(string $r): string
+    {
+        if ($r === '' || $r[0] !== '/') return '/';
+        if (strlen($r) > 1 && ($r[1] === '/' || $r[1] === '\\')) return '/';
+        if (preg_match('/[\\\\\s\x00-\x1f\x7f]/', $r)) return '/';
+        return $r;
+    }
+
     /** sha256(sal . cpf limpo). O sal e por site (settings.age_hash_salt): hash de um site nao cruza com outro. */
     public static function cpfHash(string $cpf, string $sal): string
     {

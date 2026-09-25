@@ -1780,9 +1780,8 @@ $config['mercado_pago'] = $mpCfg;
 // ============ VERIFICACAO DE IDADE (ECA Digital, Lei 15.211/2025) ============
 // Regra em AgeGate, persistencia em AgeVerification. O CPF entra no POST /idade/verificar
 // e vai DIRETO pra AgeVerification::verificar(): nao passa por sessao, log ou variavel a mais.
-$idadeReturnSeguro = function (string $r): string {
-    return (str_starts_with($r, '/') && !str_starts_with($r, '//')) ? $r : '/';
-};
+// So caminho interno: '//host' e '/\host' (o navegador normaliza a barra invertida) viram '/'.
+$idadeReturnSeguro = fn (string $r): string => \App\AgeGate::returnSeguro($r);
 
 \App\Router::get('/idade', function() use ($config, $idadeReturnSeguro) {
     if (!\App\SteamAuth::check()) { $_SESSION['steam_login_return'] = '/idade?' . http_build_query($_GET); header('Location: /auth/steam'); exit; }

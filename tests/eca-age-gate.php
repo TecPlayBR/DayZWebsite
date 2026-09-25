@@ -76,6 +76,14 @@ if ($h1 !== $h3) ok('hash muda com o sal (site A nao cruza com site B)'); else f
 if (strlen($h1) === 64 && ctype_xdigit($h1)) ok('hash e sha256 hex'); else falha('hash nao e sha256 hex');
 if (strpos($h1, '52998224725') === false) ok('o CPF nao aparece no hash'); else falha('CPF em claro no hash');
 
+echo "\n6. Caminho de retorno: so caminho interno, nunca outro host\n";
+foreach (['/caixas', '/shop?server=2', '/idade?motivo=caixa&return=%2Fcaixas', '/'] as $r) {
+    if (AgeGate::returnSeguro($r) === $r) ok("aceita '$r'"); else falha("recusou caminho interno '$r'");
+}
+foreach (['//evil.com', '/\\evil.com', '\\\\evil.com', 'https://evil.com', 'evil.com', "/ok\r\nLocation: https://evil.com", '/ok javascript:', ''] as $r) {
+    if (AgeGate::returnSeguro($r) === '/') ok('recusa ' . json_encode($r)); else falha('aceitou ' . json_encode($r), 'open redirect: o navegador normaliza barra invertida e aceita host relativo');
+}
+
 echo "\n" . str_repeat('-', 62) . "\n";
 if ($falhas === 0) { echo "TUDO OK\n"; exit(0); }
 echo "$falhas FALHA(S).\n"; exit(1);
