@@ -35,20 +35,43 @@ $rarityLabel = [
 </section>
 
 <?php if ($steam_user && ($age_mode ?? 'declaracao') !== 'desligado' && ($age_status ?? 'desconhecido') !== 'adulto_verificado'): ?>
-<section class="section" style="padding:1.2rem 0 0;">
+<section class="section section-bg-2 caixas-idade-wrap">
     <div class="container">
-        <div class="stat-card" style="border-left:3px solid var(--hazard);">
-            <?php if (($age_status ?? '') === 'menor'): ?>
-                <strong><?= e(__('idade.minor_title')) ?></strong>
-                <p style="color:var(--dim); margin:.4rem 0 0;"><?= e(__('idade.minor_body')) ?></p>
-            <?php else: ?>
-                <strong><?= e(__('idade.verify_title')) ?></strong>
-                <p style="color:var(--dim); margin:.4rem 0 .8rem;"><?= e(__('idade.verify_intro')) ?></p>
-                <a class="btn" href="/idade?motivo=caixa&return=<?= rawurlencode('/caixas') ?>"><?= e(__('idade.verify_btn')) ?></a>
-            <?php endif; ?>
+        <?php if (($age_status ?? '') === 'menor'): ?>
+        <div class="caixas-idade caixas-idade-menor" role="status">
+            <div class="caixas-idade-texto">
+                <h3><?= e(__('idade.minor_title')) ?></h3>
+                <p><?= e(__('idade.minor_body')) ?></p>
+            </div>
         </div>
+        <?php else: ?>
+        <div class="caixas-idade" role="status">
+            <div class="caixas-idade-texto">
+                <h3><?= e(__('idade.verify_title')) ?></h3>
+                <p><?= e(__('idade.verify_intro')) ?></p>
+            </div>
+            <a class="btn" href="/idade?motivo=caixa&return=<?= rawurlencode('/caixas') ?>"><?= e(__('idade.verify_btn')) ?></a>
+        </div>
+        <?php endif; ?>
     </div>
 </section>
+<style>
+/* Aviso de idade nas caixas: painel da mesma familia do clan-about / checkout. */
+.caixas-idade-wrap { padding: 1.5rem 0 0; }
+.caixas-idade {
+    display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;
+    background: var(--bg-1); border: 1px solid var(--border); border-radius: 6px;
+    padding: 1.2rem 1.5rem; max-width: 900px; margin: 0 auto;
+}
+.caixas-idade-texto h3 { font-size: 1.15rem; color: var(--bone); margin: 0 0 0.35rem; }
+.caixas-idade-texto p  { color: var(--dim); font-size: 0.92rem; line-height: 1.5; margin: 0; max-width: 62ch; }
+.caixas-idade .btn { flex: 0 0 auto; white-space: nowrap; }
+.caixas-idade-menor { border-color: var(--hazard-border); background: var(--hazard-overlay); }
+@media (max-width: 640px) {
+    .caixas-idade { flex-direction: column; align-items: stretch; padding: 1rem 1.1rem; }
+    .caixas-idade .btn { text-align: center; }
+}
+</style>
 <?php endif; ?>
 
 <section class="section section-bg-2">
