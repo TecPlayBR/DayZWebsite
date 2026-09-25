@@ -65,11 +65,19 @@ $seq = [ ['status' => 200, 'body' => $tok], ['status' => 200, 'body' => json_enc
 $r = AgeVerifierFactory::make('serpro', 'c', 's', $http)->verify($CPF, '2012-01-01');
 if ($r['result'] === 'menor') ok('menor pela data devolvida'); else falha('serpro menor', json_encode($r));
 
-echo "\n3. CPFHub\n";
+echo "\n3. CPFHub (contrato real: GET api.cpfhub.io/cpf/{cpf}, x-api-key, {success, data:{birthDate DD/MM/AAAA}})\n";
 $log = [];
-$r = AgeVerifierFactory::make('cpfhub', 'k', '', httpFalso(200, json_encode(['name' => 'X', 'gender' => 'M', 'birthDate' => '01/01/2000']), $log))->verify($CPF, null);
-if ($r['result'] === 'adulto') ok('adulto por birthDate'); else falha('cpfhub adulto', json_encode($r));
-if (str_contains($log[0]['url'], 'cpfhub.io')) ok('endpoint do CPFHub'); else falha('cpfhub url');
+$envelope = json_encode(['success' => true, 'data' => ['cpf' => $CPF, 'name' => 'X', 'birthDate' => '01/01/2000', 'gender' => 'M']]);
+$r = AgeVerifierFactory::make('cpfhub', 'k', '', httpFalso(200, $envelope, $log))->verify($CPF, null);
+if ($r['result'] === 'adulto') ok('adulto por data.birthDate'); else falha('cpfhub adulto (envelope data)', json_encode($r));
+if (($log[0]['m'] ?? '') === 'GET' && str_contains($log[0]['url'], 'api.cpfhub.io/cpf/' . $CPF)) ok('GET api.cpfhub.io/cpf/{cpf}'); else falha('cpfhub url', $log[0]['url'] ?? '');
+if (str_contains(implode(' ', $log[0]['h']), 'x-api-key: k')) ok('chave em x-api-key'); else falha('cpfhub sem x-api-key');
+$r = AgeVerifierFactory::make('cpfhub', 'k', '', httpFalso(200, json_encode(['success' => true, 'data' => ['birthDate' => '01/01/2012']]), $log))->verify($CPF, null);
+if ($r['result'] === 'menor') ok('menor por data.birthDate'); else falha('cpfhub menor', json_encode($r));
+$r = AgeVerifierFactory::make('cpfhub', 'k', '', httpFalso(200, json_encode(['success' => false, 'message' => 'CPF nao encontrado']), $log))->verify($CPF, null);
+if ($r['result'] === 'falhou') ok('success:false = falhou'); else falha('cpfhub success:false virou ' . $r['result']);
+$r = AgeVerifierFactory::make('cpfhub', 'k', '', httpFalso(200, json_encode(['name' => 'X', 'birthDate' => '01/01/2000']), $log))->verify($CPF, null);
+if ($r['result'] === 'adulto') ok('aceita tambem sem envelope (compatibilidade)'); else falha('cpfhub sem envelope', json_encode($r));
 
 echo "\n4. Falhas nunca viram adulto nem menor\n";
 foreach ([[500, '{}'], [401, '{"error":"unauthorized"}'], [200, 'nao-e-json'], [200, '{}'], [0, '']] as [$st, $body]) {

@@ -200,7 +200,7 @@
             <label style="display:block; font-size:0.9rem; color:var(--bone); margin-bottom:0.5rem;">
                 🛡 Proteção de menores (ECA Digital) <small style="color: var(--dim); font-weight: 400;">- Lei 15.211/2025: caixa de recompensa só abre para adulto verificado por fonte oficial</small>
             </label>
-            <?php $ecaModo = $settings['age_gate_mode'] ?? 'declaracao'; $ecaProv = $settings['age_provider'] ?? 'flagcheck'; ?>
+            <?php $ecaModo = $settings['age_gate_mode'] ?? 'declaracao'; $ecaProv = $settings['age_provider'] ?? 'cpfhub'; ?>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
                 <label style="display:block;">
                     <span style="display:block; font-size:.85rem; margin-bottom:.3rem;">Modo</span>
@@ -232,7 +232,11 @@
                 A caixa <strong>diária grátis</strong> também exige verificação (recomendado)
             </label>
             <p style="margin-top: 0.6rem; font-size: 0.8rem; color: var(--dim);">
-                Depois de salvar, use <strong>Testar chave</strong> na tela <a href="/admin/eca" style="color: var(--hazard);">Conformidade ECA</a>. FlagCheck: cadastro em flagcheck.com.br, créditos por PIX, cerca de R$ 3 a 5 por verificação, uma vez por jogador.
+                Depois de salvar, use <strong>Testar chave</strong> na tela <a href="/admin/eca" style="color: var(--hazard);">Conformidade ECA</a>.
+                Sem fornecedor, as caixas ficam fechadas e o site já está conforme (Decreto 12.880, art. 23 § 1º). Cada jogador verifica uma única vez.
+                <strong>CPFHub</strong>: conta grátis em cpfhub.io, 50 consultas por mês sem cartão, chave na hora.
+                <strong>Serpro</strong>: a própria Receita, centavos por consulta, exige contrato com CNPJ.
+                <strong>FlagCheck</strong>: chave por e-mail (api@flagcheck.com.br), preço sob consulta.
             </p>
         </div>
 

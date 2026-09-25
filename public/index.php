@@ -2741,7 +2741,7 @@ $collectDashboardData = function() {
         if (isset($_POST[$k]) && trim((string)$_POST[$k]) !== '') { \App\Settings::set($k, trim((string)$_POST[$k])); $ecaMudou[] = $k; }
     }
     if (!in_array((string)($_POST['age_gate_mode'] ?? ''), \App\AgeGate::MODOS, true)) \App\Settings::set('age_gate_mode', 'declaracao');
-    if (!isset(\App\AgeVerifierFactory::PROVIDERS[(string)($_POST['age_provider'] ?? '')])) \App\Settings::set('age_provider', 'flagcheck');
+    if (!isset(\App\AgeVerifierFactory::PROVIDERS[(string)($_POST['age_provider'] ?? '')])) \App\Settings::set('age_provider', 'cpfhub');
     \App\AuditLog::record('age.settings', 'settings', 'eca', [
         'modo' => \App\Settings::get('age_gate_mode'), 'fornecedor' => \App\Settings::get('age_provider'),
         'diaria_exige' => \App\Settings::getBool('age_daily_box_gated'), 'chaves_alteradas' => $ecaMudou,
@@ -4303,7 +4303,7 @@ $BRAND_SLOTS = [
     \App\View::display('admin.eca', [
         'config' => $config,
         'modo' => \App\AgeVerification::modo(),
-        'fornecedor' => (string) \App\Settings::get('age_provider', 'flagcheck'),
+        'fornecedor' => (string) \App\Settings::get('age_provider', 'cpfhub'),
         'tem_chave' => trim((string) \App\Settings::get('age_provider_key', '')) !== '',
         'n_verificados' => $q("SELECT COUNT(*) FROM players WHERE age_status = 'adulto_verificado'"),
         'n_declarados'  => $q("SELECT COUNT(*) FROM players WHERE age_status = 'adulto_declarado'"),
@@ -4357,7 +4357,7 @@ $BRAND_SLOTS = [
         'config' => $config,
         'site' => site_name('Site'),
         'modo' => \App\AgeVerification::modo(),
-        'fornecedor' => \App\AgeVerifierFactory::PROVIDERS[(string) \App\Settings::get('age_provider', 'flagcheck')] ?? 'FlagCheck',
+        'fornecedor' => \App\AgeVerifierFactory::PROVIDERS[(string) \App\Settings::get('age_provider', 'cpfhub')] ?? 'CPFHub',
         'diaria_exige' => \App\AgeVerification::diariaExige(),
         'terms_version' => (string) \App\Settings::get('terms_version', '1'),
         'ultima_ok' => \App\Database::fetchColumn("SELECT MAX(created_at) FROM age_verifications WHERE result = 'adulto' AND method <> 'declaracao' AND revoked_at IS NULL"),

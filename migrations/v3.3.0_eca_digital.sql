@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS consents (
 -- painel mostra aviso amarelo ate o cliente colar a chave do fornecedor.
 INSERT IGNORE INTO settings (`key`, `value`) VALUES
     ('age_gate_mode', 'declaracao'),
-    ('age_provider', 'flagcheck'),
+    ('age_provider', 'cpfhub'),
     ('age_provider_key', ''),
     ('age_provider_secret', ''),
     ('age_daily_box_gated', '1'),

@@ -192,10 +192,21 @@ class CpfHubVerifier extends AgeVerifierBase
     {
         if ($this->key === '') return self::falhou('chave do CPFHub nao configurada');
         $r = $this->req('GET', self::BASE . $cpf, ['x-api-key: ' . $this->key, 'Accept: application/json']);
-        if (($r['status'] ?? 0) === 401 || ($r['status'] ?? 0) === 403) return self::falhou('chave do CPFHub recusada');
+        switch ((int) ($r['status'] ?? 0)) {
+            case 401: case 403: return self::falhou('chave do CPFHub recusada');
+            case 404: return self::falhou('CPF nao encontrado na base do CPFHub');
+            case 429: return self::falhou('CPFHub: limite de consultas do plano atingido');
+        }
         $d = self::json($r);
-        if ($d === null || empty($d['birthDate'])) return self::falhou('resposta invalida do CPFHub (HTTP ' . (int) ($r['status'] ?? 0) . ')');
-        return self::porNascimento((string) $d['birthDate'], 'cpfhub-' . gmdate('YmdHis'), 'ok');
+        if ($d === null) return self::falhou('resposta invalida do CPFHub (HTTP ' . (int) ($r['status'] ?? 0) . ')');
+        // Contrato real (docs de 25/09): {"success": true, "data": {"birthDate": "DD/MM/AAAA", ...}}.
+        // Aceita tambem sem envelope, por compatibilidade.
+        if (array_key_exists('success', $d) && empty($d['success'])) {
+            return self::falhou('CPFHub nao confirmou: ' . substr((string) ($d['message'] ?? $d['error'] ?? 'sem detalhe'), 0, 80));
+        }
+        $dados = (isset($d['data']) && is_array($d['data'])) ? $d['data'] : $d;
+        if (empty($dados['birthDate'])) return self::falhou('CPFHub nao devolveu data de nascimento');
+        return self::porNascimento((string) $dados['birthDate'], 'cpfhub-' . gmdate('YmdHis'), 'ok');
     }
 
     public function test(): array
@@ -227,7 +238,7 @@ class AgeVerifierFactory
     /** Monta a partir das settings do site. */
     public static function fromSettings(?callable $http = null): AgeVerifier
     {
-        return self::make((string) Settings::get('age_provider', 'flagcheck'),
+        return self::make((string) Settings::get('age_provider', 'cpfhub'),
                           (string) Settings::get('age_provider_key', ''),
                           (string) Settings::get('age_provider_secret', ''), $http);
     }

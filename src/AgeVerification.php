@@ -124,7 +124,7 @@ class AgeVerification
 
         self::garantePlayer($steamId);
         $ano = $nascIso ? (int) substr($nascIso, 0, 4) : null;
-        $provider = (string) Settings::get('age_provider', 'flagcheck');
+        $provider = (string) Settings::get('age_provider', 'cpfhub');
         if ($r['result'] === 'falhou') {
             self::registra($steamId, $provider, 'falhou', $ano, null, null, substr((string) $r['error'], 0, 40));
             error_log('[eca] verificacao falhou para ' . $steamId . ': ' . $r['error']);
