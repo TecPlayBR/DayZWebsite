@@ -962,7 +962,8 @@ body:has(.site-header.scrolled) .announcements-strip {
 @media (max-width: 860px) {
     .nav-main { display: none; }
     .header-actions .btn { display: none; }
-    .header-actions .lang-select { display: none; }
+    /* (regra morta removida: `.lang-select` era o seletor do refactor antigo; o header
+       usa `.lang-dropdown` e ele fica VISIVEL no mobile de proposito, ver header.php) */
     .hamburger { display: block; }
     /* MOBILE HERO: flex column pra empilhar content + status verticalmente.
        Antes era flex row default = hero-content e hero-status lado a lado,
@@ -1011,7 +1012,16 @@ body:has(.site-header.scrolled) .announcements-strip {
     .section { padding: 2.5rem 0 4rem; } /* top reduzido pra aproximar do hero */
     .footer-grid { grid-template-columns: 1fr 1fr; }
     .footer-brand { grid-column: 1 / -1; }
-    .brand-name { font-size: 1.1rem; }
+    .brand-name {
+        font-size: 1.1rem;
+        /* nome do site e editavel pelo admin: um nome comprido + lang-dropdown +
+           hamburger empurravam o header alem da viewport (scroll lateral no site
+           inteiro). Corta com reticencias em vez de estourar. */
+        max-width: 42vw;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
     .brand img { height: 36px; }
 }
 @media (max-width: 520px) {

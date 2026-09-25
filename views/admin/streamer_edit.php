@@ -29,6 +29,14 @@ if ($e) {
 
 <?php if (isset($_GET['ok'])): ?>
     <div class="stat-card" style="margin-bottom:1.2rem; border-left:3px solid var(--moss);">✓ Salvo.</div>
+<?php elseif (isset($_GET['err'])): ?>
+    <div class="stat-card" style="margin-bottom:1.2rem; border-left:3px solid var(--danger-border); background:var(--danger-overlay);">
+        <strong>Não salvou.</strong>
+        <?php if (!empty($_GET['msg'])): ?>
+            <div style="margin-top:.4rem; font-family:var(--font-mono); font-size:.85rem; color:var(--dim);"><?= e((string) $_GET['msg']) ?></div>
+        <?php endif; ?>
+        <div style="margin-top:.4rem; font-size:.9rem; color:var(--dim);">Se a mensagem fala em coluna desconhecida, falta rodar uma migration: abra o <code>/update.php</code>.</div>
+    </div>
 <?php endif; ?>
 
 <div class="stat-card" style="margin-bottom:1.5rem;">

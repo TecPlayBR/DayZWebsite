@@ -2145,7 +2145,7 @@ $collectDashboardData = function() {
     // de novo do que a tela mostrar um valor que nao existe no jogo.
     if (\App\Settings::saldoVemDoJogo()) {
         $endpoint = trim(($config['bot']['endpoint'] ?? '') ?: ($config['settings']['bot_endpoint'] ?? ''));
-        $botToken = trim(($config['bot']['token']    ?? '') ?: ($config['settings']['bot_token']    ?? ''));
+        $botToken = bot_notify_token($config); // segredo DESTE site (ver helpers.php)
         if (!$endpoint || !$botToken) {
             header('Location: /admin/players?err=bot_nao_configurado');
             exit;
@@ -2621,7 +2621,13 @@ $collectDashboardData = function() {
                'maintenance_message','maintenance_eta',
                'discord_sales_webhook','promo_coupon_code','promo_label',
                'restart_times','restart_warn_minutes',
-               'cftools_app_id','cftools_server_api_id'];
+               'cftools_app_id','cftools_server_api_id',
+               // parcelamento do cartao: o campo existia no form e no SCHEMA mas nao
+               // estava neste whitelist -> salvar era um no-op silencioso (revertia).
+               'card_installments_min',
+               // SEO overrides: os leitores (home.php/main.php) sempre existiram; agora
+               // o admin consegue de fato gravar (SCHEMA + form + este whitelist).
+               'seo_home_title','seo_home_description','seo_keywords','og_image'];
     // Toggles (checkbox): se não veio no POST, vira 0
     $toggles = ['maintenance_enabled', 'live_purchases_enabled', 'live_purchases_anonymize', 'live_purchases_show_price',
                 'restart_enabled', 'affiliate_enabled', 'affiliate_allow_switch', 'box_claim_enabled', 'hide_online_players'];
@@ -4173,7 +4179,11 @@ $BRAND_SLOTS = [
             );
         }
     } catch (\Throwable $ex) {
-        header('Location: /admin/streamers/manage?id=' . $id . '&err=1'); exit;
+        // O admin precisa VER por que nao salvou (ex.: coluna faltando = migration
+        // pendente). Redirecionar mudo fez um cliente cadastrar 3x sem gravar nada.
+        error_log('streamer.save falhou: ' . $ex->getMessage());
+        $msg = mb_substr(preg_replace('/\s+/', ' ', $ex->getMessage()), 0, 180);
+        header('Location: /admin/streamers/manage?id=' . $id . '&err=1&msg=' . rawurlencode($msg)); exit;
     }
     \App\AuditLog::record('streamer.saved', 'streamer', $code);
     header('Location: /admin/streamers/manage?ok=1'); exit;
@@ -4494,7 +4504,9 @@ $BRAND_SLOTS = [
         $log = [];
     }
 
-    $publicUrl = rtrim(($config['app_url'] ?? ('https://' . ($_SERVER['HTTP_HOST'] ?? 'localhost'))), '/');
+    // `site_url` (nao existe chave `app_url` no config): com `?:` pra string vazia nao
+    // sombrear o fallback (a mesma armadilha do stub que ja mordeu bot_endpoint/site_name).
+    $publicUrl = rtrim((string) (($config['site_url'] ?? '') ?: ('https://' . ($_SERVER['HTTP_HOST'] ?? 'localhost'))), '/');
 
     // Sentido site -> bot. Fica NESTA tela, e nao em Configuracoes, porque e a
     // mesma integracao: aqui o cliente ja vem cuidar do link com o bot. Enterrar
@@ -4604,7 +4616,9 @@ $BRAND_SLOTS = [
         $statusColor = '#dc2626'; $statusLabel = $lastSync > 0 ? '🔴 Sem sincronizar' : '⚫ Nunca usada';
     }
 
-    $publicUrl = rtrim(($config['app_url'] ?? ('https://' . ($_SERVER['HTTP_HOST'] ?? 'localhost'))), '/');
+    // `site_url` (nao existe chave `app_url` no config): com `?:` pra string vazia nao
+    // sombrear o fallback (a mesma armadilha do stub que ja mordeu bot_endpoint/site_name).
+    $publicUrl = rtrim((string) (($config['site_url'] ?? '') ?: ('https://' . ($_SERVER['HTTP_HOST'] ?? 'localhost'))), '/');
     $tok = rawurlencode($token);
     // O mod Sparda cola o SteamID no FINAL da URL (GetRestContext(url)+GET(steamid)).
     // Por isso as URLs terminam em "&steamid=" - o mod completa com o ID do jogador.

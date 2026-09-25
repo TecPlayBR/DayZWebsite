@@ -39,6 +39,28 @@ try {
     foreach ($dbSettings as $s) { $config['settings'][$s['key']] = $s['value']; }
 } catch (Throwable $e) {}
 
+// Precedencia do Mercado Pago: painel vence stub vazio/placeholder (mesma regra do
+// index.php). Sem isto, quem configurou o MP SO pelo painel tinha o checkout funcionando
+// (roda pelo index.php, que aplica a regra) e ESTE webhook, que confirma o pagamento e
+// credita as moedas, falhando com o token vazio do config.php. Inline de proposito: este
+// arquivo nao carrega helpers.php nem Settings.php; le do $config['settings'] ja buscado acima.
+$mpCfg = $config['mercado_pago'] ?? [];
+foreach (['access_token' => 'mp_access_token',
+          'public_key'   => 'mp_public_key',
+          'webhook_secret' => 'mp_webhook_secret'] as $campo => $chave) {
+    $atual = (string) ($mpCfg[$campo] ?? '');
+    $vazio = $campo === 'access_token'
+             ? \App\MercadoPago::ehPlaceholder($atual)
+             : trim($atual) === '' || stripos(trim($atual), 'ALTERE_AQUI') === 0;
+    if ($vazio) {
+        $salvo = trim((string) ($config['settings'][$chave] ?? ''));
+        if ($salvo !== '' && stripos($salvo, 'ALTERE_AQUI') !== 0) {
+            $mpCfg[$campo] = $salvo;
+        }
+    }
+}
+$config['mercado_pago'] = $mpCfg;
+
 header('Content-Type: application/json; charset=utf-8');
 
 // MP manda POST com JSON tipo { "type": "payment", "data": { "id": "1234567890" } }
@@ -220,7 +242,15 @@ if ($status === 'approved' && empty($purchase['delivered_at'])) {
     // moeda ficar no lugar de antes.
     $entregaIngame = null;
     $botEndpoint = trim(($config['bot']['endpoint'] ?? '') ?: ($config['settings']['bot_endpoint'] ?? ''));
-    $botToken    = trim(($config['bot']['token']    ?? '') ?: ($config['settings']['bot_token']    ?? ''));
+    // Token com que ESTE site se identifica no bot. Prefere o
+    // `discord_integration_token` (segredo deste site e de mais ninguem); o
+    // `bot_token` e o segredo GLOBAL do bot, igual no site de todo cliente, e fica
+    // so como degrau de convivencia. Inline de proposito: este arquivo NAO carrega
+    // helpers.php (mesma regra do bot-integration, ha teste que cobra isso).
+    $botToken    = trim((string) ($config['settings']['discord_integration_token'] ?? ''));
+    if ($botToken === '') {
+        $botToken = trim(($config['bot']['token'] ?? '') ?: ($config['settings']['bot_token'] ?? ''));
+    }
     if ($botEndpoint && $botToken) {
         $packageRow = \App\Database::fetchOne(
             "SELECT name, icon FROM packages WHERE id = ? LIMIT 1",

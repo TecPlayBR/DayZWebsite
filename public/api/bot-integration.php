@@ -83,6 +83,40 @@ try {
 require $ROOT . '/src/RateLimit.php';
 \App\RateLimit::init($ROOT . '/storage/cache');
 
+// Carrega as settings do DB e LIGA o Settings::init. Antes disto, tres bugs latentes
+// conviviam aqui: (1) Settings::getBool('box_claim_enabled') retornava sempre o default
+// porque o cache do Settings nunca era populado neste front-controller; (2) o descritor
+// da fatura lia $config['settings']['site_name'] que nunca existia aqui; (3) o
+// Mercado Pago abaixo nao enxergava credencial salva pelo painel.
+try {
+    $dbSettings = \App\Database::fetchAll("SELECT `key`, `value` FROM settings");
+    foreach ($dbSettings as $s) { $config['settings'][$s['key']] = $s['value']; }
+    \App\Settings::init($config['settings']);
+} catch (\Throwable $e) {
+    error_log('[bot-integration] settings load falhou: ' . $e->getMessage());
+}
+
+// Precedencia do Mercado Pago: painel vence stub vazio/placeholder (mesma regra do
+// index.php). Sem isto, as 4 construcoes de MercadoPago deste arquivo (checkout via
+// Discord: link, PIX, cartao, status) usavam o token vazio do config.php mesmo com a
+// credencial certa salva no painel. Inline de proposito (sem helpers.php aqui).
+$mpCfg = $config['mercado_pago'] ?? [];
+foreach (['access_token' => 'mp_access_token',
+          'public_key'   => 'mp_public_key',
+          'webhook_secret' => 'mp_webhook_secret'] as $campo => $chave) {
+    $atual = (string) ($mpCfg[$campo] ?? '');
+    $vazio = $campo === 'access_token'
+             ? \App\MercadoPago::ehPlaceholder($atual)
+             : trim($atual) === '' || stripos(trim($atual), 'ALTERE_AQUI') === 0;
+    if ($vazio) {
+        $salvo = trim((string) ($config['settings'][$chave] ?? ''));
+        if ($salvo !== '' && stripos($salvo, 'ALTERE_AQUI') !== 0) {
+            $mpCfg[$campo] = $salvo;
+        }
+    }
+}
+$config['mercado_pago'] = $mpCfg;
+
 // ============ HELPER: log da chamada ============
 
 $_ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';

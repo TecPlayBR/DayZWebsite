@@ -28,12 +28,21 @@ class RateLimit {
         $file = self::$dir . '/' . preg_replace('/[^a-zA-Z0-9_-]/', '_', $bucket) . '.json';
         $now  = time();
 
-        $data = ['hits' => [], 'first' => $now];
-        if (is_file($file)) {
-            $raw = @file_get_contents($file);
-            $parsed = @json_decode($raw, true);
-            if (is_array($parsed)) $data = $parsed;
+        // Ler-filtrar-gravar sob UM flock so. Antes a leitura ficava FORA do lock
+        // (so o file_put_contents tinha LOCK_EX): duas requisicoes simultaneas liam o
+        // mesmo estado pre-incremento e as duas passavam do limite (TOCTOU) - dava pra
+        // estourar o teto de brute-force com rajada concorrente. Agora quem pega o lock
+        // ve o hit de quem passou antes.
+        $fh = @fopen($file, 'c+');
+        if ($fh === false) {
+            // Storage indisponivel = mesmo fallback permissivo do "sem init"
+            return ['allowed' => true, 'remaining' => $maxHits, 'reset_in' => 0];
         }
+        @flock($fh, LOCK_EX);
+        $raw = stream_get_contents($fh);
+        $data = ['hits' => [], 'first' => $now];
+        $parsed = @json_decode((string) $raw, true);
+        if (is_array($parsed)) $data = $parsed;
 
         // Remove hits fora da janela
         $cutoff = $now - $windowSeconds;
@@ -41,13 +50,20 @@ class RateLimit {
 
         $count = count($data['hits']);
         if ($count >= $maxHits) {
+            @flock($fh, LOCK_UN);
+            @fclose($fh);
             $oldest = min($data['hits']);
             $resetIn = max(1, ($oldest + $windowSeconds) - $now);
             return ['allowed' => false, 'remaining' => 0, 'reset_in' => $resetIn];
         }
 
         $data['hits'][] = $now;
-        @file_put_contents($file, json_encode($data), LOCK_EX);
+        @ftruncate($fh, 0);
+        @rewind($fh);
+        @fwrite($fh, json_encode($data));
+        @fflush($fh);
+        @flock($fh, LOCK_UN);
+        @fclose($fh);
 
         return [
             'allowed'   => true,

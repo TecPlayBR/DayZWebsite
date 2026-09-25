@@ -585,6 +585,21 @@
         white-space: nowrap; /* impede colunas quebrarem linha; força scroll */
         min-width: 600px; /* garante que mostra todas colunas */
     }
+
+    /* TABELAS SEM WRAPPER (todas as outras ~30 telas do admin): o .admin-main tem
+       overflow-x:hidden, entao no celular as colunas da direita eram CLIPADAS sem
+       scrollbar (Entregue/MP ID sumiam). display:block na PROPRIA table e o padrao
+       consagrado de tabela responsiva: so o elemento <table> vira bloco rolavel;
+       thead/tr/td mantem o display de tabela (vem do default do elemento, nao de
+       heranca), entao o layout tabular interno nao quebra. O wrapper acima continua
+       valendo onde existe (dashboard). */
+    .admin-table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        max-width: 100%;
+        white-space: nowrap;
+    }
 }
 
 @media (max-width: 480px) {

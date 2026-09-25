@@ -19,6 +19,25 @@ if (!function_exists('e')) {
     }
 }
 
+if (!function_exists('bot_notify_token')) {
+    /**
+     * Token que ESTE site usa pra se identificar no bot (header X-Tecplay-Token).
+     *
+     * Prefere o `discord_integration_token`, que é o segredo DESTE site e de mais
+     * ninguém. O `bot_token` é o segredo GLOBAL do bot, o mesmo colado no site de
+     * todo cliente: quem tem o seu tem o de todos. Ele fica só como degrau de
+     * convivência, pra instalação antiga não parar de notificar da noite pro dia.
+     *
+     * Do lado do bot, o token daqui resolve a guild sozinho, então a guild deixa de
+     * vir do corpo do POST - que era o furo: a credencial não amarrava o destino.
+     */
+    function bot_notify_token(array $config): string {
+        $proprio = trim((string) ($config['settings']['discord_integration_token'] ?? ''));
+        if ($proprio !== '') return $proprio;
+        return trim((string) (($config['bot']['token'] ?? '') ?: ($config['settings']['bot_token'] ?? '')));
+    }
+}
+
 if (!function_exists('notify_bot_vip')) {
     /**
      * Avisa o BOT que um VIP foi concedido/revogado (sync OPCIONAL site->bot).
@@ -33,7 +52,7 @@ if (!function_exists('notify_bot_vip')) {
             if (\App\Settings::get('vip_sync_bot', '1') === '0') return; // desligado pelo dono
         } catch (\Throwable $e) { /* setting ausente = default on */ }
         $endpoint = trim(($config['bot']['endpoint'] ?? '') ?: ($config['settings']['bot_endpoint'] ?? ''));
-        $tokenB   = trim(($config['bot']['token']    ?? '') ?: ($config['settings']['bot_token']    ?? ''));
+        $tokenB   = bot_notify_token($config); // segredo DESTE site (ver bot_notify_token)
         if ($endpoint === '' || $tokenB === '') return; // bot não integrado -> nada a sincronizar
         $payload = json_encode([
             'steam_id'        => $steamId,
@@ -69,7 +88,7 @@ if (!function_exists('notify_bot_release')) {
             if (\App\Settings::get('novidades_bot', '1') === '0') return false; // desligado pelo dono
         } catch (\Throwable $e) { /* setting ausente = default on */ }
         $endpoint = trim(($config['bot']['endpoint'] ?? '') ?: ($config['settings']['bot_endpoint'] ?? ''));
-        $tokenB   = trim(($config['bot']['token']    ?? '') ?: ($config['settings']['bot_token']    ?? ''));
+        $tokenB   = bot_notify_token($config); // segredo DESTE site (ver bot_notify_token)
         if ($endpoint === '' || $tokenB === '') return false; // bot não integrado
         $payload = json_encode([
             'site_token'   => trim((string)($config['settings']['discord_integration_token'] ?? '')), // roteia pra guild certa

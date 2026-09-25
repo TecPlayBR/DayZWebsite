@@ -40,7 +40,12 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
 
 <!-- ============ HERO ============ -->
 <section class="hero">
-    <div class="hero-bg"></div>
+    <?php /* Inline igual as outras paginas: passa pelo asset() e enxerga o upload custom
+             de /admin/customize. A regra estatica do theme.css (url cravada) nao enxerga,
+             entao a home era a UNICA pagina onde trocar o fundo "nao pegava" - e o preload
+             do main.php baixava a imagem nova enquanto o CSS pintava a antiga (2 downloads).
+             Os gradientes repetem os do theme.css pra manter o visual identico. */ ?>
+    <div class="hero-bg" style="background-image:linear-gradient(180deg,rgba(5,6,8,0.4) 0%,rgba(5,6,8,0.9) 100%),linear-gradient(90deg,rgba(5,6,8,0.85) 0%,transparent 70%),url('<?= asset('img/background.png') ?>');"></div>
     <div class="container hero-content">
         <span class="hero-kicker">// <?= e(__('hero.kicker')) ?></span>
 

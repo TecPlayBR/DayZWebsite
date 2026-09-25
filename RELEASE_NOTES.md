@@ -1,4 +1,4 @@
-# 🏴 DayZ Website Template - Notas da versão (v2.15.5)
+# 🏴 DayZ Website Template - Notas da versão (v3.2.7)
 
 > **Atualizar é seguro e não apaga nada.** Suba os arquivos e rode `php cli/migrate.php` (idempotente). O log completo fica no **[CHANGELOG.md](CHANGELOG.md)**; aqui vão os destaques.
 

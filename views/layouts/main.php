@@ -170,6 +170,25 @@
 
 <a href="#main" class="skip-link">Pular para o conteúdo</a>
 
+<?php
+// Faixa de aviso de segurança, no topo de TODA página.
+//
+// Aviso de segurança que ninguém vê não serve pra nada: o rodapé tem links fixos, então
+// uma página nova não aparece sozinha em lugar nenhum. Por isso a faixa.
+//
+// Some sozinha quando `security_notice_enabled` sai do ar — é para ficar no ar só enquanto
+// durar o motivo, e sair sem precisar de deploy.
+$_avisoOn  = ($config['settings']['security_notice_enabled'] ?? '') === '1';
+$_avisoTxt = trim((string) ($config['settings']['security_notice_text'] ?? ''));
+$_avisoUrl = trim((string) ($config['settings']['security_notice_url'] ?? '/page/aviso-seguranca'));
+if ($_avisoOn && $_avisoTxt !== ''):
+?>
+<div class="security-notice" role="alert" style="background:#7f1d1d;color:#fff;padding:.7rem 1rem;text-align:center;font-size:.92rem;line-height:1.45;border-bottom:2px solid #ef4444;">
+    <strong>⚠️ <?= e($_avisoTxt) ?></strong>
+    <a href="<?= e($_avisoUrl) ?>" style="color:#fff;text-decoration:underline;margin-left:.4rem;white-space:nowrap;"><?= e(__('security.notice.link', [], 'Leia o comunicado')) ?></a>
+</div>
+<?php endif; ?>
+
 <?php partial('partials.header', ['config' => $config]); ?>
 
 <main id="main">

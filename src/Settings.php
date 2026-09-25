@@ -109,6 +109,14 @@ class Settings {
         // Privacidade: 1 = oculta a LISTA de nomes dos players online no /ranking
         // (mantém só a contagem). Evita exposição/"chororo" de quem está online.
         'hide_online_players'      => 'bool',
+        // SEO da home: os leitores (views/pages/home.php e views/layouts/main.php) sempre
+        // existiram lendo settings.seo_* / settings.og_image, mas as chaves nunca entraram
+        // neste SCHEMA nem no form — o "override pelo admin" era um comentário morto.
+        // Vazio = usa o padrão do template (site_name + tagline / background).
+        'seo_home_title'           => 'string',
+        'seo_home_description'     => 'string',
+        'seo_keywords'             => 'string',
+        'og_image'                 => 'url',
     ];
 
     private static array $cache = [];

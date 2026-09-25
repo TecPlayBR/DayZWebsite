@@ -237,6 +237,31 @@
                 Abaixo desse valor, o checkout trava o cartão em <strong>1x (à vista)</strong> e o campo de parcelas fica cinza. Acima, libera as parcelas que sua conta Mercado Pago oferece. <strong>0</strong> = sempre liberar parcelamento.
             </p>
         </div>
+
+        <div style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.2rem;">
+            <div class="label" style="margin-bottom:0.6rem;">🔍 SEO da home <small style="color:var(--dim); font-weight:normal;">(opcional - vazio usa o padrão do site)</small></div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
+                <div>
+                    <label style="display:block; font-size:0.85rem; color:var(--bone); margin-bottom:0.3rem;">Título da home (tag &lt;title&gt;)</label>
+                    <input type="text" name="seo_home_title" value="<?= e($settings['seo_home_title'] ?? '') ?>" maxlength="70" placeholder="Ex: Meu Server DayZ | PVP Chernarus BR" style="width:100%; padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:inherit;">
+                </div>
+                <div>
+                    <label style="display:block; font-size:0.85rem; color:var(--bone); margin-bottom:0.3rem;">Imagem social (og:image, URL)</label>
+                    <input type="url" name="og_image" value="<?= e($settings['og_image'] ?? '') ?>" placeholder="https://seusite.com/assets/img/social.png" style="width:100%; padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:var(--font-mono);">
+                </div>
+            </div>
+            <div style="margin-top:0.8rem;">
+                <label style="display:block; font-size:0.85rem; color:var(--bone); margin-bottom:0.3rem;">Descrição da home (meta description)</label>
+                <input type="text" name="seo_home_description" value="<?= e($settings['seo_home_description'] ?? '') ?>" maxlength="170" placeholder="Descrição de até ~160 caracteres que aparece no Google" style="width:100%; padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:inherit;">
+            </div>
+            <div style="margin-top:0.8rem;">
+                <label style="display:block; font-size:0.85rem; color:var(--bone); margin-bottom:0.3rem;">Palavras-chave (meta keywords)</label>
+                <input type="text" name="seo_keywords" value="<?= e($settings['seo_keywords'] ?? '') ?>" placeholder="dayz, servidor dayz br, pvp, chernarus" style="width:100%; padding:0.65rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:inherit;">
+            </div>
+            <p style="margin-top: 0.4rem; font-size: 0.8rem; color: var(--dim); max-width:640px;">
+                Controla como a home aparece no Google e o cartão de compartilhamento (Discord/WhatsApp). Vazio = o site monta sozinho com nome + tagline.
+            </p>
+        </div>
     </div>
 
     <div class="stat-card" style="margin-bottom: 1rem; border-left-color: var(--hazard);">

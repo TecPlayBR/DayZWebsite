@@ -5,6 +5,68 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [3.2.7] - 2026-09-04
+
+### Corrigido
+
+- **Cadastrar streamer nunca gravava.** Desde as redes sociais do streamer (julho), o admin
+  gravava a coluna `socials_json`, mas nenhuma migration a criava: todo INSERT falhava, o
+  `catch` engolia o erro e o formulário voltava vazio, sem mensagem. Um cliente tentou três
+  vezes achando que tinha errado. Agora tem a migration `v3.2.7_streamer_socials.sql`
+  (rode o `/update.php`), e o formulário passa a mostrar **por que** não salvou, em vez de
+  fingir que nada aconteceu.
+
+- **Trocar o fundo do hero pelo painel não aplicava na home.** O admin subia a imagem nova em
+  *Personalizar*, o painel mostrava a nova, e o site continuava com a antiga. A home era a única
+  página que dependia da regra estática do CSS (URL cravada no `theme.css`), que nunca enxerga o
+  upload; agora ela monta o fundo igual às outras páginas, passando pelo `asset()`. De quebra,
+  o navegador parava de baixar **duas** imagens (o preload apontava pra nova e o CSS pintava a
+  velha) - a home fica mais leve e o LCP volta a valer.
+
+- **Mercado Pago configurado pelo painel não valia nos pontos que confirmam o pagamento.** A
+  regra "painel vence stub vazio do config.php" existia só no fluxo das páginas. O
+  `mp-webhook.php` (que recebe a confirmação e **credita as moedas**) e o `bot-integration.php`
+  (compras via bot do Discord: link, PIX, cartão e status) liam o `config.php` cru: quem
+  configurou o MP só pelo painel tinha o checkout funcionando e a entrega falhando. Os dois
+  agora aplicam a mesma precedência do resto do site.
+
+- **`bot-integration.php` nunca carregava as configurações do site.** Três efeitos silenciosos:
+  o modo de resgate das caixas voltava sempre pro padrão nas chamadas do bot, o descritor da
+  fatura ignorava o nome salvo no painel, e o Mercado Pago do item acima. Agora o arquivo
+  carrega as settings do banco e liga o `Settings::init` como os demais.
+
+- **"Parcelamento no cartão - valor mínimo" não salvava.** O campo existia no formulário e o
+  checkout lia o valor, mas salvar era um no-op silencioso (a chave faltava na lista de campos
+  aceitos pelo handler): o valor sempre voltava pro anterior sem nenhum erro.
+
+- **URLs de API geradas em *Integração Discord* e *Sparda* saíam com endereço errado** atrás de
+  proxy/domínio custom: as duas telas liam uma chave de config que nunca existiu (`app_url`) em
+  vez do `site_url` configurado.
+
+- **Tabelas do admin cortadas no celular.** Quase todas as telas do painel (compras, jogadores,
+  cupons, auditoria...) clipavam as colunas da direita no celular, sem barra de rolagem - a
+  coluna "Entregue" das compras, por exemplo, ficava inacessível. Agora toda tabela do admin
+  rola na horizontal no celular.
+
+- **Formulário do cartão espremido no celular.** Validade/CVV e os campos de documento ficavam
+  lado a lado por menor que fosse a tela (era o único bloco de estilo do site sem regra mobile,
+  justo na página de pagamento). Agora empilham.
+
+- **Nome do site comprido estourava o cabeçalho no celular** e criava rolagem lateral na página
+  inteira. Agora corta com reticências.
+
+- **Limite de tentativas podia ser furado por rajada simultânea.** O contador de rate limit lia
+  o estado fora da trava de arquivo: várias requisições ao mesmo tempo liam o mesmo valor e
+  todas passavam. Leitura e gravação agora acontecem sob a mesma trava.
+
+### Adicionado
+
+- **SEO da home configurável no painel** (*Configurações → SEO da home*): título da aba,
+  descrição pro Google, palavras-chave e imagem de compartilhamento (og:image). O site sempre
+  soube ler esses valores; faltava o admin conseguir gravá-los. Vazio = padrão do site.
+
+---
+
 ## [3.2.6] - 2026-08-19
 
 ### Corrigido

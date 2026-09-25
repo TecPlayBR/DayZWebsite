@@ -220,6 +220,12 @@ $activeTab = ((($active_tab ?? 'pix') === 'card') && $cardAvailable) ? 'card' : 
 .cf-secure { font-size:0.72rem; color:var(--dim); margin-top:0.7rem; }
 .cf-coupon-warn { background:rgba(212,160,23,0.10); border:1px solid var(--hazard); border-radius:5px;
     padding:0.55rem 0.7rem; font-size:0.78rem; color:var(--hazard); margin-bottom:1rem; }
+/* Celular: Validade/CVV e Documento/CPF empilham em vez de espremer. Era o unico
+   bloco de estilo do site sem media query, justo na pagina de pagamento. */
+@media (max-width: 560px) {
+    .cf-grid2 { grid-template-columns: 1fr; }
+    .card-form { padding: 1rem; }
+}
 </style>
 
 <script>
