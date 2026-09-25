@@ -242,7 +242,7 @@ VALUES ('terms', 'Termos de Uso', 'Terms of Use', '<h2>Termos de Uso</h2>
 <li><strong>Plataforma:</strong> o site <code>seuservidor.com</code> e seus serviços associados.</li>
 <li><strong>Servidor:</strong> servidor de jogo DayZ administrado pela [NOME DO SERVIDOR] Store.</li>
 <li><strong>Moedas:</strong> bens virtuais consumíveis utilizáveis exclusivamente dentro do Servidor, sem valor econômico fora dele.</li>
-<li><strong>Jogador:</strong> pessoa física maior de 18 anos (ou autorizado pelos responsáveis) que adquire e/ou utiliza Moedas.</li>
+<li><strong>Jogador:</strong> pessoa física maior de 18 anos que adquire e/ou utiliza Moedas. Menores de 18 anos não podem comprar Moedas nem abrir caixas de recompensa (Lei 15.211/2025).</li>
 <li><strong>SteamID:</strong> identificador único da plataforma Steam usado para vincular a conta do Jogador.</li>
 </ul>
 <h3>3. Cadastro e Conta Steam</h3>
@@ -423,7 +423,7 @@ VALUES ('privacy', 'Política de Privacidade (LGPD)', 'Privacy Policy (LGPD)', '
 <h3>8. Cookies</h3>
 <p>A Plataforma utiliza armazenamento local do navegador (<code>localStorage</code>, <code>sessionStorage</code>) para manter sua sessão Steam ativa durante a navegação. Não utilizamos cookies de rastreamento de terceiros, anúncios ou analytics externos.</p>
 <h3>9. Menores de idade</h3>
-<p>A Plataforma é destinada a maiores de 18 anos. Menores de idade só podem utilizar com assistência expressa dos responsáveis legais, que assumem responsabilidade pelos pagamentos efetuados.</p>
+<p>A Plataforma é destinada a maiores de 18 anos. Em cumprimento à Lei 15.211/2025 (ECA Digital), a compra de Moedas exige login, declaração de data de nascimento e aceite destes Termos, e a abertura de caixas de recompensa exige verificação de idade por CPF junto a um fornecedor externo. Menores de 18 anos não podem comprar Moedas nem abrir caixas de recompensa; o acesso ao jogo, ao ranking e aos clãs continua livre.</p>
 <h3>10. Atualizações</h3>
 <p>Esta Política pode ser atualizada. Mudanças relevantes serão sinalizadas no site e/ou via Discord oficial. Recomendamos revisão periódica.</p>
 <h3>11. Contato</h3>
@@ -569,7 +569,7 @@ VALUES ('faq', 'Perguntas Frequentes', 'Frequently Asked Questions', '<h2>Pergun
 <details class="faq-item">
 <summary class="faq-q">Sou menor de 18, posso comprar?</summary>
 <div class="faq-a">
-<p>A Plataforma é destinada a maiores de 18 anos. Menores devem ter assistência expressa dos responsáveis legais, que serão considerados financeiramente responsáveis. Em caso de compras feitas por menor sem autorização, o reembolso será processado mediante comprovação documental dos responsáveis.</p>
+<p>A Plataforma é destinada a maiores de 18 anos e adota verificação de idade conforme a Lei 15.211/2025 (ECA Digital). O CPF informado na verificação é usado apenas durante a consulta ao fornecedor externo e não é armazenado; guardamos o resultado da verificação, a data, o método, o endereço IP e um identificador irreversível derivado do CPF, usado exclusivamente para impedir que um mesmo CPF verifique mais de uma conta. Esses dados são tratados com base no cumprimento de obrigação legal (LGPD, art. 7º, II) e não são usados para nenhuma outra finalidade. Em caso de compra feita por menor com dados de terceiro, o reembolso será analisado mediante comprovação documental dos responsáveis.</p>
 </div>
 </details>
 <details class="faq-item">
