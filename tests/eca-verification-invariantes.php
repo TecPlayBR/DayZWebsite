@@ -30,6 +30,12 @@ if (preg_match('/UPDATE age_verifications SET[^;]*cpf_hash_revoked\s*=\s*cpf_has
 echo "\n3. Falha do fornecedor nao muda o status\n";
 if (preg_match("/'falhou'[^;]*return \[\s*'ok'\s*=>\s*false/s", $semComentario) || preg_match("/result'\]\s*===\s*'falhou'\)\s*\{[^}]*return/s", $semComentario)) ok('retorna antes de mexer em players quando falhou'); else falha('falha do fornecedor pode estar mudando o age_status');
 
+echo "\n3b. Revisao: idempotencia e corrida no UNIQUE\n";
+if (preg_match('/\$dono\s*===\s*\$steamId/', $semComentario)) ok('mesmo jogador com linha ativa: reaplica sem chamar o fornecedor'); else falha('nao trata o proprio jogador ja verificado (segundo INSERT estoura o UNIQUE)');
+if (preg_match("/catch\s*\(\\\\?PDOException[^)]*\)[^}]*23000/s", $semComentario) || preg_match("/23000/", $semComentario)) ok('violacao do UNIQUE vira cpf_taken, nao 500'); else falha('INSERT do hash sem catch de violacao de chave (clique duplo = 500)');
+if (preg_match('/AgeGate::proximoStatusDeclaracao\(/', $semComentario)) ok('declarar usa a regra pura de transicao (menor so sai por CPF)'); else falha('declarar nao usa proximoStatusDeclaracao');
+if (preg_match('/public static function consentirTudo\(/', $src)) ok('consentirTudo existe (tela de consentimento para qualquer status)'); else falha('falta consentirTudo');
+
 echo "\n4. Assinaturas publicas que as rotas usam\n";
 foreach (['statusDe', 'modo', 'diariaExige', 'declarar', 'verificar', 'consentir', 'temConsentimento', 'revogar', 'podeComprar', 'podeAbrirCaixa'] as $f) {
     if ($src !== '' && method_exists('App\\AgeVerification', $f)) ok("AgeVerification::$f existe"); else falha("AgeVerification::$f nao existe");

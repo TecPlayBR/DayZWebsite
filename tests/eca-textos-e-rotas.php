@@ -25,10 +25,23 @@ foreach (["Router::get('/idade'", "Router::post('/idade/declarar'", "Router::pos
     if (str_contains($idx, $r)) ok("$r registrada"); else falha("$r nao registrada");
 }
 if (preg_match("/Router::post\('\/idade\/verificar'.*?Csrf::check\(\).*?RateLimit::check\('idade-verificar:/s", $idx)) ok('verificar tem CSRF e rate limit'); else falha('/idade/verificar sem CSRF ou sem rate limit', 'cada tentativa custa dinheiro do cliente');
-if (preg_match("/Router::post\('\/idade\/verificar'.*?unset\(\\\$_POST\['cpf'\]\)/s", $idx)) ok('o CPF e descartado do POST logo apos AgeVerification::verificar'); else falha('rota /idade/verificar nao descarta o CPF do POST', 'quanto menos maos, menos vazamento');
+if (preg_match("/Router::post\('\/idade\/verificar'.*?unset\(\\\$_POST\['cpf'\]/s", $idx)) ok('o CPF e descartado do POST logo apos AgeVerification::verificar'); else falha('rota /idade/verificar nao descarta o CPF do POST', 'quanto menos maos, menos vazamento');
 if (!preg_match("/\\\$_SESSION\[[^\]]*cpf/i", $idx)) ok('nenhum CPF em sessao no index.php'); else falha('index.php poe CPF na sessao');
 
+echo "\n2b. Revisao: consentir sem redeclarar, rate limit por IP e por site, retorno pos-login\n";
+if (preg_match("/Router::post\('\/idade\/consentir'.*?Csrf::check\(\)/s", $idx)) ok('/idade/consentir com CSRF'); else falha('falta POST /idade/consentir com CSRF', 'verificado-antes-de-declarar ficava sem formulario');
+if (str_contains($idx, "RateLimit::check('idade-verificar-ip:")) ok('bucket por IP na verificacao'); else falha('sem bucket por IP', 'contas Steam gratis queimam consulta paga do cliente');
+if (str_contains($idx, "RateLimit::check('idade-verificar-site'")) ok('teto diario do site na verificacao'); else falha('sem teto diario do site');
+$cb = substr($idx, strpos($idx, "Router::get('/auth/steam/callback'"), 4000);
+if (str_contains($cb, 'AgeGate::returnSeguro(')) ok('callback do Steam usa o mesmo filtro de retorno (aceita %2F)'); else falha('callback do Steam recusa o retorno do /idade (tem % na query)', 'jogador cai na home depois do login');
+if (str_contains($idx, "'/idade?motivo=comprar&return=")) ok('checkout manda pra /idade'); else falha('checkout nao manda pra /idade');
+$shop = file_get_contents($ROOT . '/views/pages/shop.php');
+if (!preg_match('/<input type="text" name="steam_id"/', $shop) && str_contains($shop, '/auth/steam')) ok('loja deslogada mostra Entrar com Steam, nao campo de SteamID'); else falha('loja deslogada ainda pede SteamID digitado', 'o checkout agora exige login: o campo engana');
+if (str_contains($idx, "['cpf_taken', 'failed_retry']") && str_contains($idx, "__('idade.' . \$cod)")) ok('rotas mapeiam cpf_taken/failed_retry pro stringtable, sem erro cru do fornecedor'); else falha('rotas com texto fixo em vez de idade.failed_retry / idade.cpf_taken');
+
 echo "\n3. A view existe e nao tem input de CPF com autocomplete\n";
+$v0 = @file_get_contents($ROOT . '/views/pages/idade.php') ?: '';
+if (str_contains($v0, 'AgeGate::telas(')) ok('view decide os blocos por AgeGate::telas'); else falha('view nao usa AgeGate::telas', 'foi assim que o beco sem saida passou');
 $v = @file_get_contents($ROOT . '/views/pages/idade.php') ?: '';
 if ($v !== '') ok('views/pages/idade.php existe'); else falha('views/pages/idade.php nao existe');
 if (preg_match('/name="cpf"[^>]*autocomplete="off"/', $v)) ok('campo CPF com autocomplete=off'); else falha('campo CPF sem autocomplete=off');

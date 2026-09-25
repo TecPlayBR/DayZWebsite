@@ -20,6 +20,8 @@ interface AgeVerifier
 
 abstract class AgeVerifierBase implements AgeVerifier
 {
+    /** CPF nulo: invalido por construcao, nao pertence a ninguem. Usado so pra testar a chave. */
+    public const CPF_NULO = '00000000000';
     protected string $key;
     protected string $secret;
     /** @var callable */
@@ -104,9 +106,16 @@ class FlagCheckVerifier extends AgeVerifierBase
     public function test(): array
     {
         if ($this->key === '') return ['ok' => false, 'msg' => 'Cole a chave da API do FlagCheck.'];
-        // CPF de teste publico (gerador da Receita): nao pertence a ninguem.
-        $r = $this->verify('52998224725', null);
-        return $r['result'] === 'falhou' ? ['ok' => false, 'msg' => (string) $r['error']] : ['ok' => true, 'msg' => 'FlagCheck respondeu.'];
+        // Testa SO a chave: manda o CPF nulo (000.000.000-00, nao e de ninguem). O fornecedor
+        // responde 4xx de "CPF invalido" com a chave boa e 401/403 com a chave ruim. Nenhuma
+        // pessoa e consultada e nenhuma consulta e cobrada.
+        $r = $this->req('POST', self::URL,
+            ['Authorization: Bearer ' . $this->key, 'Content-Type: application/json', 'Accept: application/json'],
+            json_encode(['cpf' => self::CPF_NULO]));
+        $st = (int) ($r['status'] ?? 0);
+        if ($st === 401 || $st === 403) return ['ok' => false, 'msg' => 'Chave do FlagCheck recusada.'];
+        if ($st === 0) return ['ok' => false, 'msg' => 'FlagCheck nao respondeu (rede ou timeout).'];
+        return ['ok' => true, 'msg' => 'FlagCheck aceitou a chave (HTTP ' . $st . ').'];
     }
 }
 
@@ -169,8 +178,12 @@ class CpfHubVerifier extends AgeVerifierBase
     public function test(): array
     {
         if ($this->key === '') return ['ok' => false, 'msg' => 'Cole a chave da API do CPFHub.'];
-        $r = $this->verify('52998224725', null);
-        return $r['result'] === 'falhou' ? ['ok' => false, 'msg' => (string) $r['error']] : ['ok' => true, 'msg' => 'CPFHub respondeu.'];
+        // So a chave, com o CPF nulo (ver FlagCheckVerifier::test).
+        $r = $this->req('GET', self::BASE . self::CPF_NULO, ['x-api-key: ' . $this->key, 'Accept: application/json']);
+        $st = (int) ($r['status'] ?? 0);
+        if ($st === 401 || $st === 403) return ['ok' => false, 'msg' => 'Chave do CPFHub recusada.'];
+        if ($st === 0) return ['ok' => false, 'msg' => 'CPFHub nao respondeu (rede ou timeout).'];
+        return ['ok' => true, 'msg' => 'CPFHub aceitou a chave (HTTP ' . $st . ').'];
     }
 }
 

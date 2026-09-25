@@ -17,10 +17,13 @@ foreach (['views/pages/shop.php', 'views/pages/checkout_pix.php'] as $v) {
 }
 
 echo "\n2. Checkout exige podeComprar e consentimento\n";
-$chk = substr($idx, strpos($idx, "Router::post('/shop/checkout'"), 4000);
+$chkIni = strpos($idx, "Router::post('/shop/checkout'");
+$chk = substr($idx, $chkIni, strpos($idx, '\App\Router::', $chkIni + 10) - $chkIni);   // a rota inteira
 if (str_contains($chk, 'AgeVerification::podeComprar(')) ok('checkout consulta podeComprar'); else falha('checkout nao consulta podeComprar');
 if (str_contains($chk, 'AgeVerification::temConsentimento(')) ok('checkout exige consentimento da versao atual'); else falha('checkout nao exige consentimento');
 if (str_contains($chk, "'/idade?motivo=comprar")) ok('checkout redireciona pra /idade'); else falha('checkout nao redireciona pra /idade');
+
+if (!str_contains($chk, "'2026-05-27'")) ok('compra carimba a terms_version real, nao uma data fixa'); else falha('compra ainda carimba terms_version 2026-05-27 fixo', 'consentimento e compra divergem');
 
 echo "\n3. Abrir caixa\n";
 $op = substr($idx, strpos($idx, "Router::post('/caixas/{slug}/open'"), 2500);

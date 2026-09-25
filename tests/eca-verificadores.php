@@ -70,6 +70,17 @@ catch (\InvalidArgumentException $e) { ok('fabrica recusa provider inexistente')
 $r = AgeVerifierFactory::make('flagcheck', '', '', httpFalso(200, '{}', $log))->test();
 if ($r['ok'] === false) ok('test() sem chave diz que nao esta pronto'); else falha('test() sem chave disse ok');
 
+echo "\n6. test() nunca consulta um CPF de pessoa (revisao: LGPD + consulta paga)\n";
+foreach (['flagcheck', 'cpfhub'] as $p) {
+    $log = [];
+    $r = AgeVerifierFactory::make($p, 'k', '', httpFalso(422, '{"error":"cpf invalido"}', $log))->test();
+    $enviado = (string) (($log[0]['b'] ?? '') . ' ' . ($log[0]['url'] ?? ''));
+    if (!str_contains($enviado, '52998224725') && str_contains($enviado, '00000000000')) ok("$p: test() manda so o CPF nulo 000.000.000-00"); else falha("$p: test() mandou um CPF valido ao fornecedor", $enviado);
+    if ($r['ok'] === true) ok("$p: 422 (CPF invalido) = chave aceita, sem gastar consulta"); else falha("$p: 422 deveria significar chave ok", json_encode($r));
+    $r = AgeVerifierFactory::make($p, 'k', '', httpFalso(401, '{}', $log))->test();
+    if ($r['ok'] === false) ok("$p: 401 = chave recusada"); else falha("$p: 401 deveria ser chave recusada");
+}
+
 echo "\n" . str_repeat('-', 62) . "\n";
 if ($falhas === 0) { echo "TUDO OK\n"; exit(0); }
 echo "$falhas FALHA(S).\n"; exit(1);

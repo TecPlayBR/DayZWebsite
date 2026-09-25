@@ -205,9 +205,9 @@
                 <label style="display:block;">
                     <span style="display:block; font-size:.85rem; margin-bottom:.3rem;">Modo</span>
                     <select name="age_gate_mode" style="width:100%; padding:.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone);">
-                        <option value="verificado" <?= $ecaModo === 'verificado' ? 'selected' : '' ?>>Verificado (conforme): caixa só com CPF verificado</option>
-                        <option value="declaracao" <?= $ecaModo === 'declaracao' ? 'selected' : '' ?>>Declaração (transição): loja com declaração, caixas fechadas</option>
-                        <option value="desligado" <?= $ecaModo === 'desligado' ? 'selected' : '' ?>>Desligado (não conforme): como era antes da 3.3.0</option>
+                        <option value="verificado" <?= $ecaModo === 'verificado' ? 'selected' : '' ?>>Verificado (conforme): loja com declaração e aceite; caixas só abrem com CPF verificado</option>
+                        <option value="declaracao" <?= $ecaModo === 'declaracao' ? 'selected' : '' ?>>Declaração (transição): igual ao Verificado, com aviso amarelo enquanto a chave não existe; caixas só abrem com CPF verificado</option>
+                        <option value="desligado" <?= $ecaModo === 'desligado' ? 'selected' : '' ?>>Desligado (não conforme): caixas abrem sem verificação; a loja continua pedindo idade e aceite</option>
                     </select>
                 </label>
                 <label style="display:block;">

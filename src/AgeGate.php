@@ -67,6 +67,37 @@ class AgeGate
         return false;
     }
 
+    /**
+     * Quais blocos a tela /idade mostra, em ordem: 'menor', 'declarar', 'consentir', 'verificar'.
+     * Revisao 24/09: quem verificou por CPF ANTES de declarar nao tinha consentimento e caia
+     * numa tela vazia; o bloco 'consentir' existe pra qualquer status sem aceite da versao atual.
+     */
+    public static function telas(string $status, string $motivo, bool $temConsentimento): array
+    {
+        if ($status === 'menor') return ['menor', 'verificar'];
+        $out = [];
+        if ($status === 'desconhecido') {
+            $out[] = 'declarar';                       // declarar ja inclui o aceite dos Termos
+        } elseif (!$temConsentimento) {
+            $out[] = 'consentir';
+        }
+        if ($motivo === 'caixa' && $status !== 'adulto_verificado') $out[] = 'verificar';
+        return $out;
+    }
+
+    /**
+     * Novo status depois de uma declaracao de nascimento. null = recusar.
+     * Menor so sai por CPF (redeclarar nao reabre); verificado nao e rebaixado por declaracao;
+     * menor sempre vence.
+     */
+    public static function proximoStatusDeclaracao(string $atual, string $declarado): ?string
+    {
+        if ($declarado === 'menor') return 'menor';
+        if ($atual === 'menor') return null;
+        if ($atual === 'adulto_verificado') return 'adulto_verificado';
+        return 'adulto_declarado';
+    }
+
     /** 11 digitos com verificador valido, ou null. Mesma regra do MercadoPago::isValidCpf. */
     public static function cpfLimpo(string $cpf): ?string
     {

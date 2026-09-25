@@ -1259,7 +1259,7 @@ $config['mercado_pago'] = $mpCfg;
                     coupon_code = ?, discount_brl = ?, affiliate_coupon_code = ?,
                     terms_accepted_at = NOW(), terms_version = ?
               WHERE id = ?",
-            [$coinsBase, $coinsBonus, $coinsTotal, $priceBrl, $appliedCouponCode, $discount, $affiliateStamp, '2026-05-27', $purchaseId]
+            [$coinsBase, $coinsBonus, $coinsTotal, $priceBrl, $appliedCouponCode, $discount, $affiliateStamp, $termsVersion, $purchaseId]
         );
     } else {
         // Cria purchase pending com registro de aceite de termos + cupom (se aplicado)
@@ -1271,7 +1271,7 @@ $config['mercado_pago'] = $mpCfg;
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW(), ?)",
             [$steamId, $packageId, $serverId, $coinsBase, $coinsBonus, $coinsTotal,
              $priceBrl, $appliedCouponCode, $discount, $affiliateStamp,
-             '2026-05-27']
+             $termsVersion]
         );
         $purchaseId = (int)\App\Database::pdo()->lastInsertId();
     }
@@ -1551,7 +1551,9 @@ $config['mercado_pago'] = $mpCfg;
     // Guard anti open-redirect: só aceita path interno (começa com / e não //).
     $back = $_SESSION['steam_login_return'] ?? '/';
     unset($_SESSION['steam_login_return']);
-    if (!is_string($back) || !preg_match('#^/[A-Za-z0-9/_?&=.\-]*$#', $back) || str_starts_with($back, '//')) {
+    // Mesmo filtro do fluxo de idade (AgeGate::returnSeguro): aceita %2F na query, recusa
+    // '//host', '/\host', quebra de linha e controle.
+    if (!is_string($back) || \App\AgeGate::returnSeguro($back) !== $back) {
         $back = '/';
     }
     header('Location: ' . $back);
@@ -1793,10 +1795,31 @@ $idadeReturnSeguro = fn (string $r): string => \App\AgeGate::returnSeguro($r);
         'return' => $idadeReturnSeguro((string) ($_GET['return'] ?? '/')),
         'erro'   => isset($_GET['erro']) ? (string) $_GET['erro'] : null,
         'ok_msg' => isset($_GET['ok']) ? __('idade.verified_ok') : null,
+        'tem_consentimento' => \App\AgeVerification::temConsentimento($steamId, 'termos', (string) \App\Settings::get('terms_version', '1')),
     ]);
 });
 
-\App\Router::post('/idade/declarar', function() use ($config, $idadeReturnSeguro) {
+// Mensagem ao jogador: chave do stringtable quando existe (nunca o erro cru do fornecedor).
+$idadeMensagem = function (array $r): string {
+    $cod = (string) ($r['cod'] ?? '');
+    return in_array($cod, ['cpf_taken', 'failed_retry'], true) ? __('idade.' . $cod) : (string) ($r['erro'] ?? '');
+};
+
+// Aceite dos Termos sem redeclarar nascimento: quem verificou por CPF antes de declarar, ou
+// quem ja declarou e a versao dos Termos mudou. (Revisao 24/09: sem isto a tela ficava vazia.)
+\App\Router::post('/idade/consentir', function() use ($config, $idadeReturnSeguro) {
+    if (!\App\SteamAuth::check()) { header('Location: /auth/steam'); exit; }
+    if (!\App\Csrf::check()) { header('Location: /idade?erro=' . rawurlencode('Sessão expirada. Tente de novo.')); exit; }
+    $steamId = \App\SteamAuth::steamId();
+    $return  = $idadeReturnSeguro((string) ($_POST['return'] ?? '/'));
+    $motivo  = ($_POST['motivo'] ?? '') === 'caixa' ? 'caixa' : 'comprar';
+    if (empty($_POST['terms_ok'])) { header('Location: /idade?motivo=' . $motivo . '&return=' . rawurlencode($return) . '&erro=' . rawurlencode('Você precisa aceitar os Termos para continuar.')); exit; }
+    if (\App\AgeVerification::statusDe($steamId) === 'desconhecido') { header('Location: /idade?motivo=' . $motivo . '&return=' . rawurlencode($return)); exit; }
+    \App\AgeVerification::consentirTudo($steamId, __('idade.terms_label'));
+    header('Location: ' . ($motivo === 'caixa' ? '/idade?motivo=caixa&return=' . rawurlencode($return) : $return)); exit;
+});
+
+\App\Router::post('/idade/declarar', function() use ($config, $idadeReturnSeguro, $idadeMensagem) {
     if (!\App\SteamAuth::check()) { header('Location: /auth/steam'); exit; }
     if (!\App\Csrf::check()) { header('Location: /idade?erro=' . rawurlencode('Sessão expirada. Tente de novo.')); exit; }
     $steamId = \App\SteamAuth::steamId();
@@ -1804,26 +1827,31 @@ $idadeReturnSeguro = fn (string $r): string => \App\AgeGate::returnSeguro($r);
     $motivo  = ($_POST['motivo'] ?? '') === 'caixa' ? 'caixa' : 'comprar';
     if (empty($_POST['terms_ok'])) { header('Location: /idade?motivo=' . $motivo . '&return=' . rawurlencode($return) . '&erro=' . rawurlencode('Você precisa aceitar os Termos para continuar.')); exit; }
     $r = \App\AgeVerification::declarar($steamId, (string) ($_POST['nascimento'] ?? ''));
-    if (!$r['ok']) { header('Location: /idade?motivo=' . $motivo . '&return=' . rawurlencode($return) . '&erro=' . rawurlencode($r['erro'])); exit; }
-    $versao = (string) \App\Settings::get('terms_version', '1');
-    $texto  = __('idade.terms_label');
-    foreach (['termos', 'privacidade', 'idade'] as $k) \App\AgeVerification::consentir($steamId, $k, $versao, $texto);
+    if (!$r['ok']) { header('Location: /idade?motivo=' . $motivo . '&return=' . rawurlencode($return) . '&erro=' . rawurlencode($idadeMensagem($r))); exit; }
+    \App\AgeVerification::consentirTudo($steamId, __('idade.terms_label'));
     if ($r['status'] === 'menor') { header('Location: /idade'); exit; }
     // Quem veio pra abrir caixa ainda precisa do passo 2.
     header('Location: ' . ($motivo === 'caixa' ? '/idade?motivo=caixa&return=' . rawurlencode($return) : $return)); exit;
 });
 
-\App\Router::post('/idade/verificar', function() use ($config, $idadeReturnSeguro) {
+\App\Router::post('/idade/verificar', function() use ($config, $idadeReturnSeguro, $idadeMensagem) {
     if (!\App\SteamAuth::check()) { header('Location: /auth/steam'); exit; }
     if (!\App\Csrf::check()) { header('Location: /idade?motivo=caixa&erro=' . rawurlencode('Sessão expirada. Tente de novo.')); exit; }
     $steamId = \App\SteamAuth::steamId();
     $return  = $idadeReturnSeguro((string) ($_POST['return'] ?? '/'));
-    // Cada tentativa pode custar uma consulta paga do cliente: 5 por hora por jogador.
-    $rl = \App\RateLimit::check('idade-verificar:' . $steamId, 5, 3600);
-    if (empty($rl['allowed'])) { header('Location: /idade?motivo=caixa&erro=' . rawurlencode('Muitas tentativas. Tente de novo em uma hora.')); exit; }
+    // Cada tentativa pode custar uma consulta paga do cliente. Tres freios: 5/h por jogador,
+    // 10/h por IP (conta Steam gratis nao ajuda) e 300/dia no site inteiro (teto do prejuizo).
+    $rl  = \App\RateLimit::check('idade-verificar:' . $steamId, 5, 3600);
+    $rlI = \App\RateLimit::check('idade-verificar-ip:' . \App\RateLimit::clientIp(), 10, 3600);
+    $rlS = \App\RateLimit::check('idade-verificar-site', 300, 86400);
+    if (empty($rl['allowed']) || empty($rlI['allowed']) || empty($rlS['allowed'])) {
+        header('Location: /idade?motivo=caixa&return=' . rawurlencode($return) . '&erro=' . rawurlencode('Muitas tentativas. Tente de novo mais tarde.')); exit;
+    }
     $r = \App\AgeVerification::verificar($steamId, (string) ($_POST['cpf'] ?? ''), isset($_POST['nascimento']) ? (string) $_POST['nascimento'] : null);
-    unset($_POST['cpf']);
-    if (!$r['ok']) { header('Location: /idade?motivo=caixa&return=' . rawurlencode($return) . '&erro=' . rawurlencode($r['erro'])); exit; }
+    unset($_POST['cpf'], $_REQUEST['cpf']);
+    // Aceite dos Termos no mesmo formulario (quem veio direto pela caixa ainda nao aceitou).
+    if ($r['ok'] && !empty($_POST['terms_ok'])) \App\AgeVerification::consentirTudo($steamId, __('idade.terms_label'));
+    if (!$r['ok']) { header('Location: /idade?motivo=caixa&return=' . rawurlencode($return) . '&erro=' . rawurlencode($idadeMensagem($r))); exit; }
     if ($r['status'] === 'menor') { header('Location: /idade'); exit; }
     header('Location: ' . $return . (str_contains($return, '?') ? '&' : '?') . 'idade=ok'); exit;
 });

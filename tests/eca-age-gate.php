@@ -84,6 +84,41 @@ foreach (['//evil.com', '/\\evil.com', '\\\\evil.com', 'https://evil.com', 'evil
     if (AgeGate::returnSeguro($r) === '/') ok('recusa ' . json_encode($r)); else falha('aceitou ' . json_encode($r), 'open redirect: o navegador normaliza barra invertida e aceita host relativo');
 }
 
+echo "\n7. Quais blocos a tela /idade mostra (status, motivo, ja consentiu?)\n";
+// Revisao: quem verificou por CPF ANTES de declarar caia numa tela vazia e nunca mais comprava.
+$c = [
+    ['desconhecido',      'comprar', false, ['declarar']],
+    ['desconhecido',      'caixa',   false, ['declarar', 'verificar']],
+    ['adulto_verificado', 'comprar', false, ['consentir']],            // o beco sem saida
+    ['adulto_declarado',  'comprar', false, ['consentir']],            // terms_version mudou
+    ['adulto_declarado',  'comprar', true,  []],
+    ['adulto_declarado',  'caixa',   true,  ['verificar']],
+    ['adulto_verificado', 'caixa',   true,  []],
+    ['menor',             'comprar', false, ['menor', 'verificar']],
+    ['menor',             'caixa',   true,  ['menor', 'verificar']],
+];
+foreach ($c as [$st, $mo, $cons, $esp]) {
+    $r = AgeGate::telas($st, $mo, $cons);
+    if ($r === $esp) ok("telas($st, $mo, " . ($cons ? 'consentiu' : 'sem consentimento') . ") = [" . implode(',', $esp) . "]");
+    else falha("telas($st, $mo, " . ($cons ? 'consentiu' : 'sem') . ") deveria ser [" . implode(',', $esp) . "]", 'veio [' . implode(',', $r) . ']');
+}
+
+echo "\n8. Declarar de novo: menor so sai por CPF, verificado nao rebaixa\n";
+$c = [
+    ['desconhecido',      'adulto_declarado', 'adulto_declarado'],
+    ['desconhecido',      'menor',            'menor'],
+    ['menor',             'adulto_declarado', null],                 // redeclarar nao reabre
+    ['menor',             'menor',            'menor'],
+    ['adulto_verificado', 'adulto_declarado', 'adulto_verificado'],  // nao rebaixa
+    ['adulto_verificado', 'menor',            'menor'],              // menor sempre vence
+    ['adulto_declarado',  'menor',            'menor'],
+    ['adulto_declarado',  'adulto_declarado', 'adulto_declarado'],
+];
+foreach ($c as [$atual, $decl, $esp]) {
+    $r = AgeGate::proximoStatusDeclaracao($atual, $decl);
+    if ($r === $esp) ok("$atual + declara $decl = " . var_export($esp, true)); else falha("$atual + declara $decl deveria ser " . var_export($esp, true), 'veio ' . var_export($r, true));
+}
+
 echo "\n" . str_repeat('-', 62) . "\n";
 if ($falhas === 0) { echo "TUDO OK\n"; exit(0); }
 echo "$falhas FALHA(S).\n"; exit(1);
