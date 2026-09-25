@@ -87,7 +87,7 @@ $hoje = date('Y-m-d');
                 <input class="field" type="date" id="idade-nasc2" name="nascimento" required max="<?= $hoje ?>" min="1900-01-01">
                 <?php endif; ?>
                 <label class="idade-label" for="idade-cpf"><?= e(__('idade.cpf_label')) ?> <span class="idade-req" aria-hidden="true">*</span></label>
-                <input class="field mono" type="text" id="idade-cpf" name="cpf" inputmode="numeric" autocomplete="off" required maxlength="14" placeholder="000.000.000-00">
+                <input class="field mono" type="text" id="idade-cpf" name="cpf" inputmode="numeric" autocomplete="off" required maxlength="14" minlength="14" placeholder="000.000.000-00" pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" data-cpf-mask>
                 <small class="idade-hint"><?= e(__('idade.cpf_not_stored')) ?> <?= e(__('idade.one_account')) ?></small>
                 <?php if (!$tem_consentimento): ?>
                 <label class="idade-check">
@@ -137,4 +137,28 @@ $hoje = date('Y-m-d');
     .idade-form .btn { justify-self: stretch; text-align: center; }
 }
 </style>
+<script>
+// Mascara do CPF: so digitos, 11 fixos, pontuacao montada sozinha (000.000.000-00).
+// O usuario nunca digita ponto ou traco; colar com mascara ou sem funciona igual.
+(function () {
+    document.querySelectorAll('input[data-cpf-mask]').forEach(function (el) {
+        function formata(v) {
+            var d = v.replace(/\D/g, '').slice(0, 11);
+            var out = d;
+            if (d.length > 9) out = d.slice(0, 3) + '.' + d.slice(3, 6) + '.' + d.slice(6, 9) + '-' + d.slice(9);
+            else if (d.length > 6) out = d.slice(0, 3) + '.' + d.slice(3, 6) + '.' + d.slice(6);
+            else if (d.length > 3) out = d.slice(0, 3) + '.' + d.slice(3);
+            return out;
+        }
+        el.addEventListener('input', function () {
+            var novo = formata(el.value);
+            if (el.value !== novo) el.value = novo;
+        });
+        el.addEventListener('keypress', function (ev) {
+            if (ev.key && ev.key.length === 1 && !/\d/.test(ev.key)) ev.preventDefault();
+        });
+        el.value = formata(el.value);
+    });
+})();
+</script>
 <?php \App\View::endSection(); ?>
