@@ -180,7 +180,6 @@ if ($prodItems) {
                     <?= \App\Csrf::field() ?>
                     <input type="hidden" name="package_id" value="<?= e($pkg['id']) ?>">
                     <input type="hidden" name="server_id" value="<?= (int)$selected_server_id ?>" data-server-input>
-                    <input type="hidden" name="terms_accepted" value="1">
                     <input type="hidden" name="coupon_code" value="" data-coupon-flag>
                     <?php if ($prefillSteam): ?>
                         <input type="hidden" name="steam_id" value="<?= e($prefillSteam) ?>">
@@ -189,7 +188,8 @@ if ($prodItems) {
                             <?= e(substr($prefillSteam, 0, 10) . '...') ?>
                         </div>
                     <?php else: ?>
-                        <input type="text" name="steam_id" placeholder="SteamID64 (17 dígitos) *" pattern="7656119[0-9]{10}" required aria-required="true" maxlength="17" class="pack-input">
+                        <?php /* 3.3.0: comprar exige conta (declaracao de idade + aceite). Sem login, o botao leva a Steam. */ ?>
+                        <a href="/auth/steam" class="btn btn-steam pack-input" style="display:block; text-align:center;"><?= e(__('caixas.login_steam')) ?></a>
                     <?php endif; ?>
                     <button type="submit" class="btn pack-buy" aria-label="<?= e(__('shop.buy')) ?> <?= e($pkg['name']) ?> - <?= $coinsTotal ?> moedas por R$ <?= number_format($finalPrice, 2, ',', '.') ?>"><?= e(__('shop.buy')) ?></button>
                 </form>

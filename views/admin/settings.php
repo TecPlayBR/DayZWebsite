@@ -196,6 +196,50 @@
             </p>
         </div>
 
+        <div id="eca" style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.2rem;">
+            <label style="display:block; font-size:0.9rem; color:var(--bone); margin-bottom:0.5rem;">
+                🛡 Proteção de menores (ECA Digital) <small style="color: var(--dim); font-weight: 400;">- Lei 15.211/2025: caixa de recompensa só abre para adulto verificado por fonte oficial</small>
+            </label>
+            <?php $ecaModo = $settings['age_gate_mode'] ?? 'declaracao'; $ecaProv = $settings['age_provider'] ?? 'cpfhub'; ?>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                <label style="display:block;">
+                    <span style="display:block; font-size:.85rem; margin-bottom:.3rem;">Modo</span>
+                    <select name="age_gate_mode" style="width:100%; padding:.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone);">
+                        <option value="verificado" <?= $ecaModo === 'verificado' ? 'selected' : '' ?>>Verificado (conforme): loja com declaração e aceite; caixas só abrem com CPF verificado</option>
+                        <option value="declaracao" <?= $ecaModo === 'declaracao' ? 'selected' : '' ?>>Declaração (transição): igual ao Verificado, com aviso amarelo enquanto a chave não existe; caixas só abrem com CPF verificado</option>
+                        <option value="desligado" <?= $ecaModo === 'desligado' ? 'selected' : '' ?>>Desligado (não conforme): caixas abrem sem verificação; a loja continua pedindo idade e aceite</option>
+                    </select>
+                </label>
+                <label style="display:block;">
+                    <span style="display:block; font-size:.85rem; margin-bottom:.3rem;">Fornecedor da verificação</span>
+                    <select name="age_provider" style="width:100%; padding:.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone);">
+                        <?php foreach (\App\AgeVerifierFactory::PROVIDERS as $k => $lbl): ?>
+                            <option value="<?= e($k) ?>" <?= $ecaProv === $k ? 'selected' : '' ?>><?= e($lbl) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </label>
+                <label style="display:block;">
+                    <span style="display:block; font-size:.85rem; margin-bottom:.3rem;">Chave da API <small style="color:var(--dim);">(vazio mantém a atual<?= !empty($settings['age_provider_key']) ? '; há uma chave salva' : '' ?>)</small></span>
+                    <input type="password" name="age_provider_key" autocomplete="new-password" placeholder="cole a chave do fornecedor" style="width:100%; padding:.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone);">
+                </label>
+                <label style="display:block;">
+                    <span style="display:block; font-size:.85rem; margin-bottom:.3rem;">Segredo <small style="color:var(--dim);">(só Serpro)</small></span>
+                    <input type="password" name="age_provider_secret" autocomplete="new-password" placeholder="consumer secret" style="width:100%; padding:.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone);">
+                </label>
+            </div>
+            <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.9rem; color:var(--bone); margin-top:.8rem;">
+                <input type="checkbox" name="age_daily_box_gated" value="1" <?= !empty($settings['age_daily_box_gated']) ? 'checked' : '' ?> style="width:18px;height:18px;">
+                A caixa <strong>diária grátis</strong> também exige verificação (recomendado)
+            </label>
+            <p style="margin-top: 0.6rem; font-size: 0.8rem; color: var(--dim);">
+                Depois de salvar, use <strong>Testar chave</strong> na tela <a href="/admin/eca" style="color: var(--hazard);">Conformidade ECA</a>.
+                Sem fornecedor, as caixas ficam fechadas e o site já está conforme (Decreto 12.880, art. 23 § 1º). Cada jogador verifica uma única vez.
+                <strong>CPFHub</strong>: conta grátis em cpfhub.io, 50 consultas por mês sem cartão, chave na hora.
+                <strong>Serpro</strong>: a própria Receita, centavos por consulta, exige contrato com CNPJ.
+                <strong>FlagCheck</strong>: chave por e-mail (api@flagcheck.com.br), preço sob consulta.
+            </p>
+        </div>
+
         <div style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.2rem;">
             <label style="display:block; font-size:0.9rem; color:var(--bone); margin-bottom:0.5rem;">
                 📥 Entrega das caixas <small style="color: var(--dim); font-weight: 400;">- como o item sorteado chega no jogo</small>

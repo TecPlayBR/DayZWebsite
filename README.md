@@ -54,6 +54,7 @@ O **site é grátis** e faz a loja, o painel, a carteira de moedas e o leaderboa
 - **Landing page apocalipse** com hero animado, contador de wipe e status do servidor ao vivo (BattleMetrics)
 - **Loja** com 6 pacotes seedados (R$ 9,99 a R$ 149,90), bônus, combos e cupons
 - **Checkout transparente - PIX + Cartão** (QR/copia-e-cola **e** cartão de crédito **dentro do site**, sem sair pro Mercado Pago; o cartão é tokenizado no navegador, o número **não toca o servidor** - PCI SAQ-A). Cupom compartilhado, parcelamento com mínimo configurável. **Webhook auto-credit** de moedas
+- **🛡 Proteção de menores (ECA Digital)**: caixas só para adulto verificado por CPF (fornecedor plugável), consentimento real dos Termos, painel de conformidade e relatório imprimível. Detalhes em `docs/superpowers/specs/2026-09-24-verificacao-idade-eca-digital-design.md`.
 - **🎁 Caixas / Lootboxes** (`/caixas`): abre com moedas ou diária grátis, **carrossel "sorteando prêmio"**, **raridade que define a chance**, **countdown ao vivo** da diária, e o item **cai no jogo via CFTools** (fila pendente + blindagem de restart)
 - **📦 Histórico de Caixas** no perfil do jogador (recebidas + pendentes, com horário) - transparência do que caiu
 - **🗓 Eventos & Sorteios** (`/eventos`): ativos / em breve / encerrados + teaser na home

@@ -34,6 +34,23 @@ $rarityLabel = [
     </div>
 </section>
 
+<?php if ($steam_user && ($age_mode ?? 'declaracao') !== 'desligado' && ($age_status ?? 'desconhecido') !== 'adulto_verificado'): ?>
+<section class="section" style="padding:1.2rem 0 0;">
+    <div class="container">
+        <div class="stat-card" style="border-left:3px solid var(--hazard);">
+            <?php if (($age_status ?? '') === 'menor'): ?>
+                <strong><?= e(__('idade.minor_title')) ?></strong>
+                <p style="color:var(--dim); margin:.4rem 0 0;"><?= e(__('idade.minor_body')) ?></p>
+            <?php else: ?>
+                <strong><?= e(__('idade.verify_title')) ?></strong>
+                <p style="color:var(--dim); margin:.4rem 0 .8rem;"><?= e(__('idade.verify_intro')) ?></p>
+                <a class="btn" href="/idade?motivo=caixa&return=<?= rawurlencode('/caixas') ?>"><?= e(__('idade.verify_btn')) ?></a>
+            <?php endif; ?>
+        </div>
+    </div>
+</section>
+<?php endif; ?>
+
 <section class="section section-bg-2">
     <div class="container">
         <?php if (empty($boxes)): ?>
@@ -265,6 +282,7 @@ $rarityLabel = [
 
         if (!data.ok){
             if (data.error === 'login'){ window.location.href = data.login_url; return; }
+            if (data.error === 'age'){ window.location.href = data.url; return; }
             title.textContent = T.oops; result.textContent='';
             const p=document.createElement('p'); p.style.color='var(--rust-2)'; p.textContent=data.error||T.genericErr;
             result.appendChild(p); result.hidden=false;
