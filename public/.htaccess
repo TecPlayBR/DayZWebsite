@@ -11,6 +11,11 @@
     # RewriteCond %{HTTPS} off
     # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
+    # Nada dentro de assets/ (onde caem todos os uploads do painel) roda nem e servido como
+    # script, inclusive nome duplo tipo foto.php.jpg. Precisa vir ANTES da passagem direta
+    # abaixo, que serviria o arquivo real sem olhar a extensao.
+    RewriteRule ^assets/.*\.(php[0-9]?|phtml|phar|pht|phps)(\.|$) - [F,NC,L]
+
     # Permite acesso direto a arquivos/pastas reais (imagens, css, js)
     RewriteCond %{REQUEST_FILENAME} -f [OR]
     RewriteCond %{REQUEST_FILENAME} -d
