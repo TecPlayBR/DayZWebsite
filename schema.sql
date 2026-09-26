@@ -904,121 +904,148 @@ ON DUPLICATE KEY UPDATE
 INSERT INTO pages (slug, title_ptbr, title_enus, body_ptbr, body_enus, published, sort_order)
 VALUES ('terms', 'Termos de Uso', 'Terms of Use', '<h2>Termos de Uso</h2>
 
-<p class="legal-meta">Última atualização: 2026-05-20</p>
-<h3>1. Aceitação</h3>
-<p>Ao acessar e utilizar a <strong>[NOME DO SERVIDOR] Store</strong> (este site, doravante "Plataforma"), você concorda integralmente com estes Termos de Uso, com a Política de Reembolso e com a Política de Privacidade. Se não concordar, NÃO utilize a Plataforma.</p>
+<p class="legal-meta">Versão [VERSÃO] · Vigente desde [DATA DE VIGÊNCIA]</p>
+<h3>1. Quem somos e aceitação</h3>
+<p>Este site ([DOMÍNIO], doravante "Plataforma") e o servidor de jogo DayZ [NOME DO SERVIDOR] (doravante "Servidor") são operados por <strong>[RAZÃO SOCIAL]</strong>, CNPJ [CNPJ], que vende as Moedas, recebe os pagamentos e responde perante o consumidor.</p>
+<p>A Plataforma usa software fornecido pela Tecplay. A Tecplay não vende as Moedas e não recebe os pagamentos.</p>
+<p>Ao utilizar a Plataforma, você concorda com estes Termos, com a Política de Reembolso e com a Política de Privacidade.</p>
 <h3>2. Definições</h3>
 <ul>
-<li><strong>Plataforma:</strong> o site <code>seuservidor.com</code> e seus serviços associados.</li>
-<li><strong>Servidor:</strong> servidor de jogo DayZ administrado pela [NOME DO SERVIDOR] Store.</li>
-<li><strong>Moedas:</strong> bens virtuais consumíveis utilizáveis exclusivamente dentro do Servidor, sem valor econômico fora dele.</li>
-<li><strong>Jogador:</strong> pessoa física maior de 18 anos (ou autorizado pelos responsáveis) que adquire e/ou utiliza Moedas.</li>
-<li><strong>SteamID:</strong> identificador único da plataforma Steam usado para vincular a conta do Jogador.</li>
+<li><strong>Usuário:</strong> pessoa que acessa ou utiliza a Plataforma ou o Servidor.</li>
+<li><strong>Comprador:</strong> Usuário maior de 18 anos que adquire Moedas.</li>
+<li><strong>Usuário verificado:</strong> Usuário cuja idade foi confirmada por verificação de CPF, exigida para funcionalidade sujeita a restrição de idade.</li>
+<li><strong>Moedas:</strong> créditos virtuais de uso limitado, utilizáveis exclusivamente dentro do Servidor. As Moedas não transferem propriedade de nenhum bem e não podem ser convertidas em dinheiro.</li>
+<li><strong>Caixas de recompensa:</strong> funcionalidade que entrega itens de jogo por sorteio.</li>
+<li><strong>SteamID:</strong> identificador público da conta Steam, usado para vincular as compras ao Usuário.</li>
 </ul>
-<h3>3. Cadastro e Conta Steam</h3>
-<p>Para utilizar os serviços, o Jogador deve possuir uma conta Steam ativa. A Plataforma utiliza o <strong>SteamID público</strong> (não a senha) para vincular as compras. O Jogador é responsável pela segurança da própria conta Steam.</p>
-<h3>4. Aquisição de Moedas</h3>
+<h3>3. Idade</h3>
 <ul>
-<li>Os pagamentos são processados pelo <strong>Mercado Pago</strong> (PIX, cartão de crédito, boleto), instituição de pagamento autorizada pelo Banco Central.</li>
-<li>O crédito das Moedas na conta do Jogador é <strong>automático</strong> após confirmação do pagamento pelo Mercado Pago (em geral, instantâneo no PIX e em até 48h para boleto).</li>
-<li>Os preços são fixados em <strong>Reais (BRL)</strong> e podem ser alterados sem aviso prévio; o preço aplicável é o exibido no momento da compra.</li>
-<li>A Plataforma poderá oferecer pacotes promocionais com <strong>bônus de Moedas</strong>, sujeitos a disponibilidade e ao período da promoção.</li>
+<li><strong>Público:</strong> o DayZ tem classificação indicativa de 18 anos no Brasil, por violência extrema, temas sensíveis e drogas lícitas. O Servidor e a Plataforma são destinados a maiores de 18 anos e não são divulgados para crianças ou adolescentes.</li>
+<li><strong>Regra legal:</strong> caixas de recompensa, inclusive a caixa diária gratuita, só abrem para Usuário verificado maior de 18 anos, conforme a legislação de proteção de crianças e adolescentes em ambientes digitais (Lei 15.211/2025).</li>
+<li><strong>Política deste Servidor:</strong> por medida de proteção, menores de 18 anos também não podem comprar Moedas.</li>
+<li>Para comprar Moedas, o Usuário entra com a conta Steam, informa a data de nascimento e aceita estes Termos. [SE O DONO LIGAR A VERIFICAÇÃO NA COMPRA: a idade também é verificada por CPF.]</li>
+<li>Para abrir caixas de recompensa, a idade é verificada por CPF junto a fornecedor especializado, inclusive quando as Moedas usadas na caixa foram compradas. A declaração de idade não substitui essa verificação.</li>
+<li>Quem declarar ser menor de 18 anos, ou tiver a menoridade constatada na verificação, fica impedido de comprar e de abrir caixas. Uma nova declaração não desfaz o bloqueio. Somente uma verificação por CPF que comprove a maioridade o libera.</li>
+<li>Se a administração identificar que um Usuário é menor de 18 anos, bloqueia as compras e as caixas dessa conta. O responsável pode pedir a eliminação dos dados pelo [E-MAIL DE ATENDIMENTO].</li>
+<li>Se o serviço de verificação estiver indisponível, a funcionalidade que depende dele fica suspensa até o serviço voltar. A indisponibilidade nunca libera o acesso sem verificação. O Usuário pode tentar novamente depois, sem custo, e o site não repete a consulta automaticamente.</li>
 </ul>
-<h3>5. Uso das Moedas</h3>
+<h3>4. Conta Steam</h3>
+<p>A Plataforma usa o SteamID público, nunca a senha. O Usuário é responsável pela segurança da própria conta Steam.</p>
+<h3>5. Compra de Moedas</h3>
 <ul>
-<li>As Moedas são vinculadas <strong>exclusivamente</strong> ao SteamID do Jogador e somente podem ser utilizadas dentro do Servidor.</li>
-<li>As Moedas <strong>não possuem valor monetário</strong>, não podem ser convertidas em dinheiro, transferidas para outro jogador ou trocadas por outros bens.</li>
-<li>A Plataforma pode, a qualquer tempo, alterar a economia interna do jogo (preços de itens in-game, mecânicas, etc).</li>
-<li>As <strong>Moedas e recompensas concedidas gratuitamente</strong> por sistemas internos (conquistas, eventos, caixas, bônus) são <strong>cortesias revogáveis</strong>: se obtidas mediante abuso, fraude ou exploração desses sistemas, a Plataforma poderá <strong>anulá-las ou estorná-las</strong>, sem que isso configure prejuízo ao Jogador. As <strong>Moedas adquiridas mediante pagamento</strong> seguem a Política de Reembolso e não são afetadas por esta cláusula, salvo comprovada fraude no pagamento.</li>
+<li>Antes do pagamento, a Plataforma informa a quantidade de Moedas, o bônus quando houver, o preço total, a validade da promoção, as regras de uso, a restrição de idade e o canal de suporte.</li>
+<li>Os pagamentos são processados pelo Mercado Pago (Pix, cartão de crédito e boleto).</li>
+<li>O crédito das Moedas é automático após a confirmação do pagamento, em geral imediato no Pix e em até 48 horas no boleto. As Moedas ficam disponíveis para uso imediato após o crédito.</li>
+<li>Os preços são em Reais (BRL). Vale o preço exibido antes da confirmação da compra. Alterações de preço valem apenas para compras futuras e não modificam compras já concluídas.</li>
 </ul>
-<h3>6. Conduta do Jogador</h3>
-<p>É vedado ao Jogador:</p>
+<h3>6. Uso das Moedas e mudanças no jogo</h3>
 <ul>
-<li>Utilizar <strong>cheats, hacks, exploits</strong> ou qualquer software/método que dê vantagem indevida no jogo.</li>
-<li>Praticar comportamento <strong>tóxico, racista, discriminatório</strong> ou que constitua ilícito (assédio, ameaças, etc).</li>
-<li>Tentar <strong>fraudar</strong> o sistema de pagamento (chargeback abusivo, cartões clonados, etc).</li>
-<li>Realizar <strong>engenharia reversa</strong>, automatização ou exploração de bugs na Plataforma.</li>
-<li>Revender Moedas, contas ou itens do servidor para terceiros.</li>
-<li>Manipular, automatizar ou fraudar sistemas de <strong>recompensa, conquistas, eventos, ranking ou economia in-game</strong> - incluindo conluio entre jogadores ou contas, combinação de mortes ("kill-trading"), farm coordenado e exploração de falhas - para obter Moedas, itens ou vantagens de forma indevida.</li>
+<li>As Moedas ficam vinculadas ao SteamID do Comprador e só podem ser usadas dentro do Servidor. Não podem ser transferidas a outro Usuário nem trocadas por dinheiro.</li>
+<li>A administração pode modificar funcionalidades, preços de itens futuros, balanceamento e regras do Servidor por razões técnicas, de segurança, de atualização ou de equilíbrio do jogo.</li>
+<li>Essas mudanças não reduzem retroativamente o saldo de Moedas já adquirido sem comunicação prévia. Quando houver impacto relevante sobre direito já contratado, será oferecida solução razoável ao consumidor, inclusive reembolso quando a lei o assegurar.</li>
 </ul>
-<div class="legal-callout">
-<p><strong>Banimento:</strong> infringir qualquer das proibições acima implica em banimento (temporário ou permanente, a critério da administração) <strong>sem direito a reembolso</strong> das Moedas não utilizadas ou em uso.</p>
-</div>
-<h3>7. Disponibilidade</h3>
-<p>A Plataforma e o Servidor são oferecidos no regime de <strong>melhor esforço</strong>. Não garantimos disponibilidade ininterrupta. Manutenções programadas ou emergenciais podem suspender o serviço temporariamente, sem ensejar reembolso, salvo nos casos previstos na Política de Reembolso.</p>
-<h3>8. Modificações dos Termos</h3>
-<p>Estes Termos podem ser atualizados a qualquer momento. A versão vigente será sempre a publicada nesta página. Mudanças relevantes serão comunicadas via Discord oficial e/ou banner no site.</p>
-<h3>9. Limitação de Responsabilidade</h3>
-<p>A Plataforma não responde por:</p>
+<h3>7. Conduta do Usuário</h3>
+<p>É vedado:</p>
 <ul>
-<li>Perda de Moedas decorrente de comprometimento da conta Steam do Jogador (responsabilidade do Jogador).</li>
-<li>Indisponibilidade do Mercado Pago, Steam ou serviços de terceiros.</li>
-<li>Atos de outros jogadores no Servidor.</li>
-<li>Danos indiretos, lucros cessantes ou consequências meramente psicológicas decorrentes do uso da Plataforma.</li>
+<li>usar cheats, hacks, exploits ou qualquer método que dê vantagem indevida no jogo;</li>
+<li>praticar assédio, ameaça, discriminação ou qualquer conduta ilícita;</li>
+<li>fraudar o pagamento, por exemplo com cartão de terceiro sem autorização;</li>
+<li>fazer engenharia reversa, automação abusiva ou exploração de falhas da Plataforma;</li>
+<li>revender Moedas, contas ou itens do Servidor.</li>
 </ul>
-<h3>10. Foro</h3>
-<p>Estes Termos são regidos pelas leis da República Federativa do Brasil. Fica eleito o foro do domicílio do consumidor, em conformidade com o art. 101, inciso I, do Código de Defesa do Consumidor.</p>
-<p style="font-size:0.85rem;color:#8aa0b5;margin-top:0.8rem;">
-<strong>Responsável legal:</strong> [RAZAO SOCIAL DA SUA EMPRESA], CNPJ [00.000.000/0000-00]. Marca <strong>[NOME DO SERVIDOR]</strong> e domínio <code>seuservidor.com</code> são propriedade desta empresa.
-</p>
-</section>', '<h2>Terms of Use</h2>
-<p class=''legal-meta''>Last update: 2026-05-20</p>
-<h3>1. Acceptance</h3>
-<p>By accessing and using <strong>[NOME DO SERVIDOR] Store</strong> (this website, hereinafter ''Platform''), you fully agree to these Terms of Use, the Refund Policy, and the Privacy Policy. If you do not agree, DO NOT use the Platform.</p>
-<h3>2. Definitions</h3>
+<h3>8. Suspensão e banimento</h3>
 <ul>
-<li><strong>Platform:</strong> the website <code>seuservidor.com</code> and its associated services.</li>
-<li><strong>Server:</strong> the DayZ game server administered by [NOME DO SERVIDOR] Store.</li>
-<li><strong>Coins:</strong> consumable virtual goods usable exclusively inside the Server, with no economic value outside it.</li>
-<li><strong>Player:</strong> a natural person aged 18+ (or authorized by guardians) who acquires and/or uses Coins.</li>
-<li><strong>SteamID:</strong> unique Steam platform identifier used to link the Player account.</li>
+<li>Em caso de violação destes Termos, a administração pode suspender ou encerrar a conta, registrando o motivo da medida e observando a proporcionalidade.</li>
+<li>Quando tecnicamente possível, o Usuário é informado da medida e pode contestá-la pelo [E-MAIL DE ATENDIMENTO] ou pelo [DISCORD OFICIAL].</li>
+<li>A suspensão ou o banimento não afastam os direitos de restituição, reembolso ou indenização previstos na lei. Em caso de fraude comprovada, os valores obtidos ou utilizados de forma fraudulenta poderão ser objeto das medidas cabíveis após apuração.</li>
 </ul>
-<h3>3. Registration and Steam Account</h3>
-<p>To use the services, the Player must have an active Steam account. The Platform uses the <strong>public SteamID</strong> (not the password) to link purchases. The Player is responsible for the security of their own Steam account.</p>
-<h3>4. Coin Acquisition</h3>
+<h3>9. Disponibilidade</h3>
+<p>A Plataforma e o Servidor podem sofrer interrupções por manutenção, falha técnica ou indisponibilidade de terceiros. Isso não afasta a responsabilidade da administração por falhas que lhe sejam imputáveis, nem os direitos do consumidor em caso de não fornecimento, vício ou cobrança sem entrega.</p>
+<h3>10. Responsabilidade</h3>
+<p>A administração não responde por perda de Moedas causada pelo comprometimento da conta Steam do próprio Usuário, nem por atos de outros jogadores dentro do Servidor.</p>
+<p>Esta cláusula não se aplica aos casos de dolo, culpa, falha de segurança, vício ou defeito do serviço, cobrança indevida, descumprimento da oferta, violação de dados pessoais, danos à integridade do consumidor ou qualquer outra hipótese em que a lei proíba limitar a responsabilidade.</p>
+<h3>11. Alterações destes Termos</h3>
 <ul>
-<li>Payments are processed by <strong>Mercado Pago</strong> (PIX, credit card, boleto), a payment institution authorized by the Brazilian Central Bank.</li>
-<li>Coin credit to the Player account is <strong>automatic</strong> after payment confirmation by Mercado Pago (generally instant for PIX and up to 48h for boleto).</li>
-<li>Prices are fixed in <strong>Brazilian Reais (BRL)</strong> and may be changed without prior notice; the applicable price is the one shown at the time of purchase.</li>
-<li>The Platform may offer promotional packages with <strong>bonus Coins</strong>, subject to availability and promotion period.</li>
+<li>Cada versão destes Termos tem número e data de vigência, e as versões anteriores ficam disponíveis mediante pedido.</li>
+<li>Alterações relevantes, como as que afetam preço, reembolso, idade, uso de dados ou saldo adquirido, são comunicadas com destaque no site e valem apenas daí em diante.</li>
+<li>Quando a lei exigir, a Plataforma pede novo aceite. O site registra qual versão cada Comprador aceitou e quando.</li>
 </ul>
-<h3>5. Use of Coins</h3>
+<h3>12. Foro e contato</h3>
+<p>Estes Termos são regidos pelas leis do Brasil. Fica eleito o foro do domicílio do consumidor (CDC, art. 101, I).</p>
+<p>Atendimento: [E-MAIL DE ATENDIMENTO] e [DISCORD OFICIAL].</p>
+', '<p class="legal-meta">This page is available in Portuguese only. The Portuguese text below prevails.</p>
+<h2>Termos de Uso</h2>
+
+<p class="legal-meta">Versão [VERSÃO] · Vigente desde [DATA DE VIGÊNCIA]</p>
+<h3>1. Quem somos e aceitação</h3>
+<p>Este site ([DOMÍNIO], doravante "Plataforma") e o servidor de jogo DayZ [NOME DO SERVIDOR] (doravante "Servidor") são operados por <strong>[RAZÃO SOCIAL]</strong>, CNPJ [CNPJ], que vende as Moedas, recebe os pagamentos e responde perante o consumidor.</p>
+<p>A Plataforma usa software fornecido pela Tecplay. A Tecplay não vende as Moedas e não recebe os pagamentos.</p>
+<p>Ao utilizar a Plataforma, você concorda com estes Termos, com a Política de Reembolso e com a Política de Privacidade.</p>
+<h3>2. Definições</h3>
 <ul>
-<li>Coins are linked <strong>exclusively</strong> to the Player''s SteamID and may only be used inside the Server.</li>
-<li>Coins <strong>have no monetary value</strong>, cannot be converted to money, transferred to another player, or exchanged for other goods.</li>
-<li>The Platform may, at any time, change the in-game economy (item prices, mechanics, etc).</li>
-<li><strong>Coins and rewards granted for free</strong> by internal systems (achievements, events, crates, bonuses) are <strong>revocable courtesies</strong>: if obtained through abuse, fraud, or exploitation of these systems, the Platform may <strong>void or reverse them</strong>, without this constituting any loss to the Player. <strong>Coins acquired through payment</strong> follow the Refund Policy and are not affected by this clause, except in cases of proven payment fraud.</li>
+<li><strong>Usuário:</strong> pessoa que acessa ou utiliza a Plataforma ou o Servidor.</li>
+<li><strong>Comprador:</strong> Usuário maior de 18 anos que adquire Moedas.</li>
+<li><strong>Usuário verificado:</strong> Usuário cuja idade foi confirmada por verificação de CPF, exigida para funcionalidade sujeita a restrição de idade.</li>
+<li><strong>Moedas:</strong> créditos virtuais de uso limitado, utilizáveis exclusivamente dentro do Servidor. As Moedas não transferem propriedade de nenhum bem e não podem ser convertidas em dinheiro.</li>
+<li><strong>Caixas de recompensa:</strong> funcionalidade que entrega itens de jogo por sorteio.</li>
+<li><strong>SteamID:</strong> identificador público da conta Steam, usado para vincular as compras ao Usuário.</li>
 </ul>
-<h3>6. Player Conduct</h3>
-<p>The Player is forbidden from:</p>
+<h3>3. Idade</h3>
 <ul>
-<li>Using <strong>cheats, hacks, exploits</strong>, or any software/method that gives undue advantage in the game.</li>
-<li>Engaging in <strong>toxic, racist, discriminatory</strong> behavior or any illegal conduct (harassment, threats, etc).</li>
-<li>Attempting to <strong>defraud</strong> the payment system (abusive chargebacks, cloned cards, etc).</li>
-<li>Performing <strong>reverse engineering</strong>, automation, or bug exploitation on the Platform.</li>
-<li>Reselling Coins, accounts, or server items to third parties.</li>
-<li>Manipulating, automating, or defrauding <strong>reward, achievement, event, ranking, or in-game economy systems</strong> - including collusion between players or accounts, kill-trading, coordinated farming, and exploiting bugs - to obtain Coins, items, or advantages improperly.</li>
+<li><strong>Público:</strong> o DayZ tem classificação indicativa de 18 anos no Brasil, por violência extrema, temas sensíveis e drogas lícitas. O Servidor e a Plataforma são destinados a maiores de 18 anos e não são divulgados para crianças ou adolescentes.</li>
+<li><strong>Regra legal:</strong> caixas de recompensa, inclusive a caixa diária gratuita, só abrem para Usuário verificado maior de 18 anos, conforme a legislação de proteção de crianças e adolescentes em ambientes digitais (Lei 15.211/2025).</li>
+<li><strong>Política deste Servidor:</strong> por medida de proteção, menores de 18 anos também não podem comprar Moedas.</li>
+<li>Para comprar Moedas, o Usuário entra com a conta Steam, informa a data de nascimento e aceita estes Termos. [SE O DONO LIGAR A VERIFICAÇÃO NA COMPRA: a idade também é verificada por CPF.]</li>
+<li>Para abrir caixas de recompensa, a idade é verificada por CPF junto a fornecedor especializado, inclusive quando as Moedas usadas na caixa foram compradas. A declaração de idade não substitui essa verificação.</li>
+<li>Quem declarar ser menor de 18 anos, ou tiver a menoridade constatada na verificação, fica impedido de comprar e de abrir caixas. Uma nova declaração não desfaz o bloqueio. Somente uma verificação por CPF que comprove a maioridade o libera.</li>
+<li>Se a administração identificar que um Usuário é menor de 18 anos, bloqueia as compras e as caixas dessa conta. O responsável pode pedir a eliminação dos dados pelo [E-MAIL DE ATENDIMENTO].</li>
+<li>Se o serviço de verificação estiver indisponível, a funcionalidade que depende dele fica suspensa até o serviço voltar. A indisponibilidade nunca libera o acesso sem verificação. O Usuário pode tentar novamente depois, sem custo, e o site não repete a consulta automaticamente.</li>
 </ul>
-<div class=''legal-callout''>
-<p><strong>Ban:</strong> infringing any of the above prohibitions results in a ban (temporary or permanent, at administration discretion) <strong>without right to refund</strong> of unused or in-use Coins.</p>
-</div>
-<h3>7. Availability</h3>
-<p>The Platform and the Server are offered on a <strong>best-effort</strong> basis. We do not guarantee uninterrupted availability. Scheduled or emergency maintenance may temporarily suspend the service, without giving rise to refund, except in cases provided in the Refund Policy.</p>
-<h3>8. Modifications to Terms</h3>
-<p>These Terms may be updated at any time. The version in effect will always be the one published on this page. Relevant changes will be communicated via official Discord and/or banner on the site.</p>
-<h3>9. Liability Limitation</h3>
-<p>The Platform is not liable for:</p>
+<h3>4. Conta Steam</h3>
+<p>A Plataforma usa o SteamID público, nunca a senha. O Usuário é responsável pela segurança da própria conta Steam.</p>
+<h3>5. Compra de Moedas</h3>
 <ul>
-<li>Loss of Coins resulting from compromise of the Player''s Steam account (Player''s responsibility).</li>
-<li>Unavailability of Mercado Pago, Steam, or third-party services.</li>
-<li>Actions of other players on the Server.</li>
-<li>Indirect damages, loss of profits, or purely psychological consequences arising from use of the Platform.</li>
+<li>Antes do pagamento, a Plataforma informa a quantidade de Moedas, o bônus quando houver, o preço total, a validade da promoção, as regras de uso, a restrição de idade e o canal de suporte.</li>
+<li>Os pagamentos são processados pelo Mercado Pago (Pix, cartão de crédito e boleto).</li>
+<li>O crédito das Moedas é automático após a confirmação do pagamento, em geral imediato no Pix e em até 48 horas no boleto. As Moedas ficam disponíveis para uso imediato após o crédito.</li>
+<li>Os preços são em Reais (BRL). Vale o preço exibido antes da confirmação da compra. Alterações de preço valem apenas para compras futuras e não modificam compras já concluídas.</li>
 </ul>
-<h3>10. Jurisdiction</h3>
-<p>These Terms are governed by the laws of the Federative Republic of Brazil. The forum of the consumer''s domicile is elected, in accordance with art. 101, item I, of the Brazilian Consumer Defense Code.</p>
-<p style=''font-size:0.85rem;color:#8aa0b5;margin-top:0.8rem;''>
-<strong>Legal entity:</strong> [RAZAO SOCIAL DA SUA EMPRESA], CNPJ [00.000.000/0000-00]. <strong>[NOME DO SERVIDOR]</strong> brand and domain <code>seuservidor.com</code> are property of this company.
-</p>', 1, 2)
+<h3>6. Uso das Moedas e mudanças no jogo</h3>
+<ul>
+<li>As Moedas ficam vinculadas ao SteamID do Comprador e só podem ser usadas dentro do Servidor. Não podem ser transferidas a outro Usuário nem trocadas por dinheiro.</li>
+<li>A administração pode modificar funcionalidades, preços de itens futuros, balanceamento e regras do Servidor por razões técnicas, de segurança, de atualização ou de equilíbrio do jogo.</li>
+<li>Essas mudanças não reduzem retroativamente o saldo de Moedas já adquirido sem comunicação prévia. Quando houver impacto relevante sobre direito já contratado, será oferecida solução razoável ao consumidor, inclusive reembolso quando a lei o assegurar.</li>
+</ul>
+<h3>7. Conduta do Usuário</h3>
+<p>É vedado:</p>
+<ul>
+<li>usar cheats, hacks, exploits ou qualquer método que dê vantagem indevida no jogo;</li>
+<li>praticar assédio, ameaça, discriminação ou qualquer conduta ilícita;</li>
+<li>fraudar o pagamento, por exemplo com cartão de terceiro sem autorização;</li>
+<li>fazer engenharia reversa, automação abusiva ou exploração de falhas da Plataforma;</li>
+<li>revender Moedas, contas ou itens do Servidor.</li>
+</ul>
+<h3>8. Suspensão e banimento</h3>
+<ul>
+<li>Em caso de violação destes Termos, a administração pode suspender ou encerrar a conta, registrando o motivo da medida e observando a proporcionalidade.</li>
+<li>Quando tecnicamente possível, o Usuário é informado da medida e pode contestá-la pelo [E-MAIL DE ATENDIMENTO] ou pelo [DISCORD OFICIAL].</li>
+<li>A suspensão ou o banimento não afastam os direitos de restituição, reembolso ou indenização previstos na lei. Em caso de fraude comprovada, os valores obtidos ou utilizados de forma fraudulenta poderão ser objeto das medidas cabíveis após apuração.</li>
+</ul>
+<h3>9. Disponibilidade</h3>
+<p>A Plataforma e o Servidor podem sofrer interrupções por manutenção, falha técnica ou indisponibilidade de terceiros. Isso não afasta a responsabilidade da administração por falhas que lhe sejam imputáveis, nem os direitos do consumidor em caso de não fornecimento, vício ou cobrança sem entrega.</p>
+<h3>10. Responsabilidade</h3>
+<p>A administração não responde por perda de Moedas causada pelo comprometimento da conta Steam do próprio Usuário, nem por atos de outros jogadores dentro do Servidor.</p>
+<p>Esta cláusula não se aplica aos casos de dolo, culpa, falha de segurança, vício ou defeito do serviço, cobrança indevida, descumprimento da oferta, violação de dados pessoais, danos à integridade do consumidor ou qualquer outra hipótese em que a lei proíba limitar a responsabilidade.</p>
+<h3>11. Alterações destes Termos</h3>
+<ul>
+<li>Cada versão destes Termos tem número e data de vigência, e as versões anteriores ficam disponíveis mediante pedido.</li>
+<li>Alterações relevantes, como as que afetam preço, reembolso, idade, uso de dados ou saldo adquirido, são comunicadas com destaque no site e valem apenas daí em diante.</li>
+<li>Quando a lei exigir, a Plataforma pede novo aceite. O site registra qual versão cada Comprador aceitou e quando.</li>
+</ul>
+<h3>12. Foro e contato</h3>
+<p>Estes Termos são regidos pelas leis do Brasil. Fica eleito o foro do domicílio do consumidor (CDC, art. 101, I).</p>
+<p>Atendimento: [E-MAIL DE ATENDIMENTO] e [DISCORD OFICIAL].</p>
+', 1, 2)
 ON DUPLICATE KEY UPDATE
   title_ptbr = IF(title_ptbr IS NULL OR title_ptbr = '', VALUES(title_ptbr), title_ptbr),
   body_ptbr  = IF(body_ptbr  IS NULL OR body_ptbr  = '', VALUES(body_ptbr),  body_ptbr),
@@ -1026,105 +1053,170 @@ ON DUPLICATE KEY UPDATE
 
 -- privacy
 INSERT INTO pages (slug, title_ptbr, title_enus, body_ptbr, body_enus, published, sort_order)
-VALUES ('privacy', 'Política de Privacidade (LGPD)', 'Privacy Policy (LGPD)', '<h2>Política de Privacidade (LGPD)</h2>
+VALUES ('privacy', 'Política de Privacidade (LGPD)', 'Privacy Policy (LGPD)', '<h2>Política de Privacidade</h2>
 
-<p class="legal-meta">Em conformidade com a Lei 13.709/18 (LGPD) · Última atualização: 2026-05-20</p>
-<h3>1. Quem somos (Controlador dos Dados - LGPD art. 5º, VI)</h3>
-<p>A <strong>[NOME DO SERVIDOR] Store</strong> é uma loja virtual de bens digitais para o servidor DayZ [NOME DO SERVIDOR], operada pela empresa:</p>
+<p class="legal-meta">Lei 13.709/2018 (LGPD) · Versão [VERSÃO] · Vigente desde [DATA DE VIGÊNCIA]</p>
+<h3>1. Quem é o controlador</h3>
+<p>O controlador dos dados tratados nesta Plataforma é <strong>[RAZÃO SOCIAL]</strong>, CNPJ [CNPJ], responsável pelo Servidor [NOME DO SERVIDOR] e pela operação da loja em [DOMÍNIO].</p>
+<p>A Tecplay fornece o software da Plataforma e pode atuar como operadora, suboperadora ou fornecedora de infraestrutura, conforme as atividades que efetivamente realizar e os contratos aplicáveis.</p>
+<p>Canal de privacidade: [E-MAIL DE ATENDIMENTO].</p>
+<h3>2. Dados que tratamos</h3>
 <ul>
-<li><strong>Razão Social:</strong> [SUA EMPRESA]</li>
-<li><strong>CNPJ:</strong> [SEU CNPJ]</li>
-<li><strong>Marca:</strong> [NOME DO SERVIDOR]</li>
-<li><strong>Domínio:</strong> <code>seuservidor.com</code></li>
-<li><strong>País de operação:</strong> Brasil</li>
+<li><strong>Conta Steam:</strong> SteamID64, nome de exibição e avatar (dados públicos da Steam).</li>
+<li><strong>Acesso:</strong> endereço IP, navegador, data e hora de cada login no site.</li>
+<li><strong>Compras:</strong> identificador, valor, status e forma de pagamento da transação no Mercado Pago. No pagamento com cartão, o e-mail e o CPF do titular do cartão são enviados diretamente ao Mercado Pago e não são guardados pelo site. O site não recebe nem guarda o número do cartão.</li>
+<li><strong>Moedas:</strong> saldo, créditos e gastos, com data e hora.</li>
+<li><strong>Verificação de idade:</strong> ano de nascimento (a data completa informada serve só para o cálculo e não é guardada), resultado da verificação (maior ou menor de idade), método usado (declaração ou CPF), um identificador derivado do CPF, a referência da consulta devolvida pelo fornecedor, data, IP e navegador. O CPF em si não é guardado pelo site.</li>
+<li><strong>Aceite dos Termos:</strong> versão aceita, data, IP e navegador.</li>
+<li><strong>Atendimento:</strong> mensagens trocadas no suporte e no [DISCORD OFICIAL], e registros de fraude ou contestação de pagamento, quando houver.</li>
 </ul>
-<p>A [SUA EMPRESA] é a <strong>controladora dos dados pessoais</strong> tratados nesta Plataforma, conforme definição da LGPD (Lei 13.709/18). Toda comunicação relativa a esta política deve ser endereçada à empresa identificada acima.</p>
-<h3>2. Dados que coletamos</h3>
-<p>Para operar a Plataforma, coletamos e tratamos os seguintes dados:</p>
+<p>O identificador derivado do CPF é usado só para impedir o reuso do mesmo CPF em outra conta, e continua sendo tratado como dado pessoal.</p>
+<h3>3. Para que usamos e com qual base legal</h3>
 <ul>
-<li><strong>SteamID64</strong> (público) - vincula a compra ao Jogador.</li>
-<li><strong>Nome de exibição e avatar</strong> da Steam - exibidos no carrinho/perfil (dados públicos da Valve).</li>
-<li><strong>Endereço IP</strong> de acesso - registrado em logs por 12 meses (Marco Civil, art. 15).</li>
-<li><strong>Identificadores de transação</strong> do Mercado Pago - payment_id, valor, status, método de pagamento. <strong>Não armazenamos número de cartão.</strong></li>
-<li><strong>Histórico de Moedas</strong> - saldo, créditos, débitos, com timestamps.</li>
-<li><strong>Logs técnicos</strong> - sucessos e falhas de acesso à API, para fins de segurança.</li>
+<li><strong>Entregar as Moedas e manter o saldo:</strong> execução de contrato (LGPD, art. 7º, V).</li>
+<li><strong>Verificar a idade:</strong> cumprimento das obrigações legais aplicáveis (LGPD, art. 7º, II; Lei 15.211/2025).</li>
+<li><strong>Registrar o aceite e a versão dos Termos:</strong> documentar a contratação e as informações apresentadas ao Usuário, e permitir o exercício regular de direitos (LGPD, art. 7º, VI).</li>
+<li><strong>Guardar os registros de acesso:</strong> cumprimento de obrigação legal (Marco Civil da Internet, art. 15).</li>
+<li><strong>Registros fiscais:</strong> cumprimento de obrigação legal, quando aplicável.</li>
+<li><strong>Segurança e prevenção de fraude:</strong> usamos os dados estritamente necessários para prevenir fraudes, proteger a conta, validar transações e proteger a Plataforma, com fundamento no legítimo interesse (LGPD, art. 7º, IX), observadas as legítimas expectativas dos titulares, a necessidade, a transparência e o balanceamento dos direitos envolvidos.</li>
 </ul>
-<h3>3. Finalidade do tratamento (LGPD art. 7)</h3>
-<ul>
-<li><strong>Execução de contrato</strong> (art. 7, V): entregar as Moedas compradas e manter o saldo.</li>
-<li><strong>Cumprimento de obrigação legal</strong> (art. 7, II): emissão de notas fiscais (quando aplicável) e retenção de logs.</li>
-<li><strong>Legítimo interesse</strong> (art. 7, IX): prevenção de fraude, segurança da plataforma.</li>
-<li><strong>Consentimento</strong> (art. 7, I): qualquer outro uso será precedido de consentimento explícito.</li>
-</ul>
+<p>Não usamos os dados para publicidade, perfilamento de comportamento ou venda a terceiros. Não há outros usos além dos listados acima.</p>
 <h3>4. Com quem compartilhamos</h3>
 <ul>
-<li><strong>Mercado Pago</strong> - processador de pagamentos. Compartilha conosco status do pagamento. Não temos acesso ao seu cartão.</li>
-<li><strong>Valve / Steam</strong> - utilizamos a API pública do Steam para buscar nome de exibição e avatar. Não enviamos dados pessoais à Valve.</li>
-<li><strong>Hostinger</strong> - provedor de hospedagem do site, com sede e DPO próprios em conformidade com LGPD.</li>
-<li><strong>Não vendemos, alugamos ou compartilhamos seus dados com terceiros para fins de marketing.</strong></li>
+<li><strong>Mercado Pago:</strong> processa o pagamento e nos devolve o status.</li>
+<li><strong>Steam (Valve):</strong> o login é feito pela Steam, e buscamos na API pública da Steam o nome de exibição e o avatar.</li>
+<li><strong>[FORNECEDOR DE VERIFICAÇÃO DE IDADE]:</strong> recebe o CPF no momento da consulta e devolve a informação de idade. Atua como operador. O site não guarda o CPF, mas o fornecedor pode guardar o registro da consulta por [PRAZO DE GUARDA DO FORNECEDOR], conforme a política dele. Pedidos sobre esse registro podem ser feitos pelo nosso canal de privacidade, que os encaminha ao fornecedor.</li>
+<li><strong>[PROVEDOR DE HOSPEDAGEM]:</strong> hospeda o site e o banco de dados, em [PAÍS DE ARMAZENAMENTO].</li>
+<li><strong>Tecplay:</strong> fornecedora do software, nos limites do item 1. Quando o Servidor usa o bot de Discord da Tecplay, o SteamID, as compras e o vínculo com a conta do Discord são enviados ao servidor da Tecplay, no Brasil, para entregar as Moedas e os cargos no Discord.</li>
+<li><strong>Discord:</strong> quando o Servidor usa o bot, as mensagens de atendimento (tickets) ficam no Discord.</li>
+<li><strong>CFTools:</strong> quando o Servidor usa essa integração, o site recebe da CFTools as estatísticas de jogo e a lista de jogadores online.</li>
 </ul>
-<h3>5. Seus direitos (LGPD art. 18)</h3>
-<p>Você pode, a qualquer momento, exercer os direitos:</p>
+<h3>5. Transferência internacional</h3>
+<p>Alguns fornecedores tratam dados fora do Brasil. Para cada um, informamos o país, os dados, a finalidade e o fundamento da transferência (LGPD, art. 33):</p>
 <ul>
-<li><strong>Confirmação</strong> da existência de tratamento;</li>
-<li><strong>Acesso</strong> aos seus dados;</li>
-<li><strong>Correção</strong> de dados incompletos, inexatos ou desatualizados;</li>
-<li><strong>Anonimização, bloqueio ou eliminação</strong> de dados desnecessários ou excessivos;</li>
-<li><strong>Portabilidade</strong> dos dados;</li>
-<li><strong>Eliminação</strong> dos dados tratados com base no seu consentimento;</li>
-<li><strong>Revogação do consentimento</strong> a qualquer momento.</li>
+<li><strong>Valve (Steam), Estados Unidos:</strong> SteamID, nome de exibição e avatar, e o IP e o navegador de quem carrega os avatares. Finalidade: o login e a identificação da conta. Fundamento: necessária à execução do contrato pedido pelo Usuário, que escolhe entrar com a Steam (art. 33, IX).</li>
+<li><strong>Google (YouTube), Estados Unidos:</strong> IP e navegador. Finalidade: exibir vídeo. O vídeo só carrega depois que o Usuário clica nele, com o aviso de que o conteúdo vem do YouTube. Antes do clique, nada é enviado ao Google. Fundamento: consentimento específico, dado no clique (art. 33, VIII).</li>
+<li><strong>CFTools, Alemanha:</strong> o site recebe estatísticas de jogo e a lista de jogadores online, quando essa integração está ligada. Fundamento: país com nível de proteção reconhecido como adequado pela ANPD (União Europeia).</li>
+<li><strong>Discord, Estados Unidos:</strong> mensagens de atendimento, quando o Servidor usa o bot. Fundamento: necessária à execução do atendimento pedido pelo Usuário (art. 33, IX).</li>
+<li><strong>Mercado Pago:</strong> trata os dados do pagamento como responsável por eles e pode tratá-los fora do Brasil, conforme a própria política.</li>
+<li><strong>[PROVEDOR DE HOSPEDAGEM]:</strong> todos os dados do site, em [PAÍS DE ARMAZENAMENTO]. Fundamento: [MECANISMO DA HOSPEDAGEM].</li>
 </ul>
-<p>Para exercer qualquer direito, abra um ticket no <strong>Discord oficial</strong> identificando seu SteamID64. Respondemos em até <strong>15 dias</strong> (LGPD art. 19, §1º, II).</p>
-<div class="legal-callout warn">
-<p>A eliminação de dados pode ser limitada pelo cumprimento de obrigações legais (ex: histórico financeiro retido por 5 anos por exigência fiscal e do Marco Civil).</p>
-</div>
-<h3>6. Retenção de dados</h3>
+<p>Ao incluir um fornecedor novo, o controlador confere o país, os subcontratados e o fundamento antes de ligar a integração. A relação atualizada pode ser pedida pelo canal de privacidade.</p>
+<h3>6. Por quanto tempo guardamos</h3>
 <ul>
-<li><strong>Logs de acesso</strong>: 12 meses (Marco Civil art. 15).</li>
-<li><strong>Logs de moedas (coin_history)</strong>: 365 dias corridos.</li>
-<li><strong>Histórico de pagamentos</strong>: 5 anos (obrigação fiscal).</li>
-<li><strong>Saldo de Moedas e SteamID</strong>: enquanto a conta estiver ativa, com prazo de 24 meses sem login para inativação automática.</li>
+<li><strong>Registros de login no site (IP, navegador, data e hora):</strong> 6 meses (Marco Civil da Internet, art. 15). Depois, são eliminados.</li>
+<li><strong>Compras:</strong> 5 anos após a compra.</li>
+<li><strong>Verificação de idade:</strong> 5 anos após o encerramento da conta.</li>
+<li><strong>Aceite dos Termos:</strong> enquanto a conta existir, mais 5 anos.</li>
+<li><strong>Mensagens de atendimento:</strong> 12 meses após o encerramento do atendimento.</li>
+<li><strong>Saldo de Moedas e conta Steam:</strong> enquanto a conta existir.</li>
 </ul>
-<h3>7. Segurança</h3>
-<p>Implementamos medidas técnicas e organizacionais razoáveis para proteção dos dados:</p>
+<p>Os prazos de 5 anos são a nossa política de retenção para cumprir as obrigações aplicáveis e permitir a defesa de direitos. Um registro só é mantido além deles se houver disputa, investigação ou obrigação legal em andamento.</p>
+<p>Após o encerramento da conta, os dados são eliminados ou anonimizados, ressalvados os registros necessários ao cumprimento de obrigação legal, à prevenção de fraude ou ao exercício regular de direitos.</p>
+<h3>7. Seus direitos</h3>
+<p>Você pode pedir: confirmação de que tratamos seus dados, acesso, correção, anonimização, bloqueio ou eliminação de dados desnecessários, portabilidade, informação sobre com quem compartilhamos e revogação de consentimento (LGPD, art. 18).</p>
+<p>Envie o pedido para [E-MAIL DE ATENDIMENTO] ou pelo [DISCORD OFICIAL]. Para confirmar que o pedido é seu, pedimos apenas o necessário, em geral que você entre no site com a mesma conta Steam. Não pedimos cópia de documento sem necessidade. Respondemos em até 15 dias.</p>
+<p>A eliminação pode ser limitada quando a lei exigir a conservação de algum registro. Nesse caso, informamos qual registro foi mantido e por quê.</p>
+<h3>8. Segurança</h3>
+<p>Adotamos medidas técnicas e administrativas compatíveis com os riscos do tratamento, incluindo controle de acesso, criptografia em trânsito, autenticação, registros de auditoria, limitação de requisições e proteção das integrações.</p>
+<p>Em caso de incidente de segurança que possa causar risco ou dano relevante, o controlador comunica a Autoridade Nacional de Proteção de Dados e os titulares afetados, nos termos da LGPD (art. 48).</p>
+<h3>9. Cookies e armazenamento no navegador</h3>
 <ul>
-<li>Conexão criptografada (HTTPS/TLS) obrigatória;</li>
-<li>Senhas administrativas protegidas com hash (HMAC-SHA256 para tokens);</li>
-<li>Rate-limiting contra força bruta;</li>
-<li>Logs auditáveis de acesso e operações destrutivas;</li>
-<li>Validação de assinatura HMAC do Mercado Pago para evitar webhooks forjados.</li>
+<li><strong>Cookie de sessão:</strong> mantém você conectado enquanto navega. É essencial ao funcionamento do site.</li>
+<li><strong>Cookie de idioma:</strong> lembra o idioma escolhido.</li>
+<li><strong>Armazenamento local do navegador:</strong> guarda que você já viu o aviso de cookies e quais avisos do site você fechou.</li>
+<li><strong>Página de pagamento:</strong> o Mercado Pago carrega o próprio código de segurança, que pode usar cookies e identificar o dispositivo para prevenir fraude, conforme a política de privacidade do Mercado Pago.</li>
 </ul>
-<h3>8. Cookies</h3>
-<p>A Plataforma utiliza armazenamento local do navegador (<code>localStorage</code>, <code>sessionStorage</code>) para manter sua sessão Steam ativa durante a navegação. Não utilizamos cookies de rastreamento de terceiros, anúncios ou analytics externos.</p>
-<h3>9. Menores de idade</h3>
-<p>A Plataforma é destinada a maiores de 18 anos. Menores de idade só podem utilizar com assistência expressa dos responsáveis legais, que assumem responsabilidade pelos pagamentos efetuados.</p>
-<h3>10. Atualizações</h3>
-<p>Esta Política pode ser atualizada. Mudanças relevantes serão sinalizadas no site e/ou via Discord oficial. Recomendamos revisão periódica.</p>
-<h3>11. Contato</h3>
-<p>Para dúvidas, solicitações ou denúncias relativas a esta política, abra um ticket no Discord oficial linkado no rodapé.</p>
-</section>', '<h2>Privacy Policy (Brazilian LGPD)</h2>
-<h3>1. Data Controller</h3>
-<p>[NOME DO SERVIDOR] Store, operated in partnership with [SUA EMPRESA] (CNPJ [SEU CNPJ]). Contact: <a href=''https://discord.gg/SEU-CONVITE''>official Discord</a>.</p>
-<h3>2. Data we collect</h3>
-<p>Public Steam ID, Steam name, coin balance, purchase history, last connection IP. We do NOT collect CPF, address, or phone.</p>
-<h3>3. Processing purpose (LGPD art. 7)</h3>
-<p>Operate the service: identify player, credit purchases, fraud prevention.</p>
-<h3>4. With whom we share</h3>
-<p>Mercado Pago (payment processing). Hostinger (infrastructure). Steam (OpenID identification). No data sold to third parties.</p>
-<h3>5. Your rights (LGPD art. 18)</h3>
-<p>Access, correction, deletion, portability, consent revocation. Request via Discord.</p>
-<h3>6. Data retention</h3>
-<p>Purchase data kept for 5 years (fiscal obligation). Player data kept while account is active + 1 year after inactivity.</p>
-<h3>7. Security</h3>
-<p>HTTPS on all pages. Passwords with bcrypt hash. Restricted administrative access.</p>
-<h3>8. Cookies</h3>
-<p>Only essential: login session and language. No third-party tracking.</p>
-<h3>9. Minors</h3>
-<p>Service not intended for users under 13. Minors under 18 require parental consent.</p>
-<h3>10. Updates</h3>
-<p>This policy may change. We will notify on site/Discord 30 days in advance.</p>
-<h3>11. Contact</h3>
-<p>For LGPD matters: official [NOME DO SERVIDOR] Discord.</p>', 1, 3)
+<p>Não usamos cookies de rastreamento, de publicidade nem ferramentas de análise de terceiros.</p>
+<h3>10. Menores de idade</h3>
+<p>O Servidor e a Plataforma são destinados a maiores de 18 anos, conforme a classificação indicativa do DayZ, e não coletam dados de propósito de crianças (até 12 anos) ou de adolescentes (de 12 a 17 anos). A conta Steam, exigida para entrar, também tem idade mínima própria.</p>
+<p>Se um menor usar a Plataforma mesmo assim, o site trata os mesmos dados de qualquer Usuário que entra: os da conta Steam, o registro de login e, se ele abrir um atendimento, as mensagens. Quem declara ser menor ou tem a menoridade constatada fica bloqueado para compras e caixas.</p>
+<p>O responsável pode pedir, pelo [E-MAIL DE ATENDIMENTO], a eliminação dos dados do menor ou a análise de uma compra feita por ele. Para confirmar a responsabilidade, pedimos só o necessário e não exigimos documentos além disso. Esses pedidos observam o melhor interesse da criança e do adolescente (LGPD, art. 14).</p>
+<h3>11. Alterações desta Política</h3>
+<p>Cada versão desta Política tem número e data de vigência, e as versões anteriores ficam disponíveis mediante pedido. Alterações relevantes são comunicadas com destaque no site. Os registros feitos durante uma versão anterior continuam regidos por ela.</p>
+', '<p class="legal-meta">This page is available in Portuguese only. The Portuguese text below prevails.</p>
+<h2>Política de Privacidade</h2>
+
+<p class="legal-meta">Lei 13.709/2018 (LGPD) · Versão [VERSÃO] · Vigente desde [DATA DE VIGÊNCIA]</p>
+<h3>1. Quem é o controlador</h3>
+<p>O controlador dos dados tratados nesta Plataforma é <strong>[RAZÃO SOCIAL]</strong>, CNPJ [CNPJ], responsável pelo Servidor [NOME DO SERVIDOR] e pela operação da loja em [DOMÍNIO].</p>
+<p>A Tecplay fornece o software da Plataforma e pode atuar como operadora, suboperadora ou fornecedora de infraestrutura, conforme as atividades que efetivamente realizar e os contratos aplicáveis.</p>
+<p>Canal de privacidade: [E-MAIL DE ATENDIMENTO].</p>
+<h3>2. Dados que tratamos</h3>
+<ul>
+<li><strong>Conta Steam:</strong> SteamID64, nome de exibição e avatar (dados públicos da Steam).</li>
+<li><strong>Acesso:</strong> endereço IP, navegador, data e hora de cada login no site.</li>
+<li><strong>Compras:</strong> identificador, valor, status e forma de pagamento da transação no Mercado Pago. No pagamento com cartão, o e-mail e o CPF do titular do cartão são enviados diretamente ao Mercado Pago e não são guardados pelo site. O site não recebe nem guarda o número do cartão.</li>
+<li><strong>Moedas:</strong> saldo, créditos e gastos, com data e hora.</li>
+<li><strong>Verificação de idade:</strong> ano de nascimento (a data completa informada serve só para o cálculo e não é guardada), resultado da verificação (maior ou menor de idade), método usado (declaração ou CPF), um identificador derivado do CPF, a referência da consulta devolvida pelo fornecedor, data, IP e navegador. O CPF em si não é guardado pelo site.</li>
+<li><strong>Aceite dos Termos:</strong> versão aceita, data, IP e navegador.</li>
+<li><strong>Atendimento:</strong> mensagens trocadas no suporte e no [DISCORD OFICIAL], e registros de fraude ou contestação de pagamento, quando houver.</li>
+</ul>
+<p>O identificador derivado do CPF é usado só para impedir o reuso do mesmo CPF em outra conta, e continua sendo tratado como dado pessoal.</p>
+<h3>3. Para que usamos e com qual base legal</h3>
+<ul>
+<li><strong>Entregar as Moedas e manter o saldo:</strong> execução de contrato (LGPD, art. 7º, V).</li>
+<li><strong>Verificar a idade:</strong> cumprimento das obrigações legais aplicáveis (LGPD, art. 7º, II; Lei 15.211/2025).</li>
+<li><strong>Registrar o aceite e a versão dos Termos:</strong> documentar a contratação e as informações apresentadas ao Usuário, e permitir o exercício regular de direitos (LGPD, art. 7º, VI).</li>
+<li><strong>Guardar os registros de acesso:</strong> cumprimento de obrigação legal (Marco Civil da Internet, art. 15).</li>
+<li><strong>Registros fiscais:</strong> cumprimento de obrigação legal, quando aplicável.</li>
+<li><strong>Segurança e prevenção de fraude:</strong> usamos os dados estritamente necessários para prevenir fraudes, proteger a conta, validar transações e proteger a Plataforma, com fundamento no legítimo interesse (LGPD, art. 7º, IX), observadas as legítimas expectativas dos titulares, a necessidade, a transparência e o balanceamento dos direitos envolvidos.</li>
+</ul>
+<p>Não usamos os dados para publicidade, perfilamento de comportamento ou venda a terceiros. Não há outros usos além dos listados acima.</p>
+<h3>4. Com quem compartilhamos</h3>
+<ul>
+<li><strong>Mercado Pago:</strong> processa o pagamento e nos devolve o status.</li>
+<li><strong>Steam (Valve):</strong> o login é feito pela Steam, e buscamos na API pública da Steam o nome de exibição e o avatar.</li>
+<li><strong>[FORNECEDOR DE VERIFICAÇÃO DE IDADE]:</strong> recebe o CPF no momento da consulta e devolve a informação de idade. Atua como operador. O site não guarda o CPF, mas o fornecedor pode guardar o registro da consulta por [PRAZO DE GUARDA DO FORNECEDOR], conforme a política dele. Pedidos sobre esse registro podem ser feitos pelo nosso canal de privacidade, que os encaminha ao fornecedor.</li>
+<li><strong>[PROVEDOR DE HOSPEDAGEM]:</strong> hospeda o site e o banco de dados, em [PAÍS DE ARMAZENAMENTO].</li>
+<li><strong>Tecplay:</strong> fornecedora do software, nos limites do item 1. Quando o Servidor usa o bot de Discord da Tecplay, o SteamID, as compras e o vínculo com a conta do Discord são enviados ao servidor da Tecplay, no Brasil, para entregar as Moedas e os cargos no Discord.</li>
+<li><strong>Discord:</strong> quando o Servidor usa o bot, as mensagens de atendimento (tickets) ficam no Discord.</li>
+<li><strong>CFTools:</strong> quando o Servidor usa essa integração, o site recebe da CFTools as estatísticas de jogo e a lista de jogadores online.</li>
+</ul>
+<h3>5. Transferência internacional</h3>
+<p>Alguns fornecedores tratam dados fora do Brasil. Para cada um, informamos o país, os dados, a finalidade e o fundamento da transferência (LGPD, art. 33):</p>
+<ul>
+<li><strong>Valve (Steam), Estados Unidos:</strong> SteamID, nome de exibição e avatar, e o IP e o navegador de quem carrega os avatares. Finalidade: o login e a identificação da conta. Fundamento: necessária à execução do contrato pedido pelo Usuário, que escolhe entrar com a Steam (art. 33, IX).</li>
+<li><strong>Google (YouTube), Estados Unidos:</strong> IP e navegador. Finalidade: exibir vídeo. O vídeo só carrega depois que o Usuário clica nele, com o aviso de que o conteúdo vem do YouTube. Antes do clique, nada é enviado ao Google. Fundamento: consentimento específico, dado no clique (art. 33, VIII).</li>
+<li><strong>CFTools, Alemanha:</strong> o site recebe estatísticas de jogo e a lista de jogadores online, quando essa integração está ligada. Fundamento: país com nível de proteção reconhecido como adequado pela ANPD (União Europeia).</li>
+<li><strong>Discord, Estados Unidos:</strong> mensagens de atendimento, quando o Servidor usa o bot. Fundamento: necessária à execução do atendimento pedido pelo Usuário (art. 33, IX).</li>
+<li><strong>Mercado Pago:</strong> trata os dados do pagamento como responsável por eles e pode tratá-los fora do Brasil, conforme a própria política.</li>
+<li><strong>[PROVEDOR DE HOSPEDAGEM]:</strong> todos os dados do site, em [PAÍS DE ARMAZENAMENTO]. Fundamento: [MECANISMO DA HOSPEDAGEM].</li>
+</ul>
+<p>Ao incluir um fornecedor novo, o controlador confere o país, os subcontratados e o fundamento antes de ligar a integração. A relação atualizada pode ser pedida pelo canal de privacidade.</p>
+<h3>6. Por quanto tempo guardamos</h3>
+<ul>
+<li><strong>Registros de login no site (IP, navegador, data e hora):</strong> 6 meses (Marco Civil da Internet, art. 15). Depois, são eliminados.</li>
+<li><strong>Compras:</strong> 5 anos após a compra.</li>
+<li><strong>Verificação de idade:</strong> 5 anos após o encerramento da conta.</li>
+<li><strong>Aceite dos Termos:</strong> enquanto a conta existir, mais 5 anos.</li>
+<li><strong>Mensagens de atendimento:</strong> 12 meses após o encerramento do atendimento.</li>
+<li><strong>Saldo de Moedas e conta Steam:</strong> enquanto a conta existir.</li>
+</ul>
+<p>Os prazos de 5 anos são a nossa política de retenção para cumprir as obrigações aplicáveis e permitir a defesa de direitos. Um registro só é mantido além deles se houver disputa, investigação ou obrigação legal em andamento.</p>
+<p>Após o encerramento da conta, os dados são eliminados ou anonimizados, ressalvados os registros necessários ao cumprimento de obrigação legal, à prevenção de fraude ou ao exercício regular de direitos.</p>
+<h3>7. Seus direitos</h3>
+<p>Você pode pedir: confirmação de que tratamos seus dados, acesso, correção, anonimização, bloqueio ou eliminação de dados desnecessários, portabilidade, informação sobre com quem compartilhamos e revogação de consentimento (LGPD, art. 18).</p>
+<p>Envie o pedido para [E-MAIL DE ATENDIMENTO] ou pelo [DISCORD OFICIAL]. Para confirmar que o pedido é seu, pedimos apenas o necessário, em geral que você entre no site com a mesma conta Steam. Não pedimos cópia de documento sem necessidade. Respondemos em até 15 dias.</p>
+<p>A eliminação pode ser limitada quando a lei exigir a conservação de algum registro. Nesse caso, informamos qual registro foi mantido e por quê.</p>
+<h3>8. Segurança</h3>
+<p>Adotamos medidas técnicas e administrativas compatíveis com os riscos do tratamento, incluindo controle de acesso, criptografia em trânsito, autenticação, registros de auditoria, limitação de requisições e proteção das integrações.</p>
+<p>Em caso de incidente de segurança que possa causar risco ou dano relevante, o controlador comunica a Autoridade Nacional de Proteção de Dados e os titulares afetados, nos termos da LGPD (art. 48).</p>
+<h3>9. Cookies e armazenamento no navegador</h3>
+<ul>
+<li><strong>Cookie de sessão:</strong> mantém você conectado enquanto navega. É essencial ao funcionamento do site.</li>
+<li><strong>Cookie de idioma:</strong> lembra o idioma escolhido.</li>
+<li><strong>Armazenamento local do navegador:</strong> guarda que você já viu o aviso de cookies e quais avisos do site você fechou.</li>
+<li><strong>Página de pagamento:</strong> o Mercado Pago carrega o próprio código de segurança, que pode usar cookies e identificar o dispositivo para prevenir fraude, conforme a política de privacidade do Mercado Pago.</li>
+</ul>
+<p>Não usamos cookies de rastreamento, de publicidade nem ferramentas de análise de terceiros.</p>
+<h3>10. Menores de idade</h3>
+<p>O Servidor e a Plataforma são destinados a maiores de 18 anos, conforme a classificação indicativa do DayZ, e não coletam dados de propósito de crianças (até 12 anos) ou de adolescentes (de 12 a 17 anos). A conta Steam, exigida para entrar, também tem idade mínima própria.</p>
+<p>Se um menor usar a Plataforma mesmo assim, o site trata os mesmos dados de qualquer Usuário que entra: os da conta Steam, o registro de login e, se ele abrir um atendimento, as mensagens. Quem declara ser menor ou tem a menoridade constatada fica bloqueado para compras e caixas.</p>
+<p>O responsável pode pedir, pelo [E-MAIL DE ATENDIMENTO], a eliminação dos dados do menor ou a análise de uma compra feita por ele. Para confirmar a responsabilidade, pedimos só o necessário e não exigimos documentos além disso. Esses pedidos observam o melhor interesse da criança e do adolescente (LGPD, art. 14).</p>
+<h3>11. Alterações desta Política</h3>
+<p>Cada versão desta Política tem número e data de vigência, e as versões anteriores ficam disponíveis mediante pedido. Alterações relevantes são comunicadas com destaque no site. Os registros feitos durante uma versão anterior continuam regidos por ela.</p>
+', 1, 3)
 ON DUPLICATE KEY UPDATE
   title_ptbr = IF(title_ptbr IS NULL OR title_ptbr = '', VALUES(title_ptbr), title_ptbr),
   body_ptbr  = IF(body_ptbr  IS NULL OR body_ptbr  = '', VALUES(body_ptbr),  body_ptbr),
@@ -1134,58 +1226,70 @@ ON DUPLICATE KEY UPDATE
 INSERT INTO pages (slug, title_ptbr, title_enus, body_ptbr, body_enus, published, sort_order)
 VALUES ('refund', 'Política de Reembolso', 'Refund Policy', '<h2>Política de Reembolso</h2>
 
-<p class="legal-meta">Última atualização: 2026-05-20 · Baseada no CDC (Lei 8.078/90), arts. 49 e 18</p>
-<div class="legal-callout info">
-<p><strong>Direito de Arrependimento (CDC art. 49):</strong> compras feitas pela internet podem ser canceladas em até <strong>7 (sete) dias corridos</strong> a partir da confirmação do pagamento, <strong>desde que o produto digital ainda não tenha sido consumido</strong>.</p>
-</div>
-<h3>1. Quando o reembolso É concedido</h3>
+<p class="legal-meta">Código de Defesa do Consumidor (Lei 8.078/1990), arts. 18, 20 e 49 · Versão [VERSÃO] · Vigente desde [DATA DE VIGÊNCIA]</p>
+<h3>1. Direito de arrependimento</h3>
+<p>Compras feitas pela internet podem ser canceladas em até 7 (sete) dias corridos a partir da confirmação do pagamento (CDC, art. 49).</p>
 <ul>
-<li><strong>Pagamento duplicado</strong>: o sistema cobrou duas vezes a mesma compra. Reembolso integral da segunda cobrança.</li>
-<li><strong>Falha técnica no crédito</strong>: pagamento aprovado mas as Moedas não foram entregues e o suporte não conseguiu solucionar em até 7 dias.</li>
-<li><strong>Arrependimento em até 7 dias</strong>: o Jogador pediu reembolso em até 7 dias da compra E as Moedas adquiridas estão <strong>integralmente intactas</strong> (saldo atual ≥ Moedas compradas).</li>
-<li><strong>Cobrança não reconhecida</strong> (suspeita de fraude no cartão): o caso é investigado e, se confirmada a fraude, reembolso integral mais bloqueio da conta envolvida.</li>
+<li>Moedas ainda não usadas: reembolso integral do valor pago.</li>
+<li>Parte das Moedas já usada: o pedido é analisado individualmente, sem prejuízo do direito de arrependimento e dos demais direitos previstos em lei.</li>
 </ul>
-<h3>2. Quando o reembolso NÃO é concedido</h3>
+<h3>2. Falha, cobrança indevida e fraude</h3>
 <ul>
-<li><strong>Moedas já gastas</strong> (parcial ou totalmente) dentro do Servidor. Conforme entendimento consolidado para bens digitais consumíveis, uma vez utilizada, a Moeda é considerada produto entregue e consumido.</li>
-<li><strong>Banimento por trapaça, hack ou comportamento tóxico</strong>: ao infringir o item 6 dos Termos de Uso, o Jogador perde direito a reembolso das Moedas não utilizadas (item 6).</li>
-<li><strong>Solicitação após 7 (sete) dias</strong> da confirmação do pagamento.</li>
-<li><strong>Comprovada má-fé</strong>: padrão de uso intensivo seguido de pedido de reembolso (ex: comprar, usar 80% do pacote em 1 hora, pedir devolução). A análise de logs comprova o consumo.</li>
-<li><strong>Chargeback indevido</strong>: contestação no cartão depois de a Moeda ter sido entregue e consumida configura tentativa de fraude e enseja banimento permanente sem direito a recompra.</li>
+<li><strong>Cobrança em duplicidade:</strong> reembolso integral da cobrança repetida.</li>
+<li><strong>Moedas não entregues:</strong> se o pagamento foi aprovado e as Moedas não chegaram, a equipe corrige o crédito ou, à escolha do consumidor, devolve o valor pago.</li>
+<li><strong>Vício ou falha no serviço:</strong> conforme o caso, a equipe corrige o problema, restitui o valor ou concede abatimento proporcional (CDC, arts. 18 e 20).</li>
+<li><strong>Compra não reconhecida pelo titular do cartão:</strong> o caso é apurado. Confirmada a fraude, o valor é devolvido ao titular.</li>
 </ul>
-<div class="legal-callout warn">
-<p><strong>Análise de boa-fé:</strong> a Plataforma mantém histórico detalhado de todas as transações, créditos e gastos no Servidor (logs imutáveis com timestamp). Solicitações são avaliadas com base nesses registros.</p>
-</div>
-<h3>3. Como solicitar reembolso</h3>
-<ol>
-<li>Abra um <strong>ticket no nosso Discord</strong> (link no rodapé do site).</li>
-<li>Informe:
+<h3>3. Como analisamos cada pedido</h3>
+<p>Avaliamos a extensão do fornecimento, o consumo das Moedas, falha técnica, duplicidade, fraude e as demais circunstâncias do caso. O reembolso pode ser integral ou proporcional, conforme a obrigação não cumprida, o valor efetivamente pago e os direitos previstos em lei.</p>
+<p>O uso intenso das Moedas, isoladamente, não é considerado prova de má-fé. A análise considera os registros da transação, a comunicação do consumidor e as demais circunstâncias.</p>
+<p>Em pacotes com bônus, o reembolso considera o valor pago, não o valor das Moedas de bônus.</p>
+<h3>4. Suspensão, banimento e reembolso</h3>
+<p>A suspensão ou o banimento da conta não eliminam, por si só, o direito ao reembolso previsto em lei. Em caso de fraude comprovada, os valores ligados à fraude poderão ser objeto das medidas cabíveis após apuração.</p>
+<h3>5. Contestação de pagamento (chargeback)</h3>
+<p>Se o pagamento for contestado junto ao cartão, a Plataforma pode suspender temporariamente o uso das Moedas ligadas àquela transação e pedir informações ao Comprador, sem impedir o exercício dos seus direitos. Medidas definitivas dependem da confirmação de fraude, duplicidade ou irregularidade.</p>
+<h3>6. Como pedir</h3>
 <ul>
-<li>Seu <strong>SteamID64</strong> (17 dígitos).</li>
-<li>O <strong>Payment ID</strong> do Mercado Pago (recebido no e-mail de confirmação).</li>
-<li><strong>Motivo</strong> detalhado do pedido.</li>
-<li>Comprovantes adicionais (printscreen, conversa) se aplicável.</li>
+<li>Envie o pedido para [E-MAIL DE ATENDIMENTO] ou abra um ticket no [DISCORD OFICIAL].</li>
+<li>Informe o número da transação do Mercado Pago (está no e-mail de confirmação) e o motivo. Se não tiver o número, informe a data e o valor da compra, que localizamos pelo seu login.</li>
+<li>A equipe responde em até 5 (cinco) dias úteis. Aprovado o reembolso, o estorno é feito pelo Mercado Pago. O prazo do estorno depende do meio de pagamento e do Mercado Pago, e costuma ser de até 14 dias úteis. Esses prazos são estimativas de operação e não reduzem nenhum prazo previsto em lei.</li>
 </ul>
-</li>
-<li>A equipe analisa em até <strong>5 (cinco) dias úteis</strong>.</li>
-<li>Se aprovado, o estorno é processado via Mercado Pago em até <strong>14 dias úteis</strong> (prazo bancário, fora do nosso controle).</li>
-<li>Caso a compra envolva pacote com bônus, o reembolso considera o valor pago - não o valor comercial das Moedas bônus.</li>
-</ol>
-<h3>4. Estorno parcial</h3>
-<p>Não realizamos estorno parcial. Ou a totalidade do pedido se enquadra e é devolvida, ou o pedido é negado integralmente.</p>
-<h3>5. Reincidência</h3>
-<p>Jogadores que solicitarem reembolso de boa-fé por motivos diversos serão analisados. Padrão repetido (3+ pedidos em 30 dias) pode resultar em bloqueio de novas compras com aquele SteamID/cartão por até 90 dias.</p>
-</section>', '<h2>Refund Policy</h2>
-<h3>1. When refund IS granted</h3>
-<p>Technical failure on our end (system down, coins not credited after 24h). Request via Discord with proof.</p>
-<h3>2. When refund is NOT granted</h3>
-<p>Coins already spent in-game. Ban for misconduct. Claim after 7 days of purchase. Purchase above R$200 with more than 30 days.</p>
-<h3>3. How to request a refund</h3>
-<p>Open a ticket on our official Discord: <a href=''https://discord.gg/SEU-CONVITE''>discord.gg/SEU-CONVITE</a>. Include: Steam ID, payment proof (Mercado Pago), and reason.</p>
-<h3>4. Partial refund</h3>
-<p>Evaluated case by case. If you used part of the coins, refund will be proportional to the unused balance.</p>
-<h3>5. Recurrence</h3>
-<p>Repeated refund requests without valid justification may result in account ban.</p>', 1, 4)
+<h3>7. Pedidos repetidos</h3>
+<p>Cada pedido é analisado individualmente. Um padrão de pedidos repetidos pode levar a uma análise mais detalhada das compras seguintes, sempre respeitando os direitos do consumidor.</p>
+', '<p class="legal-meta">This page is available in Portuguese only. The Portuguese text below prevails.</p>
+<h2>Política de Reembolso</h2>
+
+<p class="legal-meta">Código de Defesa do Consumidor (Lei 8.078/1990), arts. 18, 20 e 49 · Versão [VERSÃO] · Vigente desde [DATA DE VIGÊNCIA]</p>
+<h3>1. Direito de arrependimento</h3>
+<p>Compras feitas pela internet podem ser canceladas em até 7 (sete) dias corridos a partir da confirmação do pagamento (CDC, art. 49).</p>
+<ul>
+<li>Moedas ainda não usadas: reembolso integral do valor pago.</li>
+<li>Parte das Moedas já usada: o pedido é analisado individualmente, sem prejuízo do direito de arrependimento e dos demais direitos previstos em lei.</li>
+</ul>
+<h3>2. Falha, cobrança indevida e fraude</h3>
+<ul>
+<li><strong>Cobrança em duplicidade:</strong> reembolso integral da cobrança repetida.</li>
+<li><strong>Moedas não entregues:</strong> se o pagamento foi aprovado e as Moedas não chegaram, a equipe corrige o crédito ou, à escolha do consumidor, devolve o valor pago.</li>
+<li><strong>Vício ou falha no serviço:</strong> conforme o caso, a equipe corrige o problema, restitui o valor ou concede abatimento proporcional (CDC, arts. 18 e 20).</li>
+<li><strong>Compra não reconhecida pelo titular do cartão:</strong> o caso é apurado. Confirmada a fraude, o valor é devolvido ao titular.</li>
+</ul>
+<h3>3. Como analisamos cada pedido</h3>
+<p>Avaliamos a extensão do fornecimento, o consumo das Moedas, falha técnica, duplicidade, fraude e as demais circunstâncias do caso. O reembolso pode ser integral ou proporcional, conforme a obrigação não cumprida, o valor efetivamente pago e os direitos previstos em lei.</p>
+<p>O uso intenso das Moedas, isoladamente, não é considerado prova de má-fé. A análise considera os registros da transação, a comunicação do consumidor e as demais circunstâncias.</p>
+<p>Em pacotes com bônus, o reembolso considera o valor pago, não o valor das Moedas de bônus.</p>
+<h3>4. Suspensão, banimento e reembolso</h3>
+<p>A suspensão ou o banimento da conta não eliminam, por si só, o direito ao reembolso previsto em lei. Em caso de fraude comprovada, os valores ligados à fraude poderão ser objeto das medidas cabíveis após apuração.</p>
+<h3>5. Contestação de pagamento (chargeback)</h3>
+<p>Se o pagamento for contestado junto ao cartão, a Plataforma pode suspender temporariamente o uso das Moedas ligadas àquela transação e pedir informações ao Comprador, sem impedir o exercício dos seus direitos. Medidas definitivas dependem da confirmação de fraude, duplicidade ou irregularidade.</p>
+<h3>6. Como pedir</h3>
+<ul>
+<li>Envie o pedido para [E-MAIL DE ATENDIMENTO] ou abra um ticket no [DISCORD OFICIAL].</li>
+<li>Informe o número da transação do Mercado Pago (está no e-mail de confirmação) e o motivo. Se não tiver o número, informe a data e o valor da compra, que localizamos pelo seu login.</li>
+<li>A equipe responde em até 5 (cinco) dias úteis. Aprovado o reembolso, o estorno é feito pelo Mercado Pago. O prazo do estorno depende do meio de pagamento e do Mercado Pago, e costuma ser de até 14 dias úteis. Esses prazos são estimativas de operação e não reduzem nenhum prazo previsto em lei.</li>
+</ul>
+<h3>7. Pedidos repetidos</h3>
+<p>Cada pedido é analisado individualmente. Um padrão de pedidos repetidos pode levar a uma análise mais detalhada das compras seguintes, sempre respeitando os direitos do consumidor.</p>
+', 1, 4)
 ON DUPLICATE KEY UPDATE
   title_ptbr = IF(title_ptbr IS NULL OR title_ptbr = '', VALUES(title_ptbr), title_ptbr),
   body_ptbr  = IF(body_ptbr  IS NULL OR body_ptbr  = '', VALUES(body_ptbr),  body_ptbr),
@@ -1243,7 +1347,8 @@ VALUES ('faq', 'Perguntas Frequentes', 'Frequently Asked Questions', '<h2>Pergun
 <details class="faq-item">
 <summary class="faq-q">Sou menor de 18, posso comprar?</summary>
 <div class="faq-a">
-<p>A Plataforma é destinada a maiores de 18 anos. Menores devem ter assistência expressa dos responsáveis legais, que serão considerados financeiramente responsáveis. Em caso de compras feitas por menor sem autorização, o reembolso será processado mediante comprovação documental dos responsáveis.</p>
+<p>Não. O DayZ tem classificação indicativa de 18 anos, e este Servidor é destinado a maiores de 18. Menores não podem comprar Moedas nem abrir caixas de recompensa. Para abrir caixas, a idade é verificada por fornecedor especializado. O site recebe só o resultado necessário e não guarda o CPF nem imagem de documento.</p>
+<p>Se uma compra foi feita por um menor, o responsável pode entrar em contato pelo [E-MAIL DE ATENDIMENTO]. Analisamos o caso e pedimos só a informação necessária para confirmar a responsabilidade.</p>
 </div>
 </details>
 <details class="faq-item">

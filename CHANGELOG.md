@@ -5,6 +5,30 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [3.7.0] - 2026-09-26
+
+### Alterado
+
+- **Termos de Uso, Política de Privacidade, Política de Reembolso e a resposta do FAQ sobre menores
+  foram reescritos** com revisão jurídica sobre o ECA Digital, a LGPD, o Marco Civil e o CDC.
+  Os pontos principais:
+  - o servidor é destinado a maiores de 18 anos, seguindo a classificação indicativa oficial do DayZ;
+  - caixas de recompensa exigem verificação de idade por lei, e a proibição de menor comprar Moedas
+    aparece como política do servidor;
+  - a Privacidade lista os dados, as bases legais, os fornecedores, a transferência internacional
+    fornecedor por fornecedor e os prazos de guarda;
+  - o Reembolso analisa cada caso, admite reembolso integral ou proporcional e não tira o reembolso
+    de quem foi banido sem apuração.
+- A versão em inglês dessas páginas aponta para o texto em português, que é o que vale.
+
+### Para atualizar
+
+- **Instalação nova** já nasce com o texto novo.
+- **Site que já estava no ar mantém o texto que você tem hoje:** a atualização nunca sobrescreve as
+  suas páginas. Para usar o texto novo, peça ao suporte da Tecplay, que aplica e preenche os campos
+  com os dados da sua empresa. Depois disso, mude a **Versão dos Termos** em Configurações para os
+  jogadores aceitarem o texto novo na próxima compra.
+
 ## [3.6.1] - 2026-09-26
 
 ### Alterado
