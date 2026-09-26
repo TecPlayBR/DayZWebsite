@@ -734,6 +734,8 @@
 .adm-req { color: var(--hazard); font-weight: 700; }
 .adm-hint { color: var(--dim); font-size: .78rem; line-height: 1.45; }
 .adm-campo .field { width: 100%; }
+/* VT323 (fonte mono do tema) e de pixel: no mesmo tamanho da Inter parece bem menor. */
+.adm-campo .field.mono { font-size: 1.2rem; letter-spacing: .02em; }
 .adm-check { display: flex; align-items: center; gap: .5rem; color: var(--bone); font-size: .9rem; cursor: pointer; }
 .adm-req-erro { border-color: var(--text-danger) !important; box-shadow: 0 0 0 2px var(--danger-overlay); }
 .adm-req-aviso { grid-column: 1 / -1; margin: 0; padding: .6rem .9rem; border-radius: 4px; background: var(--danger-overlay); border: 1px solid var(--danger-border); color: var(--text-danger); font-size: .9rem; }
@@ -742,4 +744,18 @@
 .adm-imagem-campos { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: .4rem; }
 .adm-imagem-url summary { cursor: pointer; color: var(--dim); font-size: .8rem; }
 .adm-imagem-url .field { margin-top: .4rem; }
+/* Grades de 3 e 4 colunas pros formularios com muitos campos curtos (cupom, pacote).
+   Em tela media a de 4 vira 2; no celular as duas viram 1 coluna, como a de 2. */
+.adm-grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .9rem 1rem; align-items: start; }
+.adm-grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .9rem 1rem; align-items: start; }
+.adm-bloco { margin-bottom: 1.1rem; }
+.adm-bloco-titulo { font-size: .8rem; letter-spacing: .06em; text-transform: uppercase; color: var(--dim); margin: 0 0 .7rem; }
+.adm-checks { display: flex; flex-wrap: wrap; gap: .5rem 1.1rem; }
+.adm-acoes { display: flex; flex-wrap: wrap; gap: .7rem; align-items: center; }
+.adm-secao { border: 1px solid var(--border); border-radius: 4px; padding: .7rem .9rem; margin-bottom: 1.1rem; }
+.adm-secao > summary { cursor: pointer; color: var(--bone); font-size: .9rem; }
+.adm-secao[open] > summary { margin-bottom: .8rem; }
+.adm-arquivo-atual { width: 84px; height: 84px; object-fit: contain; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-0); flex: 0 0 auto; }
+@media (max-width: 960px) { .adm-grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 720px) { .adm-grid-2 { grid-template-columns: 1fr; } }
+@media (max-width: 720px) { .adm-grid-3, .adm-grid-4 { grid-template-columns: 1fr; } }

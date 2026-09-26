@@ -16,28 +16,24 @@
 
 <div class="stat-card" style="margin-bottom:1.5rem;">
     <div class="label">Configuração da caixa</div>
-    <form method="POST" action="/admin/caixas/save" enctype="multipart/form-data" style="margin-top:0.8rem;display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;">
+    <form method="POST" action="/admin/caixas/save" enctype="multipart/form-data" class="adm-grid-2" style="margin-top:0.8rem;" data-adm-form>
         <?= \App\Csrf::field() ?>
         <input type="hidden" name="id" value="<?= (int)$box['id'] ?>">
-        <label>Nome<input type="text" name="name" value="<?= e($box['name']) ?>" required style="width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);"></label>
-        <label>Slug (URL)<input type="text" name="slug" value="<?= e($box['slug']) ?>" style="width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);"></label>
-        <div style="grid-column:1/3;">
-            <label style="display:block;font-size:0.85rem;margin-bottom:0.3rem;">Capa da caixa (PNG transparente ~512×512)</label>
-            <div style="display:flex;align-items:center;gap:1rem;">
-                <?php if (!empty($box['image'])): ?><img src="<?= e($box['image']) ?>" alt="" style="width:64px;height:64px;object-fit:contain;background:var(--bg-0);border:1px solid var(--border);border-radius:4px;padding:3px;"><?php endif; ?>
-                <div style="flex:1;">
-                    <input type="file" name="image_file" accept="image/png,image/webp,image/jpeg" style="color:var(--bone);font-size:0.82rem;">
-                    <input type="text" name="image" value="<?= e($box['image'] ?? '') ?>" placeholder="ou cole uma URL (deixe vazio pra remover)" style="width:100%;margin-top:0.4rem;padding:0.4rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);font-size:0.8rem;">
-                </div>
-            </div>
+        <?= admin_campo(['label' => 'Nome', 'name' => 'name', 'required' => true, 'value' => (string) $box['name'], 'hint' => 'Como aparece na vitrine de caixas.']) ?>
+        <?= admin_campo(['label' => 'Slug (URL)', 'name' => 'slug', 'value' => (string) $box['slug'], 'class' => 'mono', 'hint' => 'Endereço da caixa: /caixas/slug. Só letras, números e hífen.']) ?>
+        <div class="adm-span-2">
+            <?= admin_campo_imagem(['label' => 'Capa da caixa', 'name' => 'image', 'value' => (string) ($box['image'] ?? '')]) ?>
+            <small class="adm-hint">PNG transparente, perto de 512×512. Pra tirar a capa, abra "ou colar um link" e apague o endereço.</small>
         </div>
-        <label style="grid-column:1/3;">Descrição<textarea name="description" rows="2" style="width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);"><?= e($box['description'] ?? '') ?></textarea></label>
-        <label>Custo (moedas)<input type="number" name="cost_coins" value="<?= (int)$box['cost_coins'] ?>" min="0" style="width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);"></label>
-        <label>Ordem na vitrine <span style="color:var(--dim);font-weight:400;">- menor = aparece primeiro</span><input type="number" name="sort_order" value="<?= (int)($box['sort_order'] ?? 0) ?>" min="0" style="width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);"></label>
-        <label>Cooldown diária (horas) <span style="color:var(--dim);font-weight:400;">- 0 = sem espera</span><input type="number" name="cooldown_hours" value="<?= (int)$box['cooldown_hours'] ?>" min="0" style="width:100%;padding:0.5rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);"><small style="color:var(--dim);">Só vale pra caixa diária grátis. Caixa paga nunca tem cooldown.</small></label>
-        <label style="display:flex;align-items:center;gap:0.4rem;"><input type="checkbox" name="is_daily" value="1" <?= (int)$box['is_daily']?'checked':'' ?>> Diária grátis (ignora custo)</label>
-        <label style="display:flex;align-items:center;gap:0.4rem;"><input type="checkbox" name="enabled" value="1" <?= (int)$box['enabled']?'checked':'' ?>> Ativa</label>
-        <div style="grid-column:1/3;"><button type="submit" class="btn">Salvar caixa</button></div>
+        <div class="adm-span-2"><?= admin_campo(['label' => 'Descrição', 'name' => 'description', 'type' => 'textarea', 'rows' => 2, 'value' => (string) ($box['description'] ?? ''), 'hint' => 'Aparece embaixo do nome na página da caixa.']) ?></div>
+        <?= admin_campo(['label' => 'Custo (moedas)', 'name' => 'cost_coins', 'type' => 'number', 'value' => (string) (int) $box['cost_coins'], 'class' => 'mono', 'attrs' => 'min="0"', 'hint' => 'Ignorado se for diária grátis.']) ?>
+        <?= admin_campo(['label' => 'Ordem na vitrine', 'name' => 'sort_order', 'type' => 'number', 'value' => (string) (int) ($box['sort_order'] ?? 0), 'class' => 'mono', 'attrs' => 'min="0"', 'hint' => 'Menor aparece primeiro.']) ?>
+        <?= admin_campo(['label' => 'Espera da diária (horas)', 'name' => 'cooldown_hours', 'type' => 'number', 'value' => (string) (int) $box['cooldown_hours'], 'class' => 'mono', 'attrs' => 'min="0"', 'hint' => 'Só vale pra caixa diária grátis. 0 = sem espera. Caixa paga nunca tem espera.']) ?>
+        <div class="adm-campo">
+            <label class="adm-check"><input type="checkbox" name="is_daily" value="1" <?= (int)$box['is_daily'] ? 'checked' : '' ?>> Diária grátis (ignora o custo)</label>
+            <label class="adm-check"><input type="checkbox" name="enabled" value="1" <?= (int)$box['enabled'] ? 'checked' : '' ?>> Ativa</label>
+        </div>
+        <div class="adm-acoes adm-span-2"><button type="submit" class="btn">Salvar caixa</button></div>
     </form>
 </div>
 

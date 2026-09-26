@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nova senha - <?= e($config['site_name'] ?? 'DayZ') ?></title>
+    <link rel="icon" type="image/png" href="<?= asset('img/logo.png') ?>">
     <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Inter:wght@400;600;700&family=VT323&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="<?= asset('css/theme.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/admin.css') ?>">

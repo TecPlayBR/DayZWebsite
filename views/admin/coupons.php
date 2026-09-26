@@ -32,104 +32,52 @@ $pkgMap = array_column($packages ?? [], 'name', 'id');
     <div class="alert-toast"><?= e($okMsg) ?></div>
 <?php endif; ?>
 
-<form method="POST" action="/admin/coupons/create" class="stat-card" style="padding: 1.5rem; margin-bottom: 2rem;">
+<form method="POST" action="/admin/coupons/create" class="stat-card" style="padding: 1.5rem; margin-bottom: 2rem;" data-adm-form>
     <?= \App\Csrf::field() ?>
     <div class="label" style="margin-bottom: 1rem;">+ Novo cupom</div>
-    <div style="display: grid; grid-template-columns: 1.6fr 1fr 0.9fr 1fr 1fr; gap: 0.8rem; margin-bottom: 0.4rem;">
-        <div>
-            <label style="display:block; font-size:0.75rem; color:var(--dim); margin-bottom:0.3rem; text-transform: uppercase;">Código</label>
-            <input type="text" name="code" required minlength="3" placeholder="BLACKFRIDAY20"
-                   style="width:100%; padding:0.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:var(--font-mono); text-transform: uppercase;"
-                   data-filtro="codigo">
-        </div>
-        <div>
-            <label style="display:block; font-size:0.75rem; color:var(--dim); margin-bottom:0.3rem; text-transform: uppercase;">Tipo</label>
-            <select name="discount_type" style="width:100%; padding:0.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone);">
-                <option value="percent">% Percentual</option>
-                <option value="fixed">R$ Fixo</option>
-                <option value="coins">🪙 Moedas bônus</option>
-            </select>
-        </div>
-        <div>
-            <label style="display:block; font-size:0.75rem; color:var(--dim); margin-bottom:0.3rem; text-transform: uppercase;">Valor</label>
-            <input type="number" name="discount_value" required min="0.01" step="0.01" placeholder="20"
-                   style="width:100%; padding:0.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:var(--font-mono);">
-        </div>
-        <div>
-            <label style="display:block; font-size:0.75rem; color:var(--dim); margin-bottom:0.3rem; text-transform: uppercase;">Máx. TOTAL <small>(opc.)</small></label>
-            <input type="number" name="max_uses" min="1" placeholder="∞"
-                   style="width:100%; padding:0.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone);">
-        </div>
-        <div>
-            <label style="display:block; font-size:0.75rem; color:var(--dim); margin-bottom:0.3rem; text-transform: uppercase;">Máx. p/ jogador <small>(opc.)</small></label>
-            <input type="number" name="per_user_limit" min="1" placeholder="∞"
-                   style="width:100%; padding:0.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone);">
-        </div>
+
+    <div class="adm-grid-3 adm-bloco">
+        <?= admin_campo(['label' => 'Código', 'name' => 'code', 'required' => true, 'placeholder' => 'BLACKFRIDAY20', 'class' => 'mono upper', 'attrs' => 'minlength="3" data-filtro="codigo"', 'hint' => 'O que o jogador digita no checkout. Letras, números, _ e -.']) ?>
+        <?= admin_campo(['label' => 'Tipo', 'name' => 'discount_type', 'type' => 'select', 'value' => 'percent', 'options' => ['percent' => '% Percentual', 'fixed' => 'R$ Fixo', 'coins' => '🪙 Moedas bônus']]) ?>
+        <?= admin_campo(['label' => 'Valor', 'name' => 'discount_value', 'type' => 'number', 'required' => true, 'placeholder' => '20', 'class' => 'mono', 'attrs' => 'min="0.01" step="0.01"', 'hint' => 'Porcentagem, reais de desconto ou, em Moedas bônus, quantas moedas o jogador ganha a mais (sem desconto no preço).']) ?>
+        <?= admin_campo(['label' => 'Máx. usos no total', 'name' => 'max_uses', 'type' => 'number', 'placeholder' => '∞', 'attrs' => 'min="1"', 'hint' => 'Somando todos os jogadores. Vazio = ilimitado.']) ?>
+        <?= admin_campo(['label' => 'Máx. por jogador', 'name' => 'per_user_limit', 'type' => 'number', 'placeholder' => '∞', 'attrs' => 'min="1"', 'hint' => '1 = cada pessoa usa uma vez (ex.: cupom de aniversário). Vazio = sem limite.']) ?>
     </div>
-    <p style="font-size:0.72rem; color:var(--dim); margin:0 0 0.8rem;">💡 <strong>Máx. TOTAL</strong> = usos somando todos os jogadores. <strong>Máx. p/ jogador</strong> = quantas vezes cada pessoa pode usar (coloque <strong>1</strong> pra um cupom de aniversário, um por pessoa). Vazio = ilimitado.</p>
+
     <?php if (!empty($packages)): ?>
-    <div style="margin-bottom: 0.8rem;">
-        <label style="display:block; font-size:0.75rem; color:var(--dim); margin-bottom:0.4rem; text-transform: uppercase;">Vale só pra estes pacotes <small>(opcional - nada marcado = todos)</small></label>
-        <div style="display:flex; flex-wrap:wrap; gap:0.9rem;">
+    <div class="adm-bloco">
+        <p class="adm-label" style="margin:0 0 .4rem;">Vale só pra estes pacotes</p>
+        <div class="adm-checks">
             <?php foreach ($packages as $pk): ?>
-                <label style="display:flex; align-items:center; gap:0.35rem; font-size:0.85rem; color:var(--bone); cursor:pointer;">
-                    <input type="checkbox" name="package_ids[]" value="<?= e($pk['id']) ?>"> <?= e($pk['name']) ?>
-                </label>
+                <label class="adm-check"><input type="checkbox" name="package_ids[]" value="<?= e($pk['id']) ?>"> <?= e($pk['name']) ?></label>
             <?php endforeach; ?>
         </div>
+        <small class="adm-hint">Nada marcado = vale pra todos os pacotes.</small>
     </div>
     <?php endif; ?>
-    <p style="font-size:0.74rem; color:var(--dim); margin:-0.2rem 0 0.8rem;">💡 No tipo <strong>🪙 Moedas bônus</strong>, o campo <strong>Valor</strong> é a quantidade de moedas que o cliente ganha (sem desconto no preço).</p>
 
-    <details style="margin-bottom: 0.8rem; border:1px solid var(--border); border-radius:4px; padding:0.6rem 0.9rem;">
-        <summary style="cursor:pointer; font-size:0.85rem; color:var(--bone);">🎮 Programa de afiliado / streamer <span style="color:var(--dim);">(opcional - paga cachê por venda)</span></summary>
-        <p style="font-size:0.78rem; color:var(--dim); margin:0.6rem 0;">
+    <details class="adm-secao">
+        <summary>🎮 Programa de afiliado / streamer <span style="color:var(--dim);">(opcional, paga cachê por venda)</span></summary>
+        <p class="adm-hint" style="margin:0 0 .8rem;">
             O cliente se atrela a este streamer ao usar o cupom (1 streamer por vez). O cachê é calculado
             sobre o <strong>valor cheio</strong>, só em compra <strong>paga</strong>, escalonado pela recorrência do cliente.
             Ative o programa e o relatório em <a href="/admin/settings" style="color:var(--hazard);">Configurações</a> e <a href="/admin/streamers" style="color:var(--hazard);">Streamers</a>.
         </p>
-        <div style="display:grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap:0.8rem;">
-            <div>
-                <label style="display:block; font-size:0.75rem; color:var(--dim); margin-bottom:0.3rem; text-transform:uppercase;">Streamer</label>
-                <input type="text" name="affiliate_name" maxlength="120" placeholder="ex: Flainho Bacon"
-                       style="width:100%; padding:0.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone);">
-            </div>
-            <div>
-                <label style="display:block; font-size:0.75rem; color:var(--dim); margin-bottom:0.3rem; text-transform:uppercase;">% 1ª compra</label>
-                <input type="number" name="commission_pct_1" min="0" max="100" step="0.5" placeholder="5"
-                       style="width:100%; padding:0.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:var(--font-mono);">
-            </div>
-            <div>
-                <label style="display:block; font-size:0.75rem; color:var(--dim); margin-bottom:0.3rem; text-transform:uppercase;">% 2ª compra</label>
-                <input type="number" name="commission_pct_2" min="0" max="100" step="0.5" placeholder="10"
-                       style="width:100%; padding:0.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:var(--font-mono);">
-            </div>
-            <div>
-                <label style="display:block; font-size:0.75rem; color:var(--dim); margin-bottom:0.3rem; text-transform:uppercase;">% 3ª+ compra</label>
-                <input type="number" name="commission_pct_3plus" min="0" max="100" step="0.5" placeholder="0"
-                       style="width:100%; padding:0.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone); font-family:var(--font-mono);">
-            </div>
+        <div class="adm-grid-4">
+            <?= admin_campo(['label' => 'Streamer', 'name' => 'affiliate_name', 'placeholder' => 'ex: Streamer Exemplo', 'attrs' => 'maxlength="120"', 'hint' => 'Quem recebe o cachê das vendas com este cupom.']) ?>
+            <?= admin_campo(['label' => '% 1ª compra', 'name' => 'commission_pct_1', 'type' => 'number', 'placeholder' => '5', 'class' => 'mono', 'attrs' => 'min="0" max="100" step="0.5"']) ?>
+            <?= admin_campo(['label' => '% 2ª compra', 'name' => 'commission_pct_2', 'type' => 'number', 'placeholder' => '10', 'class' => 'mono', 'attrs' => 'min="0" max="100" step="0.5"']) ?>
+            <?= admin_campo(['label' => '% 3ª+ compra', 'name' => 'commission_pct_3plus', 'type' => 'number', 'placeholder' => '0', 'class' => 'mono', 'attrs' => 'min="0" max="100" step="0.5"']) ?>
         </div>
     </details>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr 2fr auto; gap: 0.8rem; align-items: end;">
-        <div>
-            <label style="display:block; font-size:0.75rem; color:var(--dim); margin-bottom:0.3rem; text-transform: uppercase;">Válido a partir <small>(opcional)</small></label>
-            <input type="datetime-local" name="valid_from"
-                   style="width:100%; padding:0.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone);">
-        </div>
-        <div>
-            <label style="display:block; font-size:0.75rem; color:var(--dim); margin-bottom:0.3rem; text-transform: uppercase;">Válido até <small>(opcional)</small></label>
-            <input type="datetime-local" name="valid_until"
-                   style="width:100%; padding:0.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone);">
-        </div>
-        <div>
-            <label style="display:block; font-size:0.75rem; color:var(--dim); margin-bottom:0.3rem; text-transform: uppercase;">Notas internas</label>
-            <input type="text" name="notes" placeholder="ex: Black Friday 2026"
-                   style="width:100%; padding:0.6rem; background:var(--bg-0); border:1px solid var(--border); color:var(--bone);">
-        </div>
-        <button type="submit" class="btn-mini" style="padding: 0.6rem 1.2rem;">Criar</button>
+    <div class="adm-grid-3 adm-bloco">
+        <?= admin_campo(['label' => 'Válido a partir de', 'name' => 'valid_from', 'type' => 'datetime-local', 'hint' => 'Vazio = já vale ao criar.']) ?>
+        <?= admin_campo(['label' => 'Válido até', 'name' => 'valid_until', 'type' => 'datetime-local', 'hint' => 'Vazio = não expira.']) ?>
+        <?= admin_campo(['label' => 'Notas internas', 'name' => 'notes', 'placeholder' => 'ex: Black Friday 2026', 'hint' => 'Só a equipe vê.']) ?>
     </div>
+
+    <div class="adm-acoes"><button type="submit" class="btn-mini" style="padding: 0.6rem 1.4rem;">Criar cupom</button></div>
 </form>
 
 <table class="admin-table">

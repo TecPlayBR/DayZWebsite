@@ -29,21 +29,15 @@
 
 <div class="stat-card" style="margin-bottom:1.5rem;">
     <div class="label">Nova caixa</div>
-    <form method="POST" action="/admin/caixas/save" style="margin-top:0.8rem; display:grid; grid-template-columns:2fr 1fr 1fr auto; gap:0.6rem; align-items:end;">
+    <form method="POST" action="/admin/caixas/save" class="adm-grid-3" style="margin-top:0.8rem; align-items:end;" data-adm-form>
         <?= \App\Csrf::field() ?>
-        <div>
-            <label style="display:block;font-size:0.78rem;color:var(--dim);">Nome</label>
-            <input type="text" name="name" required placeholder="Caixa Berezino" style="width:100%;padding:0.55rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);">
+        <?= admin_campo(['label' => 'Nome', 'name' => 'name', 'required' => true, 'placeholder' => 'Caixa Berezino', 'hint' => 'Como aparece na vitrine de caixas.']) ?>
+        <?= admin_campo(['label' => 'Custo (moedas)', 'name' => 'cost_coins', 'type' => 'number', 'value' => '100', 'class' => 'mono', 'attrs' => 'min="0"', 'hint' => 'Ignorado se for diária grátis.']) ?>
+        <div class="adm-campo">
+            <label class="adm-check"><input type="checkbox" name="is_daily" value="1"> Diária grátis</label>
+            <small class="adm-hint">A caixa nasce ativa. Desative depois pela lista, se quiser.</small>
         </div>
-        <div>
-            <label style="display:block;font-size:0.78rem;color:var(--dim);">Custo (moedas)</label>
-            <input type="number" name="cost_coins" value="100" min="0" style="width:100%;padding:0.55rem;background:var(--bg-0);border:1px solid var(--border);color:var(--bone);">
-        </div>
-        <div>
-            <label style="display:flex;align-items:center;gap:0.3rem;font-size:0.78rem;color:var(--dim);"><input type="checkbox" name="is_daily" value="1"> Diária grátis</label>
-            <small style="display:block;color:var(--dim);font-size:0.7rem;margin-top:0.3rem;">A caixa nasce ativa - desative depois pela lista, se quiser.</small>
-        </div>
-        <button type="submit" class="btn">Criar</button>
+        <div class="adm-acoes adm-span-2"><button type="submit" class="btn">Criar caixa</button></div>
     </form>
 </div>
 

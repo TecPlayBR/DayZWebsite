@@ -524,7 +524,8 @@ if (!function_exists('admin_campo')) {
      * digitar), input com a classe .field. Um jeito so de desenhar campo, em todo formulario.
      *
      * $o: label, name, type (text|textarea|select|number|url|date|datetime-local|password|email),
-     *     value, required, hint, placeholder, options ([valor => rotulo], so select), attrs (string), rows
+     *     value, required, hint, placeholder, options ([valor => rotulo], so select), attrs (string), rows,
+     *     class (classes extras do controle, ex. 'mono upper'; so letras, numeros, - e _)
      */
     function admin_campo(array $o): string {
         $name  = (string) ($o['name'] ?? '');
@@ -534,18 +535,20 @@ if (!function_exists('admin_campo')) {
         $value = (string) ($o['value'] ?? '');
         $attrs = ' ' . trim((string) ($o['attrs'] ?? '')) . ($req ? ' required data-adm-required' : '');
         $ph    = isset($o['placeholder']) ? ' placeholder="' . e((string) $o['placeholder']) . '"' : '';
+        $extra = trim(preg_replace('/[^a-z0-9 _-]/i', '', (string) ($o['class'] ?? '')));
+        $cls   = 'field' . ($extra !== '' ? ' ' . $extra : '');
         $rot   = '<label class="adm-label" for="' . e($id) . '">' . e((string) ($o['label'] ?? '')) . ($req ? ' <span class="adm-req" aria-hidden="true">*</span>' : '') . '</label>';
         if ($type === 'textarea') {
             $rows = (int) ($o['rows'] ?? 3);
-            $ctl = '<textarea class="field" id="' . e($id) . '" name="' . e($name) . '" rows="' . $rows . '"' . $ph . $attrs . '>' . e($value) . '</textarea>';
+            $ctl = '<textarea class="' . $cls . '" id="' . e($id) . '" name="' . e($name) . '" rows="' . $rows . '"' . $ph . $attrs . '>' . e($value) . '</textarea>';
         } elseif ($type === 'select') {
-            $ctl = '<select class="field" id="' . e($id) . '" name="' . e($name) . '"' . $attrs . '>';
+            $ctl = '<select class="' . $cls . '" id="' . e($id) . '" name="' . e($name) . '"' . $attrs . '>';
             foreach ((array) ($o['options'] ?? []) as $v => $l) {
                 $ctl .= '<option value="' . e((string) $v) . '"' . ((string) $v === $value ? ' selected' : '') . '>' . e((string) $l) . '</option>';
             }
             $ctl .= '</select>';
         } else {
-            $ctl = '<input class="field" type="' . e($type) . '" id="' . e($id) . '" name="' . e($name) . '" value="' . e($value) . '"' . $ph . $attrs . '>';
+            $ctl = '<input class="' . $cls . '" type="' . e($type) . '" id="' . e($id) . '" name="' . e($name) . '" value="' . e($value) . '"' . $ph . $attrs . '>';
         }
         $hint = isset($o['hint']) && (string) $o['hint'] !== '' ? '<small class="adm-hint">' . e((string) $o['hint']) . '</small>' : '';
         return '<div class="adm-campo">' . $rot . $ctl . $hint . '</div>';
