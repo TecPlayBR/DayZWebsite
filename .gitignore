@@ -24,6 +24,8 @@ storage/ratelimit/*
 !storage/ratelimit/.gitkeep
 storage/server-status/*
 !storage/server-status/.gitkeep
+# Chave que cifra os segredos do login em duas etapas: NUNCA versionar (cada instalacao tem a sua).
+storage/keys/
 
 # Banners de evento enviados pelo painel. Sao de cada instalacao, nao do template.
 public/assets/img/events/*

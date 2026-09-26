@@ -5,6 +5,32 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [3.4.0] - 2026-09-26
+
+### Adicionado
+
+- **Login em duas etapas no painel, opcional.** Cada admin liga na própria conta, pelo link
+  "Ligar duas etapas" no rodapé do menu. Depois da senha, o painel pede o código de 6 dígitos do
+  app autenticador do celular (Google Authenticator, Microsoft Authenticator, Authy). Quem não
+  ligar continua entrando só com a senha.
+  - Ao ligar, o admin recebe **8 códigos de recuperação** de uso único, pra quando perder o
+    celular. Eles aparecem uma vez só.
+  - Pra desligar a própria proteção o painel pede a **senha e um código**.
+  - Na tela **Equipe**, quem cuida da equipe vê quem tem a proteção ligada e pode desligar a de
+    outro admin que perdeu o celular e os códigos.
+  - O segredo do app fica **cifrado** no banco, com a chave num arquivo em `storage/keys/`, fora
+    do banco. Os códigos de recuperação ficam guardados só como hash. O mesmo código não entra
+    duas vezes, e a etapa do código tem limite de tentativas.
+
+### Para atualizar
+
+- Rode o `/update.php`: ele aplica a migration `v3.4.0_admin_2fa.sql` (5 colunas novas em
+  `admin_users`). Não precisa configurar nada.
+- **Backup:** inclua a pasta `storage/keys/` no backup do servidor. Sem o arquivo de chave, quem
+  ligou a proteção entra pelos códigos de recuperação ou pede pra outro admin desligar.
+
+---
+
 ## [3.3.3] - 2026-09-26
 
 ### Segurança

@@ -29,6 +29,7 @@ $okMsg = match($ok) {
     'deleted'  => 'Admin removido.',
     'password' => 'Senha atualizada.',
     'role'     => 'Papel atualizado.',
+    '2fa_off'  => 'Duas etapas desligadas pra esse admin. O login dele voltou a ser só com a senha.',
     default => null,
 };
 $roles = \App\Auth::availableRoles();
@@ -99,6 +100,9 @@ $roles = \App\Auth::availableRoles();
                     <?php if ($isSelf): ?>
                         <span class="badge info" style="margin-left: 0.4rem;">você</span>
                     <?php endif; ?>
+                    <?php if (!empty($a['totp_enabled'])): ?>
+                        <span class="badge success" style="margin-left: 0.4rem; white-space: nowrap;" title="Login em duas etapas ligado">🔐 2 etapas</span>
+                    <?php endif; ?>
                 </td>
                 <td>
                     <span class="badge <?= $userRole === 'super_admin' ? 'danger' : 'info' ?>"
@@ -132,6 +136,13 @@ $roles = \App\Auth::availableRoles();
                         </form>
                     </details>
 
+                    <?php if (!empty($a['totp_enabled']) && !$isSelf): ?>
+                        <form method="POST" action="/admin/team/<?= (int)$a['id'] ?>/2fa-desligar" style="display: inline;"
+                              data-confirm="Desligar as duas etapas de <?= e($a['username']) ?>? Use quando ele perdeu o celular e os códigos de recuperação. O login dele volta a ser só com a senha.">
+                            <?= \App\Csrf::field() ?>
+                            <button type="submit" class="btn-mini outline" title="Perdeu o celular e os códigos">Desligar 2 etapas</button>
+                        </form>
+                    <?php endif; ?>
                     <?php if ((int)$a['id'] !== (int)($me['id'] ?? 0)): ?>
                         <form method="POST" action="/admin/team/<?= (int)$a['id'] ?>/delete" style="display: inline;"
                               data-confirm="Remover admin <?= e($a['username']) ?> permanentemente?">

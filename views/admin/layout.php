@@ -96,6 +96,9 @@
                 <span class="admin-user-dot"></span>
                 <span><?= e($u['username'] ?? '-') ?></span>
             </div>
+            <?php // So o rotulo do link: se a migration das duas etapas ainda nao rodou, o admin nao pode cair por causa dele.
+            try { $u2fa = !empty($u['id']) && \App\DoisFatores::ativoPara((int) $u['id']); } catch (\Throwable $e) { error_log('2fa sidebar: ' . $e->getMessage()); $u2fa = false; } ?>
+            <a href="/admin/conta/2fa" class="admin-back"><?= $u2fa ? '🔐 Duas etapas: ligado' : '🔓 Ligar duas etapas' ?></a>
             <a href="/admin/logout" class="admin-logout">Sair →</a>
             <a href="/" class="admin-back">↩ Ver site</a>
         </div>

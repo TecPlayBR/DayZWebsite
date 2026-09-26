@@ -759,3 +759,19 @@
 @media (max-width: 960px) { .adm-grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 720px) { .adm-grid-2 { grid-template-columns: 1fr; } }
 @media (max-width: 720px) { .adm-grid-3, .adm-grid-4 { grid-template-columns: 1fr; } }
+/* Duas etapas (3.4.0): avisos, selo de status, lista de codigos e o bloco do QR. */
+.adm-aviso { padding: .7rem 1rem; border-radius: 4px; margin-bottom: 1rem; font-size: .9rem; border-left: 3px solid; }
+.adm-aviso-ok { background: rgba(22,163,74,.12); border-color: var(--moss); color: #86efac; }
+.adm-aviso-erro { background: var(--danger-overlay); border-color: var(--text-danger); color: var(--text-danger); }
+.adm-selo { display: inline-block; padding: .2rem .55rem; border-radius: 3px; font-size: .75rem; letter-spacing: .08em; font-weight: 700; background: var(--bg-0); border: 1px solid var(--border); color: var(--dim); margin-right: .5rem; }
+.adm-selo-ok { color: #86efac; border-color: var(--moss); background: rgba(22,163,74,.12); }
+.adm-codigos { border-color: var(--hazard); }
+.adm-codigos-lista { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .45rem 1.2rem; margin: 0; padding-left: 1.4rem; }
+.adm-codigos-lista code { font-family: var(--font-mono); font-size: 1.35rem; letter-spacing: .06em; color: var(--bone); }
+.adm-2fa-passos { display: grid; grid-template-columns: minmax(0, 1fr) 230px; gap: 1.5rem; align-items: start; margin-top: .9rem; }
+.adm-2fa-qr { background: #fff; border-radius: 6px; padding: 10px; width: 230px; min-height: 230px; display: flex; align-items: center; justify-content: center; }
+.adm-2fa-qr svg { width: 100%; height: auto; display: block; }
+.adm-2fa-qr .adm-hint { color: #555; }
+.adm-2fa-chave { font-family: var(--font-mono); font-size: 1.3rem; letter-spacing: .08em; color: var(--hazard); word-break: break-all; }
+.adm-2fa-confirmar { margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid var(--border); max-width: 360px; }
+@media (max-width: 720px) { .adm-2fa-passos { grid-template-columns: 1fr; } .adm-2fa-qr { margin: 0 auto; } .adm-codigos-lista { grid-template-columns: 1fr; } }

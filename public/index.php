@@ -91,6 +91,8 @@ require $ROOT . '/src/Releases.php';
 require $ROOT . '/src/Events.php';
 require $ROOT . '/src/Html.php';
 require $ROOT . '/src/Csp.php';
+require $ROOT . '/src/Totp.php';
+require $ROOT . '/src/DoisFatores.php';
 require $ROOT . '/src/helpers.php';
 
 // Carrega config se existir, senao redireciona pro instalador
@@ -1897,17 +1899,65 @@ $idadeMensagem = fn (array $r): string => preg_replace('/[^a-z_]/', '', (string)
         exit;
     }
     $password = $_POST['password'] ?? '';
-    if (\App\Auth::attempt($username, $password)) {
+    $user = \App\Auth::credenciais($username, $password);
+    if ($user) {
         \App\RateLimit::clearBucket('login_ip_' . $ip);
         \App\RateLimit::clearBucket('login_u_' . substr(md5($username . '|' . $ip), 0, 16));
-        // Regenera ID de sessao apos login (anti session fixation)
+        // Regenera ID de sessao apos a senha (anti session fixation), antes de qualquer estado novo.
         session_regenerate_id(true);
+        // Duas etapas ligadas: a senha so da direito a PEDIR o codigo. A sessao de admin so abre
+        // em /admin/login/2fa. O pendente vale 5 minutos; depois disso volta pra senha.
+        if (!empty($user['totp_enabled'])) {
+            $_SESSION['admin_2fa_pendente'] = ['id' => (int) $user['id'], 'em' => time()];
+            header('Location: /admin/login/2fa');
+            exit;
+        }
+        \App\Auth::entrar($user);
         // Redirect pra home do role - support cai em /admin/players, editor em /admin/pages, etc.
         // Evita 403 logo após login pra quem não tem acesso a /admin (dashboard).
         header('Location: ' . \App\Auth::homePath());
     } else {
         header('Location: /admin/login?e=1');
     }
+    exit;
+});
+
+// ── Duas etapas: o codigo depois da senha ─────────────────────────────
+\App\Router::get('/admin/login/2fa', function() use ($config) {
+    $p = $_SESSION['admin_2fa_pendente'] ?? null;
+    if (!is_array($p) || time() - (int) ($p['em'] ?? 0) > 300) {
+        unset($_SESSION['admin_2fa_pendente']);
+        header('Location: /admin/login?e=2fa_expirou'); exit;
+    }
+    \App\View::display('admin.login_2fa', ['config' => $config, 'error' => $_GET['e'] ?? null]);
+});
+
+\App\Router::post('/admin/login/2fa', function() use ($config) {
+    $p = $_SESSION['admin_2fa_pendente'] ?? null;
+    if (!is_array($p) || time() - (int) ($p['em'] ?? 0) > 300) {
+        unset($_SESSION['admin_2fa_pendente']);
+        header('Location: /admin/login?e=2fa_expirou'); exit;
+    }
+    // 5 tentativas por admin e 20 por IP a cada 15 min: 6 digitos nao aguentam forca bruta solta.
+    $ip = \App\RateLimit::clientIp();
+    $rlAdm = \App\RateLimit::check('login2fa_adm_' . (int) $p['id'], 5, 15 * 60);
+    $rlIp  = \App\RateLimit::check('login2fa_ip_' . $ip, 20, 15 * 60);
+    if (!$rlAdm['allowed'] || !$rlIp['allowed']) {
+        unset($_SESSION['admin_2fa_pendente']);
+        header('Location: /admin/login?e=rate&w=' . max($rlAdm['reset_in'], $rlIp['reset_in'])); exit;
+    }
+    if (!\App\Csrf::check()) { header('Location: /admin/login/2fa?e=csrf'); exit; }
+    if (!\App\DoisFatores::conferir((int) $p['id'], (string) ($_POST['codigo'] ?? ''))) {
+        header('Location: /admin/login/2fa?e=codigo'); exit;
+    }
+    $user = \App\Database::fetchOne("SELECT * FROM admin_users WHERE id = ? LIMIT 1", [(int) $p['id']]);
+    unset($_SESSION['admin_2fa_pendente']);
+    if (!$user) { header('Location: /admin/login?e=1'); exit; }
+    \App\RateLimit::clearBucket('login2fa_adm_' . (int) $p['id']);
+    session_regenerate_id(true);
+    \App\Auth::entrar($user);
+    \App\AuditLog::record('admin.2fa_login', 'admin_user', (int) $user['id']);
+    header('Location: ' . \App\Auth::homePath());
     exit;
 });
 
@@ -3935,10 +3985,89 @@ $BRAND_SLOTS = [
     header('Location: /admin/customize?ok=reset'); exit;
 });
 
+// ── Minha conta: duas etapas (opcional; cada admin liga na propria conta) ─────────
+// Os codigos de recuperacao aparecem UMA vez (sessao, apagados ao exibir). O segredo novo fica
+// so na sessao ate o admin confirmar com um codigo do app: ativacao sem confirmar nao tranca ninguem.
+\App\Router::get('/admin/conta/2fa', function() use ($config) {
+    \App\Auth::requireAdmin();
+    $me = \App\Auth::user();
+    $estado = \App\DoisFatores::estado((int) $me['id']);
+    $setup = $_SESSION['admin_2fa_setup'] ?? null;
+    $codigos = $_SESSION['admin_2fa_codigos_novos'] ?? null;
+    unset($_SESSION['admin_2fa_codigos_novos']);
+    $segredo = (!$estado['ativo'] && is_string($setup) && $setup !== '') ? $setup : null;
+    $emissor = trim((string) \App\Settings::get('site_name', '')) ?: (string) ($config['site_name'] ?? 'Admin');
+    \App\View::display('admin.conta_2fa', [
+        'config' => $config, 'title' => 'Duas etapas', 'estado' => $estado, 'segredo' => $segredo,
+        'uri' => $segredo ? \App\Totp::uri($emissor, (string) $me['username'], $segredo) : null,
+        'codigos' => is_array($codigos) ? $codigos : null, 'ok' => $_GET['ok'] ?? null, 'erro' => $_GET['e'] ?? null,
+    ]);
+});
+
+\App\Router::post('/admin/conta/2fa/iniciar', function() {
+    \App\Auth::requireAdmin();
+    if (!\App\Csrf::check()) { header('Location: /admin/conta/2fa?e=csrf'); exit; }
+    if (!\App\DoisFatores::ativoPara((int) \App\Auth::user()['id'])) $_SESSION['admin_2fa_setup'] = \App\Totp::novoSegredo();
+    header('Location: /admin/conta/2fa'); exit;
+});
+
+\App\Router::post('/admin/conta/2fa/confirmar', function() {
+    \App\Auth::requireAdmin();
+    if (!\App\Csrf::check()) { header('Location: /admin/conta/2fa?e=csrf'); exit; }
+    $id = (int) \App\Auth::user()['id'];
+    $rl = \App\RateLimit::check('conta2fa_' . $id, 10, 15 * 60);
+    if (!$rl['allowed']) { header('Location: /admin/conta/2fa?e=rate'); exit; }
+    $setup = $_SESSION['admin_2fa_setup'] ?? '';
+    if (!is_string($setup) || $setup === '') { header('Location: /admin/conta/2fa'); exit; }
+    $cods = \App\DoisFatores::ativar($id, $setup, (string) ($_POST['codigo'] ?? ''));
+    if (!$cods) { header('Location: /admin/conta/2fa?e=codigo'); exit; }
+    unset($_SESSION['admin_2fa_setup']);
+    $_SESSION['admin_2fa_codigos_novos'] = $cods;
+    \App\AuditLog::record('admin.2fa_ligado', 'admin_user', $id);
+    header('Location: /admin/conta/2fa?ok=ligado'); exit;
+});
+
+\App\Router::post('/admin/conta/2fa/desligar', function() {
+    \App\Auth::requireAdmin();
+    if (!\App\Csrf::check()) { header('Location: /admin/conta/2fa?e=csrf'); exit; }
+    $me = \App\Auth::user(); $id = (int) $me['id'];
+    $rl = \App\RateLimit::check('conta2fa_' . $id, 10, 15 * 60);
+    if (!$rl['allowed']) { header('Location: /admin/conta/2fa?e=rate'); exit; }
+    // Desligar pede a SENHA e um CODIGO: sessao esquecida aberta nao basta pra tirar a protecao.
+    $senhaOk = \App\Auth::credenciais((string) $me['username'], (string) ($_POST['senha'] ?? '')) !== null;
+    if (!$senhaOk || !\App\DoisFatores::conferir($id, (string) ($_POST['codigo'] ?? ''))) {
+        header('Location: /admin/conta/2fa?e=confirmacao'); exit;
+    }
+    \App\DoisFatores::desligar($id);
+    \App\AuditLog::record('admin.2fa_desligado', 'admin_user', $id);
+    header('Location: /admin/conta/2fa?ok=desligado'); exit;
+});
+
+\App\Router::post('/admin/conta/2fa/codigos', function() {
+    \App\Auth::requireAdmin();
+    if (!\App\Csrf::check()) { header('Location: /admin/conta/2fa?e=csrf'); exit; }
+    $id = (int) \App\Auth::user()['id'];
+    $rl = \App\RateLimit::check('conta2fa_' . $id, 10, 15 * 60);
+    if (!$rl['allowed']) { header('Location: /admin/conta/2fa?e=rate'); exit; }
+    if (!\App\DoisFatores::conferir($id, (string) ($_POST['codigo'] ?? ''))) { header('Location: /admin/conta/2fa?e=codigo'); exit; }
+    $_SESSION['admin_2fa_codigos_novos'] = \App\DoisFatores::regenerarCodigos($id);
+    \App\AuditLog::record('admin.2fa_novos_codigos', 'admin_user', $id);
+    header('Location: /admin/conta/2fa?ok=codigos'); exit;
+});
+
+// Quem cuida da equipe desliga as duas etapas de OUTRO admin (perdeu o celular e os codigos).
+\App\Router::post('/admin/team/{id}/2fa-desligar', function($id) use ($config) {
+    \App\Auth::requireCan('team');
+    if (!\App\Csrf::check()) { header('Location: /admin?err=csrf'); exit; }
+    \App\DoisFatores::desligar((int) $id);
+    \App\AuditLog::record('admin.2fa_desligado_pela_equipe', 'admin_user', (int) $id);
+    header('Location: /admin/team?ok=2fa_off'); exit;
+});
+
 \App\Router::get('/admin/team', function() use ($config) {
     \App\Auth::requireCan('team');
     $admins = \App\Database::fetchAll(
-        "SELECT id, username, email, role, created_at, last_login_at FROM admin_users ORDER BY created_at ASC"
+        "SELECT id, username, email, role, created_at, last_login_at, totp_enabled FROM admin_users ORDER BY created_at ASC"
     );
     \App\View::display('admin.team', ['config' => $config, 'admins' => $admins]);
 });
@@ -4899,7 +5028,7 @@ $BRAND_SLOTS = [
 // (lockout sem saída). Elas já fazem CSRF + rate-limit próprios nos handlers.
 if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
-    $publicAdminPost = in_array($path, ['/admin/login', '/admin/forgot', '/admin/reset'], true);
+    $publicAdminPost = in_array($path, ['/admin/login', '/admin/login/2fa', '/admin/forgot', '/admin/reset'], true);
     if (strpos($path, '/admin/') === 0 && !$publicAdminPost) {
         \App\Auth::requireAdmin();
         if (!\App\Csrf::check()) {

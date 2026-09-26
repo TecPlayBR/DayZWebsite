@@ -26,6 +26,8 @@
             </div>
         <?php elseif ($err === 'csrf'): ?>
             <div class="login-error">Sessão expirada. Recarregue a página.</div>
+        <?php elseif ($err === '2fa_expirou'): ?>
+            <div class="login-error">O tempo pra digitar o código acabou. Entre com a senha de novo.</div>
         <?php elseif (!empty($error)): ?>
             <div class="login-error">Usuário ou senha inválidos.</div>
         <?php elseif (($_GET['reset'] ?? '') === 'ok'): ?>

@@ -55,14 +55,19 @@ class Auth {
         return $homes[$role] ?? '/admin';
     }
 
-    public static function attempt(string $username, string $password): bool {
-        $user = Database::fetchOne(
-            "SELECT id, username, password_hash, role FROM admin_users WHERE username = ? LIMIT 1",
-            [$username]
-        );
-        if (!$user) return false;
-        if (!password_verify($password, $user['password_hash'])) return false;
+    /**
+     * So confere usuario e senha, SEM abrir sessao. Devolve a linha do admin ou null. Quem tem
+     * as duas etapas ligadas (totp_enabled) ainda precisa passar pelo codigo: ver o login.
+     * SELECT * de proposito: funciona antes e depois da migration das duas etapas.
+     */
+    public static function credenciais(string $username, string $password): ?array {
+        $user = Database::fetchOne("SELECT * FROM admin_users WHERE username = ? LIMIT 1", [$username]);
+        if (!$user || !password_verify($password, (string) $user['password_hash'])) return null;
+        return $user;
+    }
 
+    /** Abre a sessao do admin. So chamar depois da senha (e do codigo, se a protecao estiver ligada). */
+    public static function entrar(array $user): void {
         $_SESSION[self::SESSION_KEY] = [
             'id'            => (int)$user['id'],
             'username'      => $user['username'],
@@ -70,8 +75,15 @@ class Auth {
             'login_at'      => time(),
             'last_activity' => time(),
         ];
-
         Database::query("UPDATE admin_users SET last_login_at = NOW() WHERE id = ?", [$user['id']]);
+    }
+
+    /** Usuario + senha numa chamada. NUNCA abre sessao de quem tem as duas etapas ligadas. */
+    public static function attempt(string $username, string $password): bool {
+        $user = self::credenciais($username, $password);
+        if (!$user) return false;
+        if (!empty($user['totp_enabled'])) return false;   // precisa do codigo: fluxo /admin/login/2fa
+        self::entrar($user);
         return true;
     }
 

@@ -19,15 +19,18 @@ foreach ($m[0] as $i => $inteiro) {
 
 // Rotas que por natureza nao tem sessao ainda (login/recuperacao) ou sao publicas de leitura.
 $ADMIN_LIVRE  = ['/admin/login', '/admin/forgot', '/admin/reset', '/admin/logout'];
-$POST_PUBLICO = ['/admin/login', '/admin/forgot', '/admin/reset'];
+$POST_PUBLICO = ['/admin/login', '/admin/forgot', '/admin/reset', '/admin/login/2fa'];
 // POST sem login Steam mas amarrado a SESSAO: so vale enquanto o corpo conferir a marca.
 // card-pay so aceita compra criada nesta sessao pelo checkout (que ja exige login Steam).
 $POST_SESSAO  = ['/shop/card-pay/{id}' => "\$_SESSION['checkout_pids']"];
+// Etapa do codigo (duas etapas): roda ANTES da sessao de admin existir; vale so com o pendente
+// que a senha certa cria (e que expira em 5 min). Sem a marca no corpo, volta a reprovar.
+$ADMIN_SESSAO = ['/admin/login/2fa' => "\$_SESSION['admin_2fa_pendente']"];
 
 $semGuarda = $semCsrf = $semLogin = [];
 foreach ($rotas as [$met, $rota, $corpo]) {
     $ehAdmin = str_starts_with($rota, '/admin');
-    if ($ehAdmin && !in_array($rota, $ADMIN_LIVRE, true) && !preg_match('/Auth::(requireAdmin|requireCan|requireRole|requireOwner)\(/', $corpo)) $semGuarda[] = strtoupper($met) . " $rota";
+    if ($ehAdmin && !in_array($rota, $ADMIN_LIVRE, true) && !(isset($ADMIN_SESSAO[$rota]) && str_contains($corpo, $ADMIN_SESSAO[$rota])) && !preg_match('/Auth::(requireAdmin|requireCan|requireRole|requireOwner)\(/', $corpo)) $semGuarda[] = strtoupper($met) . " $rota";
     if ($met === 'post' && !str_contains($corpo, 'Csrf::check()')) $semCsrf[] = $rota;
     if ($met === 'post' && !$ehAdmin && !in_array($rota, $POST_PUBLICO, true) && !(isset($POST_SESSAO[$rota]) && str_contains($corpo, $POST_SESSAO[$rota])) && !preg_match('/SteamAuth::(check|steamId|user)\(\)/', $corpo)) $semLogin[] = $rota;
 }
