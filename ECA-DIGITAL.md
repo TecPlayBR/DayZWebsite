@@ -52,10 +52,11 @@ Os três modos do painel:
 - **Verificado**: loja com declaração e aceite; caixas só com CPF verificado. É o modo conforme.
 - **Declaração** (o site nasce assim): igual ao Verificado, com um aviso amarelo no painel
   enquanto a chave do fornecedor não existe.
-- **Desligado**: caixas abrem sem verificação. A loja continua pedindo idade e aceite. O
-  painel mostra um aviso vermelho fixo de "não conforme". Só use se assumir o risco.
+- **Desligado**: o site não verifica idade e as caixas ficam **indisponíveis para todos**. Para
+  escolher esse modo, o painel pede que você marque que está ciente, e o aceite fica no log.
 
-A caixa diária grátis também exige verificação por padrão. Dá pra liberar na mesma tela.
+A caixa diária grátis também exige verificação por CPF, como as demais. Não há opção de
+liberá-la só com a declaração: ela também é caixa de recompensa.
 
 ## 4. O que fica guardado (e o que nunca fica)
 
@@ -93,8 +94,8 @@ que ainda não declarou idade. A versão do bot que responde com o link `/idade`
 
 ## 7. Dúvidas frequentes
 
-**Posso continuar com as caixas abertas como antes?** Só no modo Desligado, e aí você está
-fora da lei. O template deixa, mas avisa.
+**Posso continuar com as caixas abertas como antes?** Não. Sem verificação por CPF nenhuma
+caixa abre, nem a diária. No modo Desligado as caixas ficam indisponíveis para todos.
 
 **O jogador errou a data e virou "menor". E agora?** Ele mesmo resolve: faz a verificação por
 CPF em `/idade`. Declarar de novo não reabre, de propósito.

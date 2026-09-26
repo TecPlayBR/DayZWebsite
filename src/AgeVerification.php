@@ -56,11 +56,6 @@ class AgeVerification
         return in_array($m, AgeGate::MODOS, true) ? $m : 'declaracao';
     }
 
-    public static function diariaExige(): bool
-    {
-        return Settings::getBool('age_daily_box_gated', true);
-    }
-
     public static function statusDe(string $steamId): string
     {
         try {
@@ -74,9 +69,9 @@ class AgeVerification
         return AgeGate::podeComprar(self::statusDe($steamId), self::modo());
     }
 
-    public static function podeAbrirCaixa(string $steamId, bool $diaria): bool
+    public static function podeAbrirCaixa(string $steamId): bool
     {
-        return AgeGate::podeAbrirCaixa(self::statusDe($steamId), self::modo(), $diaria, self::diariaExige());
+        return AgeGate::podeAbrirCaixa(self::statusDe($steamId), self::modo());
     }
 
     /** Falhas do fornecedor nas ultimas N horas (alerta no painel: creditos acabaram, chave morta). */

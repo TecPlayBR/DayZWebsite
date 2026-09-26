@@ -114,7 +114,7 @@
         <?php $ecaModo = \App\AgeVerification::modo(); if ($ecaModo !== 'verificado'): ?>
             <div style="margin:0 0 1rem; padding:.7rem 1rem; border-radius:6px; border-left:4px solid <?= $ecaModo === 'desligado' ? 'var(--danger-border)' : 'var(--hazard)' ?>; background:<?= $ecaModo === 'desligado' ? 'var(--danger-overlay)' : 'transparent' ?>;">
                 <?php if ($ecaModo === 'desligado'): ?>
-                    <strong>Não conforme com a Lei 15.211/2025:</strong> caixas de recompensa abertas sem verificação de idade.
+                    <strong>Verificação de idade desligada:</strong> as caixas de recompensa estão indisponíveis para todos os jogadores.
                 <?php else: ?>
                     <strong>ECA Digital em transição:</strong> caixas fechadas até configurar o fornecedor de verificação.
                 <?php endif; ?>

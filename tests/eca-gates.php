@@ -30,7 +30,9 @@ $op = substr($idx, strpos($idx, "Router::post('/caixas/{slug}/open'"), 2500);
 if (str_contains($op, 'AgeVerification::podeAbrirCaixa(')) ok('abrir caixa consulta podeAbrirCaixa'); else falha('abrir caixa sem gate');
 if (str_contains($op, "'error' => 'age'")) ok('devolve error=age'); else falha('nao devolve error=age');
 if (strpos($op, 'podeAbrirCaixa(') !== false && strpos($op, 'podeAbrirCaixa(') < strpos($op, 'Boxes::open(')) ok('gate vem ANTES de Boxes::open'); else falha('gate depois do open', 'a caixa ja teria sido sorteada');
+if (str_contains($op, 'caixasDisponiveis(') && strpos($op, 'caixasDisponiveis(') < strpos($op, 'podeAbrirCaixa(')) ok('modo desligado responde "indisponivel" antes de mandar pra /idade'); else falha('modo desligado manda o jogador pra /idade sem motivo');
 $js = file_get_contents($ROOT . '/views/pages/caixas.php');
+if (str_contains($js, "__('caixas.indisponiveis')")) ok('pagina de caixas avisa quando estao indisponiveis'); else falha('pagina de caixas sem aviso de indisponivel');
 if (preg_match("/data\.error\s*===\s*'age'/", $js)) ok('JS da pagina redireciona em error=age'); else falha('JS nao trata error=age');
 
 echo "\n4. Cartao\n";

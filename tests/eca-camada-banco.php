@@ -75,12 +75,12 @@ namespace {
     if (!$r['ok'] && $r['cod'] === 'menor_so_cpf' && AgeVerification::statusDe($B) === 'menor') ok('menor NAO vira adulto redeclarando (revisao I2)'); else falha('menor redeclarou e passou', json_encode($r));
     $r = AgeVerification::declarar($A, 'abc');
     if (!$r['ok'] && $r['cod'] === 'nasc_invalida') ok('data invalida recusada'); else falha('data invalida aceita');
-    if (!AgeVerification::podeAbrirCaixa($A, false) && AgeVerification::podeComprar($A)) ok('declarado compra mas nao abre caixa'); else falha('gate do declarado errado');
+    if (!AgeVerification::podeAbrirCaixa($A) && AgeVerification::podeComprar($A)) ok('declarado compra mas nao abre caixa'); else falha('gate do declarado errado');
 
     echo "\n2. Verificar\n";
     $falso->respostas = [$adulto];
     $r = AgeVerification::verificar($A, '529.982.247-25', null);
-    if ($r['ok'] && $r['status'] === 'adulto_verificado' && AgeVerification::podeAbrirCaixa($A, false)) ok('verificado abre caixa'); else falha('verificar adulto', json_encode($r));
+    if ($r['ok'] && $r['status'] === 'adulto_verificado' && AgeVerification::podeAbrirCaixa($A)) ok('verificado abre caixa'); else falha('verificar adulto', json_encode($r));
     $linha = Database::fetchOne("SELECT * FROM age_verifications WHERE steam_id = ? AND method = 'cpfhub'", [$A]);
     if ($linha && strlen((string) $linha['cpf_hash']) === 64 && !str_contains(json_encode($linha), $CPF) && $linha['provider_ref'] === 'ref-1') ok('so o hash e o ref foram gravados; o CPF nao esta em lugar nenhum'); else falha('linha de verificacao', json_encode($linha));
     $falso->chamadas = 0; $falso->respostas = [$adulto];
@@ -117,7 +117,7 @@ namespace {
 
     echo "\n5. Menor com modo desligado\n";
     Settings::$v['age_gate_mode'] = 'desligado';
-    if (!AgeVerification::podeAbrirCaixa($B, true) && !AgeVerification::podeComprar($B)) ok('menor segue bloqueado com o modo desligado (foco 5)'); else falha('desligado reabriu pro menor');
+    if (!AgeVerification::podeAbrirCaixa($B) && !AgeVerification::podeComprar($B)) ok('menor segue bloqueado com o modo desligado (foco 5)'); else falha('desligado reabriu pro menor');
 
     echo "\n" . str_repeat('-', 62) . "\n";
     if ($falhas === 0) { echo "TUDO OK\n"; exit(0); }

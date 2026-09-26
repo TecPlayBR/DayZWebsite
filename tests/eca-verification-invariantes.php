@@ -37,7 +37,8 @@ if (preg_match('/AgeGate::proximoStatusDeclaracao\(/', $semComentario)) ok('decl
 if (preg_match('/public static function consentirTudo\(/', $src)) ok('consentirTudo existe (tela de consentimento para qualquer status)'); else falha('falta consentirTudo');
 
 echo "\n4. Assinaturas publicas que as rotas usam\n";
-foreach (['statusDe', 'modo', 'diariaExige', 'declarar', 'verificar', 'consentir', 'temConsentimento', 'revogar', 'podeComprar', 'podeAbrirCaixa'] as $f) {
+if (!method_exists('App\AgeVerification', 'diariaExige')) ok('diariaExige saiu: a diaria nao tem regra propria'); else falha('diariaExige ainda existe');
+foreach (['statusDe', 'modo', 'declarar', 'verificar', 'consentir', 'temConsentimento', 'revogar', 'podeComprar', 'podeAbrirCaixa'] as $f) {
     if ($src !== '' && method_exists('App\\AgeVerification', $f)) ok("AgeVerification::$f existe"); else falha("AgeVerification::$f nao existe");
 }
 

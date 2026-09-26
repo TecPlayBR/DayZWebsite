@@ -28,11 +28,14 @@ if (stripos($sql, "'age_hash_salt', SHA2(") !== false) ok('sal do hash e gerado 
 
 echo "\n2. Toda chave nova esta no Settings::SCHEMA\n";
 $esperado = ['age_gate_mode' => 'string', 'age_provider' => 'string', 'age_provider_key' => 'string',
-             'age_provider_secret' => 'string', 'age_daily_box_gated' => 'bool',
+             'age_provider_secret' => 'string',
              'age_hash_salt' => 'string', 'terms_version' => 'string'];
 foreach ($esperado as $k => $tipo) {
     if ((\App\Settings::SCHEMA[$k] ?? null) === $tipo) ok("$k => $tipo"); else falha("$k nao esta no SCHEMA como $tipo", 'Settings::set() rejeita chave fora do SCHEMA');
 }
+
+if (!array_key_exists('age_daily_box_gated', \App\Settings::SCHEMA)) ok('age_daily_box_gated saiu do SCHEMA (a diaria nao se libera mais)'); else falha('age_daily_box_gated ainda no SCHEMA');
+if ((\App\Settings::SCHEMA['age_desligado_ciente'] ?? null) === 'bool') ok('age_desligado_ciente no SCHEMA (aceite do dono)'); else falha('age_desligado_ciente fora do SCHEMA');
 
 echo "\n" . str_repeat('-', 62) . "\n";
 if ($falhas === 0) { echo "TUDO OK\n"; exit(0); }

@@ -47,23 +47,30 @@ foreach ($c as [$st, $modo, $esp]) {
     else falha("comprar: $st em $modo deveria ser " . ($esp ? 'sim' : 'nao'));
 }
 
-echo "\n4. Abrir caixa por estado, modo e diaria\n";
+echo "\n4. Abrir caixa por estado e modo (toda caixa, inclusive a diaria gratis)\n";
+// Parecer juridico de 26/09: a diaria gratis tambem e caixa de recompensa, entao so abre com CPF
+// verificado; e o modo desligado deixa as caixas INDISPONIVEIS para todos (antes abria sem verificar).
 $c = [
-    // status, modo, diaria?, diariaExige?, esperado
-    ['adulto_verificado', 'verificado', false, true,  true],
-    ['adulto_declarado',  'verificado', false, true,  false],
-    ['adulto_declarado',  'declaracao', false, true,  false],   // declaracao NAO abre caixa
-    ['adulto_declarado',  'declaracao', true,  true,  false],   // diaria gated
-    ['adulto_declarado',  'declaracao', true,  false, true],    // diaria liberada por config
-    ['desconhecido',      'declaracao', true,  false, false],   // mas so pra quem declarou
-    ['desconhecido',      'desligado',  false, true,  true],    // modo desligado = como hoje
-    ['menor',             'desligado',  false, true,  false],   // menor NUNCA, nem desligado
-    ['menor',             'desligado',  true,  false, false],
+    // status, modo, esperado
+    ['adulto_verificado', 'verificado', true],
+    ['adulto_verificado', 'declaracao', true],
+    ['adulto_declarado',  'verificado', false],
+    ['adulto_declarado',  'declaracao', false],   // declaracao NAO abre caixa, nem a diaria
+    ['desconhecido',      'declaracao', false],
+    ['menor',             'verificado', false],
+    ['adulto_verificado', 'desligado',  false],   // desligado = caixas indisponiveis
+    ['desconhecido',      'desligado',  false],
+    ['menor',             'desligado',  false],
 ];
-foreach ($c as [$st, $modo, $di, $dx, $esp]) {
-    if (AgeGate::podeAbrirCaixa($st, $modo, $di, $dx) === $esp) ok("caixa: $st/$modo/diaria=" . (int)$di . "/exige=" . (int)$dx . " = " . ($esp ? 'sim' : 'nao'));
-    else falha("caixa: $st/$modo/diaria=" . (int)$di . "/exige=" . (int)$dx . " deveria ser " . ($esp ? 'sim' : 'nao'));
+foreach ($c as [$st, $modo, $esp]) {
+    if (AgeGate::podeAbrirCaixa($st, $modo) === $esp) ok("caixa: $st/$modo = " . ($esp ? 'sim' : 'nao'));
+    else falha("caixa: $st/$modo deveria ser " . ($esp ? 'sim' : 'nao'));
 }
+$rf = new \ReflectionMethod('App\\AgeGate', 'podeAbrirCaixa');
+if ($rf->getNumberOfParameters() === 2) ok('a regra nao recebe mais "e diaria?": nao ha excecao para a caixa gratis');
+else falha('podeAbrirCaixa ainda aceita parametro de diaria', 'reabre a brecha da caixa gratis');
+if (AgeGate::caixasDisponiveis('desligado') === false && AgeGate::caixasDisponiveis('declaracao') && AgeGate::caixasDisponiveis('verificado')) ok('caixasDisponiveis: so o modo desligado fecha para todos');
+else falha('caixasDisponiveis errado');
 
 echo "\n5. CPF: limpeza, validacao e hash\n";
 if (AgeGate::cpfLimpo('529.982.247-25') === '52998224725') ok('tira mascara e aceita CPF valido'); else falha('nao limpou/validou CPF valido');

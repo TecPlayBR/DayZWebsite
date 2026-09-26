@@ -18,7 +18,7 @@
 
 <div class="stat-card" style="margin-bottom:1.2rem; border-left:3px solid <?= $modo === 'verificado' ? 'var(--moss)' : ($modo === 'declaracao' ? 'var(--hazard)' : 'var(--danger-border)') ?>;">
     <strong>Modo atual: <?= e($modo) ?></strong>
-    <?php if ($modo === 'desligado'): ?> · <span style="color:var(--rust-2);">não conforme: caixas abertas sem verificação</span>
+    <?php if ($modo === 'desligado'): ?> · <span style="color:var(--rust-2);">verificação desligada: caixas indisponíveis para todos</span>
     <?php elseif ($modo === 'declaracao'): ?> · transição: caixas fechadas até colar a chave e mudar para Verificado
     <?php else: ?> · conforme<?php endif; ?>
     · fornecedor <strong><?= e($fornecedor) ?></strong> <?= $tem_chave ? '(chave salva)' : '<span style="color:var(--rust-2);">(sem chave)</span>' ?>

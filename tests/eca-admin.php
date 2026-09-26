@@ -15,7 +15,10 @@ $lay = file_get_contents($ROOT . '/views/admin/layout.php');
 echo "\n1. Handler de settings\n";
 $h = substr($idx, strpos($idx, "Router::post('/admin/settings'"), 6000);
 foreach (['age_gate_mode', 'age_provider'] as $k) { if (str_contains($h, "'$k'")) ok("$k no whitelist"); else falha("$k fora do whitelist", 'salvar seria no-op'); }
-if (str_contains($h, "'age_daily_box_gated'")) ok('age_daily_box_gated nos toggles'); else falha('age_daily_box_gated fora dos toggles');
+if (!str_contains($h, "'age_daily_box_gated'") && !str_contains($set, 'age_daily_box_gated')) ok('a opcao de liberar a diaria sumiu do handler e do form'); else falha('ainda da pra liberar a caixa diaria sem CPF');
+// Modo desligado so vale com o ACEITE do dono (parecer 26/09): sem a caixa marcada, o modo nao muda.
+if (preg_match("/'desligado'[^;]*age_desligado_ciente/s", $h) && str_contains($h, "AuditLog::record('age.desligado_aceite'")) ok('desligar exige o aceite e o aceite fica auditado'); else falha('desligar a verificacao nao exige aceite do dono');
+if (str_contains($set, 'name="age_desligado_ciente"')) ok('form tem a caixa de aceite do modo desligado'); else falha('form sem o aceite do modo desligado');
 if (preg_match("/age_provider_key[^;]*trim\(\(string\)\s*\\\$_POST\[\\\$k\]\)\s*!==\s*''/", $h) || str_contains($h, "trim((string)\$_POST['age_provider_key']) !== ''")) ok('chave so grava se digitada (vazio mantem)'); else falha('chave do fornecedor sobrescreve com vazio');
 if (str_contains($h, "AuditLog::record('age.settings'")) ok('audita mudanca de config'); else falha('nao audita age.settings');
 if (!str_contains($h, "'age_hash_salt'")) ok('sal do hash NAO e editavel pelo painel'); else falha('sal do hash editavel pelo painel', 'trocar o sal invalida todo hash');

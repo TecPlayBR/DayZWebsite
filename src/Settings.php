@@ -124,7 +124,7 @@ class Settings {
         'age_provider'             => 'string',   // flagcheck | serpro | cpfhub
         'age_provider_key'         => 'string',
         'age_provider_secret'      => 'string',   // so o Serpro (OAuth2) usa
-        'age_daily_box_gated'      => 'bool',     // 1 = a diaria gratis tambem exige verificacao
+        'age_desligado_ciente'     => 'bool',     // 1 = o dono aceitou desligar a verificacao (caixas indisponiveis)
         'age_hash_salt'            => 'string',   // gerado na migration; nunca editar pelo painel
         'terms_version'            => 'string',   // versao dos Termos que o consentimento carimba
         'age_box_blocks'           => 'int',      // contador: aberturas de caixa barradas por idade

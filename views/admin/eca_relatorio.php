@@ -1,4 +1,4 @@
-<?php /** @var array $config; @var string $site, $modo, $fornecedor, $terms_version, $gerado_em; @var bool $diaria_exige; @var ?string $ultima_ok; @var int $n_verificados */ ?>
+<?php /** @var array $config; @var string $site, $modo, $fornecedor, $terms_version, $gerado_em; @var ?string $ultima_ok; @var int $n_verificados */ ?>
 <!DOCTYPE html>
 <html lang="pt-BR"><head><meta charset="utf-8"><title>Relatório de conformidade ECA Digital - <?= e($site) ?></title>
 <style>body{font:14px/1.5 Georgia,serif;max-width:800px;margin:2rem auto;color:#111} h1{font-size:1.5rem} h2{font-size:1.1rem;margin-top:1.6rem} table{border-collapse:collapse;width:100%} td,th{border:1px solid #999;padding:.4rem;text-align:left;vertical-align:top} @media print{a{color:#111;text-decoration:none}}</style></head>
@@ -13,7 +13,7 @@
 <table>
 <tr><th>Modo em operação</th><td><?= e($modo) ?></td></tr>
 <tr><th>Fornecedor da verificação</th><td><?= e($fornecedor) ?> (conferência do CPF em base oficial)</td></tr>
-<tr><th>Caixa diária gratuita</th><td><?= $diaria_exige ? 'também exige verificação' : 'liberada para adulto declarado' ?></td></tr>
+<tr><th>Caixa diária gratuita</th><td><?= $modo === 'desligado' ? 'indisponível, como as demais caixas' : 'exige verificação por CPF, como as demais caixas' ?></td></tr>
 <tr><th>Versão dos Termos com consentimento registrado</th><td><?= e($terms_version) ?></td></tr>
 <tr><th>Adultos verificados (ativos)</th><td><?= (int) $n_verificados ?></td></tr>
 <tr><th>Última verificação bem-sucedida</th><td><?= e((string) ($ultima_ok ?? 'nenhuma')) ?></td></tr>

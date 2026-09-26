@@ -712,8 +712,14 @@ $config['mercado_pago'] = $mpCfg;
 
     $box = \App\Boxes::find($slug);
     if (!$box) { http_response_code(404); echo json_encode(['ok' => false, 'error' => 'Caixa não encontrada.']); return; }
-    // ECA Digital, art. 20 + Decreto art. 23: caixa so pra adulto verificado. Antes do sorteio.
-    if (!\App\AgeVerification::podeAbrirCaixa($steamId, (int) $box['is_daily'] === 1)) {
+    // Verificacao de idade desligada pelo dono: caixas indisponiveis para todos, sem mandar pra /idade.
+    if (!\App\AgeGate::caixasDisponiveis(\App\AgeVerification::modo())) {
+        http_response_code(403);
+        echo json_encode(['ok' => false, 'error' => __('caixas.indisponiveis')]);
+        return;
+    }
+    // ECA Digital, art. 20 + Decreto art. 23: toda caixa, inclusive a diaria, so pra adulto verificado. Antes do sorteio.
+    if (!\App\AgeVerification::podeAbrirCaixa($steamId)) {
         \App\AgeVerification::contaBloqueioCaixa();
         http_response_code(403);
         echo json_encode(['ok' => false, 'error' => 'age', 'url' => '/idade?motivo=caixa&return=' . rawurlencode('/caixas')]);
@@ -2793,8 +2799,8 @@ $collectDashboardData = function() {
                'age_gate_mode','age_provider','terms_version'];
     // Toggles (checkbox): se não veio no POST, vira 0
     $toggles = ['maintenance_enabled', 'live_purchases_enabled', 'live_purchases_anonymize', 'live_purchases_show_price',
-                'restart_enabled', 'affiliate_enabled', 'affiliate_allow_switch', 'box_claim_enabled', 'hide_online_players', 'hero_online_enabled',
-                'age_daily_box_gated'];
+                'restart_enabled', 'affiliate_enabled', 'affiliate_allow_switch', 'box_claim_enabled', 'hide_online_players', 'hero_online_enabled'];
+    $modoAntes = \App\AgeVerification::modo();
 
     // Escrita via Settings::set(): valida contra o whitelist (SCHEMA), normaliza
     // por tipo e atualiza o cache em memória. Chave fora do SCHEMA é rejeitada.
@@ -2822,10 +2828,21 @@ $collectDashboardData = function() {
         if (isset($_POST[$k]) && trim((string)$_POST[$k]) !== '') { \App\Settings::set($k, trim((string)$_POST[$k])); $ecaMudou[] = $k; }
     }
     if (!in_array((string)($_POST['age_gate_mode'] ?? ''), \App\AgeGate::MODOS, true)) \App\Settings::set('age_gate_mode', 'declaracao');
+    // Desligar a verificacao fecha as caixas para todos e so vale com o aceite do dono (parecer 26/09).
+    // Sem a caixa marcada, o modo anterior fica; com ela, o aceite vai pro log de auditoria.
+    if (\App\Settings::get('age_gate_mode') === 'desligado' && $modoAntes !== 'desligado') {
+        if (empty($_POST['age_desligado_ciente'])) {
+            \App\Settings::set('age_gate_mode', $modoAntes);
+            $ecaAvisoDesligado = true;
+        } else {
+            \App\Settings::set('age_desligado_ciente', '1');
+            \App\AuditLog::record('age.desligado_aceite', 'settings', 'eca', ['modo_anterior' => $modoAntes]);
+        }
+    }
     if (!isset(\App\AgeVerifierFactory::PROVIDERS[(string)($_POST['age_provider'] ?? '')])) \App\Settings::set('age_provider', 'cpfhub');
     \App\AuditLog::record('age.settings', 'settings', 'eca', [
         'modo' => \App\Settings::get('age_gate_mode'), 'fornecedor' => \App\Settings::get('age_provider'),
-        'diaria_exige' => \App\Settings::getBool('age_daily_box_gated'), 'chaves_alteradas' => $ecaMudou,
+        'chaves_alteradas' => $ecaMudou,
     ]);
 
     // ---------------- Mercado Pago: CAMINHO DE DINHEIRO ----------------
@@ -2910,7 +2927,7 @@ $collectDashboardData = function() {
     // antigo). Sem isso, trocar o app CFTools "nao funciona" ate limpar storage/cache
     // na mao (bug reportado por usuario do template). Cache rebuilda no proximo acesso.
     \App\CFTools::clearCache();
-    header('Location: /admin/settings?ok=1');
+    header('Location: /admin/settings?ok=1' . (!empty($ecaAvisoDesligado) ? '&eca=sem_aceite#eca' : ''));
     exit;
 });
 
@@ -4534,7 +4551,6 @@ $BRAND_SLOTS = [
         'site' => site_name('Site'),
         'modo' => \App\AgeVerification::modo(),
         'fornecedor' => \App\AgeVerifierFactory::PROVIDERS[(string) \App\Settings::get('age_provider', 'cpfhub')] ?? 'CPFHub',
-        'diaria_exige' => \App\AgeVerification::diariaExige(),
         'terms_version' => (string) \App\Settings::get('terms_version', '1'),
         'ultima_ok' => \App\Database::fetchColumn("SELECT MAX(created_at) FROM age_verifications WHERE result = 'adulto' AND method <> 'declaracao' AND revoked_at IS NULL"),
         'n_verificados' => (int) \App\Database::fetchColumn("SELECT COUNT(*) FROM players WHERE age_status = 'adulto_verificado'"),

@@ -34,7 +34,17 @@ $rarityLabel = [
     </div>
 </section>
 
-<?php if ($steam_user && ($age_mode ?? 'declaracao') !== 'desligado' && ($age_status ?? 'desconhecido') !== 'adulto_verificado'): ?>
+<?php if (($age_mode ?? 'declaracao') === 'desligado'): ?>
+<section class="section section-bg-2 caixas-idade-wrap">
+    <div class="container">
+        <div class="caixas-idade caixas-idade-menor" role="status">
+            <div class="caixas-idade-texto">
+                <p><?= e(__('caixas.indisponiveis')) ?></p>
+            </div>
+        </div>
+    </div>
+</section>
+<?php elseif ($steam_user && ($age_status ?? 'desconhecido') !== 'adulto_verificado'): ?>
 <section class="section section-bg-2 caixas-idade-wrap">
     <div class="container">
         <?php if (($age_status ?? '') === 'menor'): ?>

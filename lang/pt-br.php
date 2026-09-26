@@ -296,6 +296,7 @@ return array (
   'caixas' =>
   array (
     'kicker' => 'CAIXAS',
+    'indisponiveis' => 'As caixas de recompensa estão indisponíveis neste site no momento.',
     'title_1' => 'Abra. Torça.',
     'title_2' => 'Leve pro jogo.',
     'logged_as' => 'Logado como',

@@ -54,17 +54,19 @@ class AgeGate
     }
 
     /**
-     * Caixa de recompensa: so adulto verificado. A diaria gratis segue a config
-     * (age_daily_box_gated): se liberada, basta ter declarado. Menor nunca abre,
-     * nem com o modo desligado: o site ja sabe que e menor.
+     * Caixa de recompensa: so adulto verificado por CPF, sem excecao para a diaria gratis
+     * (ela tambem e caixa de recompensa). Com o modo desligado o site nao verifica ninguem,
+     * entao as caixas ficam indisponiveis para todos (parecer juridico de 26/09).
      */
-    public static function podeAbrirCaixa(string $status, string $modo, bool $diaria, bool $diariaExige): bool
+    public static function podeAbrirCaixa(string $status, string $modo): bool
     {
-        if ($status === 'menor') return false;
-        if ($modo === 'desligado') return true;
-        if ($status === 'adulto_verificado') return true;
-        if ($diaria && !$diariaExige) return $status === 'adulto_declarado';
-        return false;
+        return self::caixasDisponiveis($modo) && $status === 'adulto_verificado';
+    }
+
+    /** Modo desligado = site sem verificacao de idade = sem caixas de recompensa. */
+    public static function caixasDisponiveis(string $modo): bool
+    {
+        return $modo !== 'desligado';
     }
 
     /**

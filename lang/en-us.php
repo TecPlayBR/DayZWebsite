@@ -296,6 +296,7 @@ return array (
   'caixas' =>
   array (
     'kicker' => 'CASES',
+    'indisponiveis' => 'Reward boxes are not available on this site right now.',
     'title_1' => 'Open. Hope.',
     'title_2' => 'Take it in-game.',
     'logged_as' => 'Logged in as',
