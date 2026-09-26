@@ -233,9 +233,22 @@ class Clan {
     }
 
     /** Efetiva a entrada (move request→membro). Checa cap + 1-clã. Remove o request. */
-    public static function accept(int $clanId, string $steamId): ?string {
+    /**
+     * Efetiva a entrada. $tipo diz QUAL consentimento esta sendo usado e ele PRECISA existir:
+     *   'invite'  -> o jogador aceitando um convite que o dono mandou;
+     *   'request' -> o dono aprovando um pedido que o jogador fez.
+     * Um tipo nunca vale pelo outro: o dono nao aprova o proprio convite e o jogador nao
+     * aprova o proprio pedido.
+     */
+    public static function accept(int $clanId, string $steamId, string $tipo): ?string {
+        if ($tipo !== 'invite' && $tipo !== 'request') return 'not_found';
         $clan = self::get($clanId);
         if (!$clan) return 'not_found';
+        $existe = Database::fetchColumn(
+            "SELECT 1 FROM clan_requests WHERE clan_id = ? AND steam_id = ? AND kind = ? LIMIT 1",
+            [$clanId, $steamId, $tipo]
+        );
+        if (!$existe) return $tipo === 'invite' ? 'no_invite' : 'no_request';
         if (self::forPlayer($steamId)) { // já entrou em algum clã nesse meio tempo
             Database::query("DELETE FROM clan_requests WHERE clan_id = ? AND steam_id = ?", [$clanId, $steamId]);
             return 'in_clan';
@@ -340,6 +353,8 @@ class Clan {
             'not_member'         => 'Esse jogador não é membro do clã.',
             'cant_self'          => 'Você já é o dono do clã.',
             'not_found'          => 'Clã não encontrado.',
+            'no_invite'          => 'Esse convite não existe mais (ou já foi usado).',
+            'no_request'         => 'Esse jogador não tem pedido pendente pra este clã.',
             default              => 'Não foi possível concluir a ação.',
         };
     }

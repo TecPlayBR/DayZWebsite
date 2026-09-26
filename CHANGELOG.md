@@ -5,6 +5,18 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [3.3.3] - 2026-09-26
+
+### Segurança
+
+- **Clãs: entrada só com convite ou pedido válido.** Aceitar um convite e aprovar um pedido agora
+  conferem que ele existe e é do tipo certo: o jogador só entra pelo convite que o dono mandou, e o
+  dono só aprova quem pediu. **Atualização recomendada**, principalmente para quem premia clãs com
+  moedas nos eventos de clã.
+- Fotos da página de streamer aceitam só endereço `http(s)` ou caminho do próprio site.
+
+---
+
 ## [3.3.2] - 2026-09-26
 
 ### Segurança

@@ -79,7 +79,9 @@ class Streamer
             if (is_array($d)) {
                 foreach ($d as $u) {
                     $u = trim((string) $u);
-                    if ($u !== '') $out[] = $u;
+                    // So http/https ou caminho do proprio site ("/assets/..."): vira href e url()
+                    // na pagina, entao javascript:, data: e //outro-host ficam de fora.
+                    if ($u !== '' && (preg_match('#^https?://#i', $u) || preg_match('#^/(?!/)#', $u))) $out[] = $u;
                 }
             }
         }

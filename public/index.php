@@ -899,7 +899,7 @@ $config['mercado_pago'] = $mpCfg;
 \App\Router::post('/clans/{id}/requests/accept', function($id) use ($config) {
     if (!\App\SteamAuth::check()) { header('Location: /auth/steam'); exit; }
     if (!\App\Csrf::check()) { header('Location: /clan/' . $id); exit; }
-    if (\App\Clan::isOwner((int)$id, \App\SteamAuth::steamId())) \App\Clan::accept((int)$id, trim($_POST['steam_id'] ?? ''));
+    if (\App\Clan::isOwner((int)$id, \App\SteamAuth::steamId())) \App\Clan::accept((int)$id, trim($_POST['steam_id'] ?? ''), 'request');
     header('Location: /clan/' . $id . '?ok=accepted'); exit;
 });
 
@@ -953,7 +953,7 @@ $config['mercado_pago'] = $mpCfg;
     if (!\App\SteamAuth::check()) { header('Location: /auth/steam'); exit; }
     if (!\App\Csrf::check()) { header('Location: /player/' . \App\SteamAuth::steamId()); exit; }
     $cid = (int)($_POST['clan_id'] ?? 0);
-    $err = \App\Clan::accept($cid, \App\SteamAuth::steamId());
+    $err = \App\Clan::accept($cid, \App\SteamAuth::steamId(), 'invite');
     header('Location: /clan/' . $cid . ($err ? '?err=' . urlencode($err) : '?ok=joined')); exit;
 });
 \App\Router::post('/clan-invite/reject', function() use ($config) {
