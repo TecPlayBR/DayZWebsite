@@ -43,7 +43,14 @@ $_hImg  = !empty($a['image']) ? (preg_match('#^https?://#', $a['image']) ? $a['i
         <?php endif; ?>
 
         <?php if ($embed): ?>
-            <div class="help-video"><iframe src="<?= e($embed) ?>" title="<?= e($a['title']) ?>" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe></div>
+            <?php // So carrega o YouTube quando o jogador clica: antes disso o Google nao recebe nada (Politica, item 5). ?>
+            <div class="help-video">
+                <button type="button" class="help-video-btn" data-yt-src="<?= e($embed) ?>?autoplay=1" data-yt-title="<?= e($a['title']) ?>">
+                    <span class="help-video-play" aria-hidden="true">▶</span>
+                    <span class="help-video-rotulo"><?= e(__('ajuda.video_btn')) ?></span>
+                    <small class="help-video-aviso"><?= e(__('ajuda.video_aviso')) ?></small>
+                </button>
+            </div>
         <?php elseif (!empty($a['video_url'])): ?>
             <p style="color:var(--dim);font-size:.85rem;">🎥 Vídeo: <a href="<?= e($a['video_url']) ?>" target="_blank" rel="noopener" style="color:var(--hazard);">assistir</a></p>
         <?php endif; ?>
@@ -68,6 +75,12 @@ $_hImg  = !empty($a['image']) ? (preg_match('#^https?://#', $a['image']) ? $a['i
 <style>
 .help-video { position:relative; padding-bottom:56.25%; height:0; margin:0 0 1.5rem; border-radius:8px; overflow:hidden; border:1px solid var(--border); }
 .help-video iframe { position:absolute; top:0; left:0; width:100%; height:100%; }
+.help-video-btn { position:absolute; inset:0; width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.6rem; padding:1rem; border:0; cursor:pointer; font:inherit; color:var(--bone); background:linear-gradient(135deg,var(--bg-2),var(--bg-0)); }
+.help-video-play { width:60px; height:60px; border-radius:50%; background:rgba(0,0,0,.55); border:2px solid var(--hazard); color:#fff; display:flex; align-items:center; justify-content:center; font-size:1.3rem; transition:transform .2s, background .2s; }
+.help-video-btn:hover .help-video-play, .help-video-btn:focus-visible .help-video-play { transform:scale(1.08); background:var(--hazard); }
+.help-video-rotulo { font-weight:600; }
+.help-video-aviso { color:var(--dim); max-width:40ch; text-align:center; font-size:.8rem; line-height:1.45; }
+@media (max-width:480px) { .help-video-btn { gap:.4rem; padding:.6rem; } .help-video-play { width:44px; height:44px; font-size:1rem; } .help-video-aviso { font-size:.75rem; line-height:1.35; } }
 .help-body { color:var(--bone); line-height:1.75; font-size:1rem; overflow-wrap:break-word; }
 .help-body pre { overflow-x:auto; background:var(--bg-0); padding:.8rem 1rem; border-radius:4px; }
 .help-body table { display:block; overflow-x:auto; max-width:100%; }

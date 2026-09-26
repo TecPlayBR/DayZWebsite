@@ -62,8 +62,9 @@ liberá-la só com a declaração: ela também é caixa de recompensa.
 
 O CPF **nunca é gravado**: ele vai ao fornecedor na mesma requisição e é descartado. O que
 fica é o mínimo que a ANPD pede para auditoria: resultado (adulto ou menor), método, data, IP,
-a referência de auditoria do fornecedor e um **hash irreversível** do CPF com um sal próprio
-do seu site. Esse hash serve só para uma coisa: **um CPF verifica uma única conta** no seu site,
+a referência de auditoria do fornecedor e um **identificador derivado do CPF**, calculado com um
+sal próprio do seu site. Ele continua sendo dado pessoal: quem tiver o banco e o sal consegue
+refazer a conta, então proteja os dois. Esse hash serve só para uma coisa: **um CPF verifica uma única conta** no seu site,
 o que fecha o caso do adulto que verifica várias contas de menores.
 
 Em **Conformidade ECA** você vê contadores, as últimas verificações (só metadados), exporta CSV,
@@ -82,7 +83,7 @@ ajustar o texto:
 > de caixas de recompensa exige verificação de idade por CPF junto a um fornecedor externo
 > ([nome do fornecedor escolhido]). O CPF é usado apenas durante a verificação e não é
 > armazenado. Guardamos o resultado da verificação, a data, o método, o endereço IP e um
-> identificador irreversível derivado do CPF, usado exclusivamente para impedir que um mesmo
+> identificador derivado do CPF, usado exclusivamente para impedir que um mesmo
 > CPF verifique mais de uma conta. Esses dados são tratados com base no cumprimento de
 > obrigação legal (LGPD, art. 7º, II) e não são usados para nenhuma outra finalidade. Menores
 > de 18 anos não podem comprar nem abrir caixas de recompensa.

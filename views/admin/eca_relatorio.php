@@ -23,7 +23,7 @@
 <ol>
 <li>Caixas de recompensa ficam fechadas por padrão. Só abrem para conta com verificação de idade concluída por fonte externa.</li>
 <li>Compra de moeda exige declaração de data de nascimento (18+) e aceite registrado dos Termos de Uso e da Política de Privacidade, com data, hora, IP e versão do texto.</li>
-<li>A verificação usa o CPF apenas durante a consulta ao fornecedor. O CPF não é armazenado, registrado em log ou mantido em sessão. Fica gravado: resultado, método, data, referência de auditoria do fornecedor, situação cadastral e um hash irreversível com sal próprio do site, usado só para impedir que um CPF verifique mais de uma conta.</li>
+<li>A verificação usa o CPF apenas durante a consulta ao fornecedor. O CPF não é armazenado, registrado em log ou mantido em sessão. Fica gravado: resultado, método, data, referência de auditoria do fornecedor, situação cadastral e um identificador derivado do CPF, calculado com sal próprio do site e tratado como dado pessoal, usado só para impedir que um CPF verifique mais de uma conta.</li>
 <li>Menores declarados ou detectados ficam com compras e caixas bloqueadas, mantendo o acesso ao jogo, ranking e clãs.</li>
 <li>O jogador pode contestar e retificar refazendo a verificação; o administrador pode revogar uma verificação com motivo registrado.</li>
 </ol>

@@ -39,8 +39,8 @@
                             <?php if ($img): ?>
                                 <div class="help-card-img" style="background-image:url('<?= e($img) ?>');"></div>
                             <?php elseif ($vid): ?>
+                                <?php // Sem miniatura remota do YouTube: ela mandaria o IP do visitante ao Google sem clique. ?>
                                 <div class="help-card-img help-card-vid">
-                                    <img class="help-yt" src="https://img.youtube.com/vi/<?= e($vid) ?>/hqdefault.jpg" alt="" loading="lazy" decoding="async">
                                     <span class="help-play">▶</span>
                                 </div>
                             <?php else: ?>

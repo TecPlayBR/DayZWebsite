@@ -5,6 +5,18 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [3.6.1] - 2026-09-26
+
+### Alterado
+
+- **Vídeos do YouTube só carregam quando o jogador clica.** Nos artigos da Central de Ajuda, o
+  vídeo aparece como um botão com o aviso de que o conteúdo vem do YouTube. Antes do clique, o
+  navegador do jogador não se comunica com o Google. As miniaturas da lista de artigos também
+  deixaram de vir do YouTube.
+- A tela de verificação de idade, o relatório de conformidade e o guia `ECA-DIGITAL.md` agora
+  dizem exatamente o que fica guardado: o resultado, o método, a data e um identificador
+  derivado do CPF, que continua sendo dado pessoal. O CPF segue nunca sendo gravado.
+
 ## [3.6.0] - 2026-09-26
 
 ### Alterado

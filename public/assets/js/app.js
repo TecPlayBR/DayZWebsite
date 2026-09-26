@@ -259,6 +259,7 @@
                                  "trocar" usa data-img-tag (span|div), data-img-classe,
                                  data-img-texto e, se presente, data-img-oculto (aria-hidden).
      data-recarregar             botao que recarrega a pagina.
+     data-yt-src="url"           botao que so no clique vira o iframe do video (com data-yt-title).
      data-copiar="texto"         (secao acima) copia pra area de transferencia.
 
    Delegado no document: vale pra conteudo que chega depois (PJAX do admin) sem registrar
@@ -277,6 +278,20 @@
         if (!el || el.tagName === 'FORM') return;
         perguntaOuCancela(el, ev);
     }, true);
+
+    // Video do YouTube so depois do clique: ate la o navegador nao fala com o Google.
+    document.addEventListener('click', function (ev) {
+        const btn = ev.target.closest('[data-yt-src]');
+        if (!btn) return;
+        const f = document.createElement('iframe');
+        f.src = btn.getAttribute('data-yt-src');
+        f.title = btn.getAttribute('data-yt-title') || 'YouTube';
+        f.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+        f.allowFullscreen = true;
+        f.setAttribute('frameborder', '0');
+        btn.replaceWith(f);
+    });
+
     document.addEventListener('submit', function (ev) {
         const f = ev.target;
         if (!(f instanceof HTMLFormElement) || !f.hasAttribute('data-confirm')) return;

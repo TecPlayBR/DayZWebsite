@@ -439,7 +439,7 @@ return array (
   'idade' =>
   array (
     'title' => 'Age verification',
-    'why' => 'Brazilian law 15.211/2025 requires sites with loot boxes to confirm the player is 18 or older. We keep only the result, the date and the method. Never your CPF.',
+    'why' => 'Brazilian law 15.211/2025 requires sites with loot boxes to confirm the player is 18 or older. We do not keep your CPF: we keep the result, the method, the date and an identifier derived from the CPF, used only so the same CPF cannot unlock another account.',
     'confirm_title' => 'Confirm your age',
     'confirm_intro' => 'To buy on this site you must be 18 or older and accept the Terms.',
     'birth_label' => 'Date of birth',
@@ -467,5 +467,10 @@ return array (
     'err_sem_sal' => 'Verification is unavailable right now. Please contact the server staff.',
     'err_indisponivel' => 'CPF verification is not available on this site yet. Boxes stay closed meanwhile. Please contact the server staff.',
     'err_generico' => 'Something went wrong. Please try again.',
+  ),
+  'ajuda' =>
+  array (
+    'video_btn' => 'Watch the video',
+    'video_aviso' => 'This video is hosted on YouTube (Google, United States). It only loads when you click, and then YouTube receives your IP address and browser.',
   ),
 );

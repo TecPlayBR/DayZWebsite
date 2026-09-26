@@ -439,7 +439,7 @@ return array (
   'idade' =>
   array (
     'title' => 'Verificação de idade',
-    'why' => 'A Lei 15.211/2025 (ECA Digital) exige que sites com caixas de recompensa confirmem que o jogador é maior de 18 anos. Guardamos só o resultado, a data e o método. Nunca o seu CPF.',
+    'why' => 'A Lei 15.211/2025 (ECA Digital) exige que sites com caixas de recompensa confirmem que o jogador é maior de 18 anos. Não guardamos o seu CPF: guardamos o resultado, o método, a data e um identificador derivado do CPF, que só serve para o mesmo CPF não liberar outra conta.',
     'confirm_title' => 'Confirme sua idade',
     'confirm_intro' => 'Para comprar neste site você precisa ter 18 anos ou mais e aceitar os Termos.',
     'birth_label' => 'Data de nascimento',
@@ -467,5 +467,10 @@ return array (
     'err_sem_sal' => 'Verificação indisponível no momento. Avise a administração do servidor.',
     'err_indisponivel' => 'A verificação por CPF ainda não está disponível neste site. Enquanto isso, as caixas ficam fechadas. Fale com a administração do servidor.',
     'err_generico' => 'Não deu certo. Tente de novo.',
+  ),
+  'ajuda' =>
+  array (
+    'video_btn' => 'Assistir ao vídeo',
+    'video_aviso' => 'O vídeo é do YouTube (Google, Estados Unidos). Ele só carrega quando você clica, e aí o YouTube recebe o seu IP e o seu navegador.',
   ),
 );
