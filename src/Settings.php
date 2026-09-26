@@ -127,6 +127,8 @@ class Settings {
         'age_desligado_ciente'     => 'bool',     // 1 = o dono aceitou desligar a verificacao (caixas indisponiveis)
         'age_hash_salt'            => 'string',   // gerado na migration; nunca editar pelo painel
         'terms_version'            => 'string',   // versao dos Termos que o consentimento carimba
+        'login_log_retencao'       => 'bool',     // 1 = apaga registro de login com mais de 6 meses (decisao do dono)
+        'login_log_limpo_em'       => 'string',   // dia da ultima limpeza (limpa no maximo 1x por dia)
         'age_box_blocks'           => 'int',      // contador: aberturas de caixa barradas por idade
     ];
 

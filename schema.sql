@@ -610,6 +610,7 @@ INSERT INTO settings (`key`, `value`) VALUES
 ('live_purchases_anonymize', '1'),
 ('live_purchases_show_price', '0'),
 ('terms_version', '2026-05-27'),
+('login_log_retencao', '1'),
 ('discord_integration_token', ''),
 ('discord_integration_last_ok', '0'),
 ('affiliate_enabled', '0'),

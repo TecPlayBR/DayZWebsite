@@ -93,6 +93,7 @@ require $ROOT . '/src/Html.php';
 require $ROOT . '/src/Csp.php';
 require $ROOT . '/src/Totp.php';
 require $ROOT . '/src/DoisFatores.php';
+require $ROOT . '/src/LoginLog.php';
 require $ROOT . '/src/helpers.php';
 
 // Carrega config se existir, senao redireciona pro instalador
@@ -1556,6 +1557,7 @@ $config['mercado_pago'] = $mpCfg;
             [$steamId, $profile['display_name'] ?? null, \App\RateLimit::clientIp(),
              substr((string)($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 255)]
         );
+        \App\LoginLog::limparSeDevido();   // prazo de 6 meses, so se o dono ligou (no maximo 1x por dia)
     } catch (\Throwable $e) { /* tabela ausente (migration pendente) - degrada limpo */ }
 
     // Redireciona pra de onde veio (setado em /auth/steam ou por um fluxo específico).
@@ -4497,6 +4499,9 @@ $BRAND_SLOTS = [
         'n_menores'     => $q("SELECT COUNT(*) FROM players WHERE age_status = 'menor'"),
         'n_falhas_30d'  => $q("SELECT COUNT(*) FROM age_verifications WHERE result = 'falhou' AND created_at >= NOW() - INTERVAL 30 DAY"),
         'n_bloqueios'   => \App\Settings::getInt('age_box_blocks', 0),
+        'login_retencao' => \App\Settings::getBool('login_log_retencao', false),
+        'login_total'    => $q("SELECT COUNT(*) FROM login_log"),
+        'login_antigos'  => \App\LoginLog::antigos(),
         // Consentimentos de UM jogador (busca pelo SteamID): so metadados.
         'consent_steam' => preg_match('/^7656119[0-9]{10}$/', (string) ($_GET['steam_id'] ?? '')) ? (string) $_GET['steam_id'] : '',
         'consentimentos' => preg_match('/^7656119[0-9]{10}$/', (string) ($_GET['steam_id'] ?? ''))
@@ -4527,6 +4532,19 @@ $BRAND_SLOTS = [
     if (\App\AgeVerification::revogar($id, $motivo)) {
         \App\AuditLog::record('age.revoked', 'age_verification', (string) $id, ['motivo' => $motivo]);
     }
+    header('Location: /admin/eca?ok=1'); exit;
+});
+
+// Prazo do registro de login (6 meses). A decisao e do dono: ligar apaga na hora o que ja
+// passou do prazo e dai em diante o site limpa sozinho. Ligar e desligar vao pro log de auditoria.
+\App\Router::post('/admin/eca/retencao-login', function() use ($config) {
+    \App\Auth::requireCan('settings');
+    if (!\App\Csrf::check()) { header('Location: /admin/eca'); exit; }
+    $ligar = ($_POST['acao'] ?? '') === 'ligar';
+    \App\Settings::set('login_log_retencao', $ligar ? '1' : '0');
+    $apagados = $ligar ? \App\LoginLog::limpar() : 0;
+    if ($ligar) \App\Settings::set('login_log_limpo_em', date('Y-m-d'));
+    \App\AuditLog::record('login_log.retencao', 'settings', $ligar ? 'ligada' : 'desligada', ['apagados' => $apagados, 'meses' => \App\LoginLog::MESES]);
     header('Location: /admin/eca?ok=1'); exit;
 });
 

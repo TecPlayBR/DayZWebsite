@@ -36,6 +36,28 @@
     <div class="stat-card"><div style="font-size:1.8rem;"><?= (int) $n_falhas_30d ?></div><div style="color:var(--dim);">falhas do fornecedor (30 dias)</div></div>
 </div>
 
+<div class="stat-card" style="margin-bottom:1.2rem; border-left:3px solid <?= !empty($login_retencao) ? 'var(--moss)' : 'var(--hazard)' ?>;">
+    <h3 style="margin-top:0;">Registro de login: prazo de 6 meses</h3>
+    <p style="margin:.2rem 0 .8rem; color:var(--dim);">
+        O site guarda IP, navegador, data e hora de cada login com a Steam. O Marco Civil da Internet (art. 15) pede 6 meses,
+        e a Política de Privacidade modelo promete eliminar depois disso.
+        Hoje: <strong style="color:var(--bone);"><?= (int) $login_total ?></strong> registros, <strong style="color:var(--bone);"><?= (int) $login_antigos ?></strong> com mais de 6 meses.
+    </p>
+    <?php if (!empty($login_retencao)): ?>
+        <form method="POST" action="/admin/eca/retencao-login" data-confirm="Desligar a limpeza? O registro de login volta a ser guardado sem prazo, e a Política de Privacidade deixa de corresponder ao site." style="display:flex; gap:.8rem; align-items:center; flex-wrap:wrap;">
+            <?= \App\Csrf::field() ?><input type="hidden" name="acao" value="desligar">
+            <span style="color:var(--moss);">Limpeza ligada: o site apaga sozinho o que passa de 6 meses.</span>
+            <button class="btn btn-sm" type="submit">Desligar</button>
+        </form>
+    <?php else: ?>
+        <form method="POST" action="/admin/eca/retencao-login" data-confirm="Ligar a limpeza apaga agora os <?= (int) $login_antigos ?> registros de login com mais de 6 meses, e daí em diante o site apaga sozinho o que passar do prazo. Isso não pode ser desfeito. Continuar?" style="display:flex; gap:.8rem; align-items:center; flex-wrap:wrap;">
+            <?= \App\Csrf::field() ?><input type="hidden" name="acao" value="ligar">
+            <span style="color:var(--hazard);">Limpeza desligada: o registro de login fica guardado sem prazo.</span>
+            <button class="btn btn-sm" type="submit">Ligar a limpeza</button>
+        </form>
+    <?php endif; ?>
+</div>
+
 <div class="stat-card" style="margin-bottom:1.2rem;">
     <h3 style="margin-top:0;">Consentimentos de um jogador</h3>
     <form method="GET" action="/admin/eca" style="display:flex; gap:.5rem; flex-wrap:wrap; align-items:center;">
