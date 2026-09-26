@@ -5,6 +5,28 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [3.8.0] - 2026-09-26
+
+### Adicionado
+
+- **Publique as páginas legais novas pelo painel, num clique.** Em **Conformidade ECA**, o quadro
+  **Páginas legais** avisa quando há texto novo de Termos de Uso, Política de Privacidade, Política
+  de Reembolso e da resposta do FAQ sobre menores. Você preenche razão social, CNPJ, e-mail de
+  atendimento, hospedagem e país do datacenter, e clica em **Aplicar o texto novo**. Nome do
+  servidor, domínio, Discord e fornecedor de verificação vêm das Configurações.
+- **Histórico das páginas.** O texto anterior fica guardado sempre que você aplica o modelo ou
+  edita uma página no painel.
+- **A limpeza automática também cobre** o registro de ações dos administradores (12 meses) e os
+  arquivos temporários do limite de tentativas, que levam o IP no nome (24 horas). Ela continua
+  ligada ou desligada pelo mesmo botão da limpeza do registro de login.
+
+### Para atualizar
+
+- Rode o `/update.php`: ele aplica a migration `v3.8.0_paginas_versoes.sql`, que cria a tabela do
+  histórico das páginas.
+- Depois, em **Conformidade ECA**, preencha os dados e clique em **Aplicar o texto novo**. A
+  atualização nunca troca as suas páginas sozinha.
+
 ## [3.7.0] - 2026-09-26
 
 ### Alterado
@@ -24,10 +46,8 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 ### Para atualizar
 
 - **Instalação nova** já nasce com o texto novo.
-- **Site que já estava no ar mantém o texto que você tem hoje:** a atualização nunca sobrescreve as
-  suas páginas. Para usar o texto novo, peça ao suporte da Tecplay, que aplica e preenche os campos
-  com os dados da sua empresa. Depois disso, mude a **Versão dos Termos** em Configurações para os
-  jogadores aceitarem o texto novo na próxima compra.
+- **Site que já estava no ar:** atualize para a 3.8.0, que traz o botão **Aplicar o texto novo** em
+  Conformidade ECA. Você preenche os dados da sua empresa e publica num clique.
 
 ## [3.6.1] - 2026-09-26
 

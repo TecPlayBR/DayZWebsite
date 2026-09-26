@@ -127,6 +127,14 @@ class Settings {
         'age_desligado_ciente'     => 'bool',     // 1 = o dono aceitou desligar a verificacao (caixas indisponiveis)
         'age_hash_salt'            => 'string',   // gerado na migration; nunca editar pelo painel
         'terms_version'            => 'string',   // versao dos Termos que o consentimento carimba
+        'legal_razao_social'       => 'string',   // paginas legais: quem vende e responde (Termos e Privacidade)
+        'legal_cnpj'               => 'string',
+        'legal_email'              => 'string',   // canal de atendimento e de privacidade fora do Discord
+        'legal_hospedagem'         => 'string',   // provedor de hospedagem do site
+        'legal_pais'               => 'string',   // pais do datacenter (Brasil = sem transferencia internacional)
+        'legal_mecanismo_hospedagem' => 'string', // fundamento da transferencia, se a hospedagem for fora do Brasil
+        'legal_prazo_fornecedor'   => 'string',   // prazo de guarda do fornecedor de verificacao (vazio = o conhecido)
+        'legal_modelo_aplicado'    => 'string',   // versao do modelo das paginas legais que o dono aplicou
         'login_log_retencao'       => 'bool',     // 1 = apaga registro de login com mais de 6 meses (decisao do dono)
         'login_log_limpo_em'       => 'string',   // dia da ultima limpeza (limpa no maximo 1x por dia)
         'age_box_blocks'           => 'int',      // contador: aberturas de caixa barradas por idade

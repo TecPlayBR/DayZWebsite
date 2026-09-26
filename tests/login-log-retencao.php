@@ -40,6 +40,7 @@ namespace {
     $pdo = new PDO('sqlite::memory:', null, null, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
     Database::$pdo = $pdo;
     $pdo->exec("CREATE TABLE login_log (id INTEGER PRIMARY KEY AUTOINCREMENT, steam_id TEXT, ip TEXT, created_at TEXT NOT NULL DEFAULT (datetime('now')))");
+    $pdo->exec("CREATE TABLE audit_log (id INTEGER PRIMARY KEY AUTOINCREMENT, action TEXT, ip TEXT, created_at TEXT NOT NULL DEFAULT (datetime('now')))");
     $semeia = function () use ($pdo) {
         $pdo->exec("DELETE FROM login_log");
         foreach (["-8 months", "-7 months", "-5 months", "-1 day", "-0 days"] as $quando)
@@ -76,6 +77,26 @@ namespace {
     $semeia();
     if (LoginLog::limpar() === 2 && $total() === 3) ok('limpar() apagou 2 e devolveu 2'); else falha('limpar() nao devolve a contagem');
     if (LoginLog::MESES === 6) ok('prazo de 6 meses (Marco Civil, art. 15)'); else falha('prazo diferente de 6 meses');
+
+    echo "\n4b. A mesma limpeza cuida do registro dos administradores (12 meses) e dos arquivos do limite de tentativas (24 h)\n";
+    require_once $ROOT . '/src/RateLimit.php';
+    foreach (["-13 months", "-11 months", "-0 days"] as $q) $pdo->exec("INSERT INTO audit_log (action, ip, created_at) VALUES ('x', '10.0.0.1', datetime('now', '$q'))");
+    $dirRl = sys_get_temp_dir() . '/rl-teste-' . getmypid(); @mkdir($dirRl);
+    \App\RateLimit::init($dirRl);
+    file_put_contents("$dirRl/login_ip_10_0_0_1.json", '[]'); touch("$dirRl/login_ip_10_0_0_1.json", time() - 2 * 86400);
+    file_put_contents("$dirRl/login_ip_10_0_0_2.json", '[]');
+    file_put_contents("$dirRl/leia-me.txt", 'nao e do limite');  touch("$dirRl/leia-me.txt", time() - 5 * 86400);
+    Settings::$v = ['login_log_retencao' => '1'];
+    LoginLog::limparSeDevido();
+    $au = (int) $pdo->query("SELECT COUNT(*) FROM audit_log")->fetchColumn();
+    if ($au === 2) ok('registro dos administradores: apagou o de 13 meses, ficaram os 2 recentes'); else falha("audit_log com $au linhas (esperado 2)");
+    if (!is_file("$dirRl/login_ip_10_0_0_1.json") && is_file("$dirRl/login_ip_10_0_0_2.json")) ok('arquivo de tentativa com mais de 24 h apagado, o recente ficou'); else falha('limpeza dos arquivos do limite de tentativas errada');
+    if (is_file("$dirRl/leia-me.txt")) ok('so apaga os .json do limite, nada mais da pasta'); else falha('apagou arquivo que nao e do limite de tentativas');
+    Settings::$v = ['login_log_retencao' => '0'];
+    $pdo->exec("INSERT INTO audit_log (action, ip, created_at) VALUES ('x', '10.0.0.1', datetime('now', '-20 months'))");
+    LoginLog::limparSeDevido();
+    if ((int) $pdo->query("SELECT COUNT(*) FROM audit_log")->fetchColumn() === 3) ok('limpeza desligada tambem nao toca no registro dos administradores'); else falha('apagou audit_log com a limpeza desligada');
+    array_map('unlink', glob("$dirRl/*")); @rmdir($dirRl);
 
     echo "\n5. Login, painel e seeds\n";
     $idx = file_get_contents($ROOT . '/public/index.php');

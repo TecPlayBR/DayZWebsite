@@ -72,21 +72,23 @@ revoga uma verificação com motivo, e imprime o **relatório de conformidade**,
 mecanismo ponto a ponto contra os 11 requisitos do art. 24 do Decreto. É o documento que se
 mostra se a ANPD perguntar.
 
-## 5. Atualize seus Termos de Uso e a Política de Privacidade
+## 5. Publique as páginas legais (Termos, Privacidade e Reembolso)
 
-O template não sobrescreve as páginas legais do seu site, porque você pode ter editado. Cole
-o trecho abaixo nas duas páginas (Páginas, no painel), e leve ao seu advogado se quiser
-ajustar o texto:
+O template traz o texto de Termos de Uso, Política de Privacidade, Política de Reembolso e da
+resposta do FAQ sobre menores, revisado por advogada sobre o ECA Digital, a LGPD, o Marco Civil
+e o CDC. Você só preenche os dados da sua empresa e publica:
 
-> **Verificação de idade.** Para cumprir a Lei 15.211/2025 (ECA Digital), a compra de moeda
-> neste site exige login, declaração de data de nascimento e aceite destes Termos; a abertura
-> de caixas de recompensa exige verificação de idade por CPF junto a um fornecedor externo
-> ([nome do fornecedor escolhido]). O CPF é usado apenas durante a verificação e não é
-> armazenado. Guardamos o resultado da verificação, a data, o método, o endereço IP e um
-> identificador derivado do CPF, usado exclusivamente para impedir que um mesmo
-> CPF verifique mais de uma conta. Esses dados são tratados com base no cumprimento de
-> obrigação legal (LGPD, art. 7º, II) e não são usados para nenhuma outra finalidade. Menores
-> de 18 anos não podem comprar nem abrir caixas de recompensa.
+1. Rode o `/update.php` (seção 1).
+2. No painel, abra **Conformidade ECA**. O quadro **Páginas legais** avisa quando há texto novo.
+3. Preencha **razão social**, **CNPJ**, **e-mail de atendimento**, **provedor de hospedagem** e
+   o **país do datacenter** (na Hostinger, fica em hPanel > Detalhes do plano). Nome do servidor,
+   domínio, convite do Discord e fornecedor de verificação já vêm das Configurações.
+4. Clique em **Aplicar o texto novo**. As quatro páginas passam a valer com os seus dados.
+
+O texto que você tinha antes fica guardado no histórico do site, e os jogadores aceitam os
+Termos novos na próxima compra. A atualização nunca troca as suas páginas sozinha: quem decide
+aplicar é você. Se o seu advogado quiser ajustar algo, edite depois em **Páginas**, e cada
+edição também guarda a versão anterior no histórico.
 
 ## 6. Se você usa o bot do Discord
 

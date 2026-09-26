@@ -94,6 +94,7 @@ require $ROOT . '/src/Csp.php';
 require $ROOT . '/src/Totp.php';
 require $ROOT . '/src/DoisFatores.php';
 require $ROOT . '/src/LoginLog.php';
+require $ROOT . '/src/PaginasLegais.php';
 require $ROOT . '/src/helpers.php';
 
 // Carrega config se existir, senao redireciona pro instalador
@@ -3369,6 +3370,12 @@ $REWARD_CATEGORIES = [
         exit;
     }
     if ($id > 0) {
+        // Historico: a versao anterior fica guardada (Termos e Politica prometem versoes anteriores a pedido).
+        try {
+            \App\Database::query("INSERT INTO page_versions (slug, body_ptbr, body_enus, motivo, saved_by)
+                                  SELECT slug, body_ptbr, body_enus, 'edicao no painel', ? FROM pages WHERE id = ?",
+                                 [(string) (\App\Auth::user()['username'] ?? 'admin'), $id]);
+        } catch (\Throwable $e) { error_log('[pages] historico nao gravado (migration 3.8.0 pendente?): ' . $e->getMessage()); }
         \App\Database::query(
             "UPDATE pages SET slug=?, title_ptbr=?, title_enus=?, body_ptbr=?, body_enus=?, published=?, sort_order=? WHERE id = ?",
             [$slug, $title_pt, $title_en, $body_pt, $body_en, $published, $sort, $id]
@@ -4502,6 +4509,12 @@ $BRAND_SLOTS = [
         'login_retencao' => \App\Settings::getBool('login_log_retencao', false),
         'login_total'    => $q("SELECT COUNT(*) FROM login_log"),
         'login_antigos'  => \App\LoginLog::antigos(),
+        'legal_precisa'  => \App\PaginasLegais::precisaAplicar(),
+        'legal_faltando' => \App\PaginasLegais::faltando(),
+        'legal' => array_map(fn($k) => (string) \App\Settings::get($k, ''), array_combine(
+            ['razao', 'cnpj', 'email', 'hospedagem', 'pais', 'mecanismo'],
+            ['legal_razao_social', 'legal_cnpj', 'legal_email', 'legal_hospedagem', 'legal_pais', 'legal_mecanismo_hospedagem'])),
+        'legal_msg' => (string) ($_GET['legal'] ?? ''),
         // Consentimentos de UM jogador (busca pelo SteamID): so metadados.
         'consent_steam' => preg_match('/^7656119[0-9]{10}$/', (string) ($_GET['steam_id'] ?? '')) ? (string) $_GET['steam_id'] : '',
         'consentimentos' => preg_match('/^7656119[0-9]{10}$/', (string) ($_GET['steam_id'] ?? ''))
@@ -4542,10 +4555,27 @@ $BRAND_SLOTS = [
     if (!\App\Csrf::check()) { header('Location: /admin/eca'); exit; }
     $ligar = ($_POST['acao'] ?? '') === 'ligar';
     \App\Settings::set('login_log_retencao', $ligar ? '1' : '0');
-    $apagados = $ligar ? \App\LoginLog::limpar() : 0;
+    $apagados = $ligar ? \App\LoginLog::limpar() + \App\LoginLog::limparAuditoria() + \App\RateLimit::limparAntigos(24) : 0;
     if ($ligar) \App\Settings::set('login_log_limpo_em', date('Y-m-d'));
     \App\AuditLog::record('login_log.retencao', 'settings', $ligar ? 'ligada' : 'desligada', ['apagados' => $apagados, 'meses' => \App\LoginLog::MESES]);
     header('Location: /admin/eca?ok=1'); exit;
+});
+
+// Paginas legais: o dono cadastra os dados e aplica o texto modelo num clique. O texto anterior
+// vai para page_versions. O update nunca faz isso sozinho: a pagina e do cliente.
+\App\Router::post('/admin/eca/paginas-legais', function() use ($config) {
+    \App\Auth::requireCan('settings');
+    if (!\App\Csrf::check()) { header('Location: /admin/eca'); exit; }
+    foreach (['legal_razao_social', 'legal_cnpj', 'legal_email', 'legal_hospedagem', 'legal_pais', 'legal_mecanismo_hospedagem'] as $k) {
+        if (isset($_POST[$k])) \App\Settings::set($k, mb_substr(trim((string) $_POST[$k]), 0, 160));
+    }
+    if (($_POST['acao'] ?? '') !== 'aplicar') { header('Location: /admin/eca?legal=salvo#paginas-legais'); exit; }
+    $dominio = (string) (parse_url((string) ($config['site_url'] ?? ''), PHP_URL_HOST) ?: ($_SERVER['HTTP_HOST'] ?? ''));
+    $quem = (string) (\App\Auth::user()['username'] ?? 'admin');
+    $r = \App\PaginasLegais::aplicar(site_name('Site'), $dominio, $quem);
+    if (!$r['ok']) { header('Location: /admin/eca?legal=faltando#paginas-legais'); exit; }
+    \App\AuditLog::record('paginas.legais_aplicadas', 'pages', \App\PaginasLegais::MODELO, ['paginas' => $r['paginas'], 'faq' => $r['faq']]);
+    header('Location: /admin/eca?legal=aplicado#paginas-legais'); exit;
 });
 
 \App\Router::get('/admin/eca/export.csv', function() use ($config) {

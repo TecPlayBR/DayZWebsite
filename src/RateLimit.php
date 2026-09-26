@@ -9,6 +9,19 @@ namespace App;
 class RateLimit {
     private static string $dir = '';
 
+    /**
+     * Apaga os arquivos de contagem mais velhos que $horas. O nome leva o IP, e a contagem so vale
+     * por minutos: guardar mais que isso seria dado pessoal sem finalidade. So toca nos .json da pasta.
+     */
+    public static function limparAntigos(int $horas): int {
+        if (self::$dir === '' || !is_dir(self::$dir)) return 0;
+        $limite = time() - $horas * 3600; $n = 0;
+        foreach (glob(self::$dir . '/*.json') ?: [] as $f) {
+            if (@filemtime($f) < $limite && @unlink($f)) $n++;
+        }
+        return $n;
+    }
+
     public static function init(string $storageDir): void {
         self::$dir = rtrim($storageDir, '/\\');
         if (!is_dir(self::$dir)) {

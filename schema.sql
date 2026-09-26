@@ -568,6 +568,18 @@ CREATE TABLE achievement_rewards_log (
     KEY idx_ach_created (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+DROP TABLE IF EXISTS page_versions;
+CREATE TABLE page_versions (
+    id         INT AUTO_INCREMENT PRIMARY KEY,
+    slug       VARCHAR(80)  NOT NULL,
+    body_ptbr  MEDIUMTEXT   NULL,
+    body_enus  MEDIUMTEXT   NULL,
+    motivo     VARCHAR(160) NULL,
+    saved_by   VARCHAR(60)  NULL,
+    saved_at   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    KEY idx_pv_slug (slug, saved_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 DROP TABLE IF EXISTS login_log;
 CREATE TABLE login_log (
     id           INT AUTO_INCREMENT PRIMARY KEY,

@@ -37,5 +37,13 @@ class LoginLog
         if ((string) Settings::get('login_log_limpo_em', '') === $hoje) return;
         Settings::set('login_log_limpo_em', $hoje);   // marca antes: dois logins juntos nao limpam em dobro
         self::limpar();
+        self::limparAuditoria();
+        if (class_exists(RateLimit::class)) RateLimit::limparAntigos(24);
+    }
+
+    /** Registro de acoes dos administradores: 12 meses (tabela de retencao da Politica). */
+    public static function limparAuditoria(): int
+    {
+        return Database::execute("DELETE FROM audit_log WHERE created_at < NOW() - INTERVAL 12 MONTH");
     }
 }

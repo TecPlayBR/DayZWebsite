@@ -37,25 +37,56 @@
 </div>
 
 <div class="stat-card" style="margin-bottom:1.2rem;">
-    <h3 style="margin-top:0;">Registro de login: prazo de 6 meses</h3>
+    <h3 style="margin-top:0;">Prazos de guarda: limpeza automática</h3>
     <p style="margin:.2rem 0 .8rem; color:var(--dim);">
         O site guarda IP, navegador, data e hora de cada login com a Steam. O Marco Civil da Internet (art. 15) pede 6 meses,
-        e a Política de Privacidade modelo promete eliminar depois disso.
+        e a Política de Privacidade modelo promete eliminar depois disso. A mesma limpeza apaga o registro de ações dos administradores com mais de 12 meses e os arquivos temporários do limite de tentativas, que levam o IP no nome, com mais de 24 horas.
         Hoje: <strong style="color:var(--bone);"><?= (int) $login_total ?></strong> registros, <strong style="color:var(--bone);"><?= (int) $login_antigos ?></strong> com mais de 6 meses.
     </p>
     <?php if (!empty($login_retencao)): ?>
         <form method="POST" action="/admin/eca/retencao-login" data-confirm="Desligar a limpeza? O registro de login volta a ser guardado sem prazo, e a Política de Privacidade deixa de corresponder ao site." style="display:flex; gap:.8rem; align-items:center; flex-wrap:wrap;">
             <?= \App\Csrf::field() ?><input type="hidden" name="acao" value="desligar">
-            <span style="color:var(--moss);">Limpeza ligada: o site apaga sozinho o que passa de 6 meses.</span>
+            <span style="color:var(--moss);">Limpeza ligada: o site apaga sozinho o que passa do prazo.</span>
             <button class="btn btn-sm" type="submit">Desligar</button>
         </form>
     <?php else: ?>
-        <form method="POST" action="/admin/eca/retencao-login" data-confirm="Ligar a limpeza apaga agora os <?= (int) $login_antigos ?> registros de login com mais de 6 meses, e daí em diante o site apaga sozinho o que passar do prazo. Isso não pode ser desfeito. Continuar?" style="display:flex; gap:.8rem; align-items:center; flex-wrap:wrap;">
+        <form method="POST" action="/admin/eca/retencao-login" data-confirm="Ligar a limpeza apaga agora os <?= (int) $login_antigos ?> registros de login com mais de 6 meses, o registro dos administradores com mais de 12 meses e os arquivos temporários com mais de 24 horas, e daí em diante o site apaga sozinho o que passar do prazo. Isso não pode ser desfeito. Continuar?" style="display:flex; gap:.8rem; align-items:center; flex-wrap:wrap;">
             <?= \App\Csrf::field() ?><input type="hidden" name="acao" value="ligar">
             <span style="color:var(--hazard);">Limpeza desligada: o registro de login fica guardado sem prazo.</span>
             <button class="btn btn-sm" type="submit">Ligar a limpeza</button>
         </form>
     <?php endif; ?>
+</div>
+
+<div class="stat-card" id="paginas-legais" style="margin-bottom:1.2rem;">
+    <h3 style="margin-top:0;">Páginas legais: Termos, Privacidade e Reembolso</h3>
+    <?php if (($legal_msg ?? '') === 'aplicado'): ?><p style="color:var(--moss); margin:.2rem 0 .8rem;">Texto novo aplicado. O texto anterior ficou guardado no histórico, e os jogadores aceitam os Termos novos na próxima compra.</p>
+    <?php elseif (($legal_msg ?? '') === 'faltando'): ?><p style="color:var(--rust-2); margin:.2rem 0 .8rem;">Não foi aplicado: preencha os dados abaixo.</p>
+    <?php elseif (($legal_msg ?? '') === 'salvo'): ?><p style="color:var(--moss); margin:.2rem 0 .8rem;">Dados salvos.</p><?php endif; ?>
+    <p style="margin:.2rem 0 .8rem; color:var(--dim);">
+        <?php if (!empty($legal_precisa)): ?>
+            <strong style="color:var(--hazard);">Há um texto novo das páginas legais, revisado por advogada</strong> (ECA Digital, LGPD, Marco Civil e CDC).
+            Preencha os dados da sua empresa e clique em Aplicar: o site troca os Termos, a Privacidade, o Reembolso e a resposta do FAQ sobre menores.
+        <?php else: ?>
+            Suas páginas legais estão no texto modelo atual. Se mudar os dados, aplique de novo para atualizar as páginas.
+        <?php endif; ?>
+    </p>
+    <form method="POST" action="/admin/eca/paginas-legais">
+        <?= \App\Csrf::field() ?>
+        <div class="adm-grid-2">
+            <?= admin_campo(['label' => 'Razão social', 'name' => 'legal_razao_social', 'value' => $legal['razao'] ?? '', 'required' => true, 'attrs' => 'maxlength="160"', 'hint' => 'De quem vende as Moedas e recebe os pagamentos.']) ?>
+            <?= admin_campo(['label' => 'CNPJ', 'name' => 'legal_cnpj', 'value' => $legal['cnpj'] ?? '', 'required' => true, 'attrs' => 'maxlength="20" inputmode="numeric"']) ?>
+            <?= admin_campo(['label' => 'E-mail de atendimento', 'name' => 'legal_email', 'type' => 'email', 'value' => $legal['email'] ?? '', 'required' => true, 'attrs' => 'maxlength="160"', 'hint' => 'Canal fora do Discord para suporte, reembolso e pedidos de privacidade.']) ?>
+            <?= admin_campo(['label' => 'Provedor de hospedagem do site', 'name' => 'legal_hospedagem', 'value' => $legal['hospedagem'] ?? '', 'required' => true, 'attrs' => 'maxlength="80" placeholder="Hostinger"']) ?>
+            <?= admin_campo(['label' => 'País do datacenter', 'name' => 'legal_pais', 'value' => ($legal['pais'] ?? '') !== '' ? $legal['pais'] : 'Brasil', 'attrs' => 'maxlength="60"', 'hint' => 'No hPanel da Hostinger aparece em Detalhes do plano.']) ?>
+            <?= admin_campo(['label' => 'Fundamento da transferência (só se o país não for o Brasil)', 'name' => 'legal_mecanismo_hospedagem', 'value' => $legal['mecanismo'] ?? '', 'attrs' => 'maxlength="160" placeholder="cláusulas-padrão da ANPD"']) ?>
+        </div>
+        <p style="margin:.6rem 0; font-size:.85rem; color:var(--dim);">Nome do servidor, domínio, convite do Discord e fornecedor de verificação vêm das Configurações.</p>
+        <div style="display:flex; gap:.6rem; flex-wrap:wrap;">
+            <button class="btn btn-sm" type="submit" name="acao" value="salvar">Salvar dados</button>
+            <button class="btn btn-sm" type="submit" name="acao" value="aplicar" data-confirm="Aplicar o texto novo nas páginas de Termos, Privacidade e Reembolso e na resposta do FAQ sobre menores? O texto anterior fica guardado no histórico do site, e os jogadores vão aceitar os Termos novos na próxima compra.">Aplicar o texto novo</button>
+        </div>
+    </form>
 </div>
 
 <div class="stat-card" style="margin-bottom:1.2rem;">
