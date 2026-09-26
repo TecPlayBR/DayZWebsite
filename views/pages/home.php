@@ -102,27 +102,7 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
     $showRank     = !empty($ss['rank']) && (int)$ss['rank'] > 0 && (int)$ss['rank'] <= $bmRankMax;
     ?>
     <div class="hero-chips">
-    <?php if (!empty($ss['configured'])): ?>
-        <div class="hero-status hero-status-<?= $ss['online'] ? 'online' : 'offline' ?>" aria-live="polite">
-            <span class="dot"></span>
-            <?php if ($ss['online']): ?>
-                <span><?= e(__('hero.status_online')) ?></span>
-                <span style="color: var(--dim);">&middot;</span>
-                <span><strong><?= (int)$ss['players'] ?></strong><?php if ((int)$ss['max'] > 0): ?>/<?= (int)$ss['max'] ?><?php endif; ?> <?= e(__('hero.status_players')) ?></span>
-                <?php if ($showRank): ?>
-                    <span style="color: var(--dim);">&middot;</span>
-                    <span title="Ranking BattleMetrics" style="color: var(--hazard);">#<?= (int)$ss['rank'] ?></span>
-                <?php endif; ?>
-            <?php else: ?>
-                <span><?= e(__('hero.status_voltando')) ?></span>
-                <?php if (!empty($discordUrl)): ?>
-                    <span style="color: var(--dim);">&middot;</span>
-                    <a href="<?= e($discordUrl) ?>" target="_blank" rel="noopener" style="color: var(--moss); font-weight: 600;"><?= e(__('hero.status_avise_discord')) ?></a>
-                <?php endif; ?>
-            <?php endif; ?>
-            <a href="/server-status" class="hs-detalhes"><?= e(__('hero.status_detalhes')) ?></a>
-        </div>
-    <?php endif; ?>
+    <?php partial('partials.hero-online', ['ss' => $ss, 'discordUrl' => $discordUrl, 'showRank' => $showRank, 'mostrar' => \App\Settings::getBool('hero_online_enabled', true)]); ?>
 
     <?php $rs = $config['restart'] ?? null; if ($rs): ?>
         <div class="hero-restart hero-restart-ok" id="hero-restart" aria-live="polite"
@@ -171,7 +151,8 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
          Esconde sozinho se controller não passou home_stats. -->
     <?php
     $hs       = $home_stats ?? null;
-    $onlineNow = !empty($ss['configured']) && $ss['online'] ? (int)$ss['players'] : null;
+    // "0 jogando agora" e prova social ao contrario: com servidor vazio o numero some.
+    $onlineNow = !empty($ss['configured']) && $ss['online'] && \App\Settings::getBool('hero_online_enabled', true) && (int)$ss['players'] > 0 ? (int)$ss['players'] : null;
     $hasAnyStat = $hs && ((int)($hs['players_total'] ?? 0) > 0 || (int)($hs['purchases_week'] ?? 0) > 0);
     if ($hasAnyStat):
     ?>

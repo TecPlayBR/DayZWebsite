@@ -12,6 +12,27 @@ if (!function_exists('__')) {
     }
 }
 
+if (!function_exists('status_servidor')) {
+    /**
+     * Status publico do servidor principal. Uma fonte so pra home e pro /status-servidor.json.
+     * CFTools manda (o BattleMetrics passou a exigir assinatura paga); BattleMetrics e reserva.
+     * Os dois tem cache (60s BattleMetrics, 45s CFTools), entao chamar isto e barato.
+     */
+    function status_servidor(array $config): array {
+        $s = \App\ServerStatus::fetch($config['settings']['battlemetrics_id'] ?? null);
+        if (\App\CFTools::isConfigured()) {
+            $cf = \App\CFTools::onlinePlayers();
+            if ($cf !== null) {   // CFTools respondeu (mesmo vazio) = servidor ONLINE
+                $s['configured'] = true;
+                $s['online']     = true;
+                $s['players']    = count($cf);
+                $s['source']     = 'cftools';
+            }
+        }
+        return $s;
+    }
+}
+
 if (!function_exists('csp_nonce')) {
     // Nonce da CSP desta resposta. TODA tag <script> das views leva
     // o atributo nonce com csp_nonce() (tests/csp-nonce.php reprova tag sem). Sem ele o navegador

@@ -714,6 +714,10 @@ body:has(.site-header.scrolled) .announcements-strip {
     animation: cookie-slide 0.4s ease-out;
 }
 .cookie-banner[hidden] { display: none !important; }
+/* Tela larga: continua centralizado, mas estreito. Largo (720px) ele cobria o status do servidor
+   no canto direito do topo; encostado a esquerda cobria o botao principal em notebook 1366x768.
+   Com 520px fica entre os dois (medido em 1366x768, 1440x900 e 1920x1080). */
+@media (min-width: 900px) { .cookie-banner { max-width: 520px; } }
 @keyframes cookie-slide {
     from { opacity: 0; transform: translateY(20px); }
     to   { opacity: 1; transform: translateY(0); }

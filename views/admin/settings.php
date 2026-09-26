@@ -177,6 +177,10 @@
                 <input type="checkbox" name="hide_online_players" value="1" <?= !empty($settings['hide_online_players']) ? 'checked' : '' ?> style="width:18px;height:18px;margin-top:0.15rem;">
                 <span>Ocultar os <strong>nomes</strong> dos players online no <code>/ranking</code> (mantém só a <strong>contagem</strong> "X online"). Evita expor quem está jogando.</span>
             </label>
+            <label style="display:flex; align-items:flex-start; gap:0.5rem; font-size:0.9rem; color:var(--bone); margin-top:0.6rem;">
+                <input type="checkbox" name="hero_online_enabled" value="1" <?= \App\Settings::getBool('hero_online_enabled', true) ? 'checked' : '' ?> style="width:18px;height:18px;margin-top:0.15rem;">
+                <span>Mostrar <strong>jogadores online agora</strong> no topo da home (atualiza sozinho a cada minuto; com o servidor vazio mostra só "Online", sem o 0).</span>
+            </label>
         </div>
 
         <div style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.2rem;">

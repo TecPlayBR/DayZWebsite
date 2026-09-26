@@ -5,6 +5,19 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [3.5.0] - 2026-09-26
+
+### Alterado
+
+- **"Online agora" no topo da home, ao vivo.** O selo de status do servidor atualiza o número de
+  jogadores sozinho a cada minuto, só enquanto a aba está aberta na tela, sem recarregar a página.
+- **Nada de "0 jogadores".** Com o servidor online e vazio, o selo mostra só "Online", e o
+  "jogando agora" dos números do topo some. A contagem volta sozinha quando alguém entra.
+- **Nova opção nas Configurações:** "Mostrar jogadores online agora no topo da home". Vem ligada.
+- O aviso de cookies ficou mais estreito em tela grande e não cobre mais o status do servidor.
+
+---
+
 ## [3.4.0] - 2026-09-26
 
 ### Adicionado

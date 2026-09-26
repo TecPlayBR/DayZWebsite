@@ -383,18 +383,7 @@ $config['mercado_pago'] = $mpCfg;
         "SELECT * FROM packages WHERE enabled = 1 ORDER BY featured DESC, sort_order ASC"
     );
     $bonusEnabled = \App\Settings::getInt('bonus_enabled');
-    $serverStatus = \App\ServerStatus::fetch($config['settings']['battlemetrics_id'] ?? null);
-    // CFTools = fonte de verdade do status (BM agora exige assinatura paga -> 403). Mesmo
-    // fallback do /server-status: CFTools respondeu (mesmo vazio) = servidor ONLINE.
-    if (\App\CFTools::isConfigured()) {
-        $cfSt = \App\CFTools::onlinePlayers();
-        if ($cfSt !== null) {
-            $serverStatus['configured'] = true;
-            $serverStatus['online']     = true;
-            $serverStatus['players']    = count($cfSt);
-            $serverStatus['source']     = 'cftools';
-        }
-    }
+    $serverStatus = status_servidor($config);   // CFTools manda, BattleMetrics e reserva (helpers.php)
 
     // Promo sazonal: idem loja, pra preço riscado bater
     $promoCode = trim($config['settings']['promo_coupon_code'] ?? '');
@@ -1874,6 +1863,21 @@ $idadeMensagem = fn (array $r): string => preg_replace('/[^a-z_]/', '', (string)
 });
 
 // ============ ADMIN ============
+// Numero ao vivo do chip do topo da home. So online/jogadores/maximo: nada de nome, IP ou porta.
+// Barato: status_servidor() usa o cache de 45-60s; o navegador/CDN guarda 30s.
+\App\Router::get('/status-servidor.json', function() use ($config) {
+    header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: public, max-age=30');
+    if (!\App\Settings::getBool('hero_online_enabled', true)) { echo json_encode(['enabled' => false]); return; }
+    $s = status_servidor($config);
+    echo json_encode([
+        'enabled' => true,
+        'online'  => !empty($s['configured']) && !empty($s['online']),
+        'players' => (int) ($s['players'] ?? 0),
+        'max'     => (int) ($s['max'] ?? 0),
+    ]);
+});
+
 \App\Router::get('/admin/login', function() use ($config) {
     if (\App\Auth::check()) { header('Location: /admin'); exit; }
     \App\View::display('admin.login', ['config' => $config, 'error' => $_GET['e'] ?? null]);
@@ -2789,7 +2793,7 @@ $collectDashboardData = function() {
                'age_gate_mode','age_provider','terms_version'];
     // Toggles (checkbox): se não veio no POST, vira 0
     $toggles = ['maintenance_enabled', 'live_purchases_enabled', 'live_purchases_anonymize', 'live_purchases_show_price',
-                'restart_enabled', 'affiliate_enabled', 'affiliate_allow_switch', 'box_claim_enabled', 'hide_online_players',
+                'restart_enabled', 'affiliate_enabled', 'affiliate_allow_switch', 'box_claim_enabled', 'hide_online_players', 'hero_online_enabled',
                 'age_daily_box_gated'];
 
     // Escrita via Settings::set(): valida contra o whitelist (SCHEMA), normaliza
