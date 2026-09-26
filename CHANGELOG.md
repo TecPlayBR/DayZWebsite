@@ -5,6 +5,38 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [3.6.0] - 2026-09-26
+
+### Alterado
+
+- **A caixa diária grátis também exige verificação de idade por CPF**, como as outras caixas. A
+  opção de liberá-la só com a declaração de idade saiu do painel. Ela também é caixa de
+  recompensa, e a Lei 15.211/2025 vale para ela.
+- **Modo Desligado da verificação de idade agora fecha as caixas.** Antes, nesse modo, as caixas
+  abriam para qualquer um sem verificar a idade. Agora ficam indisponíveis para todos, e a página
+  de caixas avisa o jogador. Para escolher esse modo, o painel pede que você marque que está
+  ciente, e o aceite fica registrado no log de auditoria.
+- As telas do painel, a página de manutenção e a página de erro passaram a usar as fontes do
+  próprio site, e não carregam mais nada do Google.
+
+### Adicionado
+
+- **Prazo de 6 meses para o registro de login**, como pede o Marco Civil da Internet (art. 15).
+  Em **Conformidade ECA** o painel mostra quantos registros de login existem e quantos passaram
+  de 6 meses. Com a limpeza ligada, o site apaga sozinho o que passar do prazo, no máximo uma vez
+  por dia.
+  - **Instalação nova:** a limpeza já vem ligada.
+  - **Site que já estava no ar:** a limpeza vem **desligada**, e você decide. Ligar apaga na hora
+    os registros com mais de 6 meses, e isso não pode ser desfeito.
+
+### Para atualizar
+
+- Rode o `/update.php`: ele aplica a migration `v3.6.0_login_log_retencao.sql`, que só cria a
+  opção da limpeza, desligada.
+- Se o seu site estava com a caixa diária liberada sem CPF, ela passa a pedir a verificação.
+  Configure o fornecedor em **Configurações > Proteção de menores** para os jogadores
+  conseguirem abrir as caixas.
+
 ## [3.5.0] - 2026-09-26
 
 ### Alterado
