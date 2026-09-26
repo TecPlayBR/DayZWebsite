@@ -36,7 +36,7 @@
     <div class="stat-card"><div style="font-size:1.8rem;"><?= (int) $n_falhas_30d ?></div><div style="color:var(--dim);">falhas do fornecedor (30 dias)</div></div>
 </div>
 
-<div class="stat-card" style="margin-bottom:1.2rem; border-left:3px solid <?= !empty($login_retencao) ? 'var(--moss)' : 'var(--hazard)' ?>;">
+<div class="stat-card" style="margin-bottom:1.2rem;">
     <h3 style="margin-top:0;">Registro de login: prazo de 6 meses</h3>
     <p style="margin:.2rem 0 .8rem; color:var(--dim);">
         O site guarda IP, navegador, data e hora de cada login com a Steam. O Marco Civil da Internet (art. 15) pede 6 meses,
