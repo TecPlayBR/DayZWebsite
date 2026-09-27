@@ -54,9 +54,10 @@ $hasSocial = array_filter($socials, fn($s) => !empty($s['url']));
             <div class="footer-col">
                 <h4><?= e(__('footer.legal')) ?></h4>
                 <ul>
-                    <li><a href="/page/terms"><?= e(__('footer.terms')) ?></a></li>
-                    <li><a href="/page/privacy"><?= e(__('footer.privacy')) ?></a></li>
-                    <li><a href="/page/refund"><?= e(__('footer.refund')) ?></a></li>
+                    <?php // So pagina publicada: instalacao nova nasce com elas desligadas ate o dono aplicar o modelo. ?>
+                    <?php if (pagina_publicada('terms')): ?><li><a href="/page/terms"><?= e(__('footer.terms')) ?></a></li><?php endif; ?>
+                    <?php if (pagina_publicada('privacy')): ?><li><a href="/page/privacy"><?= e(__('footer.privacy')) ?></a></li><?php endif; ?>
+                    <?php if (pagina_publicada('refund')): ?><li><a href="/page/refund"><?= e(__('footer.refund')) ?></a></li><?php endif; ?>
                 </ul>
             </div>
 

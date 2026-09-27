@@ -501,7 +501,7 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
 .pp-steam-link:hover { text-decoration:underline; }
 .pp-lastseen { color:var(--dim); font-size:0.9rem; margin:0 0 0.5rem; }
 .pp-lastseen strong { color:var(--bone); }
-.pp-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:1rem; margin-bottom:1.5rem; }
+.pp-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(min(150px, 100%),1fr)); gap:1rem; margin-bottom:1.5rem; }
 .pp-card { background:var(--bg-1); border:1px solid var(--border); border-radius:4px; padding:1.1rem; text-align:left; }
 .pp-ic { color:var(--rust-2); display:flex; align-items:center; }
 .pp-label { color:var(--dim); font-size:.75rem; text-transform:uppercase; letter-spacing:.04em; margin:.5rem 0 .2rem; }
@@ -541,7 +541,7 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
 @media (max-width:520px){ .pp-head{ flex-direction:column; text-align:center; } .pp-ic{ justify-content:flex-start; } }
 
 /* Privado (dono) */
-.profile-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1rem; }
+.profile-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(min(180px, 100%), 1fr)); gap:1rem; }
 .profile-card { background:linear-gradient(180deg, var(--bg-2) 0%, var(--bg-1) 100%); border:1px solid var(--border); border-left:3px solid var(--rust); padding:1.2rem 1.4rem; }
 .profile-card-label { font-size:0.7rem; color:var(--dim); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:0.6rem; }
 .profile-card-value { font-family:var(--font-display); font-size:1.8rem; color:var(--bone); line-height:1; }
@@ -564,7 +564,7 @@ if (!empty($_GET['ok']) && $_GET['ok'] === 'review_submitted') {
 .review-stars-pick button { background:transparent; border:none; cursor:pointer; font-size:2.2rem; color:var(--dim); transition:color .15s, transform .15s; line-height:1; }
 .review-stars-pick button:hover { transform:scale(1.15); }
 .review-stars-pick button.active { color:var(--hazard); text-shadow:0 0 8px rgba(212,160,23,0.5); }
-.achievements-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1rem; }
+.achievements-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(min(180px, 100%), 1fr)); gap:1rem; }
 .achievement { background:var(--bg-1); border:1px solid var(--border); padding:1.2rem 1rem; text-align:center; transition:transform .2s, border-color .2s; }
 .achievement.unlocked { border-left:3px solid var(--hazard); background:linear-gradient(180deg, var(--hazard-overlay), var(--bg-1)); }
 .achievement.unlocked:hover { transform:translateY(-2px); border-color:var(--hazard); }

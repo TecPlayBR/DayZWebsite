@@ -118,7 +118,7 @@
 <style>
 .server-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
     gap: 1rem;
     margin-bottom: 2rem;
 }
@@ -157,7 +157,7 @@
 
 .players-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr));
     gap: 0.5rem;
     margin-bottom: 2rem;
 }

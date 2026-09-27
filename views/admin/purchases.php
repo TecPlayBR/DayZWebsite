@@ -38,14 +38,14 @@
             <tr>
                 <td class="mono"><?= e($p['steam_id']) ?></td>
                 <td><strong><?= e($p['package_id']) ?></strong></td>
-                <td class="mono">
+                <td class="mono" style="white-space:nowrap;">
                     <?= (int)$p['coins_base'] ?>
                     <?php if ((int)$p['coins_bonus'] > 0): ?>
                         <span style="color: var(--moss);">+<?= (int)$p['coins_bonus'] ?></span>
                     <?php endif; ?>
                     <span class="dim">= <?= (int)$p['coins_total'] ?></span>
                 </td>
-                <td><strong>R$ <?= number_format($p['price_brl'], 2, ',', '.') ?></strong></td>
+                <td style="white-space:nowrap;"><strong>R$ <?= number_format($p['price_brl'], 2, ',', '.') ?></strong></td>
                 <td class="dim"><?= e($p['payment_method'] ?? '-') ?></td>
                 <td>
                     <?php

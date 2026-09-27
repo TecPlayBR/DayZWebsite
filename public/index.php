@@ -410,13 +410,13 @@ $config['mercado_pago'] = $mpCfg;
             "SELECT COUNT(*) FROM purchases WHERE mp_status = 'approved' AND created_at > DATE_SUB(NOW(), INTERVAL 7 DAY)"
         ),
     ];
-    // Testimonials no home: pega ate 3 reviews aprovadas (rating >= 4) - fonte unica de verdade,
+    // Testimonials no home: todas as reviews aprovadas (rating >= 4, ate 20), em carrossel - fonte unica de verdade,
     // mesmas reviews que aparecem em /depoimentos. Substitui o setting testimonials_json antigo.
     $homeReviews = \App\Database::fetchAll(
         "SELECT display_name, avatar, rating, body, source, created_at
            FROM reviews
           WHERE approved = 1 AND rating >= 4 AND body IS NOT NULL AND body != ''
-          ORDER BY created_at DESC LIMIT 3"
+          ORDER BY created_at DESC LIMIT 20"
     );
     \App\View::display('pages.home', [
         'config' => $config, 'packages' => $packages, 'bonus_enabled' => $bonusEnabled,
@@ -4512,8 +4512,9 @@ $BRAND_SLOTS = [
         'legal_precisa'  => \App\PaginasLegais::precisaAplicar(),
         'legal_faltando' => \App\PaginasLegais::faltando(),
         'legal' => array_map(fn($k) => (string) \App\Settings::get($k, ''), array_combine(
-            ['razao', 'cnpj', 'email', 'hospedagem', 'pais', 'mecanismo'],
-            ['legal_razao_social', 'legal_cnpj', 'legal_email', 'legal_hospedagem', 'legal_pais', 'legal_mecanismo_hospedagem'])),
+            ['razao', 'documento', 'endereco', 'email', 'hospedagem', 'pais', 'mecanismo'],
+            ['legal_razao_social', 'legal_documento', 'legal_endereco', 'legal_email', 'legal_hospedagem', 'legal_pais', 'legal_mecanismo_hospedagem'])),
+        'legal_recusado' => (string) \App\Settings::get('legal_modelo_recusado', '') === \App\PaginasLegais::MODELO,
         'legal_msg' => (string) ($_GET['legal'] ?? ''),
         // Consentimentos de UM jogador (busca pelo SteamID): so metadados.
         'consent_steam' => preg_match('/^7656119[0-9]{10}$/', (string) ($_GET['steam_id'] ?? '')) ? (string) $_GET['steam_id'] : '',
@@ -4566,7 +4567,12 @@ $BRAND_SLOTS = [
 \App\Router::post('/admin/eca/paginas-legais', function() use ($config) {
     \App\Auth::requireCan('settings');
     if (!\App\Csrf::check()) { header('Location: /admin/eca'); exit; }
-    foreach (['legal_razao_social', 'legal_cnpj', 'legal_email', 'legal_hospedagem', 'legal_pais', 'legal_mecanismo_hospedagem'] as $k) {
+    if (($_POST['acao'] ?? '') === 'recusar') {
+        \App\PaginasLegais::recusar();
+        \App\AuditLog::record('paginas.legais_recusadas', 'pages', \App\PaginasLegais::MODELO);
+        header('Location: /admin/eca?legal=recusado#paginas-legais'); exit;
+    }
+    foreach (['legal_razao_social', 'legal_documento', 'legal_endereco', 'legal_email', 'legal_hospedagem', 'legal_pais', 'legal_mecanismo_hospedagem'] as $k) {
         if (isset($_POST[$k])) \App\Settings::set($k, mb_substr(trim((string) $_POST[$k]), 0, 160));
     }
     if (($_POST['acao'] ?? '') !== 'aplicar') { header('Location: /admin/eca?legal=salvo#paginas-legais'); exit; }

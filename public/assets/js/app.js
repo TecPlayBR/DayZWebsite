@@ -279,6 +279,58 @@
         perguntaOuCancela(el, ev);
     }, true);
 
+    // Faixa de aviso dentro do cabecalho fixo: o conteudo desce a altura dela, em qualquer tela.
+    (function () {
+        const faixa = document.querySelector('.site-header .security-notice');
+        if (!faixa) return;
+        const ajusta = function () { document.documentElement.style.setProperty('--aviso-h', faixa.offsetHeight + 'px'); };
+        ajusta();
+        window.addEventListener('resize', ajusta);
+        if (window.ResizeObserver) new ResizeObserver(ajusta).observe(faixa);
+    })();
+
+    // Carrossel (depoimentos da home): setas + passagem automatica a cada 5 s, voltando ao inicio no fim.
+    // Pausa com o mouse em cima, com o foco do teclado dentro, com o dedo e com a aba escondida.
+    // Quem pediu ao sistema para reduzir movimento nao ganha passagem automatica, so as setas.
+    document.querySelectorAll('[data-carrossel]').forEach(function (c) {
+        const trilha = c.querySelector('[data-carrossel-trilha]');
+        if (!trilha) return;
+        const controles = c.querySelector('[data-carrossel-controles]');
+        const passo = function () {
+            const card = trilha.firstElementChild;
+            const gap = parseFloat(getComputedStyle(trilha).columnGap) || 0;
+            return card ? card.getBoundingClientRect().width + gap : trilha.clientWidth;
+        };
+        const cabe = function () { return trilha.scrollWidth <= trilha.clientWidth + 2; };
+        const vai = function (dir) {
+            if (dir > 0 && trilha.scrollLeft + trilha.clientWidth >= trilha.scrollWidth - 4) trilha.scrollTo({ left: 0, behavior: 'smooth' });
+            else if (dir < 0 && trilha.scrollLeft <= 4) trilha.scrollTo({ left: trilha.scrollWidth, behavior: 'smooth' });
+            else trilha.scrollBy({ left: dir * passo(), behavior: 'smooth' });
+        };
+        const calmo = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        let pausa = false, timer = null;
+        const reinicia = function () {
+            if (calmo) return;
+            clearInterval(timer);
+            timer = setInterval(function () {
+                if (!pausa && document.visibilityState === 'visible' && !cabe()) vai(1);
+            }, 5000);
+        };
+        const atualiza = function () { if (controles) controles.hidden = cabe(); };
+        const ant = c.querySelector('[data-carrossel-prev]'), prox = c.querySelector('[data-carrossel-next]');
+        if (ant) ant.addEventListener('click', function () { vai(-1); reinicia(); });
+        if (prox) prox.addEventListener('click', function () { vai(1); reinicia(); });
+        c.addEventListener('mouseenter', function () { pausa = true; });
+        c.addEventListener('mouseleave', function () { pausa = false; });
+        c.addEventListener('focusin', function () { pausa = true; });
+        c.addEventListener('focusout', function () { pausa = false; });
+        c.addEventListener('touchstart', function () { pausa = true; }, { passive: true });
+        c.addEventListener('touchend', function () { setTimeout(function () { pausa = false; }, 4000); }, { passive: true });
+        window.addEventListener('resize', atualiza);
+        atualiza();
+        reinicia();
+    });
+
     // Video do YouTube so depois do clique: ate la o navegador nao fala com o Google.
     document.addEventListener('click', function (ev) {
         const btn = ev.target.closest('[data-yt-src]');

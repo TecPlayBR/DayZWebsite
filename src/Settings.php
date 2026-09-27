@@ -128,7 +128,10 @@ class Settings {
         'age_hash_salt'            => 'string',   // gerado na migration; nunca editar pelo painel
         'terms_version'            => 'string',   // versao dos Termos que o consentimento carimba
         'legal_razao_social'       => 'string',   // paginas legais: quem vende e responde (Termos e Privacidade)
-        'legal_cnpj'               => 'string',
+        'legal_cnpj'               => 'string',   // legado da 3.8.0: vale se legal_documento estiver vazio
+        'legal_documento'          => 'string',   // CPF ou CNPJ de quem vende (pessoa fisica tambem pode)
+        'legal_endereco'           => 'string',   // endereco de quem vende (Decreto 7.962/2013, art. 2)
+        'legal_modelo_recusado'    => 'string',   // versao do modelo que o dono escolheu nao usar
         'legal_email'              => 'string',   // canal de atendimento e de privacidade fora do Discord
         'legal_hospedagem'         => 'string',   // provedor de hospedagem do site
         'legal_pais'               => 'string',   // pais do datacenter (Brasil = sem transferencia internacional)

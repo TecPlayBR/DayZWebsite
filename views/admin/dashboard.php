@@ -217,7 +217,7 @@ $insMeta = ['pay'=>'💳 Forma de pagamento','pkgs'=>'🏆 Top pacotes','status'
 <style>
 /* Responsivo FLUIDO (mesmo padrao dos stat-cards do admin): auto-fit min 320px.
    Celular = 1 col, notebook = 2-3, desktop = 3-4, telas grandes/27" = 4-6 - sem breakpoint fixo. */
-.insights-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:1rem; margin-bottom:2rem; }
+.insights-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(min(320px, 100%), 1fr)); gap:1rem; margin-bottom:2rem; }
 @media (min-width:1900px){ .insights-grid{ gap:1.25rem; } .ic-canvas{ height:210px; } .ic-body{ min-height:210px; } }
 .insight-card { background:var(--bg-1); border:1px solid var(--border); border-left:3px solid var(--moss); border-radius:8px; padding:1rem 1.1rem; }
 .insight-card h3 { color:var(--bone); font-family:var(--font-display); font-size:0.9rem; letter-spacing:0.04em; margin:0 0 0.8rem; padding-bottom:0.5rem; border-bottom:1px solid var(--border); }

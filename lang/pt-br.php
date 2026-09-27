@@ -69,6 +69,8 @@ return array (
     'see_all' => 'Veja todas em',
     'verified' => 'Cliente verificado',
     'member' => 'Membro da comunidade',
+    'prev' => 'Depoimento anterior',
+    'next' => 'Próximo depoimento',
   ),
   'achievements' => 
   array (

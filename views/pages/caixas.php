@@ -198,7 +198,7 @@ $rarityLabel = [
 /* CRÍTICO: o atributo hidden precisa vencer o display:flex/.btn abaixo,
    senão o overlay/result/botão ficam sempre visíveis. */
 [hidden] { display: none !important; }
-.caixas-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:1.4rem; }
+.caixas-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(230px, 100%),1fr)); gap:1.4rem; }
 .caixa-card { background:linear-gradient(180deg,var(--bg-2),var(--bg-1)); border:1px solid var(--border); border-radius:8px; padding:1.4rem 1.2rem; text-align:center; position:relative; display:flex; flex-direction:column; overflow:hidden; transition:transform .25s, border-color .25s, box-shadow .25s; }
 .caixa-card:hover { transform:translateY(-6px); border-color:var(--hazard); box-shadow:0 14px 34px rgba(0,0,0,0.55), 0 0 26px var(--hazard-border); }
 /* brilho diagonal que varre no hover */

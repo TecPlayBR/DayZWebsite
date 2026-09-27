@@ -76,7 +76,7 @@ $hasAny = $groups['active'] || $groups['upcoming'] || $groups['ended'];
 <style>
 .ev-section { display:flex; align-items:center; gap:.5rem; font-family:var(--font-display); color:var(--bone); font-size:1.2rem; margin:2.2rem 0 1rem; border-bottom:2px solid var(--rust); padding-bottom:.5rem; }
 .ev-section span { color:var(--dim); font-family:var(--font-mono); font-size:0.9rem; }
-.ev-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1.3rem; margin-bottom:1rem; }
+.ev-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(280px, 100%),1fr)); gap:1.3rem; margin-bottom:1rem; }
 .ev-card { background:linear-gradient(180deg,var(--bg-2),var(--bg-1)); border:1px solid var(--border); border-radius:8px; overflow:hidden; display:flex; flex-direction:column; transition:transform .2s,border-color .2s,box-shadow .2s; }
 .ev-card:hover { transform:translateY(-4px); border-color:var(--hazard); box-shadow:0 10px 26px rgba(0,0,0,0.5); }
 .ev-active { border-left:3px solid var(--moss); }

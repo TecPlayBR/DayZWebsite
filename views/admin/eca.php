@@ -28,7 +28,7 @@
     <a class="btn btn-sm" href="/admin/eca/export.csv" style="margin-left:.4rem;">Exportar CSV</a>
 </div>
 
-<div style="display:grid; grid-template-columns:repeat(5,1fr); gap:1rem; margin-bottom:1.2rem;">
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(150px, 100%), 1fr)); gap:1rem; margin-bottom:1.2rem;">
     <div class="stat-card"><div style="font-size:1.8rem;"><?= (int) $n_verificados ?></div><div style="color:var(--dim);">adultos verificados</div></div>
     <div class="stat-card"><div style="font-size:1.8rem;"><?= (int) $n_declarados ?></div><div style="color:var(--dim);">adultos só declarados</div></div>
     <div class="stat-card"><div style="font-size:1.8rem;"><?= (int) $n_menores ?></div><div style="color:var(--dim);">menores (bloqueados)</div></div>
@@ -62,9 +62,12 @@
     <h3 style="margin-top:0;">Páginas legais: Termos, Privacidade e Reembolso</h3>
     <?php if (($legal_msg ?? '') === 'aplicado'): ?><p style="color:var(--moss); margin:.2rem 0 .8rem;">Texto novo aplicado. O texto anterior ficou guardado no histórico, e os jogadores aceitam os Termos novos na próxima compra.</p>
     <?php elseif (($legal_msg ?? '') === 'faltando'): ?><p style="color:var(--rust-2); margin:.2rem 0 .8rem;">Não foi aplicado: preencha os dados abaixo.</p>
-    <?php elseif (($legal_msg ?? '') === 'salvo'): ?><p style="color:var(--moss); margin:.2rem 0 .8rem;">Dados salvos.</p><?php endif; ?>
+    <?php elseif (($legal_msg ?? '') === 'salvo'): ?><p style="color:var(--moss); margin:.2rem 0 .8rem;">Dados salvos.</p>
+    <?php elseif (($legal_msg ?? '') === 'recusado'): ?><p style="color:var(--moss); margin:.2rem 0 .8rem;">Certo: suas páginas continuam como estão. Se mudar de ideia, é só aplicar.</p><?php endif; ?>
     <p style="margin:.2rem 0 .8rem; color:var(--dim);">
-        <?php if (!empty($legal_precisa)): ?>
+        <?php if (!empty($legal_recusado)): ?>
+            Você escolheu manter as suas páginas. O modelo continua disponível: preencha os dados e aplique quando quiser.
+        <?php elseif (!empty($legal_precisa)): ?>
             <strong style="color:var(--hazard);">Há um texto novo das páginas legais, revisado por advogada</strong> (ECA Digital, LGPD, Marco Civil e CDC).
             Preencha os dados da sua empresa e clique em Aplicar: o site troca os Termos, a Privacidade, o Reembolso e a resposta do FAQ sobre menores.
         <?php else: ?>
@@ -74,8 +77,9 @@
     <form method="POST" action="/admin/eca/paginas-legais">
         <?= \App\Csrf::field() ?>
         <div class="adm-grid-2">
-            <?= admin_campo(['label' => 'Razão social', 'name' => 'legal_razao_social', 'value' => $legal['razao'] ?? '', 'required' => true, 'attrs' => 'maxlength="160"', 'hint' => 'De quem vende as Moedas e recebe os pagamentos.']) ?>
-            <?= admin_campo(['label' => 'CNPJ', 'name' => 'legal_cnpj', 'value' => $legal['cnpj'] ?? '', 'required' => true, 'attrs' => 'maxlength="20" inputmode="numeric"']) ?>
+            <?= admin_campo(['label' => 'Nome completo ou razão social', 'name' => 'legal_razao_social', 'value' => $legal['razao'] ?? '', 'required' => true, 'attrs' => 'maxlength="160"', 'hint' => 'De quem vende as Moedas e recebe os pagamentos. Pode ser pessoa física.']) ?>
+            <?= admin_campo(['label' => 'CPF ou CNPJ', 'name' => 'legal_documento', 'value' => $legal['documento'] ?? '', 'required' => true, 'attrs' => 'maxlength="20" inputmode="numeric"', 'hint' => 'Pessoa física usa o CPF: a lei do comércio eletrônico (Decreto 7.962/2013) pede nome e CPF ou CNPJ na página. Se não quiser expor o CPF, um MEI resolve.']) ?>
+            <?= admin_campo(['label' => 'Endereço', 'name' => 'legal_endereco', 'value' => $legal['endereco'] ?? '', 'required' => true, 'attrs' => 'maxlength="160" placeholder="Rua, número, cidade/UF"', 'hint' => 'Endereço físico de quem vende, exigido pela mesma lei. Pode ser o comercial ou de correspondência.']) ?>
             <?= admin_campo(['label' => 'E-mail de atendimento', 'name' => 'legal_email', 'type' => 'email', 'value' => $legal['email'] ?? '', 'required' => true, 'attrs' => 'maxlength="160"', 'hint' => 'Canal fora do Discord para suporte, reembolso e pedidos de privacidade.']) ?>
             <?= admin_campo(['label' => 'Provedor de hospedagem do site', 'name' => 'legal_hospedagem', 'value' => $legal['hospedagem'] ?? '', 'required' => true, 'attrs' => 'maxlength="80" placeholder="Hostinger"']) ?>
             <?= admin_campo(['label' => 'País do datacenter', 'name' => 'legal_pais', 'value' => ($legal['pais'] ?? '') !== '' ? $legal['pais'] : 'Brasil', 'attrs' => 'maxlength="60"', 'hint' => 'No hPanel da Hostinger aparece em Detalhes do plano.']) ?>
@@ -84,6 +88,7 @@
         <p style="margin:.6rem 0; font-size:.85rem; color:var(--dim);">Nome do servidor, domínio, convite do Discord e fornecedor de verificação vêm das Configurações.</p>
         <div style="display:flex; gap:.6rem; flex-wrap:wrap;">
             <button class="btn btn-sm" type="submit" name="acao" value="salvar">Salvar dados</button>
+            <button class="btn btn-sm btn-outline" type="submit" name="acao" value="recusar" formnovalidate data-confirm="Manter as suas páginas legais e não usar o modelo? O aviso some, e você pode aplicar o modelo quando quiser.">Não usar o modelo</button>
             <button class="btn btn-sm" type="submit" name="acao" value="aplicar" data-confirm="Aplicar o texto novo nas páginas de Termos, Privacidade e Reembolso e na resposta do FAQ sobre menores? O texto anterior fica guardado no histórico do site, e os jogadores vão aceitar os Termos novos na próxima compra.">Aplicar o texto novo</button>
         </div>
     </form>

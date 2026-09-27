@@ -210,7 +210,7 @@ $brandCard = function(string $slot, string $label, string $help, string $type = 
 }
 .customize-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
     gap: 1rem;
 }
 .customize-card {
@@ -275,9 +275,9 @@ $brandCard = function(string $slot, string $label, string $help, string $type = 
 }
 .cz-badge-default { background: transparent; color: var(--dim); border-color: var(--border); }
 
-.cz-form { display: flex; gap: 0.4rem; align-items: center; }
+.cz-form { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; }
 .cz-file {
-    flex: 1; min-width: 0;
+    flex: 1 1 100%; min-width: 0; /* linha inteira: o botao Enviar desce, nada fica espremido */
     font-size: 0.75rem; color: var(--dim);
 }
 .cz-file::file-selector-button {
@@ -300,7 +300,7 @@ $brandCard = function(string $slot, string $label, string $help, string $type = 
 
 .palette-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
     gap: 0.6rem;
 }
 .palette-chip {

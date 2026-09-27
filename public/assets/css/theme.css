@@ -142,6 +142,19 @@ h1, h2, h3, h4 {
     transition: padding .25s;
 }
 .site-header.scrolled { padding: 0.5rem 0; }
+/* Faixa de aviso de seguranca: dentro do cabecalho fixo, colada no topo (anula o padding dele). */
+.site-header .security-notice {
+    margin: -1rem 0 1rem; padding: .6rem 1rem; text-align: center; font-size: .92rem; line-height: 1.45;
+    background: #7f1d1d; color: #fff; border-bottom: 2px solid #ef4444; transition: margin .25s;
+}
+.site-header.scrolled .security-notice { margin: -0.5rem 0 0.5rem; }
+.site-header .security-notice a { color: #fff; text-decoration: underline; margin-left: .4rem; white-space: nowrap; }
+/* O conteudo desce a altura da faixa (medida pelo app.js). Sem faixa, --aviso-h nao existe e vale 0. */
+main#main { padding-top: var(--aviso-h, 0px); }
+/* Texto escrito pelo dono (regras, paginas, FAQ): palavra ou link comprido quebra de linha em vez de
+   alargar a pagina inteira no celular (em 320 px, Regras e Como conectar empurravam o menu pra fora). */
+main#main { overflow-wrap: break-word; }
+main#main :where(.page-body, .legal-body, article) :where(a, code) { overflow-wrap: anywhere; }
 
 .header-inner {
     display: flex;
@@ -154,6 +167,7 @@ h1, h2, h3, h4 {
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    min-width: 0; /* encolhe (o nome ganha reticencias) em vez de empurrar o menu pra fora da tela */
     text-decoration: none;
     color: var(--bone);
 }
@@ -195,7 +209,7 @@ h1, h2, h3, h4 {
 .nav-main a:hover { color: var(--hazard); }
 .nav-main a:hover::after { width: 100%; }
 
-.header-actions { display: flex; align-items: center; gap: 0.8rem; }
+.header-actions { display: flex; align-items: center; gap: 0.8rem; flex-shrink: 0; }
 
 /* ============ User pill (Steam logado) ============ */
 .user-pill {
@@ -655,7 +669,7 @@ body:has(.site-header.scrolled) .announcements-strip {
 /* ============ FEATURES GRID ============ */
 .features-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
     gap: 1.5rem;
 }
 .feature {
@@ -717,7 +731,9 @@ body:has(.site-header.scrolled) .announcements-strip {
 /* Tela larga: continua centralizado, mas estreito. Largo (720px) ele cobria o status do servidor
    no canto direito do topo; encostado a esquerda cobria o botao principal em notebook 1366x768.
    Com 520px fica entre os dois (medido em 1366x768, 1440x900 e 1920x1080). */
-@media (min-width: 900px) { .cookie-banner { max-width: 520px; } }
+/* Tela grande: canto inferior direito. Os textos e botoes do topo das paginas ficam a esquerda,
+   e centralizado ele cobria o "Conheca as regras" em notebook 1366x768 (auditoria de 27/09). */
+@media (min-width: 900px) { .cookie-banner { max-width: 400px; left: auto; right: 1.25rem; margin: 0; } }
 @keyframes cookie-slide {
     from { opacity: 0; transform: translateY(20px); }
     to   { opacity: 1; transform: translateY(0); }
@@ -964,6 +980,7 @@ body:has(.site-header.scrolled) .announcements-strip {
 
 /* ============ RESPONSIVE ============ */
 @media (max-width: 860px) {
+    .header-inner { gap: 0.75rem; } /* 2rem fixos jogavam o botao do menu 32 px pra fora em 360 px */
     .nav-main { display: none; }
     .header-actions .btn { display: none; }
     /* (regra morta removida: `.lang-select` era o seletor do refactor antigo; o header
@@ -1027,6 +1044,11 @@ body:has(.site-header.scrolled) .announcements-strip {
         white-space: nowrap;
     }
     .brand img { height: 36px; }
+}
+@media (max-width: 400px) {
+    .lang-trigger .lang-code { display: none; } /* so a bandeira: sobra lugar pro menu */
+    .lang-trigger { padding: 0.45rem 0.5rem; }
+    .header-actions { gap: 0.5rem; }
 }
 @media (max-width: 520px) {
     .footer-grid { grid-template-columns: 1fr; }

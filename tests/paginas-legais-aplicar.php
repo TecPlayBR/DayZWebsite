@@ -36,7 +36,7 @@ namespace {
 
     $pdo = new PDO('sqlite::memory:', null, null, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
     Database::$pdo = $pdo;
-    $pdo->exec("CREATE TABLE pages (id INTEGER PRIMARY KEY AUTOINCREMENT, slug TEXT UNIQUE, title_ptbr TEXT, body_ptbr TEXT, body_enus TEXT)");
+    $pdo->exec("CREATE TABLE pages (id INTEGER PRIMARY KEY AUTOINCREMENT, slug TEXT UNIQUE, title_ptbr TEXT, body_ptbr TEXT, body_enus TEXT, published INTEGER NOT NULL DEFAULT 0)");
     $pdo->exec("CREATE TABLE page_versions (id INTEGER PRIMARY KEY AUTOINCREMENT, slug TEXT, body_ptbr TEXT, body_enus TEXT, motivo TEXT, saved_by TEXT, saved_at TEXT DEFAULT (datetime('now')))");
     foreach (['terms', 'privacy', 'refund'] as $s) $pdo->exec("INSERT INTO pages (slug, title_ptbr, body_ptbr, body_enus) VALUES ('$s', '$s', '<p>texto antigo do cliente $s</p>', '<p>old $s</p>')");
     $pdo->exec("INSERT INTO pages (slug, title_ptbr, body_ptbr, body_enus) VALUES ('faq', 'faq', '<details class=\"faq-item\"><summary class=\"faq-q\">Posso trocar?</summary><div class=\"faq-a\"><p>Nao.</p></div></details>\n<details class=\"faq-item\">\n<summary class=\"faq-q\">Sou menor de 18, posso comprar?</summary>\n<div class=\"faq-a\"><p>resposta antiga</p></div>\n</details>', '')");
@@ -46,9 +46,12 @@ namespace {
     Settings::$v = ['age_provider' => 'cpfhub', 'discord_invite' => 'https://discord.gg/abcDEF123'];
     if (PaginasLegais::precisaAplicar()) ok('site que nunca aplicou precisa aplicar'); else falha('precisaAplicar falso sem nunca ter aplicado');
     $r = PaginasLegais::aplicar('Servidor Teste', 'teste.example', 'admin');
-    if (!$r['ok'] && in_array('Razão social', $r['faltando'], true) && in_array('CNPJ', $r['faltando'], true) && in_array('E-mail de atendimento', $r['faltando'], true)) ok('recusa e diz o que falta'); else falha('aplicou sem os dados ou nao listou o que falta', json_encode($r));
+    if (!$r['ok'] && in_array('Nome ou razão social', $r['faltando'], true) && in_array('CPF ou CNPJ', $r['faltando'], true) && in_array('Endereço', $r['faltando'], true) && in_array('E-mail de atendimento', $r['faltando'], true)) ok('recusa e diz o que falta'); else falha('aplicou sem os dados ou nao listou o que falta', json_encode($r));
     if (str_contains($corpo('terms'), 'texto antigo do cliente')) ok('pagina do cliente intacta'); else falha('mexeu na pagina sem aplicar');
-    Settings::$v += ['legal_razao_social' => 'Empresa <b>Teste</b> & Cia', 'legal_cnpj' => '00.000.000/0001-00', 'legal_email' => 'nao-e-email', 'legal_hospedagem' => 'Hospedagem X'];
+    Settings::$v += ['legal_razao_social' => 'Empresa <b>Teste</b> & Cia', 'legal_documento' => '12345678901', 'legal_endereco' => 'Rua Exemplo, 100, Cidade/UF', 'legal_email' => 'nao-e-email', 'legal_hospedagem' => 'Hospedagem X'];
+    $r = PaginasLegais::aplicar('Servidor Teste', 'teste.example', 'admin');
+    if (!$r['ok'] && in_array('CPF ou CNPJ', $r['faltando'], true)) ok('CPF com digito verificador errado conta como faltando'); else falha('aceitou CPF invalido');
+    Settings::$v['legal_documento'] = '11222333000181';
     $r = PaginasLegais::aplicar('Servidor Teste', 'teste.example', 'admin');
     if (!$r['ok'] && in_array('E-mail de atendimento', $r['faltando'], true)) ok('e-mail invalido conta como faltando'); else falha('aceitou e-mail invalido');
 
@@ -61,7 +64,9 @@ namespace {
     $tudo = $t . $p . $re;
     if (!preg_match('/\[[A-ZÁÉÍÓÚÂÊÔÃÕÇ ]{4,}[^\]]*\]/u', $tudo)) ok('nenhum campo entre colchetes sobrou'); else { preg_match_all('/\[[^\]]{4,60}\]/u', $tudo, $m); falha('sobraram campos', implode(' ', array_unique($m[0]))); }
     if (str_contains($t, 'Empresa &lt;b&gt;Teste&lt;/b&gt; &amp; Cia') && !str_contains($tudo, '<b>Teste</b>')) ok('dado do dono entra escapado'); else falha('razao social entrou sem escapar');
-    if (str_contains($t, '00.000.000/0001-00') && str_contains($t, 'teste.example') && str_contains($t, 'Servidor Teste')) ok('CNPJ, dominio e nome do servidor preenchidos'); else falha('campos basicos nao preenchidos');
+    if (str_contains($t, 'CNPJ 11.222.333/0001-81') && str_contains($t, 'Rua Exemplo, 100') && str_contains($t, 'teste.example') && str_contains($t, 'Servidor Teste')) ok('CNPJ formatado, endereco, dominio e nome do servidor preenchidos'); else falha('campos basicos nao preenchidos');
+    $pub = $pdo->query("SELECT slug, published FROM pages WHERE slug IN ('terms','privacy','refund')")->fetchAll(PDO::FETCH_KEY_PAIR);
+    if ($pub === ['terms' => 1, 'privacy' => 1, 'refund' => 1] || (count(array_filter($pub)) === 3)) ok('aplicar publica as tres paginas (instalacao nova nasce com elas desligadas)'); else falha('aplicar nao publicou as paginas', json_encode($pub));
     if (str_contains($p, 'mailto:contato@teste.example') && str_contains($p, 'https://discord.gg/abcDEF123')) ok('e-mail e Discord viram link'); else falha('e-mail ou Discord sem link');
     if (str_contains($p, 'CPFHub') && str_contains($p, '12 meses')) ok('fornecedor e prazo dele vem do painel (CPFHub: 12 meses)'); else falha('fornecedor ou prazo do fornecedor errado');
     if (str_contains($p, 'Hospedagem X') && str_contains($p, 'no Brasil') && !preg_match('#<li><strong>Hospedagem X:</strong> todos os dados do site#', $p)) ok('hospedagem no Brasil sai da lista de transferencia internacional'); else falha('hospedagem no Brasil continua como transferencia internacional');
@@ -84,6 +89,18 @@ namespace {
     $p = $corpo('privacy');
     if (($r['ok'] ?? false) && preg_match('#<li><strong>Hospedagem X:</strong> todos os dados do site, em Estados Unidos\. Fundamento: cláusulas-padrão da ANPD\.</li>#u', $p)) ok('hospedagem no exterior entra na lista com o fundamento'); else falha('hospedagem no exterior errada');
 
+    echo "\n3b. Pessoa fisica: CPF\n";
+    Settings::$v['legal_documento'] = '529.982.247-25'; Settings::$v['legal_pais'] = 'Brasil'; Settings::$v['legal_modelo_aplicado'] = '';
+    $r = PaginasLegais::aplicar('Servidor Teste', 'teste.example', 'admin');
+    if (($r['ok'] ?? false) && str_contains($corpo('terms'), 'CPF 529.982.247-25') && !str_contains($corpo('terms'), 'CNPJ 529')) ok('CPF valido entra como CPF, formatado'); else falha('CPF nao entrou certo');
+
+    echo "\n3c. Nao usar o modelo\n";
+    Settings::$v['legal_modelo_aplicado'] = '';
+    $antes = $corpo('terms');
+    PaginasLegais::recusar();
+    if (!PaginasLegais::precisaAplicar() && ($corpo('terms') === $antes)) ok('recusar tira o aviso e nao mexe nas paginas'); else falha('recusar mexeu nas paginas ou o aviso continuou');
+    if ((Settings::$v['legal_modelo_recusado'] ?? '') === PaginasLegais::MODELO) ok('a recusa vale para esta versao do modelo (um modelo novo volta a ser oferecido)'); else falha('recusa nao registrou a versao do modelo');
+
     echo "\n4. Modelo, rota, painel e historico no editor\n";
     $seed = file_get_contents($ROOT . '/migrations/v2.2.0_seed_legal_pages.sql');
     foreach (['terms', 'privacy', 'refund'] as $s) {
@@ -93,17 +110,24 @@ namespace {
     $idx = file_get_contents($ROOT . '/public/index.php');
     $i = strpos($idx, "Router::post('/admin/eca/paginas-legais'");
     $rota = $i === false ? '' : substr($idx, $i, 2500);
-    if ($rota !== '' && str_contains($rota, "Auth::requireCan('settings')") && str_contains($rota, 'Csrf::check()') && str_contains($rota, "AuditLog::record('paginas.legais_aplicadas'")) ok('rota com permissao, CSRF e auditoria'); else falha('rota /admin/eca/paginas-legais ausente ou sem protecao');
+    if ($rota !== '' && str_contains($rota, "Auth::requireCan('settings')") && str_contains($rota, 'Csrf::check()') && str_contains($rota, "AuditLog::record('paginas.legais_aplicadas'") && str_contains($rota, "AuditLog::record('paginas.legais_recusadas'")) ok('rota com permissao, CSRF e auditoria (aplicar e recusar)'); else falha('rota /admin/eca/paginas-legais ausente ou sem protecao');
     $sv = substr($idx, (int) strpos($idx, "Router::post('/admin/pages/save'"), 2500);
     if (str_contains($sv, 'INSERT INTO page_versions') && strpos($sv, 'INSERT INTO page_versions') < strpos($sv, 'UPDATE pages SET')) ok('editor de paginas guarda a versao anterior antes de salvar'); else falha('editor de paginas nao guarda historico');
     $eca = file_get_contents($ROOT . '/views/admin/eca.php');
-    foreach (['legal_razao_social', 'legal_cnpj', 'legal_email', 'legal_hospedagem', 'legal_pais'] as $c) { if (str_contains($eca, 'name="' . $c . '"') || str_contains($eca, "'name' => '$c'")) ok("painel tem o campo $c"); else falha("painel sem o campo $c"); }
+    foreach (['legal_razao_social', 'legal_documento', 'legal_endereco', 'legal_email', 'legal_hospedagem', 'legal_pais'] as $c) { if (str_contains($eca, 'name="' . $c . '"') || str_contains($eca, "'name' => '$c'")) ok("painel tem o campo $c"); else falha("painel sem o campo $c"); }
+    if (str_contains($eca, 'value="recusar"')) ok('painel tem o botao Nao usar o modelo'); else falha('painel sem a opcao de nao usar o modelo');
+    $lay = file_get_contents($ROOT . '/views/admin/layout.php');
+    if (str_contains($lay, 'PaginasLegais::precisaAplicar()')) ok('todas as telas do painel avisam quando ha texto novo das paginas'); else falha('aviso so aparece em Conformidade ECA');
+    $foot = file_get_contents($ROOT . '/views/partials/footer.php');
+    if (substr_count($foot, 'pagina_publicada(') >= 3) ok('rodape so mostra link de pagina publicada'); else falha('rodape linka pagina desligada (404)');
+    $schema = file_get_contents($ROOT . '/schema.sql');
+    foreach (['terms' => 2, 'privacy' => 3, 'refund' => 4] as $sl => $ord) { if (preg_match("/VALUES \\('$sl',.*?', 0, $ord\\)\s*\nON DUPLICATE/s", $schema)) ok("instalacao nova: $sl nasce desligada"); else falha("instalacao nova publica $sl com os campos em branco"); }
     if (str_contains($eca, 'value="aplicar"') && preg_match('/data-confirm="[^"]*anterior[^"]*"/iu', $eca)) ok('botao aplicar avisa que o texto anterior vai para o historico'); else falha('botao aplicar sem confirmacao');
     $mig = (string) @file_get_contents($ROOT . '/migrations/v3.8.0_paginas_versoes.sql');
     if (stripos($mig, 'CREATE TABLE IF NOT EXISTS page_versions') !== false && stripos(file_get_contents($ROOT . '/schema.sql'), 'CREATE TABLE page_versions') !== false) ok('page_versions na migration e no schema.sql'); else falha('page_versions faltando na migration ou no schema');
     if (!preg_match('/--[^\n]*;/', $mig)) ok('migration sem ; em comentario'); else falha('; em comentario parte a migration');
     $set = file_get_contents($ROOT . '/src/Settings.php');
-    foreach (['legal_razao_social', 'legal_cnpj', 'legal_email', 'legal_hospedagem', 'legal_pais', 'legal_mecanismo_hospedagem', 'legal_prazo_fornecedor', 'legal_modelo_aplicado'] as $c) { if (!str_contains($set, "'$c'")) falha("$c fora do SCHEMA"); }
+    foreach (['legal_razao_social', 'legal_documento', 'legal_endereco', 'legal_email', 'legal_hospedagem', 'legal_pais', 'legal_mecanismo_hospedagem', 'legal_prazo_fornecedor', 'legal_modelo_aplicado', 'legal_modelo_recusado'] as $c) { if (!str_contains($set, "'$c'")) falha("$c fora do SCHEMA"); }
     ok('chaves legal_* conferidas no SCHEMA');
 
     echo "\n" . str_repeat('-', 62) . "\n";

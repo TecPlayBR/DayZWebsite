@@ -52,7 +52,7 @@
 
     <div style="margin-bottom: 1rem;">
         <label style="display:block; font-size:0.75rem; color:var(--dim); margin-bottom:0.5rem; text-transform: uppercase;">Pacotes inclusos <small>(mín. 2)</small></label>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 0.5rem;">
             <?php foreach ($packages as $pkg): ?>
                 <label style="background:var(--bg-0); padding:0.6rem 0.8rem; border:1px solid var(--border); cursor: pointer; display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem;">
                     <input type="checkbox" name="package_ids[]" value="<?= e($pkg['id']) ?>">

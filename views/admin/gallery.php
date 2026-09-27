@@ -86,7 +86,7 @@ $nextSort = ($existingOrders ? max($existingOrders) : 0) + 1;
 <style>
 .gallery-admin-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
     gap: 1.25rem;
 }
 .gallery-admin-card {

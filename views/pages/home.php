@@ -369,7 +369,8 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
             <p><?= e(__('testimonials.subtitle')) ?> <?= e(__('testimonials.see_all')) ?> <a href="/depoimentos" style="color: var(--hazard);">/depoimentos</a>.</p>
         </div>
 
-        <div class="testimonials-grid">
+        <div class="testimonials-carrossel" data-carrossel>
+        <div class="testimonials-grid" data-carrossel-trilha tabindex="0" role="region" aria-label="<?= e(__('testimonials.title')) ?>">
             <?php foreach ($home_reviews as $r):
                 $name = $r['display_name'] ?? __('profile.fallback_name');
                 $rating = (int)$r['rating'];
@@ -399,6 +400,11 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
                 </figure>
             <?php endforeach; ?>
         </div>
+        <div class="carrossel-controles" data-carrossel-controles>
+            <button type="button" class="carrossel-seta" data-carrossel-prev aria-label="<?= e(__('testimonials.prev')) ?>">&#8249;</button>
+            <button type="button" class="carrossel-seta" data-carrossel-next aria-label="<?= e(__('testimonials.next')) ?>">&#8250;</button>
+        </div>
+        </div>
     </div>
 </section>
 <style>
@@ -407,11 +413,30 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
     border-top: 1px solid var(--border);
 }
 .testimonials-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    /* Carrossel: rola de lado com encaixe por card. Funciona com o dedo e sem JS; o app.js poe setas e passagem automatica. */
+    display: flex;
     gap: 1.5rem;
     margin-top: 2rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+    padding-bottom: .2rem;
 }
+.testimonials-grid::-webkit-scrollbar { display: none; }
+.testimonials-grid:focus-visible { outline: 2px solid var(--hazard); outline-offset: 4px; }
+.testimonials-grid > .testimonial { flex: 0 0 calc((100% - 3rem) / 3); scroll-snap-align: start; }
+@media (max-width: 960px) { .testimonials-grid > .testimonial { flex-basis: calc((100% - 1.5rem) / 2); } }
+@media (max-width: 640px) { .testimonials-grid > .testimonial { flex-basis: 86%; } }
+.carrossel-controles { display: flex; justify-content: flex-end; gap: .6rem; margin-top: 1rem; }
+.carrossel-controles[hidden] { display: none; }
+.carrossel-seta {
+    width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center;
+    background: var(--bg-1); color: var(--bone); border: 1px solid var(--border);
+    font-size: 1.6rem; line-height: 1; cursor: pointer; transition: border-color .2s, color .2s;
+}
+.carrossel-seta:hover, .carrossel-seta:focus-visible { border-color: var(--hazard); color: var(--hazard); outline: none; }
 .testimonial {
     background: var(--bg-1);
     border: 1px solid var(--border);

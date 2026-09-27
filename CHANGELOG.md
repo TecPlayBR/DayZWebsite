@@ -5,6 +5,50 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [3.9.0] - 2026-09-27
+
+### Corrigido
+
+- **O aviso de segurança do topo aparecia escondido atrás do cabeçalho.** Em notebook e monitor
+  ele sumia inteiro, e no celular só aparecia a última linha ("Leia o comunicado"). Agora a faixa
+  fica dentro do cabeçalho, sempre visível, e o conteúdo da página desce a altura dela.
+- O aviso de cookies, no computador, fica no canto inferior direito e não cobre mais os botões do
+  topo das páginas.
+- Painel: na tela de Streamers, o botão "Gerenciar streamers" não cobre mais o título no celular.
+  Na Personalização, o campo de arquivo não fica mais espremido em notebook. Em Compras, moedas e
+  valor não quebram mais em duas linhas. O fim de todas as telas passa a rolar acima do botão
+  flutuante de atualizar.
+- **Celular estreito (320 e 360 px, comum em Android):** o botão do menu (☰) ficava fora da tela e
+  não dava para abrir o menu. Agora o nome do site encolhe com reticências e o idioma mostra só a
+  bandeira.
+- Nenhuma grade passa mais da largura da tela: Depoimentos, Loja, Caixas, Eventos, Galeria e as
+  telas do painel se ajustam a qualquer celular. Link ou palavra comprida escrita pelo dono (em
+  Regras, Como conectar e demais páginas) quebra de linha em vez de alargar a página.
+- Painel no celular: toda tabela rola para o lado, toda grade vira uma coluna, o formulário de
+  Eventos de clã e o token da Sparda cabem na tela, os contadores da Conformidade ECA não são mais
+  cortados e o botão de atualizar fica no topo, ao lado do menu.
+
+### Alterado
+
+- **Depoimentos da home em carrossel.** Mostra todos os depoimentos aprovados, não só os 3 mais
+  recentes, passa sozinho a cada 5 segundos e tem setas. Pausa quando o visitante passa o mouse,
+  toca ou navega com o teclado, e não passa sozinho para quem pediu ao sistema menos animação.
+- **Páginas legais: pessoa física também pode.** O quadro Páginas legais aceita **CPF ou CNPJ** e
+  pede o **endereço** de quem vende, como exige a lei do comércio eletrônico (Decreto 7.962/2013).
+  Por isso o texto modelo mudou, e o painel oferece aplicar de novo.
+- **Não usar o modelo.** Quem prefere manter as páginas legais que já tem clica em **Não usar o
+  modelo**, e o aviso some. Dá para aplicar depois, quando quiser.
+- Todas as telas do painel avisam quando há texto novo das páginas legais para publicar.
+- **Instalação nova** nasce com Termos, Privacidade e Reembolso desligados até o dono preencher os
+  dados e aplicar, e o rodapé só mostra o link de página publicada. Assim nenhum site fica no ar
+  com campos em branco. Sites que já estavam no ar não mudam.
+
+### Para atualizar
+
+- Não há migration nova. Depois de atualizar, abra **Conformidade ECA**, confira os dados das
+  páginas legais (agora com CPF ou CNPJ e endereço) e clique em **Aplicar o texto novo**, ou em
+  **Não usar o modelo**.
+
 ## [3.8.0] - 2026-09-26
 
 ### Adicionado

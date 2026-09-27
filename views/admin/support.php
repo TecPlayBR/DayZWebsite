@@ -86,7 +86,7 @@
 <style>
 .support-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
     gap: 1.2rem;
     margin-bottom: 2.5rem;
 }
@@ -169,7 +169,7 @@
 
 .support-meta {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
     gap: 0.8rem;
     margin-top: 1.5rem;
 }

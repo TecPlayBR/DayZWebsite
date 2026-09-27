@@ -16,7 +16,7 @@ $siteName = $config['settings']['site_name'] ?? ($config['site_name'] ?? 'Servid
     <?php if (empty($streamers)): ?>
         <div style="text-align:center; color:var(--dim); padding:2rem 0;">Nenhum streamer parceiro ainda.</div>
     <?php else: ?>
-        <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:1.2rem;">
+        <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(min(260px, 100%),1fr)); gap:1.2rem;">
             <?php foreach ($streamers as $s): ?>
                 <a href="/streamer/<?= e(strtolower($s['code'])) ?>"
                    style="display:flex; align-items:center; gap:1rem; background:linear-gradient(180deg,var(--bg-2),var(--bg-1));

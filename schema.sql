@@ -918,7 +918,7 @@ VALUES ('terms', 'Termos de Uso', 'Terms of Use', '<h2>Termos de Uso</h2>
 
 <p class="legal-meta">Versão [VERSÃO] · Vigente desde [DATA DE VIGÊNCIA]</p>
 <h3>1. Quem somos e aceitação</h3>
-<p>Este site ([DOMÍNIO], doravante "Plataforma") e o servidor de jogo DayZ [NOME DO SERVIDOR] (doravante "Servidor") são operados por <strong>[RAZÃO SOCIAL]</strong>, CNPJ [CNPJ], que vende as Moedas, recebe os pagamentos e responde perante o consumidor.</p>
+<p>Este site ([DOMÍNIO], doravante "Plataforma") e o servidor de jogo DayZ [NOME DO SERVIDOR] (doravante "Servidor") são operados por <strong>[RAZÃO SOCIAL]</strong>, [DOCUMENTO], com endereço em [ENDEREÇO], que vende as Moedas, recebe os pagamentos e responde perante o consumidor.</p>
 <p>A Plataforma usa software fornecido pela Tecplay. A Tecplay não vende as Moedas e não recebe os pagamentos.</p>
 <p>Ao utilizar a Plataforma, você concorda com estes Termos, com a Política de Reembolso e com a Política de Privacidade.</p>
 <h3>2. Definições</h3>
@@ -990,7 +990,7 @@ VALUES ('terms', 'Termos de Uso', 'Terms of Use', '<h2>Termos de Uso</h2>
 
 <p class="legal-meta">Versão [VERSÃO] · Vigente desde [DATA DE VIGÊNCIA]</p>
 <h3>1. Quem somos e aceitação</h3>
-<p>Este site ([DOMÍNIO], doravante "Plataforma") e o servidor de jogo DayZ [NOME DO SERVIDOR] (doravante "Servidor") são operados por <strong>[RAZÃO SOCIAL]</strong>, CNPJ [CNPJ], que vende as Moedas, recebe os pagamentos e responde perante o consumidor.</p>
+<p>Este site ([DOMÍNIO], doravante "Plataforma") e o servidor de jogo DayZ [NOME DO SERVIDOR] (doravante "Servidor") são operados por <strong>[RAZÃO SOCIAL]</strong>, [DOCUMENTO], com endereço em [ENDEREÇO], que vende as Moedas, recebe os pagamentos e responde perante o consumidor.</p>
 <p>A Plataforma usa software fornecido pela Tecplay. A Tecplay não vende as Moedas e não recebe os pagamentos.</p>
 <p>Ao utilizar a Plataforma, você concorda com estes Termos, com a Política de Reembolso e com a Política de Privacidade.</p>
 <h3>2. Definições</h3>
@@ -1057,7 +1057,7 @@ VALUES ('terms', 'Termos de Uso', 'Terms of Use', '<h2>Termos de Uso</h2>
 <h3>12. Foro e contato</h3>
 <p>Estes Termos são regidos pelas leis do Brasil. Fica eleito o foro do domicílio do consumidor (CDC, art. 101, I).</p>
 <p>Atendimento: [E-MAIL DE ATENDIMENTO] e [DISCORD OFICIAL].</p>
-', 1, 2)
+', 0, 2)
 ON DUPLICATE KEY UPDATE
   title_ptbr = IF(title_ptbr IS NULL OR title_ptbr = '', VALUES(title_ptbr), title_ptbr),
   body_ptbr  = IF(body_ptbr  IS NULL OR body_ptbr  = '', VALUES(body_ptbr),  body_ptbr),
@@ -1069,7 +1069,7 @@ VALUES ('privacy', 'Política de Privacidade (LGPD)', 'Privacy Policy (LGPD)', '
 
 <p class="legal-meta">Lei 13.709/2018 (LGPD) · Versão [VERSÃO] · Vigente desde [DATA DE VIGÊNCIA]</p>
 <h3>1. Quem é o controlador</h3>
-<p>O controlador dos dados tratados nesta Plataforma é <strong>[RAZÃO SOCIAL]</strong>, CNPJ [CNPJ], responsável pelo Servidor [NOME DO SERVIDOR] e pela operação da loja em [DOMÍNIO].</p>
+<p>O controlador dos dados tratados nesta Plataforma é <strong>[RAZÃO SOCIAL]</strong>, [DOCUMENTO], com endereço em [ENDEREÇO], responsável pelo Servidor [NOME DO SERVIDOR] e pela operação da loja em [DOMÍNIO].</p>
 <p>A Tecplay fornece o software da Plataforma e pode atuar como operadora, suboperadora ou fornecedora de infraestrutura, conforme as atividades que efetivamente realizar e os contratos aplicáveis.</p>
 <p>Canal de privacidade: [E-MAIL DE ATENDIMENTO].</p>
 <h3>2. Dados que tratamos</h3>
@@ -1151,7 +1151,7 @@ VALUES ('privacy', 'Política de Privacidade (LGPD)', 'Privacy Policy (LGPD)', '
 
 <p class="legal-meta">Lei 13.709/2018 (LGPD) · Versão [VERSÃO] · Vigente desde [DATA DE VIGÊNCIA]</p>
 <h3>1. Quem é o controlador</h3>
-<p>O controlador dos dados tratados nesta Plataforma é <strong>[RAZÃO SOCIAL]</strong>, CNPJ [CNPJ], responsável pelo Servidor [NOME DO SERVIDOR] e pela operação da loja em [DOMÍNIO].</p>
+<p>O controlador dos dados tratados nesta Plataforma é <strong>[RAZÃO SOCIAL]</strong>, [DOCUMENTO], com endereço em [ENDEREÇO], responsável pelo Servidor [NOME DO SERVIDOR] e pela operação da loja em [DOMÍNIO].</p>
 <p>A Tecplay fornece o software da Plataforma e pode atuar como operadora, suboperadora ou fornecedora de infraestrutura, conforme as atividades que efetivamente realizar e os contratos aplicáveis.</p>
 <p>Canal de privacidade: [E-MAIL DE ATENDIMENTO].</p>
 <h3>2. Dados que tratamos</h3>
@@ -1228,7 +1228,7 @@ VALUES ('privacy', 'Política de Privacidade (LGPD)', 'Privacy Policy (LGPD)', '
 <p>O responsável pode pedir, pelo [E-MAIL DE ATENDIMENTO], a eliminação dos dados do menor ou a análise de uma compra feita por ele. Para confirmar a responsabilidade, pedimos só o necessário e não exigimos documentos além disso. Esses pedidos observam o melhor interesse da criança e do adolescente (LGPD, art. 14).</p>
 <h3>11. Alterações desta Política</h3>
 <p>Cada versão desta Política tem número e data de vigência, e as versões anteriores ficam disponíveis mediante pedido. Alterações relevantes são comunicadas com destaque no site. Os registros feitos durante uma versão anterior continuam regidos por ela.</p>
-', 1, 3)
+', 0, 3)
 ON DUPLICATE KEY UPDATE
   title_ptbr = IF(title_ptbr IS NULL OR title_ptbr = '', VALUES(title_ptbr), title_ptbr),
   body_ptbr  = IF(body_ptbr  IS NULL OR body_ptbr  = '', VALUES(body_ptbr),  body_ptbr),
@@ -1301,7 +1301,7 @@ VALUES ('refund', 'Política de Reembolso', 'Refund Policy', '<h2>Política de R
 </ul>
 <h3>7. Pedidos repetidos</h3>
 <p>Cada pedido é analisado individualmente. Um padrão de pedidos repetidos pode levar a uma análise mais detalhada das compras seguintes, sempre respeitando os direitos do consumidor.</p>
-', 1, 4)
+', 0, 4)
 ON DUPLICATE KEY UPDATE
   title_ptbr = IF(title_ptbr IS NULL OR title_ptbr = '', VALUES(title_ptbr), title_ptbr),
   body_ptbr  = IF(body_ptbr  IS NULL OR body_ptbr  = '', VALUES(body_ptbr),  body_ptbr),

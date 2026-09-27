@@ -69,6 +69,8 @@ return array (
     'see_all' => 'See all at',
     'verified' => 'Verified customer',
     'member' => 'Community member',
+    'prev' => 'Previous review',
+    'next' => 'Next review',
   ),
   'achievements' => 
   array (

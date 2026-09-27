@@ -1,5 +1,20 @@
 <?php /** @var array $config */ ?>
 <header class="site-header">
+<?php
+// Faixa de aviso de seguranca, no topo de TODA pagina. Fica DENTRO do cabecalho fixo: antes
+// ela vinha antes dele e sumia atras (no notebook inteira, no celular so sobrava a ultima linha).
+// O app.js mede a altura dela em --aviso-h, e o conteudo da pagina desce o mesmo tanto.
+// Sai do ar sozinha quando security_notice_enabled e desligado, sem precisar de deploy.
+$_avisoOn  = ($config['settings']['security_notice_enabled'] ?? '') === '1';
+$_avisoTxt = trim((string) ($config['settings']['security_notice_text'] ?? ''));
+$_avisoUrl = trim((string) ($config['settings']['security_notice_url'] ?? '/page/aviso-seguranca'));
+if ($_avisoOn && $_avisoTxt !== ''):
+?>
+    <div class="security-notice" role="alert">
+        <strong>⚠️ <?= e($_avisoTxt) ?></strong>
+        <a href="<?= e($_avisoUrl) ?>"><?= e(__('security.notice.link', [], 'Leia o comunicado')) ?></a>
+    </div>
+<?php endif; ?>
     <div class="container header-inner">
 
         <?php $siteName = $config['settings']['site_name'] ?? ($config['site_name'] ?? 'TECPLAY'); ?>

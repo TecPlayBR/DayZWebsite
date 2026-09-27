@@ -114,6 +114,7 @@
 /* ============ MAIN ============ */
 .admin-main {
     padding: 2rem 2.5rem;
+    padding-bottom: 5.5rem; /* folga pro botao flutuante de atualizar nao cobrir o fim da tela */
     overflow-x: hidden;
 }
 
@@ -137,7 +138,7 @@
 /* ============ CARDS DE STATS ============ */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
     gap: 1rem;
     margin-bottom: 2.5rem;
 }
@@ -387,7 +388,7 @@
 .admin-form .form-grid,
 .form-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
     gap: 0.85rem;
 }
 
@@ -543,7 +544,7 @@
     /* MAIN: block flow, padding top pra não sobrepor hambúrguer */
     .admin-main {
         display: block;
-        padding: 60px 1rem 2rem;
+        padding: 60px 1rem 5.5rem;
         width: 100%;
         max-width: 100%;
         box-sizing: border-box;
@@ -593,7 +594,7 @@
        thead/tr/td mantem o display de tabela (vem do default do elemento, nao de
        heranca), entao o layout tabular interno nao quebra. O wrapper acima continua
        valendo onde existe (dashboard). */
-    .admin-table {
+    .admin-table, .admin-main table {
         display: block;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
@@ -604,7 +605,7 @@
 
 @media (max-width: 480px) {
     .stats-grid { grid-template-columns: 1fr; }
-    .admin-main { padding: 60px 0.75rem 1.5rem; }
+    .admin-main { padding: 60px 0.75rem 5.5rem; }
     .admin-page-head h1 { font-size: 1.2rem; }
 }
 
@@ -775,3 +776,16 @@
 .adm-2fa-chave { font-family: var(--font-mono); font-size: 1.3rem; letter-spacing: .08em; color: var(--hazard); word-break: break-all; }
 .adm-2fa-confirmar { margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid var(--border); max-width: 360px; }
 @media (max-width: 720px) { .adm-2fa-passos { grid-template-columns: 1fr; } .adm-2fa-qr { margin: 0 auto; } .adm-codigos-lista { grid-template-columns: 1fr; } }
+
+/* ============ Auditoria de tela (27/09/2026) ============
+   Celular: grade escrita direto no HTML (3, 4, 5 colunas fixas) espremia ou cortava campos.
+   Em tela de celular toda grade do painel vira uma coluna. */
+@media (max-width: 640px) {
+    .admin-main [style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
+    /* item com "span 2" criaria uma 2a coluna implicita e o campo sairia da tela */
+    .admin-main [style*="grid-template-columns"] > * { grid-column: 1 / -1 !important; }
+}
+/* Botao flutuante de atualizar: no celular ele cobria campos no meio da tela. Sobe pro topo, ao lado do menu. */
+@media (max-width: 960px) {
+    #admin-refresh { top: 10px !important; bottom: auto !important; right: 68px !important; width: 42px !important; height: 42px !important; }
+}

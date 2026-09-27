@@ -12,6 +12,18 @@ if (!function_exists('__')) {
     }
 }
 
+if (!function_exists('pagina_publicada')) {
+    /** A pagina existe e esta publicada? Uma consulta por requisicao. Sem banco, mostra o link (como antes). */
+    function pagina_publicada(string $slug): bool {
+        static $pub = null;
+        if ($pub === null) {
+            try { $pub = array_column(\App\Database::fetchAll("SELECT slug FROM pages WHERE published = 1"), 'slug'); }
+            catch (\Throwable $e) { return true; }
+        }
+        return in_array($slug, $pub, true);
+    }
+}
+
 if (!function_exists('status_servidor')) {
     /**
      * Status publico do servidor principal. Uma fonte so pra home e pro /status-servidor.json.

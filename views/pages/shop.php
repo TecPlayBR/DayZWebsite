@@ -213,7 +213,7 @@ if ($prodItems) {
 /* Cards de pacotes - escopo local */
 .packs-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
     gap: 1.5rem;
     margin-bottom: 3rem;
 }

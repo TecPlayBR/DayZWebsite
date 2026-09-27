@@ -55,8 +55,8 @@
     <p style="color:var(--dim); font-size:0.85rem; margin: 0.7rem 0;">
         É o <code>agent_token</code> do seu <code>config.php</code>. Já vai embutido nas URLs abaixo - você não precisa copiá-lo separado.
     </p>
-    <div style="display:flex; gap:0.5rem; align-items:center;">
-        <code style="background:var(--bg-0); padding:0.6rem 0.9rem; border-radius:6px; flex:1; font-family:var(--font-mono); font-size:0.95rem; user-select:all;">
+    <div style="display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center;">
+        <code style="background:var(--bg-0); padding:0.6rem 0.9rem; border-radius:6px; flex:1 1 220px; min-width:0; overflow-wrap:anywhere; font-family:var(--font-mono); font-size:0.95rem; user-select:all;">
             <?= e($tokenMasked) ?>
         </code>
         <button type="button" data-copiar="<?= e($token) ?>" style="padding:0.6rem 1rem; background:var(--hazard); color:#000; border:none; border-radius:6px; cursor:pointer; font-weight:600;">📋 Copiar</button>

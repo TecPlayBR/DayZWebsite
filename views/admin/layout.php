@@ -105,6 +105,12 @@
     </aside>
 
     <main class="admin-main">
+        <?php $legalNovo = false; try { $legalNovo = \App\PaginasLegais::precisaAplicar(); } catch (\Throwable $e) {} if ($legalNovo): ?>
+            <div style="margin:0 0 1rem; padding:.7rem 1rem; border-radius:6px; border:1px solid var(--hazard);">
+                <strong>Páginas legais:</strong> há texto novo de Termos, Privacidade e Reembolso, revisado por advogada. Preencha os seus dados e publique num clique.
+                <a href="/admin/eca#paginas-legais" style="color:var(--hazard); margin-left:.5rem;">Resolver</a>
+            </div>
+        <?php endif; ?>
         <?php $ecaFalhas = \App\AgeVerification::falhasRecentes(24); if ($ecaFalhas >= 3): ?>
             <div style="margin:0 0 1rem; padding:.7rem 1rem; border-radius:6px; border-left:4px solid var(--danger-border); background:var(--danger-overlay);">
                 <strong>Verificação de idade falhando:</strong> <?= (int) $ecaFalhas ?> falha(s) do fornecedor nas últimas 24 h. Créditos acabaram ou a chave morreu; enquanto isso ninguém abre caixa.

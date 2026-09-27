@@ -177,7 +177,7 @@ $siteName = $config['settings']['site_name'] ?? ($config['site_name'] ?? 'Servid
 .st-soc:hover .st-soc-dot { background:#fff; box-shadow:none; }
 
 .st-h2 { color:var(--bone); font-family:var(--font-display); font-size:1.3rem; margin:2.2rem 0 1rem; }
-.st-gallery { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:1rem; }
+.st-gallery { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(240px, 100%),1fr)); gap:1rem; }
 .st-shot { display:block; aspect-ratio:16/10; border-radius:12px; background-size:cover; background-position:center; border:1px solid var(--border); cursor:zoom-in; transition:transform .18s, border-color .18s; }
 .st-shot:hover { transform:scale(1.02); border-color:var(--hazard); }
 .st-videos { display:flex; flex-direction:column; gap:.5rem; }
