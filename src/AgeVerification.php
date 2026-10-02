@@ -83,6 +83,22 @@ class AgeVerification
         } catch (\Throwable $e) { return 0; }
     }
 
+    /**
+     * O aviso do painel (regra em AgeGate::avisoPainel) com os numeros que o texto usa.
+     * null = nada a avisar. Sem a tabela de caixas conta zero: o painel nunca cai por isto.
+     */
+    public static function avisoPainel(): ?array
+    {
+        $caixas = 0; $diaria = false;
+        try {
+            $r = Database::fetchOne("SELECT COUNT(*) AS n, MAX(is_daily) AS d FROM boxes WHERE enabled = 1");
+            $caixas = (int) ($r['n'] ?? 0); $diaria = (int) ($r['d'] ?? 0) === 1;
+        } catch (\Throwable $e) {}
+        $falhas = self::falhasRecentes(24);
+        $cod = AgeGate::avisoPainel(self::modo(), self::provedorPronto(), $caixas, $falhas);
+        return $cod === null ? null : ['cod' => $cod, 'caixas' => $caixas, 'diaria' => $diaria, 'falhas' => $falhas];
+    }
+
     private static function erro(string $cod, string $msg): array
     {
         return ['ok' => false, 'status' => null, 'erro' => $msg, 'cod' => $cod];

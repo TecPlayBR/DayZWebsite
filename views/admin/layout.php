@@ -111,20 +111,22 @@
                 <a href="/admin/eca#paginas-legais" style="color:var(--hazard); margin-left:.5rem;">Resolver</a>
             </div>
         <?php endif; ?>
-        <?php $ecaFalhas = \App\AgeVerification::falhasRecentes(24); if ($ecaFalhas >= 3): ?>
-            <div style="margin:0 0 1rem; padding:.7rem 1rem; border-radius:6px; border-left:4px solid var(--danger-border); background:var(--danger-overlay);">
-                <strong>Verificação de idade falhando:</strong> <?= (int) $ecaFalhas ?> falha(s) do fornecedor nas últimas 24 h. Créditos acabaram ou a chave morreu; enquanto isso ninguém abre caixa.
-                <a href="/admin/eca" style="color:var(--hazard); margin-left:.5rem;">Ver</a>
-            </div>
-        <?php endif; ?>
-        <?php $ecaModo = \App\AgeVerification::modo(); if ($ecaModo !== 'verificado'): ?>
-            <div style="margin:0 0 1rem; padding:.7rem 1rem; border-radius:6px; border-left:4px solid <?= $ecaModo === 'desligado' ? 'var(--danger-border)' : 'var(--hazard)' ?>; background:<?= $ecaModo === 'desligado' ? 'var(--danger-overlay)' : 'transparent' ?>;">
-                <?php if ($ecaModo === 'desligado'): ?>
-                    <strong>Verificação de idade desligada:</strong> as caixas de recompensa estão indisponíveis para todos os jogadores.
+        <?php // Aviso da verificacao de idade: o que o jogador vive (regra em AgeGate::avisoPainel), um por vez.
+        $ecaAviso = null; try { $ecaAviso = \App\AgeVerification::avisoPainel(); } catch (\Throwable $e) { error_log('aviso eca: ' . $e->getMessage()); }
+        if ($ecaAviso):
+            $ecaN = (int) $ecaAviso['caixas']; $ecaNem = !empty($ecaAviso['diaria']) ? ', nem a diária grátis' : ''; ?>
+            <div style="margin:0 0 1rem; padding:.7rem 1rem; border-radius:6px; border:1px solid var(--danger-border); background:var(--danger-overlay);">
+                <?php if ($ecaAviso['cod'] === 'sem_chave'): ?>
+                    <strong>Ninguém consegue abrir caixa<?= e($ecaNem) ?>:</strong> falta a chave do fornecedor de verificação de idade.
+                    <?= $ecaN === 1 ? 'Você tem 1 caixa ativa' : 'Você tem ' . $ecaN . ' caixas ativas' ?>, e o jogador só vê "verificação indisponível".
+                    <a href="/admin/settings#eca" style="color:var(--hazard); margin-left:.5rem;">Colar a chave</a>
+                <?php elseif ($ecaAviso['cod'] === 'falhando'): ?>
+                    <strong>Verificação de idade falhando:</strong> <?= (int) $ecaAviso['falhas'] ?> falhas do fornecedor nas últimas 24 h. Os créditos acabaram ou a chave parou de valer; enquanto isso ninguém abre caixa<?= e($ecaNem) ?>.
+                    <a href="/admin/eca" style="color:var(--hazard); margin-left:.5rem;">Ver</a>
                 <?php else: ?>
-                    <strong>ECA Digital em transição:</strong> caixas fechadas até configurar o fornecedor de verificação.
+                    <strong>Verificação de idade desligada:</strong> as caixas de recompensa estão indisponíveis para todos os jogadores.
+                    <a href="/admin/eca" style="color:var(--hazard); margin-left:.5rem;">Resolver</a>
                 <?php endif; ?>
-                <a href="/admin/eca" style="color:var(--hazard); margin-left:.5rem;">Resolver</a>
             </div>
         <?php endif; ?>
         <?= \App\View::yield('content') ?>

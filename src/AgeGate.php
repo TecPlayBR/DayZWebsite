@@ -70,6 +70,20 @@ class AgeGate
     }
 
     /**
+     * Aviso do painel: o que o JOGADOR vive, nao o nome do modo (Declaracao e Verificado
+     * se comportam igual). null = nada a avisar. 'sem_chave' = ha caixa ativa e ninguem
+     * consegue abrir; 'falhando' = o fornecedor falhou 3+ vezes em 24 h. Sem caixa ativa, a
+     * falta de chave nao afeta ninguem e o dono nao e incomodado.
+     * (02/10/2026: o Danoninho-Z ficou 6 dias sem chave e o painel so dizia "em transicao".)
+     */
+    public static function avisoPainel(string $modo, bool $temChave, int $caixasAtivas, int $falhas24h): ?string
+    {
+        if ($modo === 'desligado') return 'desligado';
+        if (!$temChave) return $caixasAtivas > 0 ? 'sem_chave' : null;
+        return $falhas24h >= 3 ? 'falhando' : null;
+    }
+
+    /**
      * Quais blocos a tela /idade mostra, em ordem: 'menor', 'declarar', 'consentir', 'verificar'.
      * Revisao 24/09: quem verificou por CPF ANTES de declarar nao tinha consentimento e caia
      * numa tela vazia; o bloco 'consentir' existe pra qualquer status sem aceite da versao atual.

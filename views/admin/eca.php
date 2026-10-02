@@ -16,10 +16,11 @@
     </div>
 <?php endif; ?>
 
-<div class="stat-card" style="margin-bottom:1.2rem; border-left:3px solid <?= $modo === 'verificado' ? 'var(--moss)' : ($modo === 'declaracao' ? 'var(--hazard)' : 'var(--danger-border)') ?>;">
+<div class="stat-card" style="margin-bottom:1.2rem; border-left:3px solid <?= $tem_chave && $modo === 'verificado' ? 'var(--moss)' : ($tem_chave && $modo === 'declaracao' ? 'var(--hazard)' : 'var(--danger-border)') ?>;">
     <strong>Modo atual: <?= e($modo) ?></strong>
     <?php if ($modo === 'desligado'): ?> · <span style="color:var(--rust-2);">verificação desligada: caixas indisponíveis para todos</span>
-    <?php elseif ($modo === 'declaracao'): ?> · transição: caixas fechadas até colar a chave e mudar para Verificado
+    <?php elseif (!$tem_chave): ?> · <span style="color:var(--rust-2);">sem a chave, ninguém abre caixa</span>
+    <?php elseif ($modo === 'declaracao'): ?> · com a chave, funciona igual ao Verificado
     <?php else: ?> · conforme<?php endif; ?>
     · fornecedor <strong><?= e($fornecedor) ?></strong> <?= $tem_chave ? '(chave salva)' : '<span style="color:var(--rust-2);">(sem chave)</span>' ?>
     <form method="POST" action="/admin/eca/testar-chave" style="display:inline; margin-left:.8rem;"><?= \App\Csrf::field() ?><button class="btn btn-sm" type="submit">Testar chave</button></form>

@@ -43,10 +43,11 @@ if (str_contains($rel, 'Lei 15.211/2025') && str_contains($rel, 'Decreto 12.880/
 
 echo "\n5. Menu e aviso\n";
 if (str_contains($lay, "'/admin/eca'")) ok('entrada de menu'); else falha('sem entrada de menu');
-if (str_contains($lay, 'AgeVerification::modo()') && str_contains($lay, 'desligado')) ok('layout mostra aviso por modo'); else falha('layout sem aviso por modo');
+// 3.9.1: os avisos de idade passaram por AgeGate::avisoPainel (testado em eca-aviso-painel.php).
+if (str_contains($lay, 'AgeVerification::avisoPainel()') && str_contains($lay, 'Verificação de idade desligada')) ok('layout avisa o modo desligado'); else falha('layout sem aviso do modo desligado');
 
 echo "\n6. Revisao: alerta de falha do fornecedor e copia honesta dos modos\n";
-if (str_contains($lay, 'AgeVerification::falhasRecentes(')) ok('layout do admin avisa quando o fornecedor esta falhando'); else falha('admin so descobre falha do fornecedor se abrir a tela', 'creditos acabam e todo jogador falha em silencio');
+if (str_contains($lay, 'AgeVerification::avisoPainel()') && str_contains($lay, "'falhando'")) ok('layout do admin avisa quando o fornecedor esta falhando'); else falha('admin so descobre falha do fornecedor se abrir a tela', 'creditos acabam e todo jogador falha em silencio');
 if (preg_match('/value="desligado"[^>]*>[^<]*loja continua/i', $set)) ok('opcao desligado diz que a loja continua pedindo idade e aceite'); else falha('opcao desligado promete "como era antes", e nao e');
 if (preg_match('/value="declaracao"[^>]*>[^<]*caixas s(o|ó) abrem com CPF/iu', $set)) ok('opcao declaracao diz que caixa abre com CPF verificado'); else falha('opcao declaracao diz que caixas ficam fechadas, e nao ficam pra quem verifica');
 

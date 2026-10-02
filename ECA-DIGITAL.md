@@ -50,8 +50,11 @@ consulta e mostra quantas restam.
 Os três modos do painel:
 
 - **Verificado**: loja com declaração e aceite; caixas só com CPF verificado. É o modo conforme.
-- **Declaração** (o site nasce assim): igual ao Verificado, com um aviso amarelo no painel
-  enquanto a chave do fornecedor não existe.
+- **Declaração** (o site nasce assim): funciona igual ao Verificado.
+
+Sem a chave do fornecedor, **ninguém abre caixa**, nem a diária grátis, em qualquer um dos
+dois modos: o jogador vê "verificação indisponível". Enquanto houver caixa ativa sem chave, o
+painel mostra um aviso vermelho em todas as telas, com o link para colar a chave.
 - **Desligado**: o site não verifica idade e as caixas ficam **indisponíveis para todos**. Para
   escolher esse modo, o painel pede que você marque que está ciente, e o aceite fica no log.
 

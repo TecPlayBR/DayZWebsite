@@ -5,6 +5,21 @@ Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [3.9.1] - 2026-10-02
+
+### Corrigido
+
+- **Painel avisa quando ninguém consegue abrir caixa.** Sem a chave do fornecedor de verificação de
+  idade, nenhum jogador abre caixa, nem a diária grátis: ele só vê "verificação indisponível". O
+  painel só mostrava um aviso amarelo de "transição" no modo Declaração, e nada no modo Verificado.
+  Agora, enquanto houver caixa ativa e faltar a chave, todas as telas do painel mostram um aviso
+  vermelho com o número de caixas afetadas e o link para colar a chave. Sem caixa ativa, nada aparece.
+- O aviso de que o fornecedor está falhando (créditos acabaram ou chave parou de valer) virou parte
+  do mesmo aviso, e o painel mostra um aviso por vez.
+- A tela Conformidade ECA dizia "conforme" no modo Verificado mesmo sem chave, e "caixas fechadas"
+  no modo Declaração mesmo com a chave colada. Agora diz o que acontece de fato. O texto do modo
+  Declaração nas Configurações e o guia `ECA-DIGITAL.md` foram corrigidos junto.
+
 ## [3.9.0] - 2026-09-27
 
 ### Corrigido
