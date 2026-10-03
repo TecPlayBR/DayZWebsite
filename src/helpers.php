@@ -606,9 +606,25 @@ if (!function_exists('admin_campo_imagem')) {
         if ($value !== '') $h .= '<img class="adm-imagem-previa" src="' . e($value) . '" alt="" loading="lazy">';
         $h .= '<div class="adm-imagem-campos">';
         $h .= '<input type="file" id="' . e($id) . '-file" name="' . e($name) . '_file" accept="image/png,image/jpeg,image/webp,image/gif">';
+        // 'galeria' => [urls]: fotos ja enviadas viram opcoes clicaveis (o JS do layout
+        // preenche o link e limpa o arquivo do computador). No maximo 12. Vem antes do link:
+        // quem nao mexe com link escolhe o arquivo ou clica na foto e pronto.
+        $galeria = array_slice(array_values(array_filter((array) ($o['galeria'] ?? []), fn ($u) => is_string($u) && trim($u) !== '')), 0, 12);
+        if ($galeria) {
+            $h .= '<div class="adm-imagem-galeria" role="group" aria-label="Escolher uma foto já enviada">';
+            $h .= '<span class="adm-imagem-galeria-titulo">ou escolher uma foto já enviada:</span>';
+            foreach ($galeria as $u) {
+                $u = trim($u);
+                $h .= '<button type="button" class="adm-imagem-opcao" data-escolhe-imagem="' . e($u) . '" data-alvo="' . e($id) . '"'
+                    . ' aria-pressed="' . ($u === $value ? 'true' : 'false') . '" title="Usar esta foto">'
+                    . '<img src="' . e($u) . '" alt="Usar esta foto" loading="lazy"></button>';
+            }
+            $h .= '</div>';
+        }
         $h .= '<details class="adm-imagem-url"><summary>ou colar um link</summary>';
         $h .= '<input class="field mono" type="text" id="' . e($id) . '" name="' . e($name) . '" value="' . e($value) . '" placeholder="/assets/img/... ou https://...">';
-        $h .= '</details></div></div>';
+        $h .= '</details>';
+        $h .= '</div></div>';
         $h .= '<small class="adm-hint">Envie do seu computador (PNG, JPG, WEBP ou GIF, até 5 MB). Se usar link, tem que ser link direto e permanente: Discord expira, Google Drive e GitHub não servem.</small>';
         $h .= '</div>';
         return $h;

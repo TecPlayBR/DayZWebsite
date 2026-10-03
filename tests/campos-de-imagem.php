@@ -36,6 +36,24 @@ if ($rota && preg_match('/aviso=.*rawurlencode/s', $rota)) ok('a lista de recusa
 $view = file_get_contents($ROOT . '/views/admin/streamer_edit.php');
 if (str_contains($view, "\$_GET['aviso']")) ok('a tela mostra o aviso junto do "Salvo"'); else falha('a tela nao mostra o aviso');
 
+echo "\n3. Escolher uma foto ja enviada (sem subir de novo do computador)\n";
+require_once $ROOT . '/src/helpers.php';
+$com = admin_campo_imagem(['label' => 'Avatar', 'name' => 'avatar_url', 'value' => '', 'galeria' => ['/assets/img/streamers/a.png', '/b.png"><script>alert(1)</script>']]);
+$sem = admin_campo_imagem(['label' => 'Avatar', 'name' => 'avatar_url', 'value' => '']);
+if (str_contains($com, 'data-escolhe-imagem="/assets/img/streamers/a.png"') && str_contains($com, 'data-alvo="f-avatar_url"')) ok('cada foto vira uma opcao que aponta pro campo do link'); else falha('opcoes da galeria nao renderizadas', $com);
+if (substr_count($com, 'type="button"') === 2) ok('opcao e botao (nao envia o formulario)'); else falha('opcao nao e type=button');
+if (!str_contains($com, '"><script>')) ok('link da foto e escapado'); else falha('link da foto sai cru no HTML');
+if (!str_contains($sem, 'adm-imagem-galeria')) ok('sem fotos, nada aparece'); else falha('galeria vazia aparece');
+$big = admin_campo_imagem(['name' => 'x', 'galeria' => array_map(fn ($i) => "/f$i.png", range(1, 30))]);
+if (substr_count($big, 'data-escolhe-imagem=') === 12) ok('mostra no maximo 12 fotos'); else falha('nao limita as fotos', (string) substr_count($big, 'data-escolhe-imagem='));
+$view = file_get_contents($ROOT . '/views/admin/streamer_edit.php');
+if (preg_match("/'name'\s*=>\s*'avatar_url'[^
+]*'galeria'\s*=>/", $view)) ok('o Avatar do streamer oferece as fotos da galeria dele'); else falha('Avatar do streamer sem a galeria');
+$lay = file_get_contents($ROOT . '/views/admin/layout.php');
+if (preg_match('/data-escolhe-imagem.*?\.value\s*=.*?input\[type="?file"?\]/s', $lay)) ok('clique preenche o link e limpa o arquivo escolhido do PC'); else falha('layout nao trata o clique na foto');
+$css = file_get_contents($ROOT . '/public/assets/css/admin.css');
+if (str_contains($css, '.adm-imagem-opcao') && preg_match('/\.adm-imagem-opcao\[aria-pressed="true"\]/', $css)) ok('foto escolhida fica marcada'); else falha('sem estilo da opcao escolhida');
+
 echo "\n" . str_repeat('-', 62) . "\n";
 if ($falhas === 0) { echo "TUDO OK\n"; exit(0); }
 echo "$falhas FALHA(S).\n"; exit(1);

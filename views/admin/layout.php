@@ -352,6 +352,30 @@ table.admin-table thead th[data-sortable]:hover { color: var(--bone); }
 .tbl-filter .tbl-count { color: var(--dim); font-size: .78rem; margin-left: .6rem; }
 </style>
 <script nonce="<?= csp_nonce() ?>">
+/* Campo de imagem: clicar numa foto já enviada ([data-escolhe-imagem]) preenche o link do
+   campo, troca a prévia e limpa o arquivo escolhido do computador (senão o arquivo venceria).
+   Delegado no document: continua valendo depois da troca de tela do PJAX. */
+document.addEventListener('click', function (ev) {
+    var bt = ev.target.closest ? ev.target.closest('[data-escolhe-imagem]') : null;
+    if (!bt) return;
+    var campo = document.getElementById(bt.getAttribute('data-alvo'));
+    if (!campo) return;
+    var url = bt.getAttribute('data-escolhe-imagem');
+    campo.value = url;
+    var box = bt.closest('.adm-imagem');
+    if (!box) return;
+    var arq = box.querySelector('input[type="file"]');
+    if (arq) arq.value = '';
+    var prev = box.querySelector('.adm-imagem-previa');
+    if (!prev) {
+        prev = document.createElement('img'); prev.className = 'adm-imagem-previa'; prev.alt = '';
+        var linha = box.querySelector('.adm-imagem-linha'); if (linha) linha.insertBefore(prev, linha.firstChild);
+    }
+    prev.src = url;
+    box.querySelectorAll('[data-escolhe-imagem]').forEach(function (b) { b.setAttribute('aria-pressed', b === bt ? 'true' : 'false'); });
+});
+</script>
+<script nonce="<?= csp_nonce() ?>">
 /* Componente: torna qualquer table.admin-table ordenável (clique no cabeçalho) +
    filtrável (campo de busca multi-termo). Progressive enhancement: se o JS falhar,
    a tabela continua funcionando normal. Re-aplica no PJAX via MutationObserver. */

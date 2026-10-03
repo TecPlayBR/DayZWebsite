@@ -6,9 +6,10 @@
 $e = $edit ?? [];
 $photos = '';
 $videos = '';
+$fotosGaleria = [];
 if ($e) {
     $p = json_decode($e['photos_json'] ?? '[]', true);
-    if (is_array($p)) $photos = implode("\n", $p);
+    if (is_array($p)) { $photos = implode("\n", $p); $fotosGaleria = $p; }
     $v = json_decode($e['video_urls_json'] ?? '[]', true);
     if (is_array($v)) $videos = implode("\n", $v);
 }
@@ -53,7 +54,7 @@ if ($e) {
             'hint' => 'Aparece na home (se em destaque) e na página do streamer.']) ?>
         <div class="adm-span-2"><?= admin_campo(['label' => 'Bio', 'name' => 'bio', 'type' => 'textarea', 'rows' => 4, 'value' => (string) ($e['bio'] ?? ''),
             'hint' => 'Um parágrafo sobre o streamer. Na home corta em 180 letras.']) ?></div>
-        <?= admin_campo_imagem(['label' => 'Avatar', 'name' => 'avatar_url', 'value' => (string) ($e['avatar_url'] ?? '')]) ?>
+        <?= admin_campo_imagem(['label' => 'Avatar', 'name' => 'avatar_url', 'value' => (string) ($e['avatar_url'] ?? ''), 'galeria' => $fotosGaleria]) ?>
         <?= admin_campo(['label' => 'Canal principal', 'name' => 'channel_url', 'type' => 'url', 'value' => (string) ($e['channel_url'] ?? ''), 'attrs' => 'maxlength="300"', 'placeholder' => 'https://twitch.tv/...',
             'hint' => 'Twitch ou YouTube. Vira o botão principal da página.']) ?>
         <div class="adm-span-2 adm-campo">
