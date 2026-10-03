@@ -28,6 +28,9 @@ if ($e) {
 
 <?php if (isset($_GET['ok'])): ?>
     <div class="stat-card" style="margin-bottom:1.2rem; border-left:3px solid var(--moss);">✓ Salvo.</div>
+    <?php if (!empty($_GET['aviso'])): ?>
+        <div class="stat-card" style="margin-bottom:1.2rem; border-left:3px solid var(--hazard);"><?= e((string) $_GET['aviso']) ?></div>
+    <?php endif; ?>
 <?php elseif (isset($_GET['err'])): ?>
     <div class="stat-card" style="margin-bottom:1.2rem; border-left:3px solid var(--danger-border); background:var(--danger-overlay);">
         <strong>Não salvou.</strong>

@@ -4416,11 +4416,15 @@ $BRAND_SLOTS = [
     $name = trim($_POST['name'] ?? '');
     if ($code === '' || $name === '') { header('Location: /admin/streamers/manage?id=' . $id); exit; }
     // Uploads (avatar + fotos) - opcionais; se enviados, sobrescrevem/complementam as URLs.
+    // O admin_campo_imagem manda o arquivo do avatar como avatar_url_file. Arquivo enviado e
+    // recusado (tipo ou tamanho) vai pra $recusados e aparece na tela; o resto do cadastro salva.
     $destDir = __DIR__ . '/assets/img/streamers';
+    $recusados = [];
     $avatar = trim($_POST['avatar_url'] ?? '') ?: null;
-    if (!empty($_FILES['avatar_file']['name'])) {
-        $u = upload_image($_FILES['avatar_file'], $destDir, 'st', '/assets/img/streamers');
+    if (!empty($_FILES['avatar_url_file']['name'])) {
+        $u = upload_image($_FILES['avatar_url_file'], $destDir, 'st', '/assets/img/streamers');
         if ($u) $avatar = $u;
+        else $recusados[] = 'avatar (' . mb_substr((string) $_FILES['avatar_url_file']['name'], 0, 40) . ')';
     }
     $photoUrls = [];
     foreach (preg_split('/[\r\n]+/', (string) ($_POST['photos'] ?? '')) as $l) {
@@ -4430,7 +4434,7 @@ $BRAND_SLOTS = [
     if (!empty($_FILES['photo_files']['name']) && is_array($_FILES['photo_files']['name'])) {
         $n = count($_FILES['photo_files']['name']);
         for ($i = 0; $i < $n; $i++) {
-            if (($_FILES['photo_files']['error'][$i] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) continue;
+            if (($_FILES['photo_files']['error'][$i] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) continue;
             $f = [
                 'error'    => $_FILES['photo_files']['error'][$i],
                 'size'     => $_FILES['photo_files']['size'][$i],
@@ -4439,6 +4443,7 @@ $BRAND_SLOTS = [
             ];
             $u = upload_image($f, $destDir, 'st', '/assets/img/streamers');
             if ($u) $photoUrls[] = $u;
+            else $recusados[] = 'foto (' . mb_substr((string) $f['name'], 0, 40) . ')';
         }
     }
     $socials = [];
@@ -4470,6 +4475,7 @@ $BRAND_SLOTS = [
                 "INSERT INTO streamers (code,name,bio,avatar_url,photos_json,channel_url,video_urls_json,socials_json,coupon_code,featured,active,sort_order) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
                 $vals
             );
+            $novoId = (int) \App\Database::pdo()->lastInsertId();   // antes do audit, que tambem insere
         }
     } catch (\Throwable $ex) {
         // O admin precisa VER por que nao salvou (ex.: coluna faltando = migration
@@ -4479,6 +4485,11 @@ $BRAND_SLOTS = [
         header('Location: /admin/streamers/manage?id=' . $id . '&err=1&msg=' . rawurlencode($msg)); exit;
     }
     \App\AuditLog::record('streamer.saved', 'streamer', $code);
+    if ($recusados) {
+        $salvoId = $id ?: ($novoId ?? 0);
+        $aviso = 'Imagem não aceita: ' . implode(', ', $recusados) . '. Use PNG, JPG, WEBP ou GIF de até 5 MB.';
+        header('Location: /admin/streamers/manage?id=' . $salvoId . '&ok=1&aviso=' . rawurlencode(mb_substr($aviso, 0, 300))); exit;
+    }
     header('Location: /admin/streamers/manage?ok=1'); exit;
 });
 
