@@ -382,10 +382,11 @@ Se o seu servidor usa o **mod Sparda** (com WebsiteAPI), dá pra entregar as moe
 
 1. **Abra** no painel: **Admin → 🎮 Integração Sparda**.
 2. A página já mostra **2 URLs prontas**: com o seu `agent_token` **já embutido** e terminando em `&steamid=`:
-   - **Api_Get**: o mod **lê** o saldo do jogador.
-   - **Api_Post**: o mod **grava** o saldo depois que o jogador gasta in-game.
+   - **Api_Get** (ou **GetAPI**, conforme a versão): o mod **lê** o saldo do jogador.
+   - **Api_Post** (ou **PostAPI**): o mod **grava** o saldo depois que o jogador gasta in-game.
    > Você **não copia o token separado**: ele já vem dentro das URLs. **Não remova o final `&steamid=`** (o mod cola o SteamID do jogador ali sozinho).
-3. **Copie** as duas URLs e **cole** na config do mod Sparda, nos campos correspondentes. Garanta `EnableWebsiteAPI = 1` (o nome exato do campo varia com a versão do mod - o que importa é ligar a integração web e apontar GET/POST pras URLs).
+3. **Copie** o bloco pronto de 5 linhas. No `Config.json` do Sparda Store, **apague** a linha `EnableWebsiteAPI` e as linhas de API que já existem (`Api_Get`/`Api_Post` ou `GetAPI`/`PostAPI`) e cole o bloco no lugar. O `1` de `EnableWebsiteAPI` vai sem aspas. **Reinicie o servidor**: o mod só lê a config quando sobe.
+   > **Por que os dois nomes?** O Sparda de agosto lê `Api_Get`/`Api_Post`; versões mais novas podem usar `GetAPI`/`PostAPI`. O mod ignora o nome que não conhece, então o bloco funciona nas duas. Em servidor **Linux**, o caminho também conta maiúscula: tem que ser `ModsSparda/Store/Config.json`.
 4. **Pronto.** Compre uma moeda no site e veja o saldo aparecer in-game. A própria página mostra as **"Últimas movimentações via Sparda"** pra você confirmar que está conversando.
 
 > ⚠️ Se a página avisar que o `agent_token` ainda está no **valor padrão**, troque por um token forte no `config/config.php` (os endpoints devolvem **401** até lá). Numa instalação normal o wizard já gerou um token forte - então geralmente já está pronto.

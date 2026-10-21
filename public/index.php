@@ -1840,6 +1840,8 @@ $idadeMensagem = fn (array $r): string => preg_replace('/[^a-z_]/', '', (string)
     $return  = $idadeReturnSeguro((string) ($_POST['return'] ?? '/'));
     $motivo  = ($_POST['motivo'] ?? '') === 'caixa' ? 'caixa' : 'comprar';
     if (empty($_POST['terms_ok'])) { header('Location: /idade?motivo=' . $motivo . '&return=' . rawurlencode($return) . '&erro=termos'); exit; }
+    // 20/10/2026: declaracao propria de maioridade, conferida aqui (o required do navegador se pula).
+    if (empty($_POST['adulto_ok'])) { header('Location: /idade?motivo=' . $motivo . '&return=' . rawurlencode($return) . '&erro=adulto'); exit; }
     $r = \App\AgeVerification::declarar($steamId, (string) ($_POST['nascimento'] ?? ''));
     if (!$r['ok']) { header('Location: /idade?motivo=' . $motivo . '&return=' . rawurlencode($return) . '&erro=' . $idadeMensagem($r)); exit; }
     \App\AgeVerification::consentirTudo($steamId, __('idade.terms_label'));
@@ -1861,6 +1863,7 @@ $idadeMensagem = fn (array $r): string => preg_replace('/[^a-z_]/', '', (string)
     if (empty($rl['allowed']) || empty($rlI['allowed']) || empty($rlS['allowed'])) {
         header('Location: /idade?motivo=caixa&return=' . rawurlencode($return) . '&erro=limite'); exit;
     }
+    if (empty($_POST['adulto_ok'])) { unset($_POST['cpf'], $_REQUEST['cpf']); header('Location: /idade?motivo=caixa&return=' . rawurlencode($return) . '&erro=adulto'); exit; }
     $r = \App\AgeVerification::verificar($steamId, (string) ($_POST['cpf'] ?? ''), isset($_POST['nascimento']) ? (string) $_POST['nascimento'] : null);
     unset($_POST['cpf'], $_REQUEST['cpf']);
     // Aceite dos Termos no mesmo formulario (quem veio direto pela caixa ainda nao aceitou).
@@ -5058,7 +5061,9 @@ $BRAND_SLOTS = [
     // Por isso as URLs terminam em "&steamid=" - o mod completa com o ID do jogador.
     $apiGet  = $publicUrl . '/api/getcoins.php?token=' . $tok . '&steamid=';
     $apiPost = $publicUrl . '/api/postcoins.php?token=' . $tok . '&steamid=';
-    $jsonSnippet = "\"EnableWebsiteAPI\": 1,\n\"Api_Get\": \"" . $apiGet . "\",\n\"Api_Post\": \"" . $apiPost . "\"";
+    // 20/10/2026: Sparda de agosto le Api_Get/Api_Post (codigo conferido); o Config.json do SETORZ (outubro) tem
+    // GetAPI/PostAPI. O mod ignora chave desconhecida: o bloco leva os dois pares e serve pras duas versoes.
+    $jsonSnippet = "\"EnableWebsiteAPI\": 1,\n\"Api_Get\": \"" . $apiGet . "\",\n\"Api_Post\": \"" . $apiPost . "\",\n\"GetAPI\": \"" . $apiGet . "\",\n\"PostAPI\": \"" . $apiPost . "\"";
 
     $log = [];
     try {

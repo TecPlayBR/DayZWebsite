@@ -460,6 +460,8 @@ return array (
     'failed_retry' => 'We could not verify right now. Please try again in a moment.',
     'err_csrf' => 'Your session expired. Please try again.',
     'err_termos' => 'You must accept the Terms to continue.',
+    'adult_label' => 'I declare that I am 18 years of age or older, and I confirm and can prove that I am of legal age.',
+    'err_adulto' => 'To continue, check the statement that you are 18 years of age or older.',
     'err_limite' => 'Too many attempts. Please try again later.',
     'err_cpf_taken' => 'This CPF has already verified another account on this site.',
     'err_failed_retry' => 'We could not verify right now. Please try again in a moment.',

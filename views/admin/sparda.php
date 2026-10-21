@@ -64,7 +64,7 @@
 </div>
 
 <div class="stat-card" style="margin-bottom: 1rem;">
-    <div class="label">URLs pro mod (Api_Get / Api_Post)</div>
+    <div class="label">URLs pro mod (Api_Get/GetAPI e Api_Post/PostAPI)</div>
     <p style="color:var(--dim); font-size:0.85rem; margin: 0.7rem 0;">
         Cola cada uma no campo correspondente da config do mod Sparda. <strong>Já vêm com o token e terminam em <code>&amp;steamid=</code></strong> - o mod cola o SteamID do jogador no final automaticamente. Não remova o final.
     </p>
@@ -89,14 +89,15 @@
 <div class="stat-card" style="margin-bottom: 1rem;">
     <div class="label">Bloco pra colar na config do mod Sparda</div>
     <p style="color:var(--dim); font-size:0.85rem; margin: 0.7rem 0;">
-        No JSON de config do mod, garanta <code>EnableWebsiteAPI = 1</code> e as duas URLs. Exemplo dos campos:
+        No <code>Config.json</code> do Sparda Store, apague a linha <code>EnableWebsiteAPI</code> e as linhas de API que já existem (<code>Api_Get</code> e <code>Api_Post</code>, ou <code>GetAPI</code> e <code>PostAPI</code>, conforme a versão) e cole estas 5 no lugar. Elas trazem os dois nomes de propósito: cada versão do Sparda usa um, e o mod ignora o que não conhece.
     </p>
     <div style="display:flex; gap:0.5rem; align-items:flex-start;">
         <pre style="background:var(--bg-0); padding:0.8rem 0.9rem; border-radius:6px; flex:1; font-family:var(--font-mono); font-size:0.8rem; overflow-x:auto; margin:0; user-select:all;"><?= e($jsonSnippet) ?></pre>
         <button type="button" data-copiar="<?= e($jsonSnippet) ?>" style="padding:0.6rem 0.9rem; background:var(--hazard); color:#000; border:none; border-radius:6px; cursor:pointer; font-weight:600;">📋</button>
     </div>
+    <p style="color:var(--dim); font-size:0.85rem; margin:0.6rem 0 0;">⚠️ Servidor Linux: a pasta e o arquivo têm que se chamar exatamente <code>ModsSparda/Store/Config.json</code>, com essas maiúsculas. Se o mod não achar esse arquivo, ele cria um novo de fábrica, com a API desligada, e usa esse.</p>
     <p style="color:var(--dim); font-size:0.78rem; margin-top:0.6rem;">
-        Os nomes exatos dos campos dependem da versão do mod. O que importa: ligar a integração web e apontar GET/POST pras URLs acima.
+        Depois de salvar, <strong>reinicie o servidor</strong>: o mod só lê a config quando sobe.
     </p>
 </div>
 

@@ -460,6 +460,8 @@ return array (
     'failed_retry' => 'Não foi possível verificar agora. Tente de novo em instantes.',
     'err_csrf' => 'Sua sessão expirou. Tente de novo.',
     'err_termos' => 'Você precisa aceitar os Termos para continuar.',
+    'adult_label' => 'Declaro que tenho 18 anos ou mais, e confirmo e comprovo ser maior de idade.',
+    'err_adulto' => 'Para continuar, marque a declaração de que você tem 18 anos ou mais.',
     'err_limite' => 'Muitas tentativas. Tente de novo mais tarde.',
     'err_cpf_taken' => 'Este CPF já verificou outra conta neste site.',
     'err_failed_retry' => 'Não foi possível verificar agora. Tente de novo em instantes.',

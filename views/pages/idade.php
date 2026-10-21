@@ -54,6 +54,10 @@ $hoje = date('Y-m-d');
                 <label class="idade-label" for="idade-nasc"><?= e(__('idade.birth_label')) ?> <span class="idade-req" aria-hidden="true">*</span></label>
                 <input class="field" type="date" id="idade-nasc" name="nascimento" required max="<?= $hoje ?>" min="1900-01-01">
                 <label class="idade-check">
+                    <input type="checkbox" name="adulto_ok" value="1" required>
+                    <span><?= e(__('idade.adult_label')) ?></span>
+                </label>
+                <label class="idade-check">
                     <input type="checkbox" name="terms_ok" value="1" required>
                     <span><?= e(__('idade.terms_label')) ?><br><small><?= $termos ?></small></span>
                 </label>
@@ -94,6 +98,10 @@ $hoje = date('Y-m-d');
                 <label class="idade-label" for="idade-cpf"><?= e(__('idade.cpf_label')) ?> <span class="idade-req" aria-hidden="true">*</span></label>
                 <input class="field mono" type="text" id="idade-cpf" name="cpf" inputmode="numeric" autocomplete="off" required maxlength="14" minlength="14" placeholder="000.000.000-00" pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" data-cpf-mask>
                 <small class="idade-hint"><?= e(__('idade.cpf_not_stored')) ?> <?= e(__('idade.one_account')) ?></small>
+                <label class="idade-check">
+                    <input type="checkbox" name="adulto_ok" value="1" required>
+                    <span><?= e(__('idade.adult_label')) ?></span>
+                </label>
                 <?php if (!$tem_consentimento): ?>
                 <label class="idade-check">
                     <input type="checkbox" name="terms_ok" value="1" required>
