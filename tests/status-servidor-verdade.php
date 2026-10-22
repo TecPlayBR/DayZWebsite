@@ -62,6 +62,7 @@ namespace {
     $rota2 = $ini2 !== false ? substr($idx, $ini2, 2200) : '';
     if ($rota2 && str_contains($rota2, 'status_combinar(') && !preg_match("/\\\$status\['online'\]\s*=\s*true/", $rota2)) ok('rota usa status_combinar, sem cravar online = true'); else falha('rota /server-status ainda crava online com lista vazia');
     $view = file_get_contents("$ROOT/views/pages/server_status.php");
+    if (preg_match('/\.server-dot-unknown\s*\{[^}]*background/', $view)) ok('bolinha cinza para sem confirmacao (nao fica invisivel)'); else falha('sem estilo para server-dot-unknown');
     if (str_contains($view, "server.unknown")) ok('tela mostra "sem confirmacao" no lugar de OFFLINE quando nao ha prova'); else falha('tela trata sem confirmacao como OFFLINE');
     foreach (['pt-br', 'en-us'] as $l) {
         $lang = file_get_contents("$ROOT/lang/$l.php");

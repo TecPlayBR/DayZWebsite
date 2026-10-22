@@ -142,6 +142,7 @@
 .server-dot { width: 12px; height: 12px; border-radius: 50%; }
 .server-dot-online  { background: var(--moss); box-shadow: 0 0 12px var(--moss); animation: pulse 2s infinite; }
 .server-dot-offline { background: var(--rust-2); box-shadow: 0 0 12px var(--rust-2); }
+.server-dot-unknown { background: var(--dim); }
 
 .connect-block {
     background: var(--bg-1);
