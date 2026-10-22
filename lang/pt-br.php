@@ -381,6 +381,7 @@ return array (
     'label_status' => 'Status',
     'online' => 'ONLINE',
     'offline' => 'OFFLINE',
+    'unknown' => 'SEM CONFIRMAÇÃO AGORA',
     'label_players' => 'Jogadores',
     'label_rank' => 'Rank BattleMetrics',
     'label_map' => 'Mapa',

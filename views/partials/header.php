@@ -145,8 +145,8 @@ if ($_avisoOn && $_avisoTxt !== ''):
     </ul>
 
     <div class="mobile-drawer-cta">
-        <a href="/shop" class="btn" data-close><?= e(__('hero.cta')) ?></a>
-        <a href="/page/connect" class="btn btn-outline" data-close><?= e(__('hero.cta_alt')) ?></a>
+        <a href="/page/connect" class="btn" data-close><?= e(__('hero.cta')) ?></a>
+        <a href="/rules" class="btn btn-outline" data-close><?= e(__('hero.cta_alt')) ?></a>
     </div>
 
     <!-- Footer compacto do drawer mobile: links rápidos + copyright.

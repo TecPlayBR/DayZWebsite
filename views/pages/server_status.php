@@ -25,8 +25,9 @@
                 <div class="server-card">
                     <div class="server-card-label"><?= e(__('server.label_status')) ?></div>
                     <div class="server-card-value">
-                        <span class="server-dot server-dot-<?= $status['online'] ? 'online' : 'offline' ?>"></span>
-                        <?= $status['online'] ? e(__('server.online')) : e(__('server.offline')) ?>
+                        <?php $estadoSrv = ($status['online'] ?? null) === null ? 'unknown' : ($status['online'] ? 'online' : 'offline'); ?>
+                        <span class="server-dot server-dot-<?= $estadoSrv ?>"></span>
+                        <?= e(__($estadoSrv === 'unknown' ? 'server.unknown' : ($estadoSrv === 'online' ? 'server.online' : 'server.offline'))) ?>
                     </div>
                 </div>
                 <div class="server-card">

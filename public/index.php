@@ -640,25 +640,19 @@ $config['mercado_pago'] = $mpCfg;
     $status  = \App\ServerStatus::fetch($bmId);
     $players = \App\ServerStatus::fetchPlayers($bmId, 60);
 
-    // CFTools é a FONTE DE VERDADE do status (BattleMetrics passou a exigir assinatura
-    // paga -> responde 403, quebrando o online/off). Se o CFTools responde (mesmo com 0
-    // players online), o servidor está ONLINE. Só cai pro BM se o CFTools nem responder.
-    if (\App\CFTools::isConfigured()) {
-        $cfOnline = \App\CFTools::onlinePlayers();
-        if ($cfOnline !== null) {
-            $mapped = [];
-            foreach ($cfOnline as $row) {
-                $since = $row['since'] ?? null;
-                $connectedAt = is_numeric($since) ? (int)$since : ($since ? strtotime((string)$since) : null);
-                $mapped[] = ['name' => $row['name'] ?? 'Sobrevivente', 'connected_at' => $connectedAt ?: null];
-            }
-            $players = $mapped;
-            $status['configured'] = true;
-            $status['online']     = true;
-            $status['players']    = count($mapped);
-            $status['source']     = 'cftools';
+    // A lista do CFTools mostra QUEM esta jogando, mas vazia ela nao prova que o servidor esta ligado.
+    // Online/fora do ar sai do status_combinar (src/helpers.php), o mesmo do chip da home.
+    $cfOnline = \App\CFTools::isConfigured() ? \App\CFTools::onlinePlayers() : null;
+    if ($cfOnline !== null) {
+        $mapped = [];
+        foreach ($cfOnline as $row) {
+            $since = $row['since'] ?? null;
+            $connectedAt = is_numeric($since) ? (int)$since : ($since ? strtotime((string)$since) : null);
+            $mapped[] = ['name' => $row['name'] ?? 'Sobrevivente', 'connected_at' => $connectedAt ?: null];
         }
+        $players = $mapped;
     }
+    $status = status_combinar($status, $cfOnline, \App\CFTools::isConfigured());
 
     \App\View::display('pages.server_status', [
         'config' => $config, 'status' => $status, 'players' => $players,
@@ -1884,7 +1878,8 @@ $idadeMensagem = fn (array $r): string => preg_replace('/[^a-z_]/', '', (string)
     $s = status_servidor($config);
     echo json_encode([
         'enabled' => true,
-        'online'  => !empty($s['configured']) && !empty($s['online']),
+        // null = sem confirmacao (status_combinar): o chip nao afirma nada
+        'online'  => !empty($s['configured']) ? ($s['online'] ?? null) : false,
         'players' => (int) ($s['players'] ?? 0),
         'max'     => (int) ($s['max'] ?? 0),
     ]);

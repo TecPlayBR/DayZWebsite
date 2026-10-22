@@ -73,8 +73,8 @@ $seoDesc     = ($config['settings']['seo_home_description'] ?? '')
         <p class="hero-subtitle"><?= e(__('hero.subtitle')) ?></p>
 
         <div class="hero-actions">
-            <a href="#shop" class="btn"><?= e(__('hero.cta')) ?></a>
-            <a href="/page/connect" class="btn btn-outline"><?= e(__('hero.cta_alt')) ?></a>
+            <a href="/page/connect" class="btn"><?= e(__('hero.cta')) ?></a>
+            <a href="/rules" class="btn btn-outline"><?= e(__('hero.cta_alt')) ?></a>
         </div>
     </div>
 

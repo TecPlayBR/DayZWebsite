@@ -31,16 +31,34 @@ if (!function_exists('status_servidor')) {
      * Os dois tem cache (60s BattleMetrics, 45s CFTools), entao chamar isto e barato.
      */
     function status_servidor(array $config): array {
-        $s = \App\ServerStatus::fetch($config['settings']['battlemetrics_id'] ?? null);
-        if (\App\CFTools::isConfigured()) {
-            $cf = \App\CFTools::onlinePlayers();
-            if ($cf !== null) {   // CFTools respondeu (mesmo vazio) = servidor ONLINE
-                $s['configured'] = true;
-                $s['online']     = true;
-                $s['players']    = count($cf);
-                $s['source']     = 'cftools';
-            }
+        $bm = \App\ServerStatus::fetch($config['settings']['battlemetrics_id'] ?? null);
+        $cfOk = \App\CFTools::isConfigured();
+        return status_combinar($bm, $cfOk ? \App\CFTools::onlinePlayers() : null, $cfOk);
+    }
+}
+
+if (!function_exists('status_combinar')) {
+    /**
+     * Junta BattleMetrics e CFTools afirmando so o que foi provado (tests/status-servidor-verdade.php).
+     * A lista de jogadores do CFTools vem vazia tambem com o servidor desligado, entao vazia nao prova nada;
+     * e uma falha de consulta do BattleMetrics nao e "offline".
+     * online true = provado (jogador no CFTools ou BattleMetrics online); false = BattleMetrics respondeu
+     * offline; null = sem confirmacao (o chip some).
+     */
+    function status_combinar(array $bm, ?array $cfPlayers, bool $cfConfigured): array {
+        $s = $bm;
+        $bmRespondeu = !empty($bm['configured']) && empty($bm['error']);
+        if ($cfConfigured) $s['configured'] = true;
+        if (empty($s['configured'])) return $s;
+        if (is_array($cfPlayers) && count($cfPlayers) > 0) {
+            $s['online']  = true;
+            $s['players'] = count($cfPlayers);
+            $s['source']  = 'cftools';
+            return $s;
         }
+        if ($bmRespondeu) return $s;   // BattleMetrics respondeu: online ou offline de verdade
+        $s['online']  = null;          // ninguem provou nada
+        $s['players'] = 0;
         return $s;
     }
 }

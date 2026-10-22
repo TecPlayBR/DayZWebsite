@@ -10,6 +10,8 @@
  * espanta quem acabou de chegar. Ela volta sozinha quando alguem entra, pela atualizacao abaixo.
  */
 if (empty($mostrar) || empty($ss['configured'])) return;
+// Sem confirmacao (status_combinar: online null) o chip some: nao diz Online nem Fora do ar sem prova.
+if (!array_key_exists('online', $ss) || $ss['online'] === null) return;
 $online = !empty($ss['online']);
 $n   = (int) ($ss['players'] ?? 0);
 $max = (int) ($ss['max'] ?? 0);
