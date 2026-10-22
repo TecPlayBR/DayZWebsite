@@ -166,6 +166,8 @@ O **site é grátis** e faz a loja, o painel, a carteira de moedas e o leaderboa
 ### Requisitos no servidor
 
 - PHP **8.0+** (8.2+ recomendado) com extensões: `pdo`, `pdo_mysql`, `mbstring`, `json`, `curl`, `openssl`
+- Mantenha o PHP com as correções de segurança em dia: **8.2.35, 8.3.36, 8.4.27, 8.5.12 ou mais novo**, ou um
+  build da sua hospedagem de 21/10/2026 em diante. O site recebe envio de arquivos (avatar, galeria).
 - MySQL **5.7+** ou MariaDB **10.3+**
 - Apache com `mod_rewrite` e `AllowOverride All` (ou Nginx equivalente)
 

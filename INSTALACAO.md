@@ -77,7 +77,8 @@ Plano sugerido: **Premium ou superior** (suporta o tráfego de um servidor DayZ 
 ### Outras opções
 
 KingHost, Locaweb, HostGator, UolHost, ou qualquer hospedagem que tenha:
-- PHP 8.0 ou mais novo
+- PHP 8.0 ou mais novo, com as correções de segurança em dia (8.2.35, 8.3.36, 8.4.27, 8.5.12 ou mais novo, ou build
+  da hospedagem de 21/10/2026 em diante)
 - MySQL 5.7+ ou MariaDB 10.3+
 - Acesso via cPanel ou similar
 - Suporte a `.htaccess` (Apache)
