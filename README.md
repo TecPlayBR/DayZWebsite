@@ -9,7 +9,7 @@ Tema apocalipse · Painel admin completo · Mercado Pago · Login Steam · Multi
 [![MySQL](https://img.shields.io/badge/MySQL-5.7+-4479A1?style=flat-square&logo=mysql&logoColor=white)](https://www.mysql.com)
 [![License](https://img.shields.io/badge/License-Tecplay--NC-a855f7?style=flat-square)](LICENSE.txt)
 [![Status](https://img.shields.io/badge/Status-Produção-16a34a?style=flat-square)]()
-[![Versão](https://img.shields.io/badge/Versão-3.2.7-facc15?style=flat-square)](RELEASE_NOTES.md)
+[![Versão](https://img.shields.io/badge/Versão-3.9.1-facc15?style=flat-square)](RELEASE_NOTES.md)
 
 *Sobreviva. Construa. Domine. Agora também na web.*
 
@@ -39,11 +39,12 @@ O **site é grátis** e faz a loja, o painel, a carteira de moedas e o leaderboa
 | Peça | O que faz | Custo |
 |---|---|---|
 | **Site (este template)** | Loja, checkout, painel admin, carteira de moedas, leaderboard, perfis | **Grátis** |
-| **Tecplay Agent** (`.exe`) | Lê as compras do site e **entrega as moedas/itens no servidor** (roda na máquina do servidor de jogo) | **Pago**: R$49,90/mês ou R$700 vitalício |
-| **Bot Discord Tecplay** | Integra o site + entrega in-game (alternativa pra quem **não tem servidor dedicado**) | Pago (planos) |
+| **Mod Sparda (Store)** com a WebsiteAPI ligada | O próprio mod busca e grava o saldo de moedas no site (Admin → 🎮 Integração Sparda gera as URLs) | Grátis (do lado do site) |
+| **Tecplay Shop Bot** (Discord) | Integra o site e entrega itens da loja dentro do jogo pelo mod Tecplay Shop | Plano Pro do bot |
+| **CFTools** | Entrega os itens das caixas no jogo (fila com blindagem de restart) | Conta CFTools do dono |
 
-> 👉 **Sem o Agent ou o Bot, o jogador paga e a moeda NÃO chega no jogo sozinha** (a liberação seria manual). Por isso o site **não promete "liberação automática"** enquanto não detecta um entregador, e o **painel admin avisa** quando a entrega in-game não está ativa.
-> Detalhes do Agent: **https://tecplay.inf.br/produtos/detalhe/?slug=tecplay-agent**
+> 👉 **Sem uma dessas peças, o jogador paga e a moeda NÃO chega no jogo sozinha** (a liberação seria manual). Por isso o site **não promete "liberação automática"** enquanto não detecta um entregador, e o **painel admin avisa** quando a entrega in-game não está ativa.
+> O antigo Tecplay Agent (`.exe`) foi descontinuado em 16/10/2026 e não é mais vendido.
 
 ---
 
@@ -66,7 +67,7 @@ O **site é grátis** e faz a loja, o painel, a carteira de moedas e o leaderboa
 - **Hall da Fama** dos jogadores (top coins + top apoiadores)
 - **Sistema de avaliações** dos jogadores
 - **15 conquistas automáticas** - 12 de loja/atividade (Primeiro Sangue, Veterano, Padroeiro, Lendário, Tubarão, Madrugador, Insone, Colecionador, Persistência, Generoso, Tiro Rápido, Veterano de Guerra) + **3 de gameplay** via CFTools (🎯 Franco-Atirador, ☣ Exterminador, ⏳ Veterano de Chernarus) - totalmente i18n, com **recompensa configurável em moedas** (admin define +X por conquista, liga/desliga; pago 1x por jogador "por conta da casa")
-- **🪙 Aba VIP** (`/vip`) - venda de **VIP/BattlePass por moedas** (30/60/90 dias, renovação soma dias); o jogador paga com a moeda que tem e o agent aplica no jogo
+- **🪙 Aba VIP** (`/vip`) - venda de **VIP/BattlePass por moedas** (30/60/90 dias, renovação soma dias); o jogador paga com a moeda que tem. A aplicação automática no jogo está "em breve" (hoje o dono aplica; em servidor hospedado na Tecplay com Sparda VipPanel, o `/vip-jogo` do Tecplay Shop Bot já grava no jogo)
 - **🛡 Clãs** (`/clans`) - jogadores registram clã (nome, TAG, logo, Discord), entram por **pedido ou convite com aceite** (consentimento/LGPD), 1 clã por jogador, dono gerencia membros; aparece no perfil; admin modera
 - **⚔️ Eventos de Clã** (aba **Clãs** do `/ranking`, só pra quem tem clã) - competições entre clãs por período (ex: "Mate o máximo de zumbis") com **placar por delta** (conta só o que rolar dentro do evento), inscrição pelo líder, congela no fim e **botão Premiar** credita moedas a cada membro do clã vencedor
 - **📚 Central de Ajuda** (`/ajuda`) - guia/tutoriais por categoria, com **vídeo do YouTube embutido** + imagem por artigo; editável no painel (SEO + onboarding)
@@ -85,9 +86,9 @@ O **site é grátis** e faz a loja, o painel, a carteira de moedas e o leaderboa
 - **🗓 Eventos**: cria eventos/sorteios (datas, prêmio, vencedor); status calculado pelas datas
 - **🏆 Recompensas com agendamento**: premia o top do ranking em moedas: cadência Manual/Semanal/Mensal, **auto-creditar** (cron) ou botão **"Premiar agora"** (idempotente) + histórico. Premiação **liga/desliga por categoria**.
 - **👁 Abas do ranking configuráveis** - escolha quais categorias aparecem no `/ranking` público (esconda "Zumbis", "Tempo online" ou "Investimento" se não fizerem sentido pro seu servidor) - independente da premiação
-- **🎮 Entrega Sparda nativa**: gera as URLs pro mod entregar moeda in-game sem o Agent pago
+- **🎮 Entrega Sparda nativa**: gera as URLs pro mod entregar moeda in-game, sem programa extra no servidor
 - **🏅 Bônus por conquista**: define +X moedas por conquista (liga/desliga); credita 1x por jogador automaticamente, com log no painel (idempotente, teto anti-abuso)
-- **🪙 Venda de VIP/Passe por moedas**: liga/desliga + tabela de preço (tier × 30/60/90 dias) em moedas; o jogador compra na aba `/vip` e o agent aplica no Sparda
+- **🪙 Venda de VIP/Passe por moedas**: liga/desliga + tabela de preço (tier × 30/60/90 dias) em moedas; o jogador compra na aba `/vip` (aplicação automática no jogo "em breve", ver a aba VIP acima)
 - **🏠 Seção da Home editável**: edite os cards de "O Que Você Vai Encontrar" (título, subtítulo, até 12 cards) direto no painel, sem mexer em código
 - **🔑 Log de logins**: quem entrou via Steam (SteamID/nick/IP/navegador), com busca por SteamID (auditoria/privacidade; ranking segue público)
 - **📊 Tabelas ordenáveis + filtráveis**: clique no cabeçalho ordena (número/texto/data); filtro instantâneo multi-termo nas listas grandes (Jogadores, Compras, Pacotes…)
@@ -104,7 +105,7 @@ O **site é grátis** e faz a loja, o painel, a carteira de moedas e o leaderboa
 
 ### 🔌 Integrações nativas
 
-- **`tecplay-agent.exe`**: sincronização de moedas in-game ↔ site (`/api/sync-players.php`)
+- **Mod Sparda (WebsiteAPI)**: o mod lê e grava o saldo direto no site; `/api/sync-players.php` segue disponível para integrações que usam o `agent_token`
 - **Bot Discord Tecplay**: endpoint `/notify/purchase` notifica bot quando venda aprovada; `/api/bot-integration.php` expõe saldo, compra de coins (`/comprar`) e **loja in-game** (`/loja`: `shop_items` + `spend`)
 - **BattleMetrics API**: status servidor live com cache 60s
 - **Steam Web API**: avatar e display name dos jogadores
